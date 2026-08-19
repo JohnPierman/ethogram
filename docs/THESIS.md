@@ -1385,7 +1385,7 @@ exhibit any structural category at all, recall goes from 16 of 241 (6.6%) to 31 
 (**14.4%**) — a factor of 2.2 against a composition that should have pushed it down.
 
 This is direct evidence for one of the improvement directions in
-[#46](https://github.com/JohnPierman/ethogram/issues/46): **the
+[#12](https://github.com/JohnPierman/ethogram/issues/12): **the
 fortnight of effective history this configuration carries is too short.** A 7-day burn-in
 with a 7-day half-life means a monthly task looks novel every month, and industry practice
 is 30 to 60 days. It is obtained here without running the burn-in grid, which remains the
@@ -1428,7 +1428,7 @@ Provenance discipline records what a run *did*; it cannot record what the run sh
 done instead. The defences that would have caught this are of a different kind — checking
 that a run scored a background population at all, and refusing to sample a corpus whose
 manifest already records sampling. Both are tracked in
-[#39](https://github.com/JohnPierman/ethogram/issues/39); the first
+the double-sampling defect; the first
 is now computed for every run and shown on the dashboard.
 
 ### 15.5 Ranking accounts rather than events

@@ -342,7 +342,7 @@ Equation numbers `(1)`–`(20)`, requirements `R1`–`R6`, and evaluation hypoth
   built *from* a subset under a different kind — and `cmd/inject` writes an augmented corpus
   over the residue-7 subset as `corpus-injection`. That made the injected corpus, the one
   carrying synthetic ground truth, the single corpus on which the
-  [#39](https://github.com/JohnPierman/ethogram/issues/39) defect could
+  double-sampling defect could
   still happen silently. The guard now arms on the presence of an inherited `sampling` block,
   because a corpus derived from a sample is still a sample, and the result records which kind
   of derived corpus it read
