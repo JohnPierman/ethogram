@@ -1,0 +1,10 @@
+data/
+*.exe
+.env
+bin/
+tmp/
+.venv/
+__pycache__/
+
+# Claude Code local state: session worktrees and scratch, never part of a run
+.claude/

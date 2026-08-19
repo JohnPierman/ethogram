@@ -1,0 +1,23 @@
+{
+ "counts": {
+  "events_scored": 42218530,
+  "events_skipped": 0,
+  "events_warmed": 37218638,
+  "row_errors": 0,
+  "rows_read": 239471570
+ },
+ "coverage": "corpus days 7.00 to 14.00 scored (burn-in days 0 to 7.00)",
+ "git_dirty": true,
+ "git_sha": "f938969f64e1331c545ce692699c0fbfdd82fa03",
+ "hypotheses": [
+  "T5",
+  "E1",
+  "E2",
+  "E3",
+  "E9",
+  "E4"
+ ],
+ "kind": "replay",
+ "run_id": "lanl-d7-14-005",
+ "wall_seconds": 14920.4575582
+}

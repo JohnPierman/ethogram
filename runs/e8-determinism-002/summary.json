@@ -1,0 +1,8 @@
+{
+ "coverage": "control",
+ "hypotheses": [
+  "E8"
+ ],
+ "kind": "e8",
+ "run_id": "e8-determinism-002"
+}

@@ -1,0 +1,80 @@
+# golangci-lint configuration, version 2 schema.
+#
+# The enabled set is deliberately weighted toward correctness rather than style. A
+# style finding failing CI trains people to ignore CI; the checks here are ones whose
+# findings are worth stopping a merge for. revive and gocritic are held back until the
+# codebase has settled, at which point they can be introduced against a known baseline
+# rather than producing a wall of findings on first contact.
+
+version: "2"
+
+run:
+  # Corpus- and database-dependent code sits behind build tags; lint it too, so that
+  # code CI does not execute is still checked.
+  build-tags:
+    - corpus
+    - integration
+
+linters:
+  enable:
+    # Correctness.
+    - bodyclose
+    - copyloopvar
+    - durationcheck
+    - errorlint
+    - nilerr
+    - unconvert
+    - unparam
+    - wastedassign
+    # Shadowed or misleading names.
+    - predeclared
+    # Security. The framework parses untrusted corpus input, so this one earns its
+    # place even though the corpora are public.
+    - gosec
+    # British spelling throughout, matching the whitepaper.
+    - misspell
+
+  settings:
+    govet:
+      enable-all: true
+      disable:
+        # Field order in several types documents the mathematics, for instance the
+        # cosine and sine moment vectors of equation (6). Reordering them for padding
+        # would make the code harder to check against the paper.
+        - fieldalignment
+    misspell:
+      locale: UK
+
+  exclusions:
+    rules:
+      # Test fixtures deliberately construct defective detectors, notably the
+      # batch-relative detector of equation (1) that E8's negative control requires,
+      # and deliberately exercise error paths with unused results.
+      - path: _test\.go
+        linters:
+          - gosec
+          - unparam
+      # Composition roots open the files their flags name; that is their job, not an
+      # inclusion vulnerability. Report and result files are world-readable by intent.
+      - path: ^cmd/
+        linters:
+          - gosec
+        text: "G30[146]"
+      # The report and dashboard templates contain CSS, whose property names are American
+      # English by specification: `color` and `prefers-color-scheme` are keywords and
+      # cannot be respelled without breaking the stylesheet. cmd/report embeds CSS in more
+      # than one file so the whole package is exempt; cmd/dashboard confines it to
+      # template.go, so only that file is, and prose in the rest of the package stays
+      # British.
+      - path: ^cmd/(report/|dashboard/template\.go|thesis/template\.go)
+        linters:
+          - misspell
+
+formatters:
+  enable:
+    - gofmt
+    - goimports
+  settings:
+    goimports:
+      local-prefixes:
+        - github.com/JohnPierman/ethogram

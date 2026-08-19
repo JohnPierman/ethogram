@@ -1,0 +1,451 @@
+{
+ "schema_version": "1",
+ "kind": "baselines",
+ "hypothesis": [
+  "E1",
+  "E2"
+ ],
+ "run": {
+  "run_id": "baselines-lanl-d7-30-001"
+ },
+ "started": "2026-08-14T23:59:23.491411+00:00",
+ "finished": "2026-08-15T02:04:38.230007+00:00",
+ "seeds": {
+  "global": 42,
+  "iforest": 43,
+  "eif": 44,
+  "hst": 45,
+  "rrcf": 46
+ },
+ "versions": {
+  "python": "3.12.5",
+  "numpy": "2.5.2",
+  "scikit-learn": "1.9.0",
+  "rrcf": "0.4.4"
+ },
+ "input": {
+  "features_path": "data/lanl/features-d7-30.csv.gz",
+  "features_sha256": "5b0efb33f25b3f80c4a84de8448bc0d322b7738ced5d6e181c6876bd8a20feb2",
+  "rows_total": 1345550,
+  "rows_sample": 1344903,
+  "rows_redteam": 653,
+  "sampling": "uniform 1-in-100 by event-digest hash (Go exporter); rrcf additionally thinned 1-in-5"
+ },
+ "parameters": {
+  "budgets": [
+   10,
+   25,
+   50,
+   100
+  ],
+  "days_from": 7,
+  "days_to": 30,
+  "scored_events": null,
+  "models": {
+   "iforest": {
+    "n_estimators": 100,
+    "max_samples": 256
+   },
+   "eif": {
+    "trees": 100,
+    "subsample": 256,
+    "extension_level": "full (d-1)"
+   },
+   "hst": {
+    "trees": 25,
+    "depth": 8,
+    "window": 250
+   },
+   "rrcf": {
+    "num_trees": 40,
+    "tree_size": 256,
+    "shingle": 1,
+    "thinning": 5
+   }
+  }
+ },
+ "results": {
+  "iforest": {
+   "detections_at_budget": {
+    "budget_10_per_day": {
+     "detections": 0,
+     "red_team_total": 653,
+     "per_day_detections": {
+      "7": 0,
+      "8": 0,
+      "9": 0,
+      "12": 0,
+      "13": 0,
+      "14": 0,
+      "15": 0,
+      "20": 0,
+      "21": 0,
+      "22": 0,
+      "26": 0,
+      "27": 0,
+      "28": 0,
+      "29": 0
+     }
+    },
+    "budget_25_per_day": {
+     "detections": 0,
+     "red_team_total": 653,
+     "per_day_detections": {
+      "7": 0,
+      "8": 0,
+      "9": 0,
+      "12": 0,
+      "13": 0,
+      "14": 0,
+      "15": 0,
+      "20": 0,
+      "21": 0,
+      "22": 0,
+      "26": 0,
+      "27": 0,
+      "28": 0,
+      "29": 0
+     }
+    },
+    "budget_50_per_day": {
+     "detections": 0,
+     "red_team_total": 653,
+     "per_day_detections": {
+      "7": 0,
+      "8": 0,
+      "9": 0,
+      "12": 0,
+      "13": 0,
+      "14": 0,
+      "15": 0,
+      "20": 0,
+      "21": 0,
+      "22": 0,
+      "26": 0,
+      "27": 0,
+      "28": 0,
+      "29": 0
+     }
+    },
+    "budget_100_per_day": {
+     "detections": 0,
+     "red_team_total": 653,
+     "per_day_detections": {
+      "7": 0,
+      "8": 0,
+      "9": 0,
+      "12": 0,
+      "13": 0,
+      "14": 0,
+      "15": 0,
+      "20": 0,
+      "21": 0,
+      "22": 0,
+      "26": 0,
+      "27": 0,
+      "28": 0,
+      "29": 0
+     }
+    }
+   },
+   "red_score_percentiles": {
+    "median": 0.5360545618027549,
+    "p90": 0.5619642100434035,
+    "p99": 0.5795982366794893
+   },
+   "sample_score_percentiles": {
+    "median": 0.4885885256263098,
+    "p90": 0.5552523441469958,
+    "p99": 0.619832935047161
+   },
+   "wall_seconds": 18.321288399980403
+  },
+  "eif": {
+   "detections_at_budget": {
+    "budget_10_per_day": {
+     "detections": 0,
+     "red_team_total": 653,
+     "per_day_detections": {
+      "7": 0,
+      "8": 0,
+      "9": 0,
+      "12": 0,
+      "13": 0,
+      "14": 0,
+      "15": 0,
+      "20": 0,
+      "21": 0,
+      "22": 0,
+      "26": 0,
+      "27": 0,
+      "28": 0,
+      "29": 0
+     }
+    },
+    "budget_25_per_day": {
+     "detections": 0,
+     "red_team_total": 653,
+     "per_day_detections": {
+      "7": 0,
+      "8": 0,
+      "9": 0,
+      "12": 0,
+      "13": 0,
+      "14": 0,
+      "15": 0,
+      "20": 0,
+      "21": 0,
+      "22": 0,
+      "26": 0,
+      "27": 0,
+      "28": 0,
+      "29": 0
+     }
+    },
+    "budget_50_per_day": {
+     "detections": 0,
+     "red_team_total": 653,
+     "per_day_detections": {
+      "7": 0,
+      "8": 0,
+      "9": 0,
+      "12": 0,
+      "13": 0,
+      "14": 0,
+      "15": 0,
+      "20": 0,
+      "21": 0,
+      "22": 0,
+      "26": 0,
+      "27": 0,
+      "28": 0,
+      "29": 0
+     }
+    },
+    "budget_100_per_day": {
+     "detections": 0,
+     "red_team_total": 653,
+     "per_day_detections": {
+      "7": 0,
+      "8": 0,
+      "9": 0,
+      "12": 0,
+      "13": 0,
+      "14": 0,
+      "15": 0,
+      "20": 0,
+      "21": 0,
+      "22": 0,
+      "26": 0,
+      "27": 0,
+      "28": 0,
+      "29": 0
+     }
+    }
+   },
+   "red_score_percentiles": {
+    "median": 0.46390165500572306,
+    "p90": 0.48710054616147425,
+    "p99": 0.5072097450250963
+   },
+   "sample_score_percentiles": {
+    "median": 0.4550326809794291,
+    "p90": 0.5055646179167039,
+    "p99": 0.5583901757936719
+   },
+   "wall_seconds": 117.00126579997595
+  },
+  "hst": {
+   "detections_at_budget": {
+    "budget_10_per_day": {
+     "detections": 0,
+     "red_team_total": 653,
+     "per_day_detections": {
+      "7": 0,
+      "8": 0,
+      "9": 0,
+      "12": 0,
+      "13": 0,
+      "14": 0,
+      "15": 0,
+      "20": 0,
+      "21": 0,
+      "22": 0,
+      "26": 0,
+      "27": 0,
+      "28": 0,
+      "29": 0
+     }
+    },
+    "budget_25_per_day": {
+     "detections": 0,
+     "red_team_total": 653,
+     "per_day_detections": {
+      "7": 0,
+      "8": 0,
+      "9": 0,
+      "12": 0,
+      "13": 0,
+      "14": 0,
+      "15": 0,
+      "20": 0,
+      "21": 0,
+      "22": 0,
+      "26": 0,
+      "27": 0,
+      "28": 0,
+      "29": 0
+     }
+    },
+    "budget_50_per_day": {
+     "detections": 0,
+     "red_team_total": 653,
+     "per_day_detections": {
+      "7": 0,
+      "8": 0,
+      "9": 0,
+      "12": 0,
+      "13": 0,
+      "14": 0,
+      "15": 0,
+      "20": 0,
+      "21": 0,
+      "22": 0,
+      "26": 0,
+      "27": 0,
+      "28": 0,
+      "29": 0
+     }
+    },
+    "budget_100_per_day": {
+     "detections": 0,
+     "red_team_total": 653,
+     "per_day_detections": {
+      "7": 0,
+      "8": 0,
+      "9": 0,
+      "12": 0,
+      "13": 0,
+      "14": 0,
+      "15": 0,
+      "20": 0,
+      "21": 0,
+      "22": 0,
+      "26": 0,
+      "27": 0,
+      "28": 0,
+      "29": 0
+     }
+    }
+   },
+   "red_score_percentiles": {
+    "median": -440576.0,
+    "p90": -361011.19999999995,
+    "p99": -282470.3999999998
+   },
+   "sample_score_percentiles": {
+    "median": -458240.0,
+    "p90": -317440.0,
+    "p99": -171264.0
+   },
+   "wall_seconds": 11.970871899975464
+  },
+  "rrcf": {
+   "detections_at_budget": {
+    "budget_10_per_day": {
+     "detections": 0,
+     "red_team_total": 653,
+     "per_day_detections": {
+      "7": 0,
+      "8": 0,
+      "9": 0,
+      "12": 0,
+      "13": 0,
+      "14": 0,
+      "15": 0,
+      "20": 0,
+      "21": 0,
+      "22": 0,
+      "26": 0,
+      "27": 0,
+      "28": 0,
+      "29": 0
+     }
+    },
+    "budget_25_per_day": {
+     "detections": 0,
+     "red_team_total": 653,
+     "per_day_detections": {
+      "7": 0,
+      "8": 0,
+      "9": 0,
+      "12": 0,
+      "13": 0,
+      "14": 0,
+      "15": 0,
+      "20": 0,
+      "21": 0,
+      "22": 0,
+      "26": 0,
+      "27": 0,
+      "28": 0,
+      "29": 0
+     }
+    },
+    "budget_50_per_day": {
+     "detections": 0,
+     "red_team_total": 653,
+     "per_day_detections": {
+      "7": 0,
+      "8": 0,
+      "9": 0,
+      "12": 0,
+      "13": 0,
+      "14": 0,
+      "15": 0,
+      "20": 0,
+      "21": 0,
+      "22": 0,
+      "26": 0,
+      "27": 0,
+      "28": 0,
+      "29": 0
+     }
+    },
+    "budget_100_per_day": {
+     "detections": 0,
+     "red_team_total": 653,
+     "per_day_detections": {
+      "7": 0,
+      "8": 0,
+      "9": 0,
+      "12": 0,
+      "13": 0,
+      "14": 0,
+      "15": 0,
+      "20": 0,
+      "21": 0,
+      "22": 0,
+      "26": 0,
+      "27": 0,
+      "28": 0,
+      "29": 0
+     }
+    }
+   },
+   "red_score_percentiles": {
+    "median": 5.632965156888029,
+    "p90": 9.440509450694403,
+    "p99": 13.767344336963255
+   },
+   "sample_score_percentiles": {
+    "median": 4.375009968454426,
+    "p90": 9.45121975007751,
+    "p99": 24.08328695809517
+   },
+   "wall_seconds": 7363.39167650009
+  }
+ },
+ "provenance_complete": true,
+ "note": "baselines are not part of the framework and are not held to R2/R4 (\u00a712.4); Detector IV inside the framework wraps an isolation forest, so the \u00a712.4 comparison is framework-against-its-own-component"
+}

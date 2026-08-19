@@ -1,0 +1,87 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 400" width="900" height="400" role="img">
+<style>
+:root{
+  --ink:#17191B; --ink-2:#454B50; --ink-3:#6B7379;
+  --accent:#1C4657; --accent-2:#7E5209;
+  --rule:#D9DEE0; --rule-2:#B3BBBF;
+  --panel:#F1F4F5; --panel-2:#FBF7EF;
+  --crit:#862B36; --good:#1F5537; --page:#FFFFFF;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --ink:#E8EAEB; --ink-2:#B8BEC2; --ink-3:#8C9499;
+    --accent:#7FB3C8; --accent-2:#D9A94E;
+    --rule:#3A4147; --rule-2:#525A61;
+    --panel:#22272B; --panel-2:#2A2622;
+    --crit:#D98996; --good:#7FBF98; --page:#17191B;
+  }
+}
+svg{background:var(--page);font-family:Georgia,"Sitka Text",Cambria,serif}
+</style>
+<text x="16" y="26" text-anchor="start" font-size="15" font-weight="600" fill="var(--ink)">The §12.5 wraparound control</text>
+<text x="16" y="46" text-anchor="start" font-size="12" fill="var(--ink-3)">acceptance: 23:30 and 00:30 unremarkable (P &gt;= 0.20), 12:00 unusual (P &lt;= 0.02)</text>
+<text x="16" y="63" text-anchor="start" font-size="11" fill="var(--ink-3)">circular arm passes: true · 168-cell arm shows the defect: true</text>
+<rect x="836.666667" y="82" width="33.3333333" height="263" fill="var(--good)" fill-opacity="0.1"/>
+<rect x="70" y="82" width="33.3333333" height="263" fill="var(--good)" fill-opacity="0.1"/>
+<text x="866" y="77" text-anchor="end" font-size="11" fill="var(--good)">entity's only activity</text>
+<line x1="70" y1="345" x2="70" y2="82" stroke="var(--rule-2)" stroke-width="1"/>
+<line x1="70" y1="345" x2="870" y2="345" stroke="var(--rule)" stroke-width="0.5"/>
+<text x="64" y="348.5" text-anchor="end" font-size="10" fill="var(--ink-3)">0.0001</text>
+<line x1="70" y1="279.25" x2="870" y2="279.25" stroke="var(--rule)" stroke-width="0.5"/>
+<text x="64" y="282.75" text-anchor="end" font-size="10" fill="var(--ink-3)">0.001</text>
+<line x1="70" y1="213.5" x2="870" y2="213.5" stroke="var(--rule)" stroke-width="0.5"/>
+<text x="64" y="217" text-anchor="end" font-size="10" fill="var(--ink-3)">0.01</text>
+<line x1="70" y1="147.75" x2="870" y2="147.75" stroke="var(--rule)" stroke-width="0.5"/>
+<text x="64" y="151.25" text-anchor="end" font-size="10" fill="var(--ink-3)">0.1</text>
+<line x1="70" y1="82" x2="870" y2="82" stroke="var(--rule)" stroke-width="0.5"/>
+<text x="64" y="85.5" text-anchor="end" font-size="10" fill="var(--ink-3)">1</text>
+<line x1="70" y1="345" x2="870" y2="345" stroke="var(--rule-2)" stroke-width="1"/>
+<line x1="70" y1="345" x2="70" y2="349" stroke="var(--rule-2)" stroke-width="1"/>
+<text x="70" y="361" text-anchor="middle" font-size="11" fill="var(--ink-3)">00:00</text>
+<line x1="136.666667" y1="345" x2="136.666667" y2="349" stroke="var(--rule-2)" stroke-width="1"/>
+<text x="136.666667" y="361" text-anchor="middle" font-size="11" fill="var(--ink-3)">02:00</text>
+<line x1="203.333333" y1="345" x2="203.333333" y2="349" stroke="var(--rule-2)" stroke-width="1"/>
+<text x="203.333333" y="361" text-anchor="middle" font-size="11" fill="var(--ink-3)">04:00</text>
+<line x1="270" y1="345" x2="270" y2="349" stroke="var(--rule-2)" stroke-width="1"/>
+<text x="270" y="361" text-anchor="middle" font-size="11" fill="var(--ink-3)">06:00</text>
+<line x1="336.666667" y1="345" x2="336.666667" y2="349" stroke="var(--rule-2)" stroke-width="1"/>
+<text x="336.666667" y="361" text-anchor="middle" font-size="11" fill="var(--ink-3)">08:00</text>
+<line x1="403.333333" y1="345" x2="403.333333" y2="349" stroke="var(--rule-2)" stroke-width="1"/>
+<text x="403.333333" y="361" text-anchor="middle" font-size="11" fill="var(--ink-3)">10:00</text>
+<line x1="470" y1="345" x2="470" y2="349" stroke="var(--rule-2)" stroke-width="1"/>
+<text x="470" y="361" text-anchor="middle" font-size="11" fill="var(--ink-3)">12:00</text>
+<line x1="536.666667" y1="345" x2="536.666667" y2="349" stroke="var(--rule-2)" stroke-width="1"/>
+<text x="536.666667" y="361" text-anchor="middle" font-size="11" fill="var(--ink-3)">14:00</text>
+<line x1="603.333333" y1="345" x2="603.333333" y2="349" stroke="var(--rule-2)" stroke-width="1"/>
+<text x="603.333333" y="361" text-anchor="middle" font-size="11" fill="var(--ink-3)">16:00</text>
+<line x1="670" y1="345" x2="670" y2="349" stroke="var(--rule-2)" stroke-width="1"/>
+<text x="670" y="361" text-anchor="middle" font-size="11" fill="var(--ink-3)">18:00</text>
+<line x1="736.666667" y1="345" x2="736.666667" y2="349" stroke="var(--rule-2)" stroke-width="1"/>
+<text x="736.666667" y="361" text-anchor="middle" font-size="11" fill="var(--ink-3)">20:00</text>
+<line x1="803.333333" y1="345" x2="803.333333" y2="349" stroke="var(--rule-2)" stroke-width="1"/>
+<text x="803.333333" y="361" text-anchor="middle" font-size="11" fill="var(--ink-3)">22:00</text>
+<line x1="870" y1="345" x2="870" y2="349" stroke="var(--rule-2)" stroke-width="1"/>
+<text x="870" y="361" text-anchor="middle" font-size="11" fill="var(--ink-3)">24:00</text>
+<text x="470" y="383" text-anchor="middle" font-size="11" fill="var(--ink-2)">hour of day</text>
+<text x="24" y="213.5" transform="rotate(-90 24 213.5)" text-anchor="middle" font-size="11" fill="var(--ink-2)">p-value (log scale)</text>
+<path d="M70 124.828314L78.3333333 124.825636L86.6666667 124.822958L95 124.820279L103.333333 180.406657L111.666667 180.400692L120 180.394727L128.333333 180.388761L136.666667 213.637595L145 213.626093L153.333333 213.614592L161.666667 213.603093L170 213.591595L178.333333 213.580099L186.666667 213.568604L195 213.55711L203.333333 213.545617L211.666667 213.534126L220 213.522635L228.333333 213.511147L236.666667 213.499659L245 213.488173L253.333333 213.476688L261.666667 213.465205L270 213.453722L278.333333 213.442241L286.666667 213.430762L295 213.419284L303.333333 213.407807L311.666667 213.396331L320 213.384856L328.333333 213.373383L336.666667 213.361911L345 213.350441L353.333333 213.338972L361.666667 213.327504L370 213.316037L378.333333 213.304572L386.666667 213.293108L395 213.281646L403.333333 213.270184L411.666667 213.258724L420 213.247266L428.333333 213.235808L436.666667 213.224352L445 213.212897L453.333333 213.201444L461.666667 213.189992L470 213.178541L478.333333 213.167091L486.666667 213.155643L495 213.144196L503.333333 213.132751L511.666667 213.121306L520 213.109864L528.333333 213.098422L536.666667 213.086982L545 213.075543L553.333333 213.064105L561.666667 213.052669L570 213.041234L578.333333 213.0298L586.666667 213.018367L595 213.006936L603.333333 212.995507L611.666667 212.984078L620 212.972651L628.333333 212.961225L636.666667 212.949801L645 212.938378L653.333333 212.926956L661.666667 212.915535L670 212.904116L678.333333 212.892698L686.666667 212.881282L695 212.869866L703.333333 212.858453L711.666667 212.84704L720 212.835629L728.333333 212.824219L736.666667 212.81281L745 212.801403L753.333333 212.789997L761.666667 212.778592L770 212.767189L778.333333 212.755787L786.666667 212.744387L795 212.732987L803.333333 212.721589L811.666667 212.710193L820 212.698797L828.333333 212.687403L836.666667 93.8941842L845 93.8936106L853.333333 93.8930368L861.666667 93.8924629L870 124.828314" fill="none" stroke="var(--ink-3)" stroke-width="2" stroke-dasharray="4 3"/>
+<path d="M70 82L78.3333333 85.6809495L86.6666667 89.4092499L95 93.5151636L103.333333 98.9569553L111.666667 103.931958L120 109.315118L128.333333 116.320859L136.666667 122.617015L145 129.329548L153.333333 137.930068L161.666667 145.544905L170 153.55746L178.333333 163.680911L186.666667 172.523532L195 181.716811L203.333333 193.182285L211.666667 203.069902L220 213.231049L228.333333 225.742104L236.666667 236.393476L245 247.212499L253.333333 260.366696L261.666667 271.429236L270 279.927222L278.333333 279.927222L286.666667 279.927222L295 279.927222L303.333333 279.927222L311.666667 279.927222L320 279.927222L328.333333 279.927222L336.666667 279.927222L345 279.927222L353.333333 279.927222L361.666667 279.927222L370 279.927222L378.333333 279.927222L386.666667 279.927222L395 279.927222L403.333333 279.927222L411.666667 279.927222L420 279.927222L428.333333 279.927222L436.666667 279.927222L445 279.927222L453.333333 279.927222L461.666667 279.927222L470 279.927222L478.333333 279.927222L486.666667 279.927222L495 279.927222L503.333333 279.927222L511.666667 279.927222L520 279.927222L528.333333 279.927222L536.666667 279.927222L545 279.927222L553.333333 279.927222L561.666667 279.927222L570 279.927222L578.333333 279.927222L586.666667 279.927222L595 279.927222L603.333333 279.927222L611.666667 279.927222L620 279.927222L628.333333 279.927222L636.666667 279.927222L645 279.927222L653.333333 279.927222L661.666667 279.927222L670 279.927222L678.333333 271.429236L686.666667 260.366696L695 248.283442L703.333333 236.393476L711.666667 225.742104L720 215.293453L728.333333 203.069902L736.666667 193.182285L745 182.641873L753.333333 172.523532L761.666667 163.680911L770 154.370982L778.333333 145.544905L786.666667 137.930068L795 130.017751L803.333333 122.617015L811.666667 116.320859L820 109.87294L828.333333 103.931958L836.666667 98.9569553L845 93.945773L853.333333 89.4092499L861.666667 85.6809495L870 82" fill="none" stroke="var(--accent)" stroke-width="2"/>
+<line x1="853.333333" y1="82" x2="853.333333" y2="345" stroke="var(--ink-3)" stroke-width="1" stroke-dasharray="5 4"/>
+<text x="849.333333" y="100" text-anchor="end" font-size="11" fill="var(--ink-2)">23:30</text>
+<text x="849.333333" y="114" text-anchor="end" font-size="10.5" fill="var(--accent)">circular 0.7715</text>
+<text x="849.333333" y="128" text-anchor="end" font-size="10.5" fill="var(--ink-3)">cells 0.6594</text>
+<line x1="86.6666667" y1="82" x2="86.6666667" y2="345" stroke="var(--ink-3)" stroke-width="1" stroke-dasharray="5 4"/>
+<text x="90.6666667" y="100" text-anchor="start" font-size="11" fill="var(--ink-2)">00:30</text>
+<text x="90.6666667" y="114" text-anchor="start" font-size="10.5" fill="var(--accent)">circular 0.7715</text>
+<text x="90.6666667" y="128" text-anchor="start" font-size="10.5" fill="var(--ink-3)">cells 0.2232</text>
+<line x1="470" y1="82" x2="470" y2="345" stroke="var(--ink-3)" stroke-width="1" stroke-dasharray="5 4"/>
+<text x="470" y="100" text-anchor="middle" font-size="11" fill="var(--ink-2)">12:00</text>
+<text x="470" y="114" text-anchor="middle" font-size="10.5" fill="var(--accent)">circular 0.0010</text>
+<text x="470" y="128" text-anchor="middle" font-size="10.5" fill="var(--ink-3)">cells 0.0101</text>
+<line x1="120" y1="301" x2="136" y2="301" stroke="var(--accent)" stroke-width="1.6"/>
+<circle cx="128" cy="301" r="2.5" fill="var(--accent)"/>
+<text x="142" y="304" text-anchor="start" font-size="10" fill="var(--ink)">circular p-value (§7.2)</text>
+<line x1="120" y1="316" x2="136" y2="316" stroke="var(--ink-3)" stroke-width="1.6" stroke-dasharray="5 4"/>
+<circle cx="128" cy="316" r="2.5" fill="var(--ink-3)"/>
+<text x="142" y="319" text-anchor="start" font-size="10" fill="var(--ink)">168-cell baseline overlaid failing it</text>
+</svg>

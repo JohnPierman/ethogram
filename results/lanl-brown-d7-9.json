@@ -1,0 +1,9230 @@
+{
+ "corpus": {
+  "burn_in": {
+   "end_seconds": 604800,
+   "fixed_at_commit": "24c5a53"
+  },
+  "coverage": {
+   "entity_population": "source users matching U*@ (human accounts); see DATA.md burn-in section",
+   "kind": "prefix",
+   "max_rows": 0,
+   "max_seconds": 777600,
+   "statement": "corpus days 7.00 to 9.00 scored (burn-in days 0 to 7.00)"
+  },
+  "events_scored": 1451839,
+  "events_skipped": 0,
+  "events_warmed": 4181736,
+  "files": [
+   {
+    "path": "data/lanl/auth-sample16-d0-14.txt.gz",
+    "sha256": "9c07e94a570d0004c49cac01bdf031f0852ff30b544668d041c9b2f3fe68aa2c"
+   },
+   {
+    "path": "data/lanl/redteam.txt.gz",
+    "sha256": "606635837c684ad11e464075ecf97bc5df325ff7d7f64614d2d8c8af18051669"
+   }
+  ],
+  "no_opinion": 0,
+  "row_errors": 0,
+  "rows_prefiltered": 7713322,
+  "rows_read": 13346898
+ },
+ "dependence": {
+  "applied": true,
+  "note": "cov(-2 ln P_i, -2 ln P_j) estimated directly from burn-in co-evaluations and frozen at the boundary, per the rule §8.2 applies to the partition: a quantity used to score an event may not have been fitted on it. The Kost-McDermott value implied by the same correlation is recorded beside each direct estimate for comparison, but the direct estimate is what (19) consumed",
+  "pairs": [
+   {
+    "a": "cooccurrence",
+    "b": "marginal",
+    "n": 16613895,
+    "covariance": 16.01326397215374,
+    "correlation": 0.02525168158893849,
+    "kost_mcdermott_covariance": 0.0828494014401671,
+    "used": true
+   },
+   {
+    "a": "cooccurrence",
+    "b": "novelty",
+    "n": 30269246,
+    "covariance": 40.127560829004516,
+    "correlation": 0.07288460865734282,
+    "kost_mcdermott_covariance": 0.2416045697652282,
+    "used": true
+   },
+   {
+    "a": "cooccurrence",
+    "b": "timing",
+    "n": 4181686,
+    "covariance": -8.957825827662914,
+    "correlation": -0.01381367780219481,
+    "kost_mcdermott_covariance": -0.044938621274663484,
+    "used": true
+   },
+   {
+    "a": "cooccurrence",
+    "b": "volume",
+    "n": 4181686,
+    "covariance": 8044.105154366371,
+    "correlation": 0.042306399991097164,
+    "kost_mcdermott_covariance": 0.1393186079977128,
+    "used": true
+   },
+   {
+    "a": "marginal",
+    "b": "marginal",
+    "n": 27009885,
+    "covariance": 0.4264233164403803,
+    "correlation": 0.15058902060428953,
+    "kost_mcdermott_covariance": 0.5075648846626076,
+    "used": true
+   },
+   {
+    "a": "marginal",
+    "b": "novelty",
+    "n": 122389889,
+    "covariance": 0.14472713416604494,
+    "correlation": 0.0618786722877785,
+    "kost_mcdermott_covariance": 0.20463507358752692,
+    "used": true
+   },
+   {
+    "a": "marginal",
+    "b": "timing",
+    "n": 16613895,
+    "covariance": -0.09641618092754235,
+    "correlation": -0.0318962569738354,
+    "kost_mcdermott_covariance": -0.10335602910628182,
+    "used": true
+   },
+   {
+    "a": "marginal",
+    "b": "volume",
+    "n": 16613895,
+    "covariance": -123.76557630628292,
+    "correlation": -0.1382566277474049,
+    "kost_mcdermott_covariance": -0.4376311553527016,
+    "used": true
+   },
+   {
+    "a": "novelty",
+    "b": "novelty",
+    "n": 95481368,
+    "covariance": 0.13039668806657873,
+    "correlation": 0.06556688843912388,
+    "kost_mcdermott_covariance": 0.21700466952245748,
+    "used": true
+   },
+   {
+    "a": "novelty",
+    "b": "timing",
+    "n": 30269246,
+    "covariance": -0.03356564990706803,
+    "correlation": -0.012891557782071015,
+    "kost_mcdermott_covariance": -0.04194721438372633,
+    "used": true
+   },
+   {
+    "a": "novelty",
+    "b": "volume",
+    "n": 30269246,
+    "covariance": 7.491304007496192,
+    "correlation": 0.009701934674347715,
+    "kost_mcdermott_covariance": 0.031724268050177216,
+    "used": true
+   },
+   {
+    "a": "timing",
+    "b": "volume",
+    "n": 4181736,
+    "covariance": -116.65590264784956,
+    "correlation": -0.12852328302360777,
+    "kost_mcdermott_covariance": -0.40770084656570543,
+    "used": true
+   }
+  ],
+  "pairs_total": 12,
+  "pairs_used": 12
+ },
+ "hypothesis": [
+  "T5",
+  "E1",
+  "E2",
+  "E3"
+ ],
+ "kind": "replay",
+ "paper_refs": {
+  "equations": [
+   4,
+   5,
+   6,
+   7,
+   8,
+   9,
+   10,
+   11,
+   18
+  ],
+  "sections": [
+   "§6",
+   "§7.2",
+   "§7.4",
+   "§10.2",
+   "§12.3",
+   "§12.4"
+  ]
+ },
+ "parameters": {
+  "alpha": 1,
+  "bandwidth_hours": 1.5,
+  "combination": {
+   "method": "Fisher (18) with Brown's correction (19); the covariance is the direct sample covariance of -2 ln P per detector pair, measured on burn-in only and frozen at the boundary",
+   "min_pair_observations": 1000
+  },
+  "entity_sample": {
+   "applied": true,
+   "keep_one_in_n": 16,
+   "labelled_entities_exempt": true,
+   "note": "a deterministic sample of ENTITIES, not of events: per-entity histories are left whole, and only whole entities are dropped. Every labelled entity is kept regardless of the sample, so the labelled share of this corpus is inflated relative to the full population and a detection rate measured here is NOT comparable to one measured on the full population. The co-occurrence graph and the population marginals are built from the retained entities only",
+   "selector": "FNV-1a 64 of the entity identifier, modulo N, equals zero"
+  },
+  "grid": 512,
+  "half_life_days": 7,
+  "top_k_per_day": 200
+ },
+ "provenance_complete": true,
+ "results": {
+  "alerts_per_day": {
+   "day_07": [
+    {
+     "p": 0.00004177857436381416,
+     "log_p": -10.08312692487342,
+     "t": 630213,
+     "entity": "U78@DOM1",
+     "src": "C3037",
+     "dst": "C3037",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004216415083802289,
+     "log_p": -10.073940204165178,
+     "t": 612227,
+     "entity": "U78@DOM1",
+     "src": "C2841",
+     "dst": "C2841",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "population_rare"
+     ]
+    },
+    {
+     "p": 0.00004220389861759984,
+     "log_p": -10.07299795688616,
+     "t": 604801,
+     "entity": "U78@DOM1",
+     "src": "C1848",
+     "dst": "C1848",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "population_rare",
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.000042206284065767066,
+     "log_p": -10.072941436497459,
+     "t": 604814,
+     "entity": "U78@DOM1",
+     "src": "C1848",
+     "dst": "C1848",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "population_rare",
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.00004220786340391854,
+     "log_p": -10.072904017695066,
+     "t": 604819,
+     "entity": "U78@DOM1",
+     "src": "C1848",
+     "dst": "C1848",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "population_rare",
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.000042753007274118566,
+     "log_p": -10.060071019462223,
+     "t": 630251,
+     "entity": "U78@DOM1",
+     "src": "C1848",
+     "dst": "C1848",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "population_rare"
+     ]
+    },
+    {
+     "p": 0.00004351583989956582,
+     "log_p": -10.042385550528719,
+     "t": 608407,
+     "entity": "U78@DOM1",
+     "src": "C2472",
+     "dst": "C2472",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.00004367681021069772,
+     "log_p": -10.038693255506042,
+     "t": 637304,
+     "entity": "U24@DOM1",
+     "src": "C2982",
+     "dst": "C2982",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004368795267384271,
+     "log_p": -10.038438176390903,
+     "t": 626409,
+     "entity": "U78@DOM1",
+     "src": "C2472",
+     "dst": "C2472",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.000043752620623602874,
+     "log_p": -10.036959046986517,
+     "t": 608408,
+     "entity": "U78@DOM1",
+     "src": "C1710",
+     "dst": "C1710",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.0000437714880508059,
+     "log_p": -10.036527910291015,
+     "t": 608410,
+     "entity": "U78@DOM1",
+     "src": "C1710",
+     "dst": "C1710",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.00004425853314939705,
+     "log_p": -10.025462365567092,
+     "t": 608411,
+     "entity": "U3@DOM1",
+     "src": "C626",
+     "dst": "C626",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004442106604013351,
+     "log_p": -10.021796740683456,
+     "t": 640865,
+     "entity": "U24@DOM1",
+     "src": "C2127",
+     "dst": "C2127",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "population_rare"
+     ]
+    },
+    {
+     "p": 0.00004442553395126078,
+     "log_p": -10.021696164834037,
+     "t": 637220,
+     "entity": "U24@DOM1",
+     "src": "C2127",
+     "dst": "C2127",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "population_rare"
+     ]
+    },
+    {
+     "p": 0.000044425870564769804,
+     "log_p": -10.02168858783487,
+     "t": 637248,
+     "entity": "U24@DOM1",
+     "src": "C2127",
+     "dst": "C2127",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "population_rare"
+     ]
+    },
+    {
+     "p": 0.000044808806629700725,
+     "log_p": -10.013105861306155,
+     "t": 658915,
+     "entity": "U24@DOM1",
+     "src": "C2982",
+     "dst": "C2982",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.000044822626574544337,
+     "log_p": -10.01279748857442,
+     "t": 655315,
+     "entity": "U24@DOM1",
+     "src": "C2982",
+     "dst": "C2982",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.0000449210535624351,
+     "log_p": -10.010603974174172,
+     "t": 644521,
+     "entity": "U24@DOM1",
+     "src": "C2982",
+     "dst": "C2982",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004493504897455051,
+     "log_p": -10.01029246695689,
+     "t": 640921,
+     "entity": "U24@DOM1",
+     "src": "C2982",
+     "dst": "C2982",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004496610330902425,
+     "log_p": -10.009601611836125,
+     "t": 633617,
+     "entity": "U24@DOM1",
+     "src": "C1971",
+     "dst": "C1971",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.000044986667767646306,
+     "log_p": -10.009144383921205,
+     "t": 644421,
+     "entity": "U24@DOM1",
+     "src": "C1971",
+     "dst": "C1971",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004499382334458862,
+     "log_p": -10.008985336623976,
+     "t": 684000,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.000044995630121801625,
+     "log_p": -10.008945181313688,
+     "t": 658819,
+     "entity": "U24@DOM1",
+     "src": "C1971",
+     "dst": "C1971",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004500034101056143,
+     "log_p": -10.008840490210192,
+     "t": 640823,
+     "entity": "U24@DOM1",
+     "src": "C1971",
+     "dst": "C1971",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004500985559747865,
+     "log_p": -10.008629078896558,
+     "t": 655214,
+     "entity": "U24@DOM1",
+     "src": "C1971",
+     "dst": "C1971",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004501137058697218,
+     "log_p": -10.008595420401603,
+     "t": 637213,
+     "entity": "U24@DOM1",
+     "src": "C1971",
+     "dst": "C1971",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.000045022013319232094,
+     "log_p": -10.008359002934043,
+     "t": 651614,
+     "entity": "U24@DOM1",
+     "src": "C1971",
+     "dst": "C1971",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.000045033384880966074,
+     "log_p": -10.008106457011827,
+     "t": 648019,
+     "entity": "U24@DOM1",
+     "src": "C1971",
+     "dst": "C1971",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.0000450953736625015,
+     "log_p": -10.006730896262704,
+     "t": 680465,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.00004509799194016808,
+     "log_p": -10.006672837055138,
+     "t": 680400,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.000045158264374837354,
+     "log_p": -10.005337252219482,
+     "t": 676865,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.00004515829876080098,
+     "log_p": -10.005336490765272,
+     "t": 676922,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.000045158317511132624,
+     "log_p": -10.005336075551938,
+     "t": 676980,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.0000451602714269915,
+     "log_p": -10.005292808360053,
+     "t": 676800,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.00004520150562493505,
+     "log_p": -10.004380161394689,
+     "t": 673322,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.00004520151346141974,
+     "log_p": -10.004379988026926,
+     "t": 673380,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.00004520151768277265,
+     "log_p": -10.004379894637292,
+     "t": 673440,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.00004520312574214328,
+     "log_p": -10.004344319929848,
+     "t": 673200,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.000045203126139866836,
+     "log_p": -10.00434431113126,
+     "t": 673265,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.00004520813283731266,
+     "log_p": -10.004233557282513,
+     "t": 630005,
+     "entity": "U24@DOM1",
+     "src": "C1697",
+     "dst": "C1697",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004523231270602239,
+     "log_p": -10.003698843656533,
+     "t": 669841,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.000045232323298997494,
+     "log_p": -10.003698609466124,
+     "t": 669781,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.000045233645377914615,
+     "log_p": -10.003669381261606,
+     "t": 669601,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.000045233674635717806,
+     "log_p": -10.003668734446752,
+     "t": 669665,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004523369639281202,
+     "log_p": -10.003668253453572,
+     "t": 669722,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.000045246389119997434,
+     "log_p": -10.0033876894555,
+     "t": 666001,
+     "entity": "U24@DOM1",
+     "src": "C1697",
+     "dst": "C1697",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004524678614575694,
+     "log_p": -10.003378914743854,
+     "t": 608401,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.000045257600836135935,
+     "log_p": -10.003139927645192,
+     "t": 666068,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004525763492389188,
+     "log_p": -10.00313917445142,
+     "t": 666124,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.000045257672908544496,
+     "log_p": -10.003138335153546,
+     "t": 666184,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.000045267418961553376,
+     "log_p": -10.002923012465766,
+     "t": 662405,
+     "entity": "U24@DOM1",
+     "src": "C1697",
+     "dst": "C1697",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004527088664086062,
+     "log_p": -10.002846411091666,
+     "t": 608461,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004527906520412505,
+     "log_p": -10.002665769067677,
+     "t": 662530,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004527914505241116,
+     "log_p": -10.002664005598945,
+     "t": 662584,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.000045279210445081633,
+     "log_p": -10.0026625613883,
+     "t": 662644,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004528003476764662,
+     "log_p": -10.002644356232922,
+     "t": 662404,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.000045280124614172646,
+     "log_p": -10.00264237199335,
+     "t": 662473,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.0000452837324321198,
+     "log_p": -10.002562697428534,
+     "t": 658805,
+     "entity": "U24@DOM1",
+     "src": "C1697",
+     "dst": "C1697",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004528673765086581,
+     "log_p": -10.00249633542899,
+     "t": 608521,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.000045296888031741235,
+     "log_p": -10.00227222470608,
+     "t": 658983,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004529771968255598,
+     "log_p": -10.002253864875714,
+     "t": 658803,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.000045297808623509335,
+     "log_p": -10.00225190140235,
+     "t": 658868,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.000045297833416343144,
+     "log_p": -10.002251354072849,
+     "t": 658925,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004529797986751283,
+     "log_p": -10.002248121005792,
+     "t": 655202,
+     "entity": "U24@DOM1",
+     "src": "C1697",
+     "dst": "C1697",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004529965439774596,
+     "log_p": -10.002211154693219,
+     "t": 608581,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004530576962347231,
+     "log_p": -10.002076168828925,
+     "t": 633603,
+     "entity": "U24@DOM1",
+     "src": "C2198",
+     "dst": "C2198",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004531015436076729,
+     "log_p": -10.00197939252062,
+     "t": 651602,
+     "entity": "U24@DOM1",
+     "src": "C1697",
+     "dst": "C1697",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004531376029776327,
+     "log_p": -10.001899812268288,
+     "t": 655443,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004531459664923335,
+     "log_p": -10.001881355540212,
+     "t": 655325,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.000045314640803448925,
+     "log_p": -10.001880381147911,
+     "t": 655383,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004531489146915295,
+     "log_p": -10.001874849491779,
+     "t": 633610,
+     "entity": "U24@DOM1",
+     "src": "C1697",
+     "dst": "C1697",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004531546953797052,
+     "log_p": -10.001862092865606,
+     "t": 655268,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.0000453154746101878,
+     "log_p": -10.00186198093436,
+     "t": 655203,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004532180224501533,
+     "log_p": -10.001722355494202,
+     "t": 648004,
+     "entity": "U24@DOM1",
+     "src": "C1697",
+     "dst": "C1697",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004533071709248305,
+     "log_p": -10.001525673756914,
+     "t": 651721,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004533080633495767,
+     "log_p": -10.001523705061237,
+     "t": 651781,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004533137269226232,
+     "log_p": -10.001511211267005,
+     "t": 651601,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.000045331435563236876,
+     "log_p": -10.00150982434825,
+     "t": 651661,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.0000453356387640933,
+     "log_p": -10.001417107099115,
+     "t": 644401,
+     "entity": "U24@DOM1",
+     "src": "C1697",
+     "dst": "C1697",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004534471673683318,
+     "log_p": -10.001216887928821,
+     "t": 648361,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.000045345347921210214,
+     "log_p": -10.001202968336207,
+     "t": 648181,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.000045345363725379324,
+     "log_p": -10.00120261980726,
+     "t": 648241,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004534540876687083,
+     "log_p": -10.00120162650904,
+     "t": 648301,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.000045345966457639544,
+     "log_p": -10.001189327858427,
+     "t": 648001,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004534602451375478,
+     "log_p": -10.001188047566428,
+     "t": 648084,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004534606563786441,
+     "log_p": -10.001187140671249,
+     "t": 648121,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.000045348947179040394,
+     "log_p": -10.001123597129274,
+     "t": 640921,
+     "entity": "U24@DOM1",
+     "src": "C1697",
+     "dst": "C1697",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.000045349339259894614,
+     "log_p": -10.00111495130211,
+     "t": 640801,
+     "entity": "U24@DOM1",
+     "src": "C1697",
+     "dst": "C1697",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004535875956403864,
+     "log_p": -10.00090724539051,
+     "t": 644641,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004535942414022998,
+     "log_p": -10.000892593946572,
+     "t": 644465,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004535944359479706,
+     "log_p": -10.000892165048647,
+     "t": 644521,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004535948767276911,
+     "log_p": -10.000891193300603,
+     "t": 644581,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004536009416665521,
+     "log_p": -10.00087782256247,
+     "t": 644401,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.000045361044700230484,
+     "log_p": -10.000856867499799,
+     "t": 637203,
+     "entity": "U24@DOM1",
+     "src": "C1697",
+     "dst": "C1697",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004537193096767889,
+     "log_p": -10.000616904742696,
+     "t": 640801,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004537199927883286,
+     "log_p": -10.000615399162019,
+     "t": 640865,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004538146998786498,
+     "log_p": -10.000406686279899,
+     "t": 637381,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004538158392875302,
+     "log_p": -10.000404175547105,
+     "t": 637441,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.000045381753891008836,
+     "log_p": -10.000400430372899,
+     "t": 637201,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004538192975407261,
+     "log_p": -10.000396555187214,
+     "t": 637284,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.0000453820091789598,
+     "log_p": -10.000394805045294,
+     "t": 637321,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004539000544705071,
+     "log_p": -10.000218621490383,
+     "t": 633841,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.000045390383730987385,
+     "log_p": -10.00021028744511,
+     "t": 633665,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004539047303631398,
+     "log_p": -10.000208319952629,
+     "t": 633722,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004539055696150816,
+     "log_p": -10.000206470993783,
+     "t": 633781,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004539075371385038,
+     "log_p": -10.000202136349554,
+     "t": 633602,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004539859290419751,
+     "log_p": -10.000029446696887,
+     "t": 630122,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.000045398713042025985,
+     "log_p": -10.000026800410696,
+     "t": 630181,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.000045398799659307936,
+     "log_p": -10.000024892488787,
+     "t": 630241,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004539904006294404,
+     "log_p": -10.000019597128526,
+     "t": 630001,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004539913973501133,
+     "log_p": -10.00001740166453,
+     "t": 630065,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.0000454098622262103,
+     "log_p": -9.999781246855706,
+     "t": 626641,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004540987781769593,
+     "log_p": -9.999780903505558,
+     "t": 626581,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004541032691691531,
+     "log_p": -9.99977101365295,
+     "t": 626401,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004541039274445608,
+     "log_p": -9.999769564037905,
+     "t": 626470,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.000045410399019229436,
+     "log_p": -9.999769425858679,
+     "t": 626522,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004542214519204481,
+     "log_p": -9.999510792282292,
+     "t": 623101,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004542215548746585,
+     "log_p": -9.999510565621488,
+     "t": 623041,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004542265377266667,
+     "log_p": -9.999499595590184,
+     "t": 622981,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004542267802039504,
+     "log_p": -9.99949906176576,
+     "t": 622861,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004542316494933257,
+     "log_p": -9.999488341871011,
+     "t": 622808,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.000045435157131241674,
+     "log_p": -9.999224366448527,
+     "t": 608401,
+     "entity": "U78@DOM1",
+     "src": "C2472",
+     "dst": "C528",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.00004543519172403933,
+     "log_p": -9.999223605082511,
+     "t": 619501,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004543568587370654,
+     "log_p": -9.999212729218202,
+     "t": 619441,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004543571395645605,
+     "log_p": -9.999212111141457,
+     "t": 619381,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004543573459426023,
+     "log_p": -9.99921165692169,
+     "t": 619321,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.000045436212213621604,
+     "log_p": -9.999201145000724,
+     "t": 619264,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004543622072689014,
+     "log_p": -9.999200957633262,
+     "t": 619201,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004544946826459428,
+     "log_p": -9.998909436758085,
+     "t": 615961,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004545040510427198,
+     "log_p": -9.998888824195207,
+     "t": 615901,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004545042879791495,
+     "log_p": -9.998888302887712,
+     "t": 615841,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.000045450454350875466,
+     "log_p": -9.99888774067182,
+     "t": 615781,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004545091075093048,
+     "log_p": -9.998877699017232,
+     "t": 615601,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.000045450933101557616,
+     "log_p": -9.998877207264234,
+     "t": 615722,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.000045450935972924586,
+     "log_p": -9.998877144089143,
+     "t": 615661,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004546114725305769,
+     "log_p": -9.998652503319429,
+     "t": 612001,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004546153721215281,
+     "log_p": -9.99864392550197,
+     "t": 612061,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004546195864398101,
+     "log_p": -9.998634655470626,
+     "t": 612181,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004546196076444551,
+     "log_p": -9.998634608828015,
+     "t": 612121,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004546287417809374,
+     "log_p": -9.998614517207308,
+     "t": 612241,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004547914365566469,
+     "log_p": -9.998256718290326,
+     "t": 604802,
+     "entity": "U78@DOM1",
+     "src": "C1581",
+     "dst": "C1581",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.000045479517902706936,
+     "log_p": -9.998248489342455,
+     "t": 604814,
+     "entity": "U78@DOM1",
+     "src": "C1581",
+     "dst": "C1581",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.00004547987283772347,
+     "log_p": -9.998240685090169,
+     "t": 604820,
+     "entity": "U78@DOM1",
+     "src": "C1581",
+     "dst": "C1581",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.00004565690520703426,
+     "log_p": -9.994355698243519,
+     "t": 626402,
+     "entity": "U78@DOM1",
+     "src": "C2472",
+     "dst": "C528",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004579732360672897,
+     "log_p": -9.991284905085918,
+     "t": 628377,
+     "entity": "U66@DOM1",
+     "src": "C1823",
+     "dst": "C2803",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004585136192210379,
+     "log_p": -9.990105655840273,
+     "t": 628377,
+     "entity": "U66@DOM1",
+     "src": "C1823",
+     "dst": "C2839",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004587416738657694,
+     "log_p": -9.989608401365647,
+     "t": 619201,
+     "entity": "U3@DOM1",
+     "src": "C1",
+     "dst": "C625",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004589393529929553,
+     "log_p": -9.989177578183174,
+     "t": 628377,
+     "entity": "U66@DOM1",
+     "src": "C1823",
+     "dst": "C1153",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004589490210884104,
+     "log_p": -9.98915651223283,
+     "t": 628392,
+     "entity": "U66@DOM1",
+     "src": "C1823",
+     "dst": "C1153",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004589622705118352,
+     "log_p": -9.989127643596944,
+     "t": 615601,
+     "entity": "U3@DOM1",
+     "src": "C1",
+     "dst": "C625",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004591292875589502,
+     "log_p": -9.98876380831823,
+     "t": 655316,
+     "entity": "U24@DOM1",
+     "src": "C2982",
+     "dst": "C1786",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.0000459157422064407,
+     "log_p": -9.98870253223709,
+     "t": 612002,
+     "entity": "U3@DOM1",
+     "src": "C1",
+     "dst": "C625",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004592814441611328,
+     "log_p": -9.988432460701485,
+     "t": 684002,
+     "entity": "U3@DOM1",
+     "src": "C1",
+     "dst": "C625",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.000045932114589231794,
+     "log_p": -9.988346021295284,
+     "t": 608401,
+     "entity": "U3@DOM1",
+     "src": "C1",
+     "dst": "C625",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004600778496794457,
+     "log_p": -9.98669993736081,
+     "t": 640807,
+     "entity": "U78@DOM1",
+     "src": "C1581",
+     "dst": "C1581",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004600831646277049,
+     "log_p": -9.98668838514728,
+     "t": 640813,
+     "entity": "U78@DOM1",
+     "src": "C1581",
+     "dst": "C1581",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004600849615354419,
+     "log_p": -9.986684479539846,
+     "t": 640815,
+     "entity": "U78@DOM1",
+     "src": "C1581",
+     "dst": "C1581",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.000046008655560029896,
+     "log_p": -9.986681014827395,
+     "t": 640861,
+     "entity": "U78@DOM1",
+     "src": "C1581",
+     "dst": "C1581",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.0000460091483609132,
+     "log_p": -9.986670303837514,
+     "t": 640877,
+     "entity": "U78@DOM1",
+     "src": "C1581",
+     "dst": "C1581",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.000046009676549605034,
+     "log_p": -9.98665882382367,
+     "t": 640893,
+     "entity": "U78@DOM1",
+     "src": "C1581",
+     "dst": "C1581",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.000046013143034750326,
+     "log_p": -9.98658348413809,
+     "t": 604802,
+     "entity": "U3@DOM1",
+     "src": "C456",
+     "dst": "C467",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.000046038441282645,
+     "log_p": -9.986033830403844,
+     "t": 640922,
+     "entity": "U24@DOM1",
+     "src": "C2982",
+     "dst": "C1786",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004607284515666926,
+     "log_p": -9.985286823669838,
+     "t": 615602,
+     "entity": "U3@DOM1",
+     "src": "C1191",
+     "dst": "C612",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004607587404056856,
+     "log_p": -9.98522108463566,
+     "t": 684003,
+     "entity": "U3@DOM1",
+     "src": "C1191",
+     "dst": "C457",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.0000460864183872194,
+     "log_p": -9.984992263359212,
+     "t": 604803,
+     "entity": "U3@DOM1",
+     "src": "C1191",
+     "dst": "C1065",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004608840671307303,
+     "log_p": -9.984949120866633,
+     "t": 662405,
+     "entity": "U24@DOM1",
+     "src": "C583",
+     "dst": "C583",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.000046090979573243275,
+     "log_p": -9.984893297970114,
+     "t": 687601,
+     "entity": "U3@DOM1",
+     "src": "C456",
+     "dst": "C467",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.0000460925992667724,
+     "log_p": -9.984858157361566,
+     "t": 612002,
+     "entity": "U3@DOM1",
+     "src": "C1191",
+     "dst": "C612",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.000046101767490688507,
+     "log_p": -9.984659268334639,
+     "t": 687601,
+     "entity": "U3@DOM1",
+     "src": "C626",
+     "dst": "C529",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004610228785557055,
+     "log_p": -9.984647981089621,
+     "t": 612164,
+     "entity": "U78@DOM1",
+     "src": "C1581",
+     "dst": "C1581",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004610360302427521,
+     "log_p": -9.984619454306959,
+     "t": 612222,
+     "entity": "U78@DOM1",
+     "src": "C1581",
+     "dst": "C1581",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.000046108852783924565,
+     "log_p": -9.984505592039458,
+     "t": 608402,
+     "entity": "U3@DOM1",
+     "src": "C1191",
+     "dst": "C612",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004614687344486761,
+     "log_p": -9.983681346983898,
+     "t": 648005,
+     "entity": "U24@DOM1",
+     "src": "C583",
+     "dst": "C583",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.000046151982135972375,
+     "log_p": -9.983570648079175,
+     "t": 604802,
+     "entity": "U3@DOM1",
+     "src": "C1",
+     "dst": "C528",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004616220887739825,
+     "log_p": -9.983349084279386,
+     "t": 633605,
+     "entity": "U24@DOM1",
+     "src": "C583",
+     "dst": "C583",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004617603600170297,
+     "log_p": -9.983049595710458,
+     "t": 685294,
+     "entity": "U66@DOM1",
+     "src": "C1823",
+     "dst": "C1597",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.00004617605416835767,
+     "log_p": -9.983049202288832,
+     "t": 685298,
+     "entity": "U66@DOM1",
+     "src": "C1823",
+     "dst": "C1597",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.00004617616866921969,
+     "log_p": -9.983046722633043,
+     "t": 658815,
+     "entity": "U13@DOM1",
+     "src": "C10867",
+     "dst": "C457",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004617617593918906,
+     "log_p": -9.983046565193199,
+     "t": 685633,
+     "entity": "U66@DOM1",
+     "src": "C1823",
+     "dst": "C1597",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.000046176530627465686,
+     "log_p": -9.983038884026293,
+     "t": 658838,
+     "entity": "U13@DOM1",
+     "src": "C10867",
+     "dst": "C457",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.000046177094711337116,
+     "log_p": -9.983026668287726,
+     "t": 684394,
+     "entity": "U66@DOM1",
+     "src": "C1823",
+     "dst": "C1597",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.00004617711072954101,
+     "log_p": -9.983026321401436,
+     "t": 684398,
+     "entity": "U66@DOM1",
+     "src": "C1823",
+     "dst": "C1597",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.000046177124906433465,
+     "log_p": -9.983026014390234,
+     "t": 684429,
+     "entity": "U66@DOM1",
+     "src": "C1823",
+     "dst": "C1597",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.000046177140889309654,
+     "log_p": -9.983025668269217,
+     "t": 684433,
+     "entity": "U66@DOM1",
+     "src": "C1823",
+     "dst": "C1597",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.000046177217366161476,
+     "log_p": -9.98302401210803,
+     "t": 684698,
+     "entity": "U66@DOM1",
+     "src": "C1823",
+     "dst": "C1597",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.00004617734239038384,
+     "log_p": -9.98302130462455,
+     "t": 684998,
+     "entity": "U66@DOM1",
+     "src": "C1823",
+     "dst": "C1597",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.00004617756295268742,
+     "log_p": -9.983016528217652,
+     "t": 685598,
+     "entity": "U66@DOM1",
+     "src": "C1823",
+     "dst": "C1597",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.000046177571701221433,
+     "log_p": -9.983016338763452,
+     "t": 685629,
+     "entity": "U66@DOM1",
+     "src": "C1823",
+     "dst": "C1597",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.00004617766558101786,
+     "log_p": -9.983014305748341,
+     "t": 685898,
+     "entity": "U66@DOM1",
+     "src": "C1823",
+     "dst": "C1597",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.00004617844676449449,
+     "log_p": -9.982997388980046,
+     "t": 684098,
+     "entity": "U66@DOM1",
+     "src": "C1823",
+     "dst": "C1597",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.00004617965609471144,
+     "log_p": -9.982971201126905,
+     "t": 687699,
+     "entity": "U66@DOM1",
+     "src": "C1823",
+     "dst": "C1597",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.00004617969466276652,
+     "log_p": -9.982970365953102,
+     "t": 608401,
+     "entity": "U3@DOM1",
+     "src": "C626",
+     "dst": "C529",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.000046179709761342865,
+     "log_p": -9.982970039000445,
+     "t": 687999,
+     "entity": "U66@DOM1",
+     "src": "C1823",
+     "dst": "C1597",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.0000461797204055534,
+     "log_p": -9.982969808505075,
+     "t": 688029,
+     "entity": "U66@DOM1",
+     "src": "C1823",
+     "dst": "C1597",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.00004617973768217356,
+     "log_p": -9.982969434388108,
+     "t": 688034,
+     "entity": "U66@DOM1",
+     "src": "C1823",
+     "dst": "C1597",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.000046180353411075065,
+     "log_p": -9.982956101163893,
+     "t": 681994,
+     "entity": "U66@DOM1",
+     "src": "C1823",
+     "dst": "C1597",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.000046180361546226586,
+     "log_p": -9.982955925003466,
+     "t": 682001,
+     "entity": "U66@DOM1",
+     "src": "C1823",
+     "dst": "C1597",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.00004618045850186447,
+     "log_p": -9.982953825506346,
+     "t": 682294,
+     "entity": "U66@DOM1",
+     "src": "C1823",
+     "dst": "C1597",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.00004618046775259653,
+     "log_p": -9.982953625189339,
+     "t": 682298,
+     "entity": "U66@DOM1",
+     "src": "C1823",
+     "dst": "C1597",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.00004618163633613367,
+     "log_p": -9.982928320795319,
+     "t": 681694,
+     "entity": "U66@DOM1",
+     "src": "C1823",
+     "dst": "C1597",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    }
+   ],
+   "day_08": [
+    {
+     "p": 0.00003877885121352263,
+     "log_p": -10.15763553175712,
+     "t": 774246,
+     "entity": "U66@DOM1",
+     "src": "C17693",
+     "dst": "C19646",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "novel_value",
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.00004181878054932187,
+     "log_p": -10.082165023898213,
+     "t": 760771,
+     "entity": "U66@DOM1",
+     "src": "C3699",
+     "dst": "C3699",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.000041864751466505454,
+     "log_p": -10.08106633887141,
+     "t": 768742,
+     "entity": "U66@DOM1",
+     "src": "C17693",
+     "dst": "C1944",
+     "is_red_team": true,
+     "j": 15,
+     "categories": [
+      "novel_value",
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.00004199735772304676,
+     "log_p": -10.077903853015938,
+     "t": 770651,
+     "entity": "U66@DOM1",
+     "src": "C17693",
+     "dst": "C765",
+     "is_red_team": true,
+     "j": 15,
+     "categories": [
+      "novel_value",
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.00004200788151665487,
+     "log_p": -10.077653302127484,
+     "t": 770816,
+     "entity": "U66@DOM1",
+     "src": "C17693",
+     "dst": "C92",
+     "is_red_team": true,
+     "j": 15,
+     "categories": [
+      "novel_value",
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.00004207663266925398,
+     "log_p": -10.076018014855249,
+     "t": 770950,
+     "entity": "U66@DOM1",
+     "src": "C17693",
+     "dst": "C742",
+     "is_red_team": true,
+     "j": 15,
+     "categories": [
+      "novel_value",
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.000042084515155253124,
+     "log_p": -10.075830695974128,
+     "t": 771543,
+     "entity": "U66@DOM1",
+     "src": "C17693",
+     "dst": "C3938",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "novel_value",
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.00004209536077668788,
+     "log_p": -10.075573018675968,
+     "t": 772122,
+     "entity": "U66@DOM1",
+     "src": "C17693",
+     "dst": "C2069",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "novel_value",
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.00004210156372114904,
+     "log_p": -10.075425674945556,
+     "t": 772253,
+     "entity": "U66@DOM1",
+     "src": "C17693",
+     "dst": "C5653",
+     "is_red_team": true,
+     "j": 15,
+     "categories": [
+      "novel_value",
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.0000421388124494631,
+     "log_p": -10.074541331061189,
+     "t": 774214,
+     "entity": "U66@DOM1",
+     "src": "C17693",
+     "dst": "C1966",
+     "is_red_team": true,
+     "j": 15,
+     "categories": [
+      "novel_value",
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.000042179361739586674,
+     "log_p": -10.073579514853959,
+     "t": 760772,
+     "entity": "U66@DOM1",
+     "src": "C3699",
+     "dst": "C3699",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.00004224497947378269,
+     "log_p": -10.072025040244714,
+     "t": 760773,
+     "entity": "U66@DOM1",
+     "src": "C3699",
+     "dst": "C3699",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.00004224626223416668,
+     "log_p": -10.071994675904975,
+     "t": 691201,
+     "entity": "U78@DOM1",
+     "src": "C1848",
+     "dst": "C1848",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "population_rare",
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.00004225448552752135,
+     "log_p": -10.071800043464473,
+     "t": 768404,
+     "entity": "U66@DOM1",
+     "src": "C17693",
+     "dst": "C2196",
+     "is_red_team": true,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.0000423396388076907,
+     "log_p": -10.06978682305231,
+     "t": 774180,
+     "entity": "U66@DOM1",
+     "src": "C17693",
+     "dst": "C1710",
+     "is_red_team": true,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.000042381538992643784,
+     "log_p": -10.068797691657844,
+     "t": 760774,
+     "entity": "U66@DOM1",
+     "src": "C3699",
+     "dst": "C3699",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.000042422578605310184,
+     "log_p": -10.06782982318559,
+     "t": 767288,
+     "entity": "U66@DOM1",
+     "src": "C17693",
+     "dst": "C3755",
+     "is_red_team": true,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.00004250456356973932,
+     "log_p": -10.065899109687006,
+     "t": 760775,
+     "entity": "U66@DOM1",
+     "src": "C3699",
+     "dst": "C3699",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.000042569368321652446,
+     "log_p": -10.064375616814235,
+     "t": 774452,
+     "entity": "U66@DOM1",
+     "src": "C17693",
+     "dst": "C2388",
+     "is_red_team": true,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.00004260296978126619,
+     "log_p": -10.063586593943537,
+     "t": 760776,
+     "entity": "U66@DOM1",
+     "src": "C3699",
+     "dst": "C3699",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.00004269725426201341,
+     "log_p": -10.061375942794566,
+     "t": 760777,
+     "entity": "U66@DOM1",
+     "src": "C3699",
+     "dst": "C3699",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.00004281605488126874,
+     "log_p": -10.058597411665874,
+     "t": 720103,
+     "entity": "U78@DOM1",
+     "src": "C1848",
+     "dst": "C1848",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "population_rare"
+     ]
+    },
+    {
+     "p": 0.00004281655154501241,
+     "log_p": -10.058585811791376,
+     "t": 760778,
+     "entity": "U66@DOM1",
+     "src": "C3699",
+     "dst": "C3699",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.00004302287037784341,
+     "log_p": -10.053778714410859,
+     "t": 760779,
+     "entity": "U66@DOM1",
+     "src": "C3699",
+     "dst": "C3699",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.0000431024685687613,
+     "log_p": -10.051930287117452,
+     "t": 760780,
+     "entity": "U66@DOM1",
+     "src": "C3699",
+     "dst": "C3699",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.00004312287869696753,
+     "log_p": -10.051456873458136,
+     "t": 767180,
+     "entity": "U66@DOM1",
+     "src": "C17693",
+     "dst": "C3699",
+     "is_red_team": true,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.0000432083896202941,
+     "log_p": -10.049475877395926,
+     "t": 760781,
+     "entity": "U66@DOM1",
+     "src": "C3699",
+     "dst": "C3699",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.000043226540008910414,
+     "log_p": -10.04905589929307,
+     "t": 760782,
+     "entity": "U66@DOM1",
+     "src": "C3699",
+     "dst": "C3699",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.000043255162562791684,
+     "log_p": -10.048393966096214,
+     "t": 760783,
+     "entity": "U66@DOM1",
+     "src": "C3699",
+     "dst": "C3699",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.000043258421538623985,
+     "log_p": -10.048318625885363,
+     "t": 761147,
+     "entity": "U66@DOM1",
+     "src": "C3699",
+     "dst": "C3699",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.00004326428554335889,
+     "log_p": -10.04818307754339,
+     "t": 761151,
+     "entity": "U66@DOM1",
+     "src": "C3699",
+     "dst": "C3699",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.00004326782055294961,
+     "log_p": -10.04810137354352,
+     "t": 761427,
+     "entity": "U66@DOM1",
+     "src": "C3699",
+     "dst": "C3699",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.00004327341886376706,
+     "log_p": -10.047971994513059,
+     "t": 761431,
+     "entity": "U66@DOM1",
+     "src": "C3699",
+     "dst": "C3699",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.00004348808029553429,
+     "log_p": -10.043023673613545,
+     "t": 694806,
+     "entity": "U78@DOM1",
+     "src": "C2472",
+     "dst": "C2472",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.00004352477686929045,
+     "log_p": -10.0421801988185,
+     "t": 767813,
+     "entity": "U66@DOM1",
+     "src": "C17693",
+     "dst": "C2944",
+     "is_red_team": true,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.00004360090461389988,
+     "log_p": -10.040432659799297,
+     "t": 763228,
+     "entity": "U66@DOM1",
+     "src": "C3699",
+     "dst": "C3699",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.000043663161490068346,
+     "log_p": -10.039005797872948,
+     "t": 763528,
+     "entity": "U66@DOM1",
+     "src": "C3699",
+     "dst": "C3699",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.00004366352755553579,
+     "log_p": -10.038997414056468,
+     "t": 763232,
+     "entity": "U66@DOM1",
+     "src": "C3699",
+     "dst": "C3699",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.00004366509882073983,
+     "log_p": -10.038961428944381,
+     "t": 763532,
+     "entity": "U66@DOM1",
+     "src": "C3699",
+     "dst": "C3699",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.0000437144890196662,
+     "log_p": -10.037830954301343,
+     "t": 763828,
+     "entity": "U66@DOM1",
+     "src": "C3699",
+     "dst": "C3699",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.00004371603029692642,
+     "log_p": -10.03779569711032,
+     "t": 763832,
+     "entity": "U66@DOM1",
+     "src": "C3699",
+     "dst": "C3699",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.00004372510744984118,
+     "log_p": -10.03758807966203,
+     "t": 764128,
+     "entity": "U66@DOM1",
+     "src": "C3699",
+     "dst": "C3699",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.000043726172986637535,
+     "log_p": -10.037563710966886,
+     "t": 712806,
+     "entity": "U78@DOM1",
+     "src": "C2472",
+     "dst": "C2472",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004372617599437244,
+     "log_p": -10.0375636421812,
+     "t": 764368,
+     "entity": "U66@DOM1",
+     "src": "C3699",
+     "dst": "C3699",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.00004372662034477932,
+     "log_p": -10.037553480118339,
+     "t": 764132,
+     "entity": "U66@DOM1",
+     "src": "C3699",
+     "dst": "C3699",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.000043728390495083865,
+     "log_p": -10.037512998725957,
+     "t": 764428,
+     "entity": "U66@DOM1",
+     "src": "C3699",
+     "dst": "C3699",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.00004372898437010191,
+     "log_p": -10.03749941782397,
+     "t": 764728,
+     "entity": "U66@DOM1",
+     "src": "C3699",
+     "dst": "C3699",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.000043729876938761585,
+     "log_p": -10.037479006658165,
+     "t": 764432,
+     "entity": "U66@DOM1",
+     "src": "C3699",
+     "dst": "C3699",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.000043730454540360134,
+     "log_p": -10.037465798347863,
+     "t": 764732,
+     "entity": "U66@DOM1",
+     "src": "C3699",
+     "dst": "C3699",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.000043730640639273506,
+     "log_p": -10.03746154276627,
+     "t": 765028,
+     "entity": "U66@DOM1",
+     "src": "C3699",
+     "dst": "C3699",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.00004373209754019725,
+     "log_p": -10.037428227986647,
+     "t": 765032,
+     "entity": "U66@DOM1",
+     "src": "C3699",
+     "dst": "C3699",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.0000437958153996927,
+     "log_p": -10.0359722839658,
+     "t": 694808,
+     "entity": "U78@DOM1",
+     "src": "C1710",
+     "dst": "C1710",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.00004392150174743951,
+     "log_p": -10.03310656855522,
+     "t": 766828,
+     "entity": "U66@DOM1",
+     "src": "C3699",
+     "dst": "C3699",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.000043922267684275,
+     "log_p": -10.033089129940269,
+     "t": 766832,
+     "entity": "U66@DOM1",
+     "src": "C3699",
+     "dst": "C3699",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.00004392347320328013,
+     "log_p": -10.03306168366927,
+     "t": 767132,
+     "entity": "U66@DOM1",
+     "src": "C3699",
+     "dst": "C3699",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.000043935412168888,
+     "log_p": -10.032789907726958,
+     "t": 767136,
+     "entity": "U66@DOM1",
+     "src": "C3699",
+     "dst": "C3699",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.000043966849297342644,
+     "log_p": -10.032074633073709,
+     "t": 767728,
+     "entity": "U66@DOM1",
+     "src": "C3699",
+     "dst": "C3699",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.00004396750312293511,
+     "log_p": -10.03205976230763,
+     "t": 767732,
+     "entity": "U66@DOM1",
+     "src": "C3699",
+     "dst": "C3699",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.00004396809759747344,
+     "log_p": -10.032046241628102,
+     "t": 767428,
+     "entity": "U66@DOM1",
+     "src": "C3699",
+     "dst": "C3699",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.00004396875208294272,
+     "log_p": -10.03203135627636,
+     "t": 767432,
+     "entity": "U66@DOM1",
+     "src": "C3699",
+     "dst": "C3699",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.00004397938590918839,
+     "log_p": -10.031789535891294,
+     "t": 767968,
+     "entity": "U66@DOM1",
+     "src": "C3699",
+     "dst": "C3699",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.00004398990700068218,
+     "log_p": -10.031550336707216,
+     "t": 768028,
+     "entity": "U66@DOM1",
+     "src": "C3699",
+     "dst": "C3699",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.00004401894026914031,
+     "log_p": -10.030890556005344,
+     "t": 768328,
+     "entity": "U66@DOM1",
+     "src": "C3699",
+     "dst": "C3699",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.000044019502904306225,
+     "log_p": -10.03087777442617,
+     "t": 768332,
+     "entity": "U66@DOM1",
+     "src": "C3699",
+     "dst": "C3699",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.000044019710182862665,
+     "log_p": -10.030873065648136,
+     "t": 768032,
+     "entity": "U66@DOM1",
+     "src": "C3699",
+     "dst": "C3699",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.00004402070371727722,
+     "log_p": -10.03085049568576,
+     "t": 768628,
+     "entity": "U66@DOM1",
+     "src": "C3699",
+     "dst": "C3699",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.00004402126552616777,
+     "log_p": -10.03083773338852,
+     "t": 768632,
+     "entity": "U66@DOM1",
+     "src": "C3699",
+     "dst": "C3699",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.00004402570530679586,
+     "log_p": -10.03073688311304,
+     "t": 770428,
+     "entity": "U66@DOM1",
+     "src": "C3699",
+     "dst": "C3699",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.0000440262457207457,
+     "log_p": -10.030724608224329,
+     "t": 770432,
+     "entity": "U66@DOM1",
+     "src": "C3699",
+     "dst": "C3699",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.00004402641265117735,
+     "log_p": -10.030720816619741,
+     "t": 770728,
+     "entity": "U66@DOM1",
+     "src": "C3699",
+     "dst": "C3699",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.0000440269498807498,
+     "log_p": -10.030708614256152,
+     "t": 770732,
+     "entity": "U66@DOM1",
+     "src": "C3699",
+     "dst": "C3699",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.00004402864972845646,
+     "log_p": -10.03067000574711,
+     "t": 771328,
+     "entity": "U66@DOM1",
+     "src": "C3699",
+     "dst": "C3699",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.00004402898908985629,
+     "log_p": -10.030662298036468,
+     "t": 771028,
+     "entity": "U66@DOM1",
+     "src": "C3699",
+     "dst": "C3699",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.0000440295213737581,
+     "log_p": -10.030650208713153,
+     "t": 771032,
+     "entity": "U66@DOM1",
+     "src": "C3699",
+     "dst": "C3699",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.00004403066562583549,
+     "log_p": -10.030624220758405,
+     "t": 771332,
+     "entity": "U66@DOM1",
+     "src": "C3699",
+     "dst": "C3699",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.00004403078145075316,
+     "log_p": -10.030621590210725,
+     "t": 771568,
+     "entity": "U66@DOM1",
+     "src": "C3699",
+     "dst": "C3699",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.000044031283988639495,
+     "log_p": -10.030610176944778,
+     "t": 771628,
+     "entity": "U66@DOM1",
+     "src": "C3699",
+     "dst": "C3699",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.000044031810429732945,
+     "log_p": -10.03059822094671,
+     "t": 771632,
+     "entity": "U66@DOM1",
+     "src": "C3699",
+     "dst": "C3699",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.000044032629441466635,
+     "log_p": -10.030579620664122,
+     "t": 771928,
+     "entity": "U66@DOM1",
+     "src": "C3699",
+     "dst": "C3699",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.00004403305538861196,
+     "log_p": -10.030569947267585,
+     "t": 772228,
+     "entity": "U66@DOM1",
+     "src": "C3699",
+     "dst": "C3699",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.0000440331544667099,
+     "log_p": -10.030567697185559,
+     "t": 771932,
+     "entity": "U66@DOM1",
+     "src": "C3699",
+     "dst": "C3699",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.00004403487265125876,
+     "log_p": -10.03052867770016,
+     "t": 772232,
+     "entity": "U66@DOM1",
+     "src": "C3699",
+     "dst": "C3699",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.00004404443351026631,
+     "log_p": -10.03031158109798,
+     "t": 774028,
+     "entity": "U66@DOM1",
+     "src": "C3699",
+     "dst": "C3699",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.00004404493634570836,
+     "log_p": -10.03030016461395,
+     "t": 774032,
+     "entity": "U66@DOM1",
+     "src": "C3699",
+     "dst": "C3699",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.00004404718570244365,
+     "log_p": -10.030249096330351,
+     "t": 774328,
+     "entity": "U66@DOM1",
+     "src": "C3699",
+     "dst": "C3699",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.00004404768620703503,
+     "log_p": -10.030237733476179,
+     "t": 774332,
+     "entity": "U66@DOM1",
+     "src": "C3699",
+     "dst": "C3699",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.000044051789111492576,
+     "log_p": -10.030144590935985,
+     "t": 774628,
+     "entity": "U66@DOM1",
+     "src": "C3699",
+     "dst": "C3699",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.00004405227888286506,
+     "log_p": -10.030133472916495,
+     "t": 774632,
+     "entity": "U66@DOM1",
+     "src": "C3699",
+     "dst": "C3699",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.00004405289048331222,
+     "log_p": -10.030119589498495,
+     "t": 774928,
+     "entity": "U66@DOM1",
+     "src": "C3699",
+     "dst": "C3699",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.00004405338315071687,
+     "log_p": -10.03010840601781,
+     "t": 774932,
+     "entity": "U66@DOM1",
+     "src": "C3699",
+     "dst": "C3699",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.00004405378817081871,
+     "log_p": -10.030099212212226,
+     "t": 775168,
+     "entity": "U66@DOM1",
+     "src": "C3699",
+     "dst": "C3699",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.000044055548137298874,
+     "log_p": -10.030059262609742,
+     "t": 775228,
+     "entity": "U66@DOM1",
+     "src": "C3699",
+     "dst": "C3699",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.00004405603631818489,
+     "log_p": -10.03004818164033,
+     "t": 775232,
+     "entity": "U66@DOM1",
+     "src": "C3699",
+     "dst": "C3699",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.00004405915442179748,
+     "log_p": -10.029977408290407,
+     "t": 766846,
+     "entity": "U66@DOM1",
+     "src": "C17693",
+     "dst": "C61",
+     "is_red_team": true,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.00004407242530527997,
+     "log_p": -10.02967624760263,
+     "t": 775528,
+     "entity": "U66@DOM1",
+     "src": "C3699",
+     "dst": "C3699",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.00004411052816644193,
+     "log_p": -10.02881207007096,
+     "t": 775532,
+     "entity": "U66@DOM1",
+     "src": "C3699",
+     "dst": "C3699",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.00004411210600039602,
+     "log_p": -10.028776300702495,
+     "t": 775828,
+     "entity": "U66@DOM1",
+     "src": "C3699",
+     "dst": "C3699",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.00004411251915521066,
+     "log_p": -10.028766934727543,
+     "t": 775832,
+     "entity": "U66@DOM1",
+     "src": "C3699",
+     "dst": "C3699",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.00004417281494580574,
+     "log_p": -10.027401004574278,
+     "t": 767001,
+     "entity": "U66@DOM1",
+     "src": "C17693",
+     "dst": "C307",
+     "is_red_team": true,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.00004422937496919011,
+     "log_p": -10.026121397561004,
+     "t": 768556,
+     "entity": "U66@DOM1",
+     "src": "C17693",
+     "dst": "C306",
+     "is_red_team": true,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.00004432779154667163,
+     "log_p": -10.023898728930774,
+     "t": 727285,
+     "entity": "U24@DOM1",
+     "src": "C1770",
+     "dst": "C1770",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "population_rare"
+     ]
+    },
+    {
+     "p": 0.000044331512439477495,
+     "log_p": -10.023814792047881,
+     "t": 768634,
+     "entity": "U66@DOM1",
+     "src": "C17693",
+     "dst": "C306",
+     "is_red_team": true,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.00004439958334523048,
+     "log_p": -10.022280472686557,
+     "t": 770435,
+     "entity": "U66@DOM1",
+     "src": "C17693",
+     "dst": "C1881",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.00004442486414289193,
+     "log_p": -10.021711242051095,
+     "t": 771332,
+     "entity": "U66@DOM1",
+     "src": "C17693",
+     "dst": "C3017",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.000044528948842657735,
+     "log_p": -10.0193710445087,
+     "t": 760775,
+     "entity": "U66@DOM1",
+     "src": "C1823",
+     "dst": "C3699",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.00004453225103115171,
+     "log_p": -10.019296889017866,
+     "t": 771870,
+     "entity": "U66@DOM1",
+     "src": "C17693",
+     "dst": "C1646",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.00004456054154927062,
+     "log_p": -10.018661809158983,
+     "t": 771890,
+     "entity": "U66@DOM1",
+     "src": "C17693",
+     "dst": "C2481",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.000044637141781368086,
+     "log_p": -10.01694427013627,
+     "t": 760777,
+     "entity": "U66@DOM1",
+     "src": "C1823",
+     "dst": "C3699",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.00004487403431294204,
+     "log_p": -10.011651230876135,
+     "t": 727317,
+     "entity": "U24@DOM1",
+     "src": "C2982",
+     "dst": "C2982",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004489000001386291,
+     "log_p": -10.011295504861614,
+     "t": 723716,
+     "entity": "U24@DOM1",
+     "src": "C2982",
+     "dst": "C2982",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004489947604601322,
+     "log_p": -10.011084432637979,
+     "t": 691201,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.00004498206480620665,
+     "log_p": -10.009246707502122,
+     "t": 748820,
+     "entity": "U24@DOM1",
+     "src": "C1971",
+     "dst": "C1971",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004499875970643322,
+     "log_p": -10.008875630653058,
+     "t": 745221,
+     "entity": "U24@DOM1",
+     "src": "C1971",
+     "dst": "C1971",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004501243793368115,
+     "log_p": -10.008571707858742,
+     "t": 741617,
+     "entity": "U24@DOM1",
+     "src": "C1971",
+     "dst": "C1971",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004502400382648879,
+     "log_p": -10.00831479204454,
+     "t": 738023,
+     "entity": "U24@DOM1",
+     "src": "C1971",
+     "dst": "C1971",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004503519066247622,
+     "log_p": -10.008066359086454,
+     "t": 734420,
+     "entity": "U24@DOM1",
+     "src": "C1971",
+     "dst": "C1971",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.000045037615239964344,
+     "log_p": -10.008012523137536,
+     "t": 720009,
+     "entity": "U24@DOM1",
+     "src": "C1971",
+     "dst": "C1971",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.0000450490651168037,
+     "log_p": -10.00775832624948,
+     "t": 730825,
+     "entity": "U24@DOM1",
+     "src": "C1971",
+     "dst": "C1971",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.000045062262105952255,
+     "log_p": -10.00746542213521,
+     "t": 727212,
+     "entity": "U24@DOM1",
+     "src": "C1971",
+     "dst": "C1971",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004507682927387183,
+     "log_p": -10.007142206806025,
+     "t": 723611,
+     "entity": "U24@DOM1",
+     "src": "C1971",
+     "dst": "C1971",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004510172212361741,
+     "log_p": -10.006590127625508,
+     "t": 761147,
+     "entity": "U66@DOM1",
+     "src": "C1823",
+     "dst": "C3699",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.000045121851754876676,
+     "log_p": -10.006143910950023,
+     "t": 766800,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.00004518382573320796,
+     "log_p": -10.004771372926184,
+     "t": 763200,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.000045200944909691535,
+     "log_p": -10.004392566262926,
+     "t": 694800,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.000045213552686440385,
+     "log_p": -10.004113677872994,
+     "t": 716405,
+     "entity": "U24@DOM1",
+     "src": "C1697",
+     "dst": "C1697",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.000045223875168832414,
+     "log_p": -10.003885398880952,
+     "t": 759600,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.000045223887427109645,
+     "log_p": -10.00388512782334,
+     "t": 759669,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.0000452399946772134,
+     "log_p": -10.003529024373007,
+     "t": 694869,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.000045245770021265234,
+     "log_p": -10.003401372380917,
+     "t": 774158,
+     "entity": "U78@DOM1",
+     "src": "C2472",
+     "dst": "C1089",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.00004525307662518851,
+     "log_p": -10.003239898412799,
+     "t": 756064,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004525398462922415,
+     "log_p": -10.003219833590824,
+     "t": 694921,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.00004525438206146698,
+     "log_p": -10.003211051369746,
+     "t": 756000,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.000045268197793264176,
+     "log_p": -10.00290580748636,
+     "t": 748807,
+     "entity": "U24@DOM1",
+     "src": "C1697",
+     "dst": "C1697",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004527627745867714,
+     "log_p": -10.002727339050558,
+     "t": 752464,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004527742059230048,
+     "log_p": -10.0027020914097,
+     "t": 752400,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004528419756445059,
+     "log_p": -10.002552425970839,
+     "t": 745201,
+     "entity": "U24@DOM1",
+     "src": "C1697",
+     "dst": "C1697",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004529702846914803,
+     "log_p": -10.002269124334394,
+     "t": 748800,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.000045297121025961974,
+     "log_p": -10.002267081005668,
+     "t": 748869,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.000045297710418793634,
+     "log_p": -10.002254069384094,
+     "t": 741601,
+     "entity": "U24@DOM1",
+     "src": "C1697",
+     "dst": "C1697",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.000045308040610217324,
+     "log_p": -10.002026044311709,
+     "t": 764128,
+     "entity": "U66@DOM1",
+     "src": "C1823",
+     "dst": "C3699",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.00004531012213901843,
+     "log_p": -10.001980103658349,
+     "t": 738001,
+     "entity": "U24@DOM1",
+     "src": "C1697",
+     "dst": "C1697",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004531493548051915,
+     "log_p": -10.001873878258186,
+     "t": 745260,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004531579494745585,
+     "log_p": -10.001854911911282,
+     "t": 745200,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.000045321665243586267,
+     "log_p": -10.00172537835802,
+     "t": 734401,
+     "entity": "U24@DOM1",
+     "src": "C1697",
+     "dst": "C1697",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004532398216921333,
+     "log_p": -10.001674257853203,
+     "t": 720001,
+     "entity": "U24@DOM1",
+     "src": "C1697",
+     "dst": "C1697",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004533166408608626,
+     "log_p": -10.001504783204714,
+     "t": 741668,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004533251449127279,
+     "log_p": -10.001486023751976,
+     "t": 741600,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.000045335666200266806,
+     "log_p": -10.001416501920366,
+     "t": 730807,
+     "entity": "U24@DOM1",
+     "src": "C1697",
+     "dst": "C1697",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004534693107726199,
+     "log_p": -10.00116805563869,
+     "t": 738120,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004534772720552405,
+     "log_p": -10.001150499406004,
+     "t": 738000,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.000045347782073850225,
+     "log_p": -10.001149289460184,
+     "t": 738063,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004534804175385269,
+     "log_p": -10.001143563066366,
+     "t": 727321,
+     "entity": "U24@DOM1",
+     "src": "C1697",
+     "dst": "C1697",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004534898577133901,
+     "log_p": -10.001122746122038,
+     "t": 727208,
+     "entity": "U24@DOM1",
+     "src": "C1697",
+     "dst": "C1697",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004536244738070754,
+     "log_p": -10.00082594539914,
+     "t": 734468,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004536244844090451,
+     "log_p": -10.00082592202745,
+     "t": 734520,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.000045363149894502605,
+     "log_p": -10.000810458837105,
+     "t": 734400,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004536390790077227,
+     "log_p": -10.000793749240474,
+     "t": 723606,
+     "entity": "U24@DOM1",
+     "src": "C1697",
+     "dst": "C1697",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004537594549427552,
+     "log_p": -10.000528428256947,
+     "t": 730864,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004537600532094835,
+     "log_p": -10.000527109791124,
+     "t": 730921,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.000045376621149980654,
+     "log_p": -10.000513538194216,
+     "t": 730800,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004538797522604859,
+     "log_p": -10.000263350861701,
+     "t": 727321,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004538851045415878,
+     "log_p": -10.000251558642466,
+     "t": 727201,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004538858361871984,
+     "log_p": -10.000249946681613,
+     "t": 727264,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004539936924948369,
+     "log_p": -10.00001234619666,
+     "t": 723606,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.000045399380012564924,
+     "log_p": -10.000012109121121,
+     "t": 723664,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004539942139802848,
+     "log_p": -10.000011197535,
+     "t": 723726,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.000045408414971462076,
+     "log_p": -9.999813118298174,
+     "t": 720064,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004540853089928128,
+     "log_p": -9.999810565298443,
+     "t": 720121,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004540859823588321,
+     "log_p": -9.999809082393122,
+     "t": 720181,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.000045408968214300214,
+     "log_p": -9.99980093466507,
+     "t": 720001,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.000045416873262995004,
+     "log_p": -9.999626864189395,
+     "t": 716521,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.000045416966111834596,
+     "log_p": -9.999624819822664,
+     "t": 716580,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004541734695648597,
+     "log_p": -9.999616434342805,
+     "t": 716400,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004541740554931731,
+     "log_p": -9.999615144245574,
+     "t": 716464,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.000045428975975261504,
+     "log_p": -9.999360419163242,
+     "t": 712980,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004542946935837481,
+     "log_p": -9.999349558684361,
+     "t": 712864,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.000045429496285654663,
+     "log_p": -9.999348965957388,
+     "t": 712920,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004542991620890427,
+     "log_p": -9.999339722594746,
+     "t": 712800,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004544125029349872,
+     "log_p": -9.999090268668061,
+     "t": 709321,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004544125254744629,
+     "log_p": -9.999090219066707,
+     "t": 709264,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004544126594551765,
+     "log_p": -9.999089924222956,
+     "t": 709380,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.000045441686102244694,
+     "log_p": -9.999080678116451,
+     "t": 709200,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.000045453999132261294,
+     "log_p": -9.998809751502934,
+     "t": 705780,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.000045454009709403016,
+     "log_p": -9.998809518803046,
+     "t": 705721,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004545449508528028,
+     "log_p": -9.9987988404649,
+     "t": 705664,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004545450936588137,
+     "log_p": -9.998798526291377,
+     "t": 705600,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.000045468324914735286,
+     "log_p": -9.998494630156385,
+     "t": 702241,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004546834980288734,
+     "log_p": -9.998494082783125,
+     "t": 702181,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.000045468815280262665,
+     "log_p": -9.998483845442323,
+     "t": 702001,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004546882196883057,
+     "log_p": -9.998483698340019,
+     "t": 702121,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004546882866072707,
+     "log_p": -9.998483551164531,
+     "t": 702064,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.000045478940450466736,
+     "log_p": -9.998261186396705,
+     "t": 698400,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.000045479785407486595,
+     "log_p": -9.998242607486064,
+     "t": 698580,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004547979594492651,
+     "log_p": -9.998242375791069,
+     "t": 698484,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004547979872122073,
+     "log_p": -9.99824231474651,
+     "t": 698521,
+     "entity": "U78@DOM1",
+     "src": "C1727",
+     "dst": "C1727",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004554825923005663,
+     "log_p": -9.9967381516723,
+     "t": 691201,
+     "entity": "U78@DOM1",
+     "src": "C1581",
+     "dst": "C1581",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.00004555012659386008,
+     "log_p": -9.996697155033626,
+     "t": 694801,
+     "entity": "U78@DOM1",
+     "src": "C2472",
+     "dst": "C528",
+     "is_red_team": false,
+     "j": 15,
+     "categories": [
+      "off_hours"
+     ]
+    },
+    {
+     "p": 0.000045752043154520964,
+     "log_p": -9.99227410812472,
+     "t": 714776,
+     "entity": "U66@DOM1",
+     "src": "C1823",
+     "dst": "C2803",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004579546619621066,
+     "log_p": -9.991325463093213,
+     "t": 732795,
+     "entity": "U66@DOM1",
+     "src": "C1823",
+     "dst": "C2839",
+     "is_red_team": false,
+     "j": 15
+    },
+    {
+     "p": 0.00004579553419742323,
+     "log_p": -9.991323978204692,
+     "t": 732800,
+     "entity": "U66@DOM1",
+     "src": "C1823",
+     "dst": "C2839",
+     "is_red_team": false,
+     "j": 15
+    }
+   ]
+  },
+  "anomaly_categories": {
+   "counts": {
+    "novel_pair": {
+     "red_team_events": 22,
+     "scored_events": 1525
+    },
+    "novel_value": {
+     "red_team_events": 101,
+     "scored_events": 2885
+    },
+    "off_hours": {
+     "red_team_events": 155,
+     "scored_events": 519661
+    },
+    "population_rare": {
+     "red_team_events": 0,
+     "scored_events": 2828
+    },
+    "volume_burst": {
+     "red_team_events": 100,
+     "scored_events": 389578
+    }
+   },
+   "definition": "structural properties of an event relative to the history it was scored against, derived from verdict evidence and NOT from which detector produced the smallest p-value; a partition defined by our own detectors would flatter the framework by construction"
+  },
+  "detections_at_budget": {
+   "budget_100_per_day": {
+    "alerts": 200,
+    "red_team_total": 262,
+    "true_positives": 15
+   },
+   "budget_10_per_day": {
+    "alerts": 20,
+    "red_team_total": 262,
+    "true_positives": 6
+   },
+   "budget_25_per_day": {
+    "alerts": 50,
+    "red_team_total": 262,
+    "true_positives": 10
+   },
+   "budget_50_per_day": {
+    "alerts": 100,
+    "red_team_total": 262,
+    "true_positives": 12
+   }
+  },
+  "p_histograms": {
+   "combined": {
+    "counts": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     1,
+     122,
+     11971,
+     1991,
+     1128,
+     3757,
+     464,
+     1492,
+     327,
+     680,
+     464,
+     7523,
+     21,
+     383,
+     314,
+     76,
+     34,
+     43,
+     42,
+     63,
+     94,
+     147,
+     142,
+     207,
+     276,
+     1410,
+     650,
+     4393,
+     3424,
+     7635,
+     123033,
+     24200,
+     103452,
+     14680,
+     2534,
+     1598,
+     1586,
+     1855,
+     2028,
+     2136,
+     2443,
+     2082,
+     3439,
+     3410,
+     2769,
+     2235,
+     2591,
+     3211,
+     2980,
+     3048,
+     3187,
+     3339,
+     3489,
+     3722,
+     4315,
+     5140,
+     5484,
+     6599,
+     7654,
+     9445,
+     10329,
+     11389,
+     15041,
+     17111,
+     22864,
+     29465,
+     38603,
+     57086,
+     86030,
+     106132,
+     74247,
+     74805,
+     109631,
+     134707,
+     123554,
+     90551,
+     32423,
+     8815,
+     1498,
+     428,
+     121,
+     0,
+     2,
+     1,
+     2,
+     14,
+     14,
+     17,
+     1
+    ],
+    "under_1e_12": 0
+   },
+   "cooccurrence": {
+    "counts": [
+     272,
+     264,
+     288,
+     284,
+     315,
+     309,
+     292,
+     297,
+     325,
+     315,
+     343,
+     337,
+     351,
+     322,
+     302,
+     328,
+     324,
+     354,
+     326,
+     302,
+     304,
+     333,
+     315,
+     291,
+     321,
+     318,
+     309,
+     290,
+     310,
+     313,
+     342,
+     314,
+     282,
+     332,
+     360,
+     350,
+     333,
+     369,
+     382,
+     314,
+     305,
+     340,
+     333,
+     356,
+     356,
+     341,
+     318,
+     332,
+     352,
+     367,
+     360,
+     410,
+     378,
+     335,
+     385,
+     355,
+     377,
+     352,
+     393,
+     379,
+     381,
+     410,
+     378,
+     392,
+     376,
+     365,
+     365,
+     363,
+     397,
+     387,
+     410,
+     443,
+     517,
+     473,
+     521,
+     504,
+     453,
+     480,
+     431,
+     456,
+     403,
+     434,
+     474,
+     627,
+     562,
+     469,
+     468,
+     441,
+     465,
+     478,
+     500,
+     446,
+     464,
+     528,
+     526,
+     550,
+     510,
+     573,
+     652,
+     740,
+     802,
+     856,
+     747,
+     671,
+     620,
+     581,
+     610,
+     591,
+     578,
+     545,
+     568,
+     507,
+     507,
+     531,
+     490,
+     482,
+     489,
+     428,
+     491,
+     513,
+     467,
+     482,
+     506,
+     488,
+     509,
+     536,
+     529,
+     513,
+     510,
+     512,
+     463,
+     475,
+     477,
+     461,
+     505,
+     543,
+     520,
+     499,
+     551,
+     616,
+     621,
+     542,
+     523,
+     567,
+     565,
+     563,
+     578,
+     583,
+     589,
+     554,
+     569,
+     551,
+     630,
+     581,
+     600,
+     604,
+     580,
+     573,
+     627,
+     683,
+     684,
+     682,
+     727,
+     784,
+     750,
+     737,
+     727,
+     710,
+     689,
+     729,
+     716,
+     687,
+     691,
+     664,
+     671,
+     665,
+     725,
+     752,
+     768,
+     703,
+     750,
+     795,
+     766,
+     847,
+     837,
+     944,
+     976,
+     985,
+     1007,
+     1018,
+     1028,
+     1046,
+     1101,
+     1155,
+     1130,
+     1244,
+     1273,
+     1278,
+     1178,
+     1175,
+     1286,
+     1272,
+     1188,
+     1163,
+     1092,
+     1171,
+     1217,
+     1125,
+     1014,
+     1154,
+     1166,
+     1182,
+     1222,
+     1385,
+     1284,
+     1311,
+     1272,
+     1193,
+     1269,
+     1440,
+     1382,
+     1440,
+     1457,
+     1464,
+     1582,
+     1507,
+     1581,
+     1739,
+     2012,
+     2365,
+     2355,
+     2608,
+     2896,
+     2904,
+     2987,
+     3005,
+     3513,
+     4455,
+     6636,
+     1005618
+    ],
+    "under_1e_12": 267013
+   },
+   "marginal": {
+    "counts": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     34,
+     26,
+     11,
+     4,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     27,
+     69,
+     0,
+     130,
+     167,
+     0,
+     0,
+     0,
+     211,
+     64,
+     248,
+     0,
+     0,
+     98,
+     243,
+     0,
+     0,
+     104,
+     352,
+     0,
+     0,
+     0,
+     224,
+     818,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     6799,
+     1406,
+     5989,
+     1168,
+     0,
+     0,
+     0,
+     0,
+     7274,
+     7078,
+     29090,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     33096,
+     14659,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     58211,
+     9092,
+     0,
+     187000,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     568241,
+     0,
+     0,
+     0,
+     3729573
+    ],
+    "under_1e_12": 0
+   },
+   "novelty": {
+    "counts": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     34,
+     1,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     1,
+     1,
+     13,
+     1,
+     0,
+     0,
+     5,
+     1,
+     2,
+     2,
+     3,
+     9,
+     27,
+     10,
+     9,
+     12,
+     3,
+     4,
+     8,
+     4,
+     46,
+     27,
+     14,
+     14,
+     26,
+     47,
+     22,
+     38,
+     43,
+     19,
+     59,
+     275,
+     153,
+     68,
+     74,
+     104,
+     147,
+     92,
+     93,
+     169,
+     159,
+     226,
+     230,
+     242,
+     256,
+     236,
+     274,
+     260,
+     274,
+     302,
+     335,
+     362,
+     507,
+     653,
+     732,
+     610,
+     630,
+     704,
+     801,
+     801,
+     1109,
+     1129,
+     1408,
+     2310,
+     1509,
+     1997,
+     2063,
+     2961,
+     5237,
+     3440,
+     4157,
+     4658,
+     4657,
+     5241,
+     5540,
+     7034,
+     7240,
+     8945,
+     8138,
+     10149,
+     11610,
+     11611,
+     13185,
+     25264,
+     15508,
+     18408,
+     18753,
+     20726,
+     24270,
+     41156,
+     27560,
+     26004,
+     31947,
+     32223,
+     36162,
+     42333,
+     49006,
+     60797,
+     67151,
+     72886,
+     78693,
+     91475,
+     95359,
+     104860,
+     119793,
+     169011,
+     177997,
+     448841,
+     218768,
+     158217,
+     130117,
+     132563,
+     7797412
+    ],
+    "under_1e_12": 0
+   },
+   "timing": {
+    "counts": [
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     0,
+     539,
+     52,
+     44,
+     165,
+     60,
+     117,
+     129,
+     59,
+     137,
+     193,
+     184,
+     226,
+     323,
+     358,
+     338,
+     617,
+     382,
+     456,
+     679,
+     663,
+     735,
+     833,
+     764,
+     1077,
+     1201,
+     1257,
+     1405,
+     1650,
+     2032,
+     2242,
+     2760,
+     3197,
+     3925,
+     4160,
+     4514,
+     6496,
+     6317,
+     7538,
+     9253,
+     10520,
+     12156,
+     14094,
+     15221,
+     18820,
+     23033,
+     21278,
+     25441,
+     27707,
+     28275,
+     52642,
+     79174,
+     69224,
+     75102,
+     95233,
+     96603,
+     106603,
+     127353,
+     166585,
+     110983,
+     100841,
+     107874
+    ],
+    "under_1e_12": 0
+   },
+   "volume": {
+    "counts": [
+     237,
+     262,
+     284,
+     284,
+     283,
+     272,
+     271,
+     280,
+     278,
+     283,
+     281,
+     296,
+     269,
+     294,
+     302,
+     282,
+     292,
+     295,
+     279,
+     301,
+     297,
+     328,
+     294,
+     292,
+     332,
+     318,
+     333,
+     306,
+     278,
+     299,
+     367,
+     320,
+     317,
+     334,
+     323,
+     342,
+     327,
+     367,
+     312,
+     319,
+     364,
+     333,
+     372,
+     354,
+     350,
+     356,
+     343,
+     336,
+     393,
+     330,
+     393,
+     345,
+     357,
+     409,
+     362,
+     390,
+     376,
+     371,
+     396,
+     362,
+     384,
+     406,
+     378,
+     400,
+     419,
+     410,
+     428,
+     418,
+     391,
+     392,
+     417,
+     432,
+     424,
+     420,
+     445,
+     442,
+     420,
+     429,
+     469,
+     430,
+     454,
+     455,
+     461,
+     469,
+     450,
+     460,
+     489,
+     469,
+     472,
+     500,
+     503,
+     486,
+     506,
+     491,
+     508,
+     499,
+     535,
+     530,
+     540,
+     509,
+     518,
+     550,
+     561,
+     525,
+     563,
+     542,
+     590,
+     557,
+     546,
+     597,
+     596,
+     595,
+     585,
+     610,
+     624,
+     594,
+     662,
+     575,
+     613,
+     645,
+     646,
+     637,
+     658,
+     664,
+     679,
+     717,
+     644,
+     678,
+     705,
+     693,
+     704,
+     703,
+     751,
+     790,
+     709,
+     736,
+     764,
+     753,
+     819,
+     788,
+     778,
+     799,
+     775,
+     839,
+     853,
+     833,
+     861,
+     872,
+     849,
+     878,
+     926,
+     909,
+     907,
+     911,
+     917,
+     940,
+     977,
+     982,
+     1006,
+     997,
+     1035,
+     1046,
+     1055,
+     988,
+     1099,
+     1094,
+     1172,
+     1092,
+     1124,
+     1130,
+     1189,
+     1232,
+     1211,
+     1171,
+     1267,
+     1310,
+     1253,
+     1303,
+     1352,
+     1319,
+     1420,
+     1400,
+     1440,
+     1433,
+     1447,
+     1559,
+     1472,
+     1591,
+     1600,
+     1671,
+     1637,
+     1707,
+     1717,
+     1799,
+     1778,
+     1818,
+     1952,
+     1919,
+     1962,
+     2023,
+     2070,
+     2145,
+     2146,
+     2264,
+     2308,
+     2339,
+     2490,
+     2480,
+     2506,
+     2714,
+     2708,
+     2779,
+     2902,
+     3000,
+     3088,
+     3239,
+     3309,
+     3485,
+     3630,
+     3766,
+     3897,
+     4129,
+     4326,
+     4515,
+     4762,
+     5047,
+     5312,
+     5661,
+     6075,
+     6491,
+     7025,
+     7684,
+     8339,
+     9416,
+     10605,
+     12401,
+     15140,
+     19837,
+     30193,
+     766612
+    ],
+    "under_1e_12": 321060
+   }
+  },
+  "red_team_scored": [
+   {
+    "key": "635015|U737@DOM1|C19932|C529",
+    "p": 0.0008215272701193165,
+    "log_p": -7.104345425518353,
+    "t": 635015,
+    "entity": "U737@DOM1",
+    "j": 15,
+    "categories": [
+     "volume_burst"
+    ]
+   },
+   {
+    "key": "725488|U1653@DOM1|C17693|C395",
+    "p": 0.003051405974127306,
+    "log_p": -5.792152819455501,
+    "t": 725488,
+    "entity": "U1653@DOM1",
+    "j": 15,
+    "categories": [
+     "novel_value",
+     "novel_pair"
+    ]
+   },
+   {
+    "key": "725589|U1653@DOM1|C17693|C2669",
+    "p": 0.007467452598084149,
+    "log_p": -4.897201355656573,
+    "t": 725589,
+    "entity": "U1653@DOM1",
+    "j": 15,
+    "categories": [
+     "novel_value"
+    ]
+   },
+   {
+    "key": "725983|U293@DOM1|C17693|C3153",
+    "p": 0.002538378858345744,
+    "log_p": -5.976229646462345,
+    "t": 725983,
+    "entity": "U293@DOM1",
+    "j": 15,
+    "categories": [
+     "novel_value"
+    ]
+   },
+   {
+    "key": "726008|U8946@DOM1|C17693|C1610",
+    "p": 0.023760663301381157,
+    "log_p": -3.739723868152561,
+    "t": 726008,
+    "entity": "U8946@DOM1",
+    "j": 15,
+    "categories": [
+     "novel_value",
+     "volume_burst"
+    ]
+   },
+   {
+    "key": "726057|U293@DOM1|C17693|C3153",
+    "p": 0.0025896882339599657,
+    "log_p": -5.956217783504531,
+    "t": 726057,
+    "entity": "U293@DOM1",
+    "j": 15
+   },
+   {
+    "key": "726137|U10379@C3521|C17693|C3521",
+    "p": 0.20633410307334477,
+    "log_p": -1.5782585644071256,
+    "t": 726137,
+    "entity": "U10379@C3521",
+    "j": 15
+   },
+   {
+    "key": "726203|U293@DOM1|C17693|C3153",
+    "p": 0.002629598367392872,
+    "log_p": -5.94092415647205,
+    "t": 726203,
+    "entity": "U293@DOM1",
+    "j": 15
+   },
+   {
+    "key": "726347|U8946@DOM1|C17693|C1124",
+    "p": 0.024136522593598775,
+    "log_p": -3.724029125321381,
+    "t": 726347,
+    "entity": "U8946@DOM1",
+    "j": 15,
+    "categories": [
+     "novel_value",
+     "volume_burst"
+    ]
+   },
+   {
+    "key": "726387|U293@DOM1|C17693|C3153",
+    "p": 0.0026743858365587325,
+    "log_p": -5.924035518804681,
+    "t": 726387,
+    "entity": "U293@DOM1",
+    "j": 15
+   },
+   {
+    "key": "726472|U8946@DOM1|C17693|C3199",
+    "p": 0.024344180039396424,
+    "log_p": -3.7154624707774326,
+    "t": 726472,
+    "entity": "U8946@DOM1",
+    "j": 15,
+    "categories": [
+     "novel_value",
+     "volume_burst"
+    ]
+   },
+   {
+    "key": "726973|U293@DOM1|C17693|C3153",
+    "p": 0.0027355020598496304,
+    "log_p": -5.901440291454049,
+    "t": 726973,
+    "entity": "U293@DOM1",
+    "j": 15
+   },
+   {
+    "key": "726985|U8946@DOM1|C17693|C11727",
+    "p": 0.018600212835992003,
+    "log_p": -3.984582255533181,
+    "t": 726985,
+    "entity": "U8946@DOM1",
+    "j": 15,
+    "categories": [
+     "novel_value",
+     "volume_burst",
+     "novel_pair"
+    ]
+   },
+   {
+    "key": "727060|U8601@DOM1|C17693|C754",
+    "p": 0.048717303950421176,
+    "log_p": -3.0217209947467123,
+    "t": 727060,
+    "entity": "U8601@DOM1",
+    "j": 15,
+    "categories": [
+     "novel_value"
+    ]
+   },
+   {
+    "key": "727131|U212@DOM1|C17693|C126",
+    "p": 0.012080861571027168,
+    "log_p": -4.41613276691387,
+    "t": 727131,
+    "entity": "U212@DOM1",
+    "j": 15,
+    "categories": [
+     "novel_value",
+     "volume_burst"
+    ]
+   },
+   {
+    "key": "727419|U212@DOM1|C17693|C126",
+    "p": 0.012927900475672272,
+    "log_p": -4.3483674755875885,
+    "t": 727419,
+    "entity": "U212@DOM1",
+    "j": 15
+   },
+   {
+    "key": "727619|U212@DOM1|C17693|C126",
+    "p": 0.013255483329140616,
+    "log_p": -4.323343975994917,
+    "t": 727619,
+    "entity": "U212@DOM1",
+    "j": 15
+   },
+   {
+    "key": "727702|U8946@DOM1|C17693|C9945",
+    "p": 0.042209227336126864,
+    "log_p": -3.165116424587993,
+    "t": 727702,
+    "entity": "U8946@DOM1",
+    "j": 15,
+    "categories": [
+     "novel_value"
+    ]
+   },
+   {
+    "key": "727798|U8946@DOM1|C17693|C9945",
+    "p": 0.04442234239681342,
+    "log_p": -3.1140127289747737,
+    "t": 727798,
+    "entity": "U8946@DOM1",
+    "j": 15
+   },
+   {
+    "key": "727888|U8946@DOM1|C17693|C9945",
+    "p": 0.04604623595197954,
+    "log_p": -3.0781092579064944,
+    "t": 727888,
+    "entity": "U8946@DOM1",
+    "j": 15
+   },
+   {
+    "key": "728106|U4978@DOM1|C17693|C1448",
+    "p": 0.0330542273221619,
+    "log_p": -3.4096058139905487,
+    "t": 728106,
+    "entity": "U4978@DOM1",
+    "j": 15,
+    "categories": [
+     "novel_value"
+    ]
+   },
+   {
+    "key": "728138|U8946@DOM1|C17693|C9945",
+    "p": 0.04491191980797982,
+    "log_p": -3.1030520449008137,
+    "t": 728138,
+    "entity": "U8946@DOM1",
+    "j": 15,
+    "categories": [
+     "volume_burst"
+    ]
+   },
+   {
+    "key": "728800|U3905@DOM1|C17693|C9945",
+    "p": 0.022384332036898602,
+    "log_p": -3.7993940274977196,
+    "t": 728800,
+    "entity": "U3905@DOM1",
+    "j": 15,
+    "categories": [
+     "novel_value",
+     "novel_pair"
+    ]
+   },
+   {
+    "key": "729056|U995@DOM1|C17693|C1014",
+    "p": 0.022436042924793842,
+    "log_p": -3.7970865541272403,
+    "t": 729056,
+    "entity": "U995@DOM1",
+    "j": 15,
+    "categories": [
+     "novel_value"
+    ]
+   },
+   {
+    "key": "730430|U8601@DOM1|C17693|C20819",
+    "p": 0.05179749302326708,
+    "log_p": -2.96041352812211,
+    "t": 730430,
+    "entity": "U8601@DOM1",
+    "j": 15,
+    "categories": [
+     "novel_value"
+    ]
+   },
+   {
+    "key": "730524|U8601@DOM1|C17693|C20819",
+    "p": 0.054409763724308946,
+    "log_p": -2.9112116609986214,
+    "t": 730524,
+    "entity": "U8601@DOM1",
+    "j": 15
+   },
+   {
+    "key": "730889|U8601@DOM1|C17693|C18626",
+    "p": 0.05368477675753813,
+    "log_p": -2.924625804481547,
+    "t": 730889,
+    "entity": "U8601@DOM1",
+    "j": 15,
+    "categories": [
+     "novel_value"
+    ]
+   },
+   {
+    "key": "731101|U8601@DOM1|C17693|C18626",
+    "p": 0.05645119071029314,
+    "log_p": -2.874378895423926,
+    "t": 731101,
+    "entity": "U8601@DOM1",
+    "j": 15
+   },
+   {
+    "key": "731492|U288@DOM1|C17693|C1222",
+    "p": 0.02204329210462108,
+    "log_p": -3.8147469363137803,
+    "t": 731492,
+    "entity": "U288@DOM1",
+    "j": 15,
+    "categories": [
+     "novel_value"
+    ]
+   },
+   {
+    "key": "736582|U2837@DOM1|C17693|C89",
+    "p": 0.07509322018410292,
+    "log_p": -2.5890250014630043,
+    "t": 736582,
+    "entity": "U2837@DOM1",
+    "j": 15,
+    "categories": [
+     "novel_value",
+     "novel_pair"
+    ]
+   },
+   {
+    "key": "736894|U2837@DOM1|C17693|C1484",
+    "p": 0.0821109540062519,
+    "log_p": -2.499683848692327,
+    "t": 736894,
+    "entity": "U2837@DOM1",
+    "j": 15,
+    "categories": [
+     "novel_value"
+    ]
+   },
+   {
+    "key": "736936|U2837@DOM1|C17693|C8490",
+    "p": 0.08498221204067202,
+    "log_p": -2.465313314501606,
+    "t": 736936,
+    "entity": "U2837@DOM1",
+    "j": 15,
+    "categories": [
+     "novel_value",
+     "volume_burst"
+    ]
+   },
+   {
+    "key": "737011|U349@DOM1|C17693|C3601",
+    "p": 0.023268329199045867,
+    "log_p": -3.760662104888362,
+    "t": 737011,
+    "entity": "U349@DOM1",
+    "j": 15,
+    "categories": [
+     "volume_burst"
+    ]
+   },
+   {
+    "key": "737055|U2837@DOM1|C17693|C1784",
+    "p": 0.0869547711726939,
+    "log_p": -2.442367167085866,
+    "t": 737055,
+    "entity": "U2837@DOM1",
+    "j": 15,
+    "categories": [
+     "novel_value",
+     "volume_burst"
+    ]
+   },
+   {
+    "key": "737069|U2837@DOM1|C17693|C1784",
+    "p": 0.09222441833856054,
+    "log_p": -2.3835303425015524,
+    "t": 737069,
+    "entity": "U2837@DOM1",
+    "j": 15,
+    "categories": [
+     "volume_burst"
+    ]
+   },
+   {
+    "key": "737075|U2837@DOM1|C17693|C1784",
+    "p": 0.09335932305696604,
+    "log_p": -2.37129954191952,
+    "t": 737075,
+    "entity": "U2837@DOM1",
+    "j": 15,
+    "categories": [
+     "volume_burst"
+    ]
+   },
+   {
+    "key": "737099|U2837@DOM1|C17693|C2519",
+    "p": 0.08959819032226468,
+    "log_p": -2.4124201565013736,
+    "t": 737099,
+    "entity": "U2837@DOM1",
+    "j": 15,
+    "categories": [
+     "novel_value",
+     "volume_burst"
+    ]
+   },
+   {
+    "key": "737108|U8946@DOM1|C17693|C11194",
+    "p": 0.047572656086102616,
+    "log_p": -3.0454971347781474,
+    "t": 737108,
+    "entity": "U8946@DOM1",
+    "j": 15,
+    "categories": [
+     "novel_value",
+     "volume_burst"
+    ]
+   },
+   {
+    "key": "737301|U2837@DOM1|C17693|C395",
+    "p": 0.002650630666798881,
+    "log_p": -5.932957679827256,
+    "t": 737301,
+    "entity": "U2837@DOM1",
+    "j": 15,
+    "categories": [
+     "novel_value",
+     "volume_burst"
+    ]
+   },
+   {
+    "key": "737761|U8946@DOM1|C17693|C10577",
+    "p": 0.04369614769057517,
+    "log_p": -3.1304953343000927,
+    "t": 737761,
+    "entity": "U8946@DOM1",
+    "j": 15,
+    "categories": [
+     "novel_value",
+     "volume_burst"
+    ]
+   },
+   {
+    "key": "737908|U8601@DOM1|C17693|C18872",
+    "p": 0.03726281804698517,
+    "log_p": -3.289759284704472,
+    "t": 737908,
+    "entity": "U8601@DOM1",
+    "j": 15,
+    "categories": [
+     "novel_pair"
+    ]
+   },
+   {
+    "key": "738382|U293@DOM1|C17693|C2597",
+    "p": 0.002808330566388361,
+    "log_p": -5.875165076674612,
+    "t": 738382,
+    "entity": "U293@DOM1",
+    "j": 15
+   },
+   {
+    "key": "738711|U293@DOM1|C17693|C2609",
+    "p": 0.0028246085527748642,
+    "log_p": -5.869385489374231,
+    "t": 738711,
+    "entity": "U293@DOM1",
+    "j": 15
+   },
+   {
+    "key": "738916|U250@DOM1|C17693|C2849",
+    "p": 0.0010609846165827868,
+    "log_p": -6.848557918434867,
+    "t": 738916,
+    "entity": "U250@DOM1",
+    "j": 15,
+    "categories": [
+     "novel_value"
+    ]
+   },
+   {
+    "key": "739092|U293@DOM1|C17693|C3422",
+    "p": 0.002887072479483579,
+    "log_p": -5.847512273149355,
+    "t": 739092,
+    "entity": "U293@DOM1",
+    "j": 15
+   },
+   {
+    "key": "739214|U293@DOM1|C17693|C3153",
+    "p": 0.002914725982885325,
+    "log_p": -5.8379794660389,
+    "t": 739214,
+    "entity": "U293@DOM1",
+    "j": 15
+   },
+   {
+    "key": "739398|U293@DOM1|C17693|C42",
+    "p": 0.002898580963292129,
+    "log_p": -5.8435339847499925,
+    "t": 739398,
+    "entity": "U293@DOM1",
+    "j": 15
+   },
+   {
+    "key": "739706|U1600@DOM1|C17693|C92",
+    "p": 0.020480288538023306,
+    "log_p": -3.8882923901394064,
+    "t": 739706,
+    "entity": "U1600@DOM1",
+    "j": 15,
+    "categories": [
+     "off_hours",
+     "volume_burst"
+    ]
+   },
+   {
+    "key": "739734|U1600@DOM1|C17693|C16088",
+    "p": 0.020541334063809535,
+    "log_p": -3.885316127038298,
+    "t": 739734,
+    "entity": "U1600@DOM1",
+    "j": 15,
+    "categories": [
+     "off_hours",
+     "volume_burst"
+    ]
+   },
+   {
+    "key": "740104|U1600@DOM1|C17693|C92",
+    "p": 0.017573231992020766,
+    "log_p": -4.041378444239271,
+    "t": 740104,
+    "entity": "U1600@DOM1",
+    "j": 15,
+    "categories": [
+     "off_hours",
+     "volume_burst"
+    ]
+   },
+   {
+    "key": "740912|U349@DOM1|C17693|C886",
+    "p": 0.025197771143657177,
+    "log_p": -3.6809997350566683,
+    "t": 740912,
+    "entity": "U349@DOM1",
+    "j": 15
+   },
+   {
+    "key": "740920|U349@DOM1|C17693|C886",
+    "p": 0.025534972177223003,
+    "log_p": -3.6677063084768964,
+    "t": 740920,
+    "entity": "U349@DOM1",
+    "j": 15
+   },
+   {
+    "key": "741010|U8601@DOM1|C17693|C10817",
+    "p": 0.056882225865626856,
+    "log_p": -2.8667723615941143,
+    "t": 741010,
+    "entity": "U8601@DOM1",
+    "j": 15,
+    "categories": [
+     "novel_value"
+    ]
+   },
+   {
+    "key": "741190|U4353@DOM1|C17693|C15232",
+    "p": 0.04266989512803454,
+    "log_p": -3.1542616395299277,
+    "t": 741190,
+    "entity": "U4353@DOM1",
+    "j": 15,
+    "categories": [
+     "novel_value",
+     "novel_pair"
+    ]
+   },
+   {
+    "key": "741544|U349@DOM1|C17693|C801",
+    "p": 0.0011370404605472485,
+    "log_p": -6.779326479493102,
+    "t": 741544,
+    "entity": "U349@DOM1",
+    "j": 15,
+    "categories": [
+     "volume_burst"
+    ]
+   },
+   {
+    "key": "741971|U4856@DOM1|C17693|C1015",
+    "p": 0.11227066346642911,
+    "log_p": -2.186842684967771,
+    "t": 741971,
+    "entity": "U4856@DOM1",
+    "j": 15,
+    "categories": [
+     "novel_value",
+     "novel_pair"
+    ]
+   },
+   {
+    "key": "743030|U5087@DOM1|C17693|C1448",
+    "p": 0.049478180254910686,
+    "log_p": -3.0062235095207614,
+    "t": 743030,
+    "entity": "U5087@DOM1",
+    "j": 15,
+    "categories": [
+     "volume_burst"
+    ]
+   },
+   {
+    "key": "743134|U5087@DOM1|C17693|C359",
+    "p": 0.04798467193456846,
+    "log_p": -3.036873653768918,
+    "t": 743134,
+    "entity": "U5087@DOM1",
+    "j": 15,
+    "categories": [
+     "volume_burst"
+    ]
+   },
+   {
+    "key": "743223|U5087@DOM1|C17693|C21963",
+    "p": 0.049483864425238444,
+    "log_p": -3.006108633754959,
+    "t": 743223,
+    "entity": "U5087@DOM1",
+    "j": 15,
+    "categories": [
+     "volume_burst"
+    ]
+   },
+   {
+    "key": "743232|U5087@DOM1|C17693|C359",
+    "p": 0.04827669136364077,
+    "log_p": -3.0308064152659613,
+    "t": 743232,
+    "entity": "U5087@DOM1",
+    "j": 15,
+    "categories": [
+     "volume_burst"
+    ]
+   },
+   {
+    "key": "743403|U5087@DOM1|C17693|C21963",
+    "p": 0.035493443886533305,
+    "log_p": -3.338407278808663,
+    "t": 743403,
+    "entity": "U5087@DOM1",
+    "j": 15,
+    "categories": [
+     "volume_burst"
+    ]
+   },
+   {
+    "key": "743411|U5087@DOM1|C17693|C21963",
+    "p": 0.03499476876159524,
+    "log_p": -3.352556692617995,
+    "t": 743411,
+    "entity": "U5087@DOM1",
+    "j": 15,
+    "categories": [
+     "volume_burst"
+    ]
+   },
+   {
+    "key": "743502|U5087@DOM1|C17693|C1268",
+    "p": 0.0329233234905969,
+    "log_p": -3.4135739516895476,
+    "t": 743502,
+    "entity": "U5087@DOM1",
+    "j": 15,
+    "categories": [
+     "novel_value",
+     "volume_burst"
+    ]
+   },
+   {
+    "key": "743509|U5087@DOM1|C17693|C353",
+    "p": 0.033072107015758356,
+    "log_p": -3.40906504020621,
+    "t": 743509,
+    "entity": "U5087@DOM1",
+    "j": 15,
+    "categories": [
+     "volume_burst"
+    ]
+   },
+   {
+    "key": "743733|U9763@DOM1|C17693|C353",
+    "p": 0.07940311100078223,
+    "log_p": -2.5332177301265637,
+    "t": 743733,
+    "entity": "U9763@DOM1",
+    "j": 15,
+    "categories": [
+     "novel_value",
+     "novel_pair"
+    ]
+   },
+   {
+    "key": "744215|U795@DOM1|C17693|C10005",
+    "p": 0.014618167605387589,
+    "log_p": -4.225490167304376,
+    "t": 744215,
+    "entity": "U795@DOM1",
+    "j": 15,
+    "categories": [
+     "novel_value",
+     "volume_burst"
+    ]
+   },
+   {
+    "key": "744255|U5087@DOM1|C17693|C353",
+    "p": 0.027780168663403715,
+    "log_p": -3.5834328702775484,
+    "t": 744255,
+    "entity": "U5087@DOM1",
+    "j": 15,
+    "categories": [
+     "volume_burst"
+    ]
+   },
+   {
+    "key": "744902|U9947@DOM1|C17693|C20966",
+    "p": 0.01126653689973286,
+    "log_p": -4.4859182830027935,
+    "t": 744902,
+    "entity": "U9947@DOM1",
+    "j": 15,
+    "categories": [
+     "volume_burst"
+    ]
+   },
+   {
+    "key": "745795|U9947@DOM1|C17693|C853",
+    "p": 0.04266054860673607,
+    "log_p": -3.154480706041873,
+    "t": 745795,
+    "entity": "U9947@DOM1",
+    "j": 15,
+    "categories": [
+     "novel_value"
+    ]
+   },
+   {
+    "key": "745961|U9947@DOM1|C17693|C853",
+    "p": 0.04741950394994365,
+    "log_p": -3.048721659176824,
+    "t": 745961,
+    "entity": "U9947@DOM1",
+    "j": 15
+   },
+   {
+    "key": "746039|U9947@DOM1|C17693|C853",
+    "p": 0.04827695589246572,
+    "log_p": -3.0308009358494403,
+    "t": 746039,
+    "entity": "U9947@DOM1",
+    "j": 15
+   },
+   {
+    "key": "746078|U9947@DOM1|C17693|C923",
+    "p": 0.049811390898425456,
+    "log_p": -2.9995115882068015,
+    "t": 746078,
+    "entity": "U9947@DOM1",
+    "j": 15
+   },
+   {
+    "key": "746151|U882@DOM1|C17693|C11039",
+    "p": 0.03284653183922637,
+    "log_p": -3.415909115295451,
+    "t": 746151,
+    "entity": "U882@DOM1",
+    "j": 15,
+    "categories": [
+     "novel_value",
+     "off_hours"
+    ]
+   },
+   {
+    "key": "746353|U882@DOM1|C17693|C1616",
+    "p": 0.033670481218140536,
+    "log_p": -3.3911337537182202,
+    "t": 746353,
+    "entity": "U882@DOM1",
+    "j": 15,
+    "categories": [
+     "novel_value",
+     "off_hours"
+    ]
+   },
+   {
+    "key": "746387|U8777@C583|C17693|C583",
+    "p": 0.14121076749481243,
+    "log_p": -1.9575016997850023,
+    "t": 746387,
+    "entity": "U8777@C583",
+    "j": 15
+   },
+   {
+    "key": "746595|U882@DOM1|C17693|C1616",
+    "p": 0.03473770132010512,
+    "log_p": -3.3599296884612877,
+    "t": 746595,
+    "entity": "U882@DOM1",
+    "j": 15,
+    "categories": [
+     "off_hours"
+    ]
+   },
+   {
+    "key": "746638|U9947@DOM1|C17693|C346",
+    "p": 0.04861007830290032,
+    "log_p": -3.02392439708673,
+    "t": 746638,
+    "entity": "U9947@DOM1",
+    "j": 15,
+    "categories": [
+     "novel_value"
+    ]
+   },
+   {
+    "key": "746860|U9947@DOM1|C17693|C20203",
+    "p": 0.04950536345613388,
+    "log_p": -3.0056742626280473,
+    "t": 746860,
+    "entity": "U9947@DOM1",
+    "j": 15,
+    "categories": [
+     "novel_value"
+    ]
+   },
+   {
+    "key": "747001|U1450@DOM1|C17693|C12448",
+    "p": 0.004607896477731447,
+    "log_p": -5.379983821610992,
+    "t": 747001,
+    "entity": "U1450@DOM1",
+    "j": 15,
+    "categories": [
+     "novel_value"
+    ]
+   },
+   {
+    "key": "747145|U9947@DOM1|C17693|C20203",
+    "p": 0.05209608698172752,
+    "log_p": -2.954665438960345,
+    "t": 747145,
+    "entity": "U9947@DOM1",
+    "j": 15
+   },
+   {
+    "key": "747163|U1450@DOM1|C17693|C12448",
+    "p": 0.00470807904836399,
+    "log_p": -5.358475299503313,
+    "t": 747163,
+    "entity": "U1450@DOM1",
+    "j": 15
+   },
+   {
+    "key": "747229|U8777@C583|C17693|C583",
+    "p": 0.13751385785969195,
+    "log_p": -1.9840305825197977,
+    "t": 747229,
+    "entity": "U8777@C583",
+    "j": 15
+   },
+   {
+    "key": "747247|U8777@C1500|C17693|C1500",
+    "p": 0.01163926954008156,
+    "log_p": -4.453370592936503,
+    "t": 747247,
+    "entity": "U8777@C1500",
+    "j": 15
+   },
+   {
+    "key": "747259|U1450@DOM1|C17693|C12448",
+    "p": 0.0047846696669010275,
+    "log_p": -5.342338291590655,
+    "t": 747259,
+    "entity": "U1450@DOM1",
+    "j": 15
+   },
+   {
+    "key": "747388|U9947@DOM1|C17693|C346",
+    "p": 0.05278030026468927,
+    "log_p": -2.941617258936986,
+    "t": 747388,
+    "entity": "U9947@DOM1",
+    "j": 15
+   },
+   {
+    "key": "747457|U9947@DOM1|C17693|C1479",
+    "p": 0.051842114323531474,
+    "log_p": -2.9595524422078765,
+    "t": 747457,
+    "entity": "U9947@DOM1",
+    "j": 15,
+    "categories": [
+     "novel_value"
+    ]
+   },
+   {
+    "key": "747478|U8777@C3388|C17693|C3388",
+    "p": 0.18612143737706177,
+    "log_p": -1.6813559291843294,
+    "t": 747478,
+    "entity": "U8777@C3388",
+    "j": 15
+   },
+   {
+    "key": "747653|U1450@DOM1|C17693|C12448",
+    "p": 0.004803632309831733,
+    "log_p": -5.338382916030051,
+    "t": 747653,
+    "entity": "U1450@DOM1",
+    "j": 15,
+    "categories": [
+     "volume_burst"
+    ]
+   },
+   {
+    "key": "747939|U374@DOM1|C17693|C1461",
+    "p": 0.014649537761325049,
+    "log_p": -4.223346496144822,
+    "t": 747939,
+    "entity": "U374@DOM1",
+    "j": 15,
+    "categories": [
+     "novel_value",
+     "volume_burst",
+     "novel_pair"
+    ]
+   },
+   {
+    "key": "748041|U1450@DOM1|C17693|C1119",
+    "p": 0.003917411508808064,
+    "log_p": -5.542324172678936,
+    "t": 748041,
+    "entity": "U1450@DOM1",
+    "j": 15,
+    "categories": [
+     "volume_burst"
+    ]
+   },
+   {
+    "key": "748127|U2575@DOM1|C17693|C19156",
+    "p": 0.03792270049473323,
+    "log_p": -3.272205388552617,
+    "t": 748127,
+    "entity": "U2575@DOM1",
+    "j": 15,
+    "categories": [
+     "novel_value",
+     "volume_burst"
+    ]
+   },
+   {
+    "key": "748207|U2575@DOM1|C17693|C19156",
+    "p": 0.03986548556138447,
+    "log_p": -3.2222443529592626,
+    "t": 748207,
+    "entity": "U2575@DOM1",
+    "j": 15,
+    "categories": [
+     "volume_burst"
+    ]
+   },
+   {
+    "key": "748272|U1450@DOM1|C17693|C18113",
+    "p": 0.003441670499287854,
+    "log_p": -5.671798315209237,
+    "t": 748272,
+    "entity": "U1450@DOM1",
+    "j": 15,
+    "categories": [
+     "novel_value",
+     "volume_burst"
+    ]
+   },
+   {
+    "key": "748397|U374@DOM1|C17693|C1461",
+    "p": 0.014620124621351982,
+    "log_p": -4.225356300664551,
+    "t": 748397,
+    "entity": "U374@DOM1",
+    "j": 15,
+    "categories": [
+     "volume_burst"
+    ]
+   },
+   {
+    "key": "748428|U1450@DOM1|C17693|C18113",
+    "p": 0.003223607071754759,
+    "log_p": -5.737254337771828,
+    "t": 748428,
+    "entity": "U1450@DOM1",
+    "j": 15,
+    "categories": [
+     "volume_burst"
+    ]
+   },
+   {
+    "key": "748806|U9947@DOM1|C17693|C19803",
+    "p": 0.05568746485431675,
+    "log_p": -2.8880002048746887,
+    "t": 748806,
+    "entity": "U9947@DOM1",
+    "j": 15,
+    "categories": [
+     "novel_value"
+    ]
+   },
+   {
+    "key": "748860|U9947@DOM1|C17693|C17425",
+    "p": 0.05644856768741935,
+    "log_p": -2.874425361827601,
+    "t": 748860,
+    "entity": "U9947@DOM1",
+    "j": 15,
+    "categories": [
+     "novel_value"
+    ]
+   },
+   {
+    "key": "749000|U9947@DOM1|C17693|C19803",
+    "p": 0.05879113335112118,
+    "log_p": -2.833764228796295,
+    "t": 749000,
+    "entity": "U9947@DOM1",
+    "j": 15
+   },
+   {
+    "key": "749054|U9947@DOM1|C17693|C19803",
+    "p": 0.06057985144470168,
+    "log_p": -2.803792925602928,
+    "t": 749054,
+    "entity": "U9947@DOM1",
+    "j": 15
+   },
+   {
+    "key": "749816|U3718@DOM1|C17693|C9692",
+    "p": 0.030808844081200437,
+    "log_p": -3.4799534847274645,
+    "t": 749816,
+    "entity": "U3718@DOM1",
+    "j": 15,
+    "categories": [
+     "novel_value",
+     "novel_pair"
+    ]
+   },
+   {
+    "key": "749823|U9947@DOM1|C17693|C7131",
+    "p": 0.06151485929675726,
+    "log_p": -2.7884765187723484,
+    "t": 749823,
+    "entity": "U9947@DOM1",
+    "j": 15,
+    "categories": [
+     "novel_value",
+     "volume_burst"
+    ]
+   },
+   {
+    "key": "750304|U2575@DOM1|C17693|C8172",
+    "p": 0.042970922904905895,
+    "log_p": -3.1472316035365178,
+    "t": 750304,
+    "entity": "U2575@DOM1",
+    "j": 15,
+    "categories": [
+     "novel_value",
+     "off_hours",
+     "volume_burst"
+    ]
+   },
+   {
+    "key": "750307|U342@DOM1|C17693|C7503",
+    "p": 0.0016185129488262182,
+    "log_p": -6.426247484119495,
+    "t": 750307,
+    "entity": "U342@DOM1",
+    "j": 15,
+    "categories": [
+     "novel_value"
+    ]
+   },
+   {
+    "key": "750419|U342@DOM1|C17693|C7503",
+    "p": 0.0016688664526770035,
+    "log_p": -6.395610653874799,
+    "t": 750419,
+    "entity": "U342@DOM1",
+    "j": 15
+   },
+   {
+    "key": "751373|U737@DOM1|C17693|C7597",
+    "p": 0.05129210028472986,
+    "log_p": -2.9702185292142502,
+    "t": 751373,
+    "entity": "U737@DOM1",
+    "j": 15,
+    "categories": [
+     "novel_value"
+    ]
+   },
+   {
+    "key": "751918|U737@DOM1|C17693|C2578",
+    "p": 0.03637710851490439,
+    "log_p": -3.313815589124965,
+    "t": 751918,
+    "entity": "U737@DOM1",
+    "j": 15,
+    "categories": [
+     "novel_value",
+     "volume_burst"
+    ]
+   },
+   {
+    "key": "752606|U6572@DOM1|C17693|C90",
+    "p": 0.016737807891198164,
+    "log_p": -4.090085172842138,
+    "t": 752606,
+    "entity": "U6572@DOM1",
+    "j": 15,
+    "categories": [
+     "novel_value",
+     "novel_pair"
+    ]
+   },
+   {
+    "key": "752892|U2575@DOM1|C17693|C1477",
+    "p": 0.03229229731961014,
+    "log_p": -3.4329265502698374,
+    "t": 752892,
+    "entity": "U2575@DOM1",
+    "j": 15,
+    "categories": [
+     "novel_value",
+     "off_hours",
+     "novel_pair"
+    ]
+   },
+   {
+    "key": "753336|U162@DOM1|C17693|C4845",
+    "p": 0.009870732762209653,
+    "log_p": -4.618181186933873,
+    "t": 753336,
+    "entity": "U162@DOM1",
+    "j": 15
+   },
+   {
+    "key": "754096|U162@DOM1|C17693|C3292",
+    "p": 0.010077039049665448,
+    "log_p": -4.597495804563321,
+    "t": 754096,
+    "entity": "U162@DOM1",
+    "j": 15,
+    "categories": [
+     "novel_value"
+    ]
+   },
+   {
+    "key": "754601|U2575@DOM1|C17693|C7597",
+    "p": 0.0467289691776569,
+    "log_p": -3.06339098162595,
+    "t": 754601,
+    "entity": "U2575@DOM1",
+    "j": 15,
+    "categories": [
+     "novel_value",
+     "off_hours"
+    ]
+   },
+   {
+    "key": "754921|U314@DOM1|C17693|C2914",
+    "p": 0.012340905688291826,
+    "log_p": -4.394835868685027,
+    "t": 754921,
+    "entity": "U314@DOM1",
+    "j": 15,
+    "categories": [
+     "off_hours"
+    ]
+   },
+   {
+    "key": "755200|U737@DOM1|C17693|C19356",
+    "p": 0.04340416360785182,
+    "log_p": -3.137199906812521,
+    "t": 755200,
+    "entity": "U737@DOM1",
+    "j": 15,
+    "categories": [
+     "novel_value",
+     "volume_burst"
+    ]
+   },
+   {
+    "key": "755904|U162@DOM1|C17693|C798",
+    "p": 0.010256367911078859,
+    "log_p": -4.579856506682136,
+    "t": 755904,
+    "entity": "U162@DOM1",
+    "j": 15,
+    "categories": [
+     "novel_value",
+     "off_hours"
+    ]
+   },
+   {
+    "key": "756149|U737@DOM1|C17693|C302",
+    "p": 0.05361563205043163,
+    "log_p": -2.925914610692922,
+    "t": 756149,
+    "entity": "U737@DOM1",
+    "j": 15,
+    "categories": [
+     "novel_value"
+    ]
+   },
+   {
+    "key": "757235|U737@DOM1|C17693|C1125",
+    "p": 0.05632406988503014,
+    "log_p": -2.876633306159605,
+    "t": 757235,
+    "entity": "U737@DOM1",
+    "j": 15,
+    "categories": [
+     "novel_value"
+    ]
+   },
+   {
+    "key": "757456|U737@DOM1|C17693|C3437",
+    "p": 0.05677015575692901,
+    "log_p": -2.8687445181547013,
+    "t": 757456,
+    "entity": "U737@DOM1",
+    "j": 15,
+    "categories": [
+     "novel_value"
+    ]
+   },
+   {
+    "key": "757625|U642@DOM1|C17693|C2648",
+    "p": 0.015484128863175739,
+    "log_p": -4.167939723957286,
+    "t": 757625,
+    "entity": "U642@DOM1",
+    "j": 15,
+    "categories": [
+     "novel_value",
+     "off_hours"
+    ]
+   },
+   {
+    "key": "757755|U642@DOM1|C17693|C2648",
+    "p": 0.015744587470929994,
+    "log_p": -4.151258625411961,
+    "t": 757755,
+    "entity": "U642@DOM1",
+    "j": 15,
+    "categories": [
+     "off_hours",
+     "volume_burst"
+    ]
+   },
+   {
+    "key": "758430|U737@DOM1|C17693|C6513",
+    "p": 0.05597122150275269,
+    "log_p": -2.8829176220763015,
+    "t": 758430,
+    "entity": "U737@DOM1",
+    "j": 15,
+    "categories": [
+     "novel_value",
+     "volume_burst"
+    ]
+   },
+   {
+    "key": "759396|U3635@DOM1|C17693|C17806",
+    "p": 0.05501194135395715,
+    "log_p": -2.9002050017893373,
+    "t": 759396,
+    "entity": "U3635@DOM1",
+    "j": 15,
+    "categories": [
+     "novel_value",
+     "off_hours"
+    ]
+   },
+   {
+    "key": "760075|U1653@DOM1|C17693|C395",
+    "p": 0.002910291386387437,
+    "log_p": -5.8395020700325,
+    "t": 760075,
+    "entity": "U1653@DOM1",
+    "j": 15,
+    "categories": [
+     "off_hours"
+    ]
+   },
+   {
+    "key": "760132|U1653@DOM1|C17693|C754",
+    "p": 0.007651390087217108,
+    "log_p": -4.8728679369037575,
+    "t": 760132,
+    "entity": "U1653@DOM1",
+    "j": 15,
+    "categories": [
+     "off_hours"
+    ]
+   },
+   {
+    "key": "760148|U1653@DOM1|C17693|C706",
+    "p": 0.007645200810616677,
+    "log_p": -4.873677173024344,
+    "t": 760148,
+    "entity": "U1653@DOM1",
+    "j": 15,
+    "categories": [
+     "off_hours"
+    ]
+   },
+   {
+    "key": "760168|U1653@DOM1|C17693|C231",
+    "p": 0.00766710050981984,
+    "log_p": -4.870816765084781,
+    "t": 760168,
+    "entity": "U1653@DOM1",
+    "j": 15,
+    "categories": [
+     "off_hours"
+    ]
+   },
+   {
+    "key": "760175|U1653@DOM1|C17693|C2669",
+    "p": 0.0075805621432525425,
+    "log_p": -4.882167920698713,
+    "t": 760175,
+    "entity": "U1653@DOM1",
+    "j": 15,
+    "categories": [
+     "off_hours"
+    ]
+   },
+   {
+    "key": "760196|U3635@DOM1|C17693|C16467",
+    "p": 0.06045773505214347,
+    "log_p": -2.8058107522554074,
+    "t": 760196,
+    "entity": "U3635@DOM1",
+    "j": 15,
+    "categories": [
+     "novel_value",
+     "off_hours"
+    ]
+   },
+   {
+    "key": "760388|U342@DOM1|C17693|C6487",
+    "p": 0.0016096601748556887,
+    "log_p": -6.431732193782699,
+    "t": 760388,
+    "entity": "U342@DOM1",
+    "j": 15,
+    "categories": [
+     "novel_value",
+     "off_hours"
+    ]
+   },
+   {
+    "key": "760473|U342@DOM1|C17693|C6487",
+    "p": 0.0016499898123437603,
+    "log_p": -6.406986165425824,
+    "t": 760473,
+    "entity": "U342@DOM1",
+    "j": 15,
+    "categories": [
+     "off_hours"
+    ]
+   },
+   {
+    "key": "760694|U342@DOM1|C17693|C113",
+    "p": 0.0016313303247796937,
+    "log_p": -6.418359446861324,
+    "t": 760694,
+    "entity": "U342@DOM1",
+    "j": 15,
+    "categories": [
+     "novel_value",
+     "off_hours",
+     "volume_burst"
+    ]
+   },
+   {
+    "key": "760807|U3635@DOM1|C17693|C2816",
+    "p": 0.04729347051815924,
+    "log_p": -3.0513830370267483,
+    "t": 760807,
+    "entity": "U3635@DOM1",
+    "j": 15,
+    "categories": [
+     "novel_value",
+     "off_hours",
+     "volume_burst",
+     "novel_pair"
+    ]
+   },
+   {
+    "key": "761028|U342@DOM1|C17693|C458",
+    "p": 0.001654434285974075,
+    "log_p": -6.404296149750983,
+    "t": 761028,
+    "entity": "U342@DOM1",
+    "j": 15,
+    "categories": [
+     "off_hours",
+     "volume_burst"
+    ]
+   },
+   {
+    "key": "761039|U3635@DOM1|C17693|C21664",
+    "p": 0.05541182727117344,
+    "log_p": -2.8929622193650175,
+    "t": 761039,
+    "entity": "U3635@DOM1",
+    "j": 15,
+    "categories": [
+     "novel_value",
+     "off_hours",
+     "volume_burst"
+    ]
+   },
+   {
+    "key": "761134|U3635@DOM1|C17693|C2085",
+    "p": 0.0550114847495059,
+    "log_p": -2.900213301920817,
+    "t": 761134,
+    "entity": "U3635@DOM1",
+    "j": 15,
+    "categories": [
+     "novel_value",
+     "off_hours",
+     "volume_burst"
+    ]
+   },
+   {
+    "key": "761173|U342@DOM1|C17693|C3586",
+    "p": 0.001662201801218149,
+    "log_p": -6.399612169210904,
+    "t": 761173,
+    "entity": "U342@DOM1",
+    "j": 15,
+    "categories": [
+     "off_hours",
+     "volume_burst"
+    ]
+   },
+   {
+    "key": "761524|U3635@DOM1|C17693|C19444",
+    "p": 0.04865674824323707,
+    "log_p": -3.022964769933765,
+    "t": 761524,
+    "entity": "U3635@DOM1",
+    "j": 15,
+    "categories": [
+     "novel_value",
+     "off_hours",
+     "volume_burst",
+     "novel_pair"
+    ]
+   },
+   {
+    "key": "762009|U3635@DOM1|C17693|C917",
+    "p": 0.05291516217039727,
+    "log_p": -2.93906536170719,
+    "t": 762009,
+    "entity": "U3635@DOM1",
+    "j": 15,
+    "categories": [
+     "novel_value",
+     "off_hours",
+     "volume_burst"
+    ]
+   },
+   {
+    "key": "762157|U3635@DOM1|C17693|C917",
+    "p": 0.05433280469944224,
+    "log_p": -2.9126270963489342,
+    "t": 762157,
+    "entity": "U3635@DOM1",
+    "j": 15,
+    "categories": [
+     "off_hours",
+     "volume_burst"
+    ]
+   },
+   {
+    "key": "762536|U3635@DOM1|C17693|C12682",
+    "p": 0.0504272092689515,
+    "log_p": -2.9872243831328262,
+    "t": 762536,
+    "entity": "U3635@DOM1",
+    "j": 15,
+    "categories": [
+     "off_hours",
+     "volume_burst"
+    ]
+   },
+   {
+    "key": "762568|U3635@DOM1|C17693|C12682",
+    "p": 0.04937924631296553,
+    "log_p": -3.0082250581834975,
+    "t": 762568,
+    "entity": "U3635@DOM1",
+    "j": 15,
+    "categories": [
+     "off_hours",
+     "volume_burst"
+    ]
+   },
+   {
+    "key": "762834|U3635@DOM1|C17693|C2091",
+    "p": 0.03807033854656361,
+    "log_p": -3.268319815888537,
+    "t": 762834,
+    "entity": "U3635@DOM1",
+    "j": 15,
+    "categories": [
+     "novel_value",
+     "off_hours",
+     "volume_burst"
+    ]
+   },
+   {
+    "key": "762845|U3635@DOM1|C17693|C1506",
+    "p": 0.03794059461724508,
+    "log_p": -3.2717336420296825,
+    "t": 762845,
+    "entity": "U3635@DOM1",
+    "j": 15,
+    "categories": [
+     "novel_value",
+     "off_hours",
+     "volume_burst"
+    ]
+   },
+   {
+    "key": "763783|U3635@DOM1|C17693|C12512",
+    "p": 0.003829614190702774,
+    "log_p": -5.564991214361512,
+    "t": 763783,
+    "entity": "U3635@DOM1",
+    "j": 15,
+    "categories": [
+     "novel_value",
+     "off_hours",
+     "novel_pair"
+    ]
+   },
+   {
+    "key": "764106|U293@DOM1|C17693|C231",
+    "p": 0.0030213814012552695,
+    "log_p": -5.802041134544718,
+    "t": 764106,
+    "entity": "U293@DOM1",
+    "j": 15,
+    "categories": [
+     "off_hours"
+    ]
+   },
+   {
+    "key": "764120|U293@DOM1|C17693|C706",
+    "p": 0.0030523698636162676,
+    "log_p": -5.791836985610159,
+    "t": 764120,
+    "entity": "U293@DOM1",
+    "j": 15,
+    "categories": [
+     "off_hours"
+    ]
+   },
+   {
+    "key": "764133|U293@DOM1|C17693|C882",
+    "p": 0.00310909707101173,
+    "log_p": -5.7734229258095535,
+    "t": 764133,
+    "entity": "U293@DOM1",
+    "j": 15,
+    "categories": [
+     "off_hours"
+    ]
+   },
+   {
+    "key": "764140|U1480@DOM1|C17693|C881",
+    "p": 0.0216753932559568,
+    "log_p": -3.831577613183381,
+    "t": 764140,
+    "entity": "U1480@DOM1",
+    "j": 15,
+    "categories": [
+     "novel_value",
+     "off_hours"
+    ]
+   },
+   {
+    "key": "764180|U1480@DOM1|C17693|C2388",
+    "p": 0.022264102459103263,
+    "log_p": -3.8047796527612645,
+    "t": 764180,
+    "entity": "U1480@DOM1",
+    "j": 15,
+    "categories": [
+     "novel_value",
+     "off_hours"
+    ]
+   },
+   {
+    "key": "764249|U293@DOM1|C17693|C46",
+    "p": 0.003106679356529854,
+    "log_p": -5.77420085424118,
+    "t": 764249,
+    "entity": "U293@DOM1",
+    "j": 15,
+    "categories": [
+     "off_hours"
+    ]
+   },
+   {
+    "key": "764281|U293@DOM1|C17693|C883",
+    "p": 0.0031607388629473856,
+    "log_p": -5.756949461325929,
+    "t": 764281,
+    "entity": "U293@DOM1",
+    "j": 15,
+    "categories": [
+     "off_hours"
+    ]
+   },
+   {
+    "key": "764284|U1480@DOM1|C17693|C1191",
+    "p": 0.024180255862598754,
+    "log_p": -3.7222188522717086,
+    "t": 764284,
+    "entity": "U1480@DOM1",
+    "j": 15,
+    "categories": [
+     "off_hours"
+    ]
+   },
+   {
+    "key": "764310|U1480@DOM1|C17693|C5653",
+    "p": 0.02396141435298693,
+    "log_p": -3.7313104777196915,
+    "t": 764310,
+    "entity": "U1480@DOM1",
+    "j": 15,
+    "categories": [
+     "novel_value",
+     "off_hours"
+    ]
+   },
+   {
+    "key": "764405|U293@DOM1|C17693|C633",
+    "p": 0.0032278365970510774,
+    "log_p": -5.735943150347927,
+    "t": 764405,
+    "entity": "U293@DOM1",
+    "j": 15,
+    "categories": [
+     "off_hours"
+    ]
+   },
+   {
+    "key": "764522|U1480@DOM1|C17693|C1183",
+    "p": 0.026242621266727495,
+    "log_p": -3.640370424059854,
+    "t": 764522,
+    "entity": "U1480@DOM1",
+    "j": 15,
+    "categories": [
+     "off_hours",
+     "volume_burst"
+    ]
+   },
+   {
+    "key": "764561|U293@DOM1|C17693|C2844",
+    "p": 0.0032272427333811123,
+    "log_p": -5.7361271492242345,
+    "t": 764561,
+    "entity": "U293@DOM1",
+    "j": 15,
+    "categories": [
+     "off_hours"
+    ]
+   },
+   {
+    "key": "764570|U1480@DOM1|C17693|C1776",
+    "p": 0.02630189816680073,
+    "log_p": -3.6381141687601968,
+    "t": 764570,
+    "entity": "U1480@DOM1",
+    "j": 15,
+    "categories": [
+     "off_hours",
+     "volume_burst"
+    ]
+   },
+   {
+    "key": "764595|U1480@DOM1|C17693|C464",
+    "p": 0.02708874809434414,
+    "log_p": -3.6086368367863444,
+    "t": 764595,
+    "entity": "U1480@DOM1",
+    "j": 15,
+    "categories": [
+     "off_hours",
+     "volume_burst"
+    ]
+   },
+   {
+    "key": "764673|U293@DOM1|C17693|C5453",
+    "p": 0.0032528361646182325,
+    "log_p": -5.728227997155736,
+    "t": 764673,
+    "entity": "U293@DOM1",
+    "j": 15,
+    "categories": [
+     "off_hours"
+    ]
+   },
+   {
+    "key": "764752|U293@DOM1|C17693|C4161",
+    "p": 0.003287426455867998,
+    "log_p": -5.7176502525671165,
+    "t": 764752,
+    "entity": "U293@DOM1",
+    "j": 15,
+    "categories": [
+     "off_hours"
+    ]
+   },
+   {
+    "key": "764900|U293@DOM1|C17693|C513",
+    "p": 0.0033308017578582926,
+    "log_p": -5.7045422358441655,
+    "t": 764900,
+    "entity": "U293@DOM1",
+    "j": 15,
+    "categories": [
+     "off_hours"
+    ]
+   },
+   {
+    "key": "764929|U1480@DOM1|C17693|C1",
+    "p": 0.026639768608645586,
+    "log_p": -3.6253501192093234,
+    "t": 764929,
+    "entity": "U1480@DOM1",
+    "j": 15,
+    "categories": [
+     "off_hours",
+     "volume_burst"
+    ]
+   },
+   {
+    "key": "764943|U1480@DOM1|C17693|C1776",
+    "p": 0.026556844960402892,
+    "log_p": -3.62846775057135,
+    "t": 764943,
+    "entity": "U1480@DOM1",
+    "j": 15,
+    "categories": [
+     "off_hours",
+     "volume_burst"
+    ]
+   },
+   {
+    "key": "765016|U293@DOM1|C17693|C1215",
+    "p": 0.003350300678772675,
+    "log_p": -5.698705182315374,
+    "t": 765016,
+    "entity": "U293@DOM1",
+    "j": 15,
+    "categories": [
+     "off_hours"
+    ]
+   },
+   {
+    "key": "765175|U293@DOM1|C17693|C2849",
+    "p": 0.003368237917326735,
+    "log_p": -5.693365544560541,
+    "t": 765175,
+    "entity": "U293@DOM1",
+    "j": 15,
+    "categories": [
+     "off_hours"
+    ]
+   },
+   {
+    "key": "765231|U1480@DOM1|C17693|C2012",
+    "p": 0.02549627051341352,
+    "log_p": -3.669223091889911,
+    "t": 765231,
+    "entity": "U1480@DOM1",
+    "j": 15,
+    "categories": [
+     "novel_value",
+     "off_hours",
+     "volume_burst"
+    ]
+   },
+   {
+    "key": "765278|U293@DOM1|C17693|C3455",
+    "p": 0.003430488648551212,
+    "log_p": -5.675052564816733,
+    "t": 765278,
+    "entity": "U293@DOM1",
+    "j": 15,
+    "categories": [
+     "off_hours"
+    ]
+   },
+   {
+    "key": "765488|U293@DOM1|C17693|C4159",
+    "p": 0.0034635204722664134,
+    "log_p": -5.665469729658275,
+    "t": 765488,
+    "entity": "U293@DOM1",
+    "j": 15,
+    "categories": [
+     "off_hours"
+    ]
+   },
+   {
+    "key": "765776|U162@DOM1|C17693|C1006",
+    "p": 0.010505481603626134,
+    "log_p": -4.5558581005550565,
+    "t": 765776,
+    "entity": "U162@DOM1",
+    "j": 15,
+    "categories": [
+     "off_hours"
+    ]
+   },
+   {
+    "key": "765788|U162@DOM1|C17693|C92",
+    "p": 0.010546891296066575,
+    "log_p": -4.551924126361938,
+    "t": 765788,
+    "entity": "U162@DOM1",
+    "j": 15,
+    "categories": [
+     "novel_value",
+     "off_hours"
+    ]
+   },
+   {
+    "key": "765805|U293@DOM1|C17693|C801",
+    "p": 0.0011482071423509906,
+    "log_p": -6.769553559773695,
+    "t": 765805,
+    "entity": "U293@DOM1",
+    "j": 15,
+    "categories": [
+     "off_hours"
+    ]
+   },
+   {
+    "key": "765817|U162@DOM1|C17693|C1022",
+    "p": 0.010821371611692084,
+    "log_p": -4.526232247267837,
+    "t": 765817,
+    "entity": "U162@DOM1",
+    "j": 15,
+    "categories": [
+     "novel_value",
+     "off_hours"
+    ]
+   },
+   {
+    "key": "765934|U314@DOM1|C17693|C2914",
+    "p": 0.012880852594518766,
+    "log_p": -4.352013365270125,
+    "t": 765934,
+    "entity": "U314@DOM1",
+    "j": 15,
+    "categories": [
+     "off_hours"
+    ]
+   },
+   {
+    "key": "765960|U293@DOM1|C17693|C11039",
+    "p": 0.0034712983934328443,
+    "log_p": -5.663226578228244,
+    "t": 765960,
+    "entity": "U293@DOM1",
+    "j": 15,
+    "categories": [
+     "off_hours"
+    ]
+   },
+   {
+    "key": "766132|U293@DOM1|C17693|C1737",
+    "p": 0.0033982361894680352,
+    "log_p": -5.684498749770112,
+    "t": 766132,
+    "entity": "U293@DOM1",
+    "j": 15,
+    "categories": [
+     "novel_value",
+     "off_hours",
+     "volume_burst"
+    ]
+   },
+   {
+    "key": "766150|U293@DOM1|C17693|C1710",
+    "p": 0.0034725508795950097,
+    "log_p": -5.662865831291926,
+    "t": 766150,
+    "entity": "U293@DOM1",
+    "j": 15,
+    "categories": [
+     "off_hours",
+     "volume_burst"
+    ]
+   },
+   {
+    "key": "766164|U293@DOM1|C17693|C231",
+    "p": 0.0034971189641985374,
+    "log_p": -5.655815802549435,
+    "t": 766164,
+    "entity": "U293@DOM1",
+    "j": 15,
+    "categories": [
+     "off_hours",
+     "volume_burst"
+    ]
+   },
+   {
+    "key": "766183|U293@DOM1|C17693|C395",
+    "p": 0.002760702772619697,
+    "log_p": -5.892270003904466,
+    "t": 766183,
+    "entity": "U293@DOM1",
+    "j": 15,
+    "categories": [
+     "novel_value",
+     "off_hours",
+     "volume_burst"
+    ]
+   },
+   {
+    "key": "766534|U162@DOM1|C17693|C3435",
+    "p": 0.012005386219718799,
+    "log_p": -4.422399878254669,
+    "t": 766534,
+    "entity": "U162@DOM1",
+    "j": 15,
+    "categories": [
+     "off_hours"
+    ]
+   },
+   {
+    "key": "766588|U162@DOM1|C17693|C3435",
+    "p": 0.012081304359276901,
+    "log_p": -4.416096115543207,
+    "t": 766588,
+    "entity": "U162@DOM1",
+    "j": 15,
+    "categories": [
+     "off_hours"
+    ]
+   },
+   {
+    "key": "766788|U66@DOM1|C17693|C3435",
+    "p": 0.001093304486334053,
+    "log_p": -6.818550530052831,
+    "t": 766788,
+    "entity": "U66@DOM1",
+    "j": 15,
+    "categories": [
+     "novel_value",
+     "off_hours"
+    ]
+   },
+   {
+    "key": "766846|U66@DOM1|C17693|C61",
+    "p": 0.00004405915442179748,
+    "log_p": -10.029977408290407,
+    "t": 766846,
+    "entity": "U66@DOM1",
+    "j": 15,
+    "categories": [
+     "off_hours"
+    ]
+   },
+   {
+    "key": "766879|U1164@DOM1|C17693|C2091",
+    "p": 0.012818782113852456,
+    "log_p": -4.356843830921761,
+    "t": 766879,
+    "entity": "U1164@DOM1",
+    "j": 15,
+    "categories": [
+     "off_hours"
+    ]
+   },
+   {
+    "key": "767001|U66@DOM1|C17693|C307",
+    "p": 0.00004417281494580574,
+    "log_p": -10.027401004574278,
+    "t": 767001,
+    "entity": "U66@DOM1",
+    "j": 15,
+    "categories": [
+     "off_hours"
+    ]
+   },
+   {
+    "key": "767180|U66@DOM1|C17693|C3699",
+    "p": 0.00004312287869696753,
+    "log_p": -10.051456873458136,
+    "t": 767180,
+    "entity": "U66@DOM1",
+    "j": 15,
+    "categories": [
+     "off_hours"
+    ]
+   },
+   {
+    "key": "767187|U2837@DOM1|C17693|C395",
+    "p": 0.00301113348034958,
+    "log_p": -5.805438699561911,
+    "t": 767187,
+    "entity": "U2837@DOM1",
+    "j": 15,
+    "categories": [
+     "off_hours"
+    ]
+   },
+   {
+    "key": "767195|U2837@DOM1|C17693|C2519",
+    "p": 0.11400483997482869,
+    "log_p": -2.171514375569319,
+    "t": 767195,
+    "entity": "U2837@DOM1",
+    "j": 15,
+    "categories": [
+     "off_hours"
+    ]
+   },
+   {
+    "key": "767205|U2837@DOM1|C17693|C1784",
+    "p": 0.11750384212986054,
+    "log_p": -2.141284246954987,
+    "t": 767205,
+    "entity": "U2837@DOM1",
+    "j": 15,
+    "categories": [
+     "off_hours",
+     "volume_burst"
+    ]
+   },
+   {
+    "key": "767225|U2837@DOM1|C17693|C1784",
+    "p": 0.11504586938951133,
+    "log_p": -2.1624243658874684,
+    "t": 767225,
+    "entity": "U2837@DOM1",
+    "j": 15,
+    "categories": [
+     "off_hours",
+     "volume_burst"
+    ]
+   },
+   {
+    "key": "767233|U2837@DOM1|C17693|C8490",
+    "p": 0.1098216627837274,
+    "log_p": -2.2088974762541618,
+    "t": 767233,
+    "entity": "U2837@DOM1",
+    "j": 15,
+    "categories": [
+     "off_hours",
+     "volume_burst"
+    ]
+   },
+   {
+    "key": "767238|U2837@DOM1|C17693|C1484",
+    "p": 0.10578465104895729,
+    "log_p": -2.246349845233988,
+    "t": 767238,
+    "entity": "U2837@DOM1",
+    "j": 15,
+    "categories": [
+     "off_hours",
+     "volume_burst"
+    ]
+   },
+   {
+    "key": "767246|U2837@DOM1|C17693|C89",
+    "p": 0.10203670668660947,
+    "log_p": -2.2824226609587916,
+    "t": 767246,
+    "entity": "U2837@DOM1",
+    "j": 15,
+    "categories": [
+     "off_hours",
+     "volume_burst"
+    ]
+   },
+   {
+    "key": "767288|U66@DOM1|C17693|C3755",
+    "p": 0.000042422578605310184,
+    "log_p": -10.06782982318559,
+    "t": 767288,
+    "entity": "U66@DOM1",
+    "j": 15,
+    "categories": [
+     "off_hours"
+    ]
+   },
+   {
+    "key": "767289|U7394@DOM1|C17693|C492",
+    "p": 0.030436384075589573,
+    "log_p": -3.4921165416257316,
+    "t": 767289,
+    "entity": "U7394@DOM1",
+    "j": 15,
+    "categories": [
+     "novel_value",
+     "off_hours",
+     "volume_burst",
+     "novel_pair"
+    ]
+   },
+   {
+    "key": "767300|U7394@DOM1|C17693|C1797",
+    "p": 0.08885856897697075,
+    "log_p": -2.4207092858470074,
+    "t": 767300,
+    "entity": "U7394@DOM1",
+    "j": 15,
+    "categories": [
+     "off_hours",
+     "volume_burst"
+    ]
+   },
+   {
+    "key": "767320|U7394@DOM1|C17693|C1797",
+    "p": 0.08773979479926253,
+    "log_p": -2.433379721983269,
+    "t": 767320,
+    "entity": "U7394@DOM1",
+    "j": 15,
+    "categories": [
+     "off_hours",
+     "volume_burst"
+    ]
+   },
+   {
+    "key": "767445|U4353@DOM1|C17693|C801",
+    "p": 0.0011166327881355987,
+    "log_p": -6.7974375612565545,
+    "t": 767445,
+    "entity": "U4353@DOM1",
+    "j": 15,
+    "categories": [
+     "off_hours"
+    ]
+   },
+   {
+    "key": "767813|U66@DOM1|C17693|C2944",
+    "p": 0.00004352477686929045,
+    "log_p": -10.0421801988185,
+    "t": 767813,
+    "entity": "U66@DOM1",
+    "j": 15,
+    "categories": [
+     "off_hours"
+    ]
+   },
+   {
+    "key": "767865|U4353@DOM1|C17693|C2519",
+    "p": 0.0516502049944314,
+    "log_p": -2.9632611145099146,
+    "t": 767865,
+    "entity": "U4353@DOM1",
+    "j": 15,
+    "categories": [
+     "off_hours",
+     "volume_burst"
+    ]
+   },
+   {
+    "key": "768006|U1048@DOM1|C17693|C12320",
+    "p": 0.022736485390336347,
+    "log_p": -3.7837843588784863,
+    "t": 768006,
+    "entity": "U1048@DOM1",
+    "j": 15,
+    "categories": [
+     "novel_value",
+     "off_hours"
+    ]
+   },
+   {
+    "key": "768404|U66@DOM1|C17693|C2196",
+    "p": 0.00004225448552752135,
+    "log_p": -10.071800043464473,
+    "t": 768404,
+    "entity": "U66@DOM1",
+    "j": 15,
+    "categories": [
+     "off_hours"
+    ]
+   },
+   {
+    "key": "768546|U4353@DOM1|C17693|C17860",
+    "p": 0.04649715656284681,
+    "log_p": -3.068364117444604,
+    "t": 768546,
+    "entity": "U4353@DOM1",
+    "j": 15,
+    "categories": [
+     "off_hours",
+     "volume_burst"
+    ]
+   },
+   {
+    "key": "768556|U66@DOM1|C17693|C306",
+    "p": 0.00004422937496919011,
+    "log_p": -10.026121397561004,
+    "t": 768556,
+    "entity": "U66@DOM1",
+    "j": 15,
+    "categories": [
+     "off_hours"
+    ]
+   },
+   {
+    "key": "768634|U66@DOM1|C17693|C306",
+    "p": 0.000044331512439477495,
+    "log_p": -10.023814792047881,
+    "t": 768634,
+    "entity": "U66@DOM1",
+    "j": 15,
+    "categories": [
+     "off_hours"
+    ]
+   },
+   {
+    "key": "768636|U5254@DOM1|C17693|C12320",
+    "p": 0.02453247453647367,
+    "log_p": -3.707757547834896,
+    "t": 768636,
+    "entity": "U5254@DOM1",
+    "j": 15,
+    "categories": [
+     "novel_value",
+     "off_hours"
+    ]
+   },
+   {
+    "key": "768685|U4353@DOM1|C17693|C17776",
+    "p": 0.0446235894321626,
+    "log_p": -3.1094926487452232,
+    "t": 768685,
+    "entity": "U4353@DOM1",
+    "j": 15,
+    "categories": [
+     "off_hours",
+     "volume_burst"
+    ]
+   },
+   {
+    "key": "768742|U66@DOM1|C17693|C1944",
+    "p": 0.000041864751466505454,
+    "log_p": -10.08106633887141,
+    "t": 768742,
+    "entity": "U66@DOM1",
+    "j": 15,
+    "categories": [
+     "novel_value",
+     "off_hours"
+    ]
+   },
+   {
+    "key": "768832|U995@DOM1|C17693|C3173",
+    "p": 0.0011113580498690247,
+    "log_p": -6.802172543134924,
+    "t": 768832,
+    "entity": "U995@DOM1",
+    "j": 15,
+    "categories": [
+     "off_hours"
+    ]
+   },
+   {
+    "key": "768847|U995@DOM1|C17693|C2058",
+    "p": 0.02145178039966056,
+    "log_p": -3.8419476347374353,
+    "t": 768847,
+    "entity": "U995@DOM1",
+    "j": 15,
+    "categories": [
+     "off_hours"
+    ]
+   },
+   {
+    "key": "769022|U8601@DOM1|C17693|C636",
+    "p": 0.04774623897809949,
+    "log_p": -3.041854980014067,
+    "t": 769022,
+    "entity": "U8601@DOM1",
+    "j": 15,
+    "categories": [
+     "novel_value",
+     "off_hours",
+     "volume_burst"
+    ]
+   },
+   {
+    "key": "769067|U1048@DOM1|C17693|C2846",
+    "p": 0.024668430133036878,
+    "log_p": -3.702230985121626,
+    "t": 769067,
+    "entity": "U1048@DOM1",
+    "j": 15,
+    "categories": [
+     "off_hours",
+     "volume_burst"
+    ]
+   },
+   {
+    "key": "769069|U5254@DOM1|C17693|C636",
+    "p": 0.025079325707380362,
+    "log_p": -3.6857114492494825,
+    "t": 769069,
+    "entity": "U5254@DOM1",
+    "j": 15,
+    "categories": [
+     "off_hours"
+    ]
+   },
+   {
+    "key": "769094|U66@DOM1|C17693|C1732",
+    "p": 0.001124736085629975,
+    "log_p": -6.790206861397554,
+    "t": 769094,
+    "entity": "U66@DOM1",
+    "j": 15,
+    "categories": [
+     "off_hours",
+     "novel_pair"
+    ]
+   },
+   {
+    "key": "769149|U1048@DOM1|C17693|C2846",
+    "p": 0.024783399788386506,
+    "log_p": -3.697581213306393,
+    "t": 769149,
+    "entity": "U1048@DOM1",
+    "j": 15,
+    "categories": [
+     "off_hours",
+     "volume_burst"
+    ]
+   },
+   {
+    "key": "769352|U66@DOM1|C17693|C1028",
+    "p": 0.0011232970768703212,
+    "log_p": -6.791487099589947,
+    "t": 769352,
+    "entity": "U66@DOM1",
+    "j": 15,
+    "categories": [
+     "off_hours"
+    ]
+   },
+   {
+    "key": "769431|U1048@DOM1|C17693|C231",
+    "p": 0.024554093773807573,
+    "log_p": -3.706876686146006,
+    "t": 769431,
+    "entity": "U1048@DOM1",
+    "j": 15,
+    "categories": [
+     "off_hours",
+     "volume_burst"
+    ]
+   },
+   {
+    "key": "769440|U1048@DOM1|C17693|C706",
+    "p": 0.024720756467230265,
+    "log_p": -3.7001120454356884,
+    "t": 769440,
+    "entity": "U1048@DOM1",
+    "j": 15,
+    "categories": [
+     "off_hours",
+     "volume_burst"
+    ]
+   },
+   {
+    "key": "769461|U1048@DOM1|C17693|C7464",
+    "p": 0.025445340564627994,
+    "log_p": -3.6712226346871106,
+    "t": 769461,
+    "entity": "U1048@DOM1",
+    "j": 15,
+    "categories": [
+     "off_hours",
+     "volume_burst"
+    ]
+   },
+   {
+    "key": "769507|U66@DOM1|C17693|C1823",
+    "p": 0.0010980759297947319,
+    "log_p": -6.814195785467227,
+    "t": 769507,
+    "entity": "U66@DOM1",
+    "j": 15,
+    "categories": [
+     "off_hours"
+    ]
+   },
+   {
+    "key": "769626|U1048@DOM1|C17693|C13713",
+    "p": 0.02498838505108192,
+    "log_p": -3.68934416002973,
+    "t": 769626,
+    "entity": "U1048@DOM1",
+    "j": 15,
+    "categories": [
+     "off_hours",
+     "volume_burst"
+    ]
+   },
+   {
+    "key": "769638|U66@DOM1|C17693|C779",
+    "p": 0.0011266632950010624,
+    "log_p": -6.7884948507624046,
+    "t": 769638,
+    "entity": "U66@DOM1",
+    "j": 15,
+    "categories": [
+     "off_hours",
+     "novel_pair"
+    ]
+   },
+   {
+    "key": "769751|U66@DOM1|C17693|C3305",
+    "p": 0.0010608497676326408,
+    "log_p": -6.848685024444018,
+    "t": 769751,
+    "entity": "U66@DOM1",
+    "j": 15,
+    "categories": [
+     "off_hours"
+    ]
+   },
+   {
+    "key": "769822|U1048@DOM1|C17693|C20455",
+    "p": 0.025356218784147178,
+    "log_p": -3.6747312621013397,
+    "t": 769822,
+    "entity": "U1048@DOM1",
+    "j": 15,
+    "categories": [
+     "off_hours",
+     "volume_burst"
+    ]
+   },
+   {
+    "key": "769933|U66@DOM1|C17693|C1952",
+    "p": 0.001127901312049551,
+    "log_p": -6.787396619051458,
+    "t": 769933,
+    "entity": "U66@DOM1",
+    "j": 15,
+    "categories": [
+     "off_hours",
+     "novel_pair"
+    ]
+   },
+   {
+    "key": "770056|U66@DOM1|C17693|C2388",
+    "p": 0.0010549252444245838,
+    "log_p": -6.854285372930004,
+    "t": 770056,
+    "entity": "U66@DOM1",
+    "j": 15,
+    "categories": [
+     "novel_value",
+     "off_hours"
+    ]
+   },
+   {
+    "key": "770115|U7375@DOM1|C17693|C2519",
+    "p": 0.042104899876908575,
+    "log_p": -3.1675911584412924,
+    "t": 770115,
+    "entity": "U7375@DOM1",
+    "j": 15,
+    "categories": [
+     "novel_value",
+     "off_hours"
+    ]
+   },
+   {
+    "key": "770138|U737@DOM1|C17693|C7597",
+    "p": 0.06142168071286913,
+    "log_p": -2.789992400083531,
+    "t": 770138,
+    "entity": "U737@DOM1",
+    "j": 15,
+    "categories": [
+     "off_hours",
+     "volume_burst"
+    ]
+   },
+   {
+    "key": "770222|U9763@DOM1|C17693|C11178",
+    "p": 0.025072914215747533,
+    "log_p": -3.6859671304185624,
+    "t": 770222,
+    "entity": "U9763@DOM1",
+    "j": 15,
+    "categories": [
+     "novel_value",
+     "off_hours",
+     "volume_burst"
+    ]
+   },
+   {
+    "key": "770387|U7375@DOM1|C17693|C1415",
+    "p": 0.02104748684693236,
+    "log_p": -3.8609741156756883,
+    "t": 770387,
+    "entity": "U7375@DOM1",
+    "j": 15,
+    "categories": [
+     "off_hours",
+     "volume_burst"
+    ]
+   },
+   {
+    "key": "770512|U4448@DOM1|C17693|C11178",
+    "p": 0.01771604093858059,
+    "log_p": -4.033284782098579,
+    "t": 770512,
+    "entity": "U4448@DOM1",
+    "j": 15,
+    "categories": [
+     "off_hours"
+    ]
+   },
+   {
+    "key": "770601|U7375@DOM1|C17693|C636",
+    "p": 0.04572967267453587,
+    "log_p": -3.08500789912183,
+    "t": 770601,
+    "entity": "U7375@DOM1",
+    "j": 15,
+    "categories": [
+     "off_hours"
+    ]
+   },
+   {
+    "key": "770651|U66@DOM1|C17693|C765",
+    "p": 0.00004199735772304676,
+    "log_p": -10.077903853015938,
+    "t": 770651,
+    "entity": "U66@DOM1",
+    "j": 15,
+    "categories": [
+     "novel_value",
+     "off_hours"
+    ]
+   },
+   {
+    "key": "770726|U7375@DOM1|C17693|C7782",
+    "p": 0.03513271378359828,
+    "log_p": -3.3486225659414033,
+    "t": 770726,
+    "entity": "U7375@DOM1",
+    "j": 15,
+    "categories": [
+     "off_hours",
+     "volume_burst"
+    ]
+   },
+   {
+    "key": "770816|U66@DOM1|C17693|C92",
+    "p": 0.00004200788151665487,
+    "log_p": -10.077653302127484,
+    "t": 770816,
+    "entity": "U66@DOM1",
+    "j": 15,
+    "categories": [
+     "novel_value",
+     "off_hours"
+    ]
+   },
+   {
+    "key": "770870|U7375@DOM1|C17693|C21946",
+    "p": 0.0347077737761079,
+    "log_p": -3.3607915889899673,
+    "t": 770870,
+    "entity": "U7375@DOM1",
+    "j": 15,
+    "categories": [
+     "off_hours",
+     "volume_burst"
+    ]
+   },
+   {
+    "key": "770932|U7375@DOM1|C17693|C143",
+    "p": 0.03455555429460844,
+    "log_p": -3.365186980629554,
+    "t": 770932,
+    "entity": "U7375@DOM1",
+    "j": 15,
+    "categories": [
+     "off_hours",
+     "volume_burst"
+    ]
+   },
+   {
+    "key": "770950|U66@DOM1|C17693|C742",
+    "p": 0.00004207663266925398,
+    "log_p": -10.076018014855249,
+    "t": 770950,
+    "entity": "U66@DOM1",
+    "j": 15,
+    "categories": [
+     "novel_value",
+     "off_hours"
+    ]
+   },
+   {
+    "key": "771133|U7375@DOM1|C17693|C1626",
+    "p": 0.033986036922598384,
+    "log_p": -3.3818055174646937,
+    "t": 771133,
+    "entity": "U7375@DOM1",
+    "j": 15,
+    "categories": [
+     "off_hours",
+     "volume_burst"
+    ]
+   },
+   {
+    "key": "771134|U4448@DOM1|C17693|C1555",
+    "p": 0.018184506959756375,
+    "log_p": -4.007185313379452,
+    "t": 771134,
+    "entity": "U4448@DOM1",
+    "j": 15,
+    "categories": [
+     "off_hours"
+    ]
+   },
+   {
+    "key": "771340|U9763@DOM1|C17693|C353",
+    "p": 0.10328987563500702,
+    "log_p": -2.270215917001429,
+    "t": 771340,
+    "entity": "U9763@DOM1",
+    "j": 15,
+    "categories": [
+     "off_hours",
+     "volume_burst"
+    ]
+   },
+   {
+    "key": "771380|U9763@DOM1|C17693|C1089",
+    "p": 0.04590493998097611,
+    "log_p": -3.08118254284891,
+    "t": 771380,
+    "entity": "U9763@DOM1",
+    "j": 15,
+    "categories": [
+     "off_hours",
+     "volume_burst"
+    ]
+   },
+   {
+    "key": "771393|U9763@DOM1|C17693|C2057",
+    "p": 0.0555377517291088,
+    "log_p": -2.89069227813333,
+    "t": 771393,
+    "entity": "U9763@DOM1",
+    "j": 15,
+    "categories": [
+     "off_hours",
+     "volume_burst",
+     "novel_pair"
+    ]
+   },
+   {
+    "key": "771401|U9763@DOM1|C17693|C1503",
+    "p": 0.04710268405789231,
+    "log_p": -3.055425293216286,
+    "t": 771401,
+    "entity": "U9763@DOM1",
+    "j": 15,
+    "categories": [
+     "off_hours",
+     "volume_burst",
+     "novel_pair"
+    ]
+   },
+   {
+    "key": "771443|U4448@DOM1|C17693|C1503",
+    "p": 0.017977575340972107,
+    "log_p": -4.018630112148285,
+    "t": 771443,
+    "entity": "U4448@DOM1",
+    "j": 15,
+    "categories": [
+     "off_hours"
+    ]
+   },
+   {
+    "key": "771463|U4448@DOM1|C17693|C400",
+    "p": 0.018417746406172664,
+    "log_p": -3.9944406005814956,
+    "t": 771463,
+    "entity": "U4448@DOM1",
+    "j": 15,
+    "categories": [
+     "off_hours"
+    ]
+   },
+   {
+    "key": "771615|U4448@DOM1|C17693|C2519",
+    "p": 0.018811772332664956,
+    "log_p": -3.9732724172123643,
+    "t": 771615,
+    "entity": "U4448@DOM1",
+    "j": 15,
+    "categories": [
+     "off_hours"
+    ]
+   },
+   {
+    "key": "771631|U4448@DOM1|C17693|C1549",
+    "p": 0.019310560449938174,
+    "log_p": -3.9471031591442447,
+    "t": 771631,
+    "entity": "U4448@DOM1",
+    "j": 15,
+    "categories": [
+     "off_hours"
+    ]
+   },
+   {
+    "key": "772253|U66@DOM1|C17693|C5653",
+    "p": 0.00004210156372114904,
+    "log_p": -10.075425674945556,
+    "t": 772253,
+    "entity": "U66@DOM1",
+    "j": 15,
+    "categories": [
+     "novel_value",
+     "off_hours"
+    ]
+   },
+   {
+    "key": "772715|U66@DOM1|C17693|C5653",
+    "p": 0.0010752419776765602,
+    "log_p": -6.835209547219625,
+    "t": 772715,
+    "entity": "U66@DOM1",
+    "j": 15,
+    "categories": [
+     "off_hours"
+    ]
+   },
+   {
+    "key": "772864|U66@DOM1|C17693|C398",
+    "p": 0.001058817406348184,
+    "log_p": -6.850602648052291,
+    "t": 772864,
+    "entity": "U66@DOM1",
+    "j": 15,
+    "categories": [
+     "novel_value",
+     "off_hours"
+    ]
+   },
+   {
+    "key": "772906|U218@DOM1|C17693|C3755",
+    "p": 0.022651398899658837,
+    "log_p": -3.78753366738592,
+    "t": 772906,
+    "entity": "U218@DOM1",
+    "j": 15,
+    "categories": [
+     "novel_value",
+     "off_hours"
+    ]
+   },
+   {
+    "key": "772934|U218@DOM1|C17693|C2079",
+    "p": 0.02348210147572294,
+    "log_p": -3.751516787357556,
+    "t": 772934,
+    "entity": "U218@DOM1",
+    "j": 15,
+    "categories": [
+     "novel_value",
+     "off_hours"
+    ]
+   },
+   {
+    "key": "772964|U218@DOM1|C17693|C1936",
+    "p": 0.02421199167991539,
+    "log_p": -3.720907244587507,
+    "t": 772964,
+    "entity": "U218@DOM1",
+    "j": 15,
+    "categories": [
+     "novel_value",
+     "off_hours"
+    ]
+   },
+   {
+    "key": "773143|U4112@DOM1|C17693|C1611",
+    "p": 0.05615100355811753,
+    "log_p": -2.879710725150322,
+    "t": 773143,
+    "entity": "U4112@DOM1",
+    "j": 15,
+    "categories": [
+     "off_hours",
+     "volume_burst"
+    ]
+   },
+   {
+    "key": "773153|U4112@DOM1|C17693|C3758",
+    "p": 0.03837359125375084,
+    "log_p": -3.2603857837485823,
+    "t": 773153,
+    "entity": "U4112@DOM1",
+    "j": 15,
+    "categories": [
+     "novel_value",
+     "off_hours",
+     "volume_burst",
+     "novel_pair"
+    ]
+   },
+   {
+    "key": "773270|U4978@DOM1|C17693|C12116",
+    "p": 0.0311206054047235,
+    "log_p": -3.4698851259818806,
+    "t": 773270,
+    "entity": "U4978@DOM1",
+    "j": 15,
+    "categories": [
+     "off_hours"
+    ]
+   },
+   {
+    "key": "773387|U4978@DOM1|C17693|C1438",
+    "p": 0.03271052806307895,
+    "log_p": -3.4200582937810795,
+    "t": 773387,
+    "entity": "U4978@DOM1",
+    "j": 15,
+    "categories": [
+     "off_hours"
+    ]
+   },
+   {
+    "key": "773961|U66@DOM1|C17693|C765",
+    "p": 0.0010673607538093223,
+    "log_p": -6.842566262766132,
+    "t": 773961,
+    "entity": "U66@DOM1",
+    "j": 15,
+    "categories": [
+     "off_hours"
+    ]
+   },
+   {
+    "key": "774180|U66@DOM1|C17693|C1710",
+    "p": 0.0000423396388076907,
+    "log_p": -10.06978682305231,
+    "t": 774180,
+    "entity": "U66@DOM1",
+    "j": 15,
+    "categories": [
+     "off_hours"
+    ]
+   },
+   {
+    "key": "774214|U66@DOM1|C17693|C1966",
+    "p": 0.0000421388124494631,
+    "log_p": -10.074541331061189,
+    "t": 774214,
+    "entity": "U66@DOM1",
+    "j": 15,
+    "categories": [
+     "novel_value",
+     "off_hours"
+    ]
+   },
+   {
+    "key": "774452|U66@DOM1|C17693|C2388",
+    "p": 0.000042569368321652446,
+    "log_p": -10.064375616814235,
+    "t": 774452,
+    "entity": "U66@DOM1",
+    "j": 15,
+    "categories": [
+     "off_hours"
+    ]
+   },
+   {
+    "key": "774492|U162@DOM1|C17693|C2388",
+    "p": 0.011735137628117294,
+    "log_p": -4.445167721744745,
+    "t": 774492,
+    "entity": "U162@DOM1",
+    "j": 15,
+    "categories": [
+     "novel_value",
+     "off_hours"
+    ]
+   },
+   {
+    "key": "774514|U218@DOM1|C17693|C2388",
+    "p": 0.025593112646941085,
+    "log_p": -3.665432000922492,
+    "t": 774514,
+    "entity": "U218@DOM1",
+    "j": 15,
+    "categories": [
+     "novel_value",
+     "off_hours"
+    ]
+   }
+  ],
+  "scored_per_day": {
+   "day_07": 736172,
+   "day_08": 715667
+  },
+  "status_counts": {
+   "cooccurrence": {
+    "evaluated": 1451839
+   },
+   "marginal": {
+    "abstained_unusable": 6953206,
+    "evaluated": 4661506
+   },
+   "novelty": {
+    "abstained_unusable": 1145850,
+    "evaluated": 10468862
+   },
+   "timing": {
+    "evaluated": 1451839
+   },
+   "volume": {
+    "evaluated": 1451839
+   }
+  }
+ },
+ "run": {
+  "detectors": [
+   "cooccurrence",
+   "marginal",
+   "novelty",
+   "timing",
+   "volume"
+  ],
+  "finished_at": "2026-08-16T16:20:18Z",
+  "git_dirty": true,
+  "git_sha": "3e9203c5be2b38d9ac0fe2335152d66af8150adc",
+  "go_version": "go1.26.3",
+  "os_arch": "windows/amd64",
+  "partition": "fallback: single-block degeneration (15), recorded per §8.4",
+  "run_id": "lanl-brown-d7-9-001",
+  "schema": "built-in lanl.auth literal",
+  "started_at": "2026-08-16T16:00:15Z"
+ },
+ "runtime": {
+  "events_per_sec": 4681.316633099332,
+  "gc_percent": 400,
+  "graph_edges": 150311,
+  "graph_nodes": 10629,
+  "heap_alloc_mb": 128.54159545898438,
+  "heap_sys_mb": 259.6875,
+  "novelty_rows": 46247,
+  "timing_entities": 1375,
+  "volume_entities": 1375,
+  "wall_seconds": 1203.4167824
+ },
+ "schema_version": "1",
+ "seeds": {
+  "note": "no stochastic component in the scoring path (R4)"
+ }
+}

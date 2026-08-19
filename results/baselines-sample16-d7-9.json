@@ -1,0 +1,529 @@
+{
+ "schema_version": "1",
+ "kind": "baselines",
+ "hypothesis": [
+  "E1",
+  "E2"
+ ],
+ "run": {
+  "run_id": "baselines-sample16-d7-9-001"
+ },
+ "started": "2026-08-16T23:28:56.607704+00:00",
+ "finished": "2026-08-16T23:31:32.434976+00:00",
+ "seeds": {
+  "global": 42,
+  "iforest": 43,
+  "eif": 44,
+  "hst": 45,
+  "lof": 47,
+  "ocsvm": 48,
+  "pca": 49,
+  "entity_ewma": 50
+ },
+ "versions": {
+  "python": "3.12.5",
+  "numpy": "2.5.2",
+  "pandas": "3.0.5",
+  "scikit-learn": "1.9.0",
+  "rrcf": "0.4.4"
+ },
+ "input": {
+  "features_path": "data/lanl/features-sample16-d7-9.csv.gz",
+  "features_sha256": "ebb54505bc5fbd169afd5428b1c399b7d6b261bfa7935f044bba6510e5f10925",
+  "rows_total": 1451839,
+  "rows_sample": 1451839,
+  "rows_redteam": 262,
+  "entities": 1049,
+  "entity_history_intact": true,
+  "sampling": "uniform 1-in-1 by event-digest hash (Go exporter)"
+ },
+ "parameters": {
+  "budgets": [
+   10,
+   25,
+   50,
+   100
+  ],
+  "days_from": 7,
+  "days_to": 9,
+  "scored_events": 1451839,
+  "sample_rate": 1,
+  "models_run": [
+   "iforest",
+   "eif",
+   "hst",
+   "lof",
+   "ocsvm",
+   "pca",
+   "entity_ewma"
+  ],
+  "models_available": [
+   "iforest",
+   "eif",
+   "hst",
+   "rrcf",
+   "lof",
+   "ocsvm",
+   "pca",
+   "entity_ewma"
+  ],
+  "models": {
+   "iforest": {
+    "n_estimators": 100,
+    "max_samples": 256
+   },
+   "eif": {
+    "trees": 100,
+    "subsample": 256,
+    "extension_level": "full (d-1)"
+   },
+   "hst": {
+    "trees": 25,
+    "depth": 8,
+    "window": 250
+   },
+   "lof": {
+    "n_neighbors": 20,
+    "fit_cap": 50000,
+    "novelty": true
+   },
+   "ocsvm": {
+    "fit_cap": 50000,
+    "nystroem_components": 200,
+    "nu": 0.05,
+    "approximation": "Nystroem kernel map + SGDOneClassSVM; the exact kernel SVM is O(n^2) in the fit set and cannot be run at this row count. Recorded as a deviation from the textbook formulation rather than presented as an exact one-class SVM"
+   },
+   "pca": {
+    "n_components": 5,
+    "score": "squared reconstruction residual"
+   },
+   "entity_ewma": {
+    "half_life_events": 32.0,
+    "min_observations": 8,
+    "score": "max standardised deviation over present features",
+    "cold_start": "scores 0 (never alerts) below min_observations; a naive baseline asserts normality where R3 requires a detector to abstain, and that is retained so the cost of the rule is visible"
+   }
+  }
+ },
+ "results": {
+  "iforest": {
+   "scope": "population",
+   "family": "isolation",
+   "detections_at_budget": {
+    "budget_10_per_day": {
+     "detections": 0,
+     "red_team_total": 262,
+     "per_day_detections": {
+      "7": 0,
+      "8": 0
+     },
+     "detected_events": [],
+     "events_named": true
+    },
+    "budget_25_per_day": {
+     "detections": 0,
+     "red_team_total": 262,
+     "per_day_detections": {
+      "7": 0,
+      "8": 0
+     },
+     "detected_events": [],
+     "events_named": true
+    },
+    "budget_50_per_day": {
+     "detections": 0,
+     "red_team_total": 262,
+     "per_day_detections": {
+      "7": 0,
+      "8": 0
+     },
+     "detected_events": [],
+     "events_named": true
+    },
+    "budget_100_per_day": {
+     "detections": 0,
+     "red_team_total": 262,
+     "per_day_detections": {
+      "7": 0,
+      "8": 0
+     },
+     "detected_events": [],
+     "events_named": true
+    }
+   },
+   "red_score_percentiles": {
+    "median": 0.549168737651414,
+    "p90": 0.5899111314590527,
+    "p99": 0.6030801150222096
+   },
+   "sample_score_percentiles": {
+    "median": 0.4944496690783129,
+    "p90": 0.5577915404481588,
+    "p99": 0.6172557098921205
+   },
+   "wall_seconds": 8.149782899999991
+  },
+  "eif": {
+   "scope": "population",
+   "family": "isolation",
+   "detections_at_budget": {
+    "budget_10_per_day": {
+     "detections": 0,
+     "red_team_total": 262,
+     "per_day_detections": {
+      "7": 0,
+      "8": 0
+     },
+     "detected_events": [],
+     "events_named": true
+    },
+    "budget_25_per_day": {
+     "detections": 0,
+     "red_team_total": 262,
+     "per_day_detections": {
+      "7": 0,
+      "8": 0
+     },
+     "detected_events": [],
+     "events_named": true
+    },
+    "budget_50_per_day": {
+     "detections": 0,
+     "red_team_total": 262,
+     "per_day_detections": {
+      "7": 0,
+      "8": 0
+     },
+     "detected_events": [],
+     "events_named": true
+    },
+    "budget_100_per_day": {
+     "detections": 0,
+     "red_team_total": 262,
+     "per_day_detections": {
+      "7": 0,
+      "8": 0
+     },
+     "detected_events": [],
+     "events_named": true
+    }
+   },
+   "red_score_percentiles": {
+    "median": 0.47836748847595945,
+    "p90": 0.5251339792760445,
+    "p99": 0.5424298641503217
+   },
+   "sample_score_percentiles": {
+    "median": 0.4527645576152605,
+    "p90": 0.5183236066866345,
+    "p99": 0.5651072901793157
+   },
+   "wall_seconds": 69.13500859998749
+  },
+  "hst": {
+   "scope": "population",
+   "family": "isolation",
+   "detections_at_budget": {
+    "budget_10_per_day": {
+     "detections": 0,
+     "red_team_total": 262,
+     "per_day_detections": {
+      "7": 0,
+      "8": 0
+     },
+     "detected_events": [],
+     "events_named": true
+    },
+    "budget_25_per_day": {
+     "detections": 0,
+     "red_team_total": 262,
+     "per_day_detections": {
+      "7": 0,
+      "8": 0
+     },
+     "detected_events": [],
+     "events_named": true
+    },
+    "budget_50_per_day": {
+     "detections": 0,
+     "red_team_total": 262,
+     "per_day_detections": {
+      "7": 0,
+      "8": 0
+     },
+     "detected_events": [],
+     "events_named": true
+    },
+    "budget_100_per_day": {
+     "detections": 0,
+     "red_team_total": 262,
+     "per_day_detections": {
+      "7": 0,
+      "8": 0
+     },
+     "detected_events": [],
+     "events_named": true
+    }
+   },
+   "red_score_percentiles": {
+    "median": -483968.0,
+    "p90": -318028.8,
+    "p99": -236226.56000000006
+   },
+   "sample_score_percentiles": {
+    "median": -521216.0,
+    "p90": -329728.0,
+    "p99": -191488.0
+   },
+   "wall_seconds": 6.858155299996724
+  },
+  "lof": {
+   "scope": "population",
+   "family": "density",
+   "detections_at_budget": {
+    "budget_10_per_day": {
+     "detections": 0,
+     "red_team_total": 262,
+     "per_day_detections": {
+      "7": 0,
+      "8": 0
+     },
+     "detected_events": [],
+     "events_named": true
+    },
+    "budget_25_per_day": {
+     "detections": 0,
+     "red_team_total": 262,
+     "per_day_detections": {
+      "7": 0,
+      "8": 0
+     },
+     "detected_events": [],
+     "events_named": true
+    },
+    "budget_50_per_day": {
+     "detections": 0,
+     "red_team_total": 262,
+     "per_day_detections": {
+      "7": 0,
+      "8": 0
+     },
+     "detected_events": [],
+     "events_named": true
+    },
+    "budget_100_per_day": {
+     "detections": 1,
+     "red_team_total": 262,
+     "per_day_detections": {
+      "7": 0,
+      "8": 1
+     },
+     "detected_events": [
+      {
+       "t": 748397,
+       "entity": "U374@DOM1"
+      }
+     ],
+     "events_named": true
+    }
+   },
+   "red_score_percentiles": {
+    "median": 2.0064066267478267,
+    "p90": 3.785766422400773,
+    "p99": 5.652585549641436
+   },
+   "sample_score_percentiles": {
+    "median": 1.0293445294758576,
+    "p90": 1.2370981502144862,
+    "p99": 2.2108196950050645
+   },
+   "wall_seconds": 49.43518349999795
+  },
+  "ocsvm": {
+   "scope": "population",
+   "family": "boundary",
+   "detections_at_budget": {
+    "budget_10_per_day": {
+     "detections": 0,
+     "red_team_total": 262,
+     "per_day_detections": {
+      "7": 0,
+      "8": 0
+     },
+     "detected_events": [],
+     "events_named": true
+    },
+    "budget_25_per_day": {
+     "detections": 0,
+     "red_team_total": 262,
+     "per_day_detections": {
+      "7": 0,
+      "8": 0
+     },
+     "detected_events": [],
+     "events_named": true
+    },
+    "budget_50_per_day": {
+     "detections": 0,
+     "red_team_total": 262,
+     "per_day_detections": {
+      "7": 0,
+      "8": 0
+     },
+     "detected_events": [],
+     "events_named": true
+    },
+    "budget_100_per_day": {
+     "detections": 0,
+     "red_team_total": 262,
+     "per_day_detections": {
+      "7": 0,
+      "8": 0
+     },
+     "detected_events": [],
+     "events_named": true
+    }
+   },
+   "red_score_percentiles": {
+    "median": -0.008571379024311099,
+    "p90": 0.006455525898834247,
+    "p99": 0.015547732472248978
+   },
+   "sample_score_percentiles": {
+    "median": -0.02896283925812182,
+    "p90": -0.0064575158115705465,
+    "p99": 0.012981736613836252
+   },
+   "wall_seconds": 5.421413400006713
+  },
+  "pca": {
+   "scope": "population",
+   "family": "linear subspace",
+   "detections_at_budget": {
+    "budget_10_per_day": {
+     "detections": 0,
+     "red_team_total": 262,
+     "per_day_detections": {
+      "7": 0,
+      "8": 0
+     },
+     "detected_events": [],
+     "events_named": true
+    },
+    "budget_25_per_day": {
+     "detections": 0,
+     "red_team_total": 262,
+     "per_day_detections": {
+      "7": 0,
+      "8": 0
+     },
+     "detected_events": [],
+     "events_named": true
+    },
+    "budget_50_per_day": {
+     "detections": 0,
+     "red_team_total": 262,
+     "per_day_detections": {
+      "7": 0,
+      "8": 0
+     },
+     "detected_events": [],
+     "events_named": true
+    },
+    "budget_100_per_day": {
+     "detections": 0,
+     "red_team_total": 262,
+     "per_day_detections": {
+      "7": 0,
+      "8": 0
+     },
+     "detected_events": [],
+     "events_named": true
+    }
+   },
+   "red_score_percentiles": {
+    "median": 0.03213264466874728,
+    "p90": 0.11733992710434728,
+    "p99": 0.16348823056936743
+   },
+   "sample_score_percentiles": {
+    "median": 0.006639872299123242,
+    "p90": 0.09467768615488369,
+    "p99": 0.3151451471213352
+   },
+   "wall_seconds": 0.5456190000113565
+  },
+  "entity_ewma": {
+   "scope": "per-entity",
+   "family": "per-entity moment",
+   "detections_at_budget": {
+    "budget_10_per_day": {
+     "detections": 0,
+     "red_team_total": 262,
+     "per_day_detections": {
+      "7": 0,
+      "8": 0
+     },
+     "detected_events": [],
+     "events_named": true
+    },
+    "budget_25_per_day": {
+     "detections": 0,
+     "red_team_total": 262,
+     "per_day_detections": {
+      "7": 0,
+      "8": 0
+     },
+     "detected_events": [],
+     "events_named": true
+    },
+    "budget_50_per_day": {
+     "detections": 1,
+     "red_team_total": 262,
+     "per_day_detections": {
+      "7": 0,
+      "8": 1
+     },
+     "detected_events": [
+      {
+       "t": 747001,
+       "entity": "U1450@DOM1"
+      }
+     ],
+     "events_named": true
+    },
+    "budget_100_per_day": {
+     "detections": 1,
+     "red_team_total": 262,
+     "per_day_detections": {
+      "7": 0,
+      "8": 1
+     },
+     "detected_events": [
+      {
+       "t": 747001,
+       "entity": "U1450@DOM1"
+      }
+     ],
+     "events_named": true
+    }
+   },
+   "red_score_percentiles": {
+    "median": 2.7501119165783483,
+    "p90": 6.232427789441089,
+    "p99": 6918.229009166265
+   },
+   "sample_score_percentiles": {
+    "median": 1.1717114100859718,
+    "p90": 2.018542566368642,
+    "p99": 5.497655468097373
+   },
+   "wall_seconds": 14.920983899995917
+  }
+ },
+ "caveats": [
+  "models not run in this pass: rrcf. They are absent from results rather than recorded as zero, so a reader cannot mistake a model that did not run for one that detected nothing"
+ ],
+ "provenance_complete": true,
+ "note": "baselines are not part of the framework and are not held to R2/R4 (\u00a712.4). Detector IV is a population-marginal estimator, NOT an isolation forest: the \u00a712.4 comparison is between independent models, not framework-against-its-own-component. The category census is the sharper statement of why they differ \u2014 no labelled event is a population-marginal outlier, which is a property of the attacks rather than of any model. Seven of the eight models here are population-scope and share that blind spot by construction; entity_ewma is the one that does not, and it is the baseline the framework has to beat to show that its calibration machinery earns its place above the per-entity framing alone"
+}

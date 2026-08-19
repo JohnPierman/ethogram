@@ -1,0 +1,6183 @@
+{
+ "corpus": {
+  "burn_in": {
+   "end_seconds": 604800,
+   "fixed_at_commit": "24c5a53"
+  },
+  "coverage": {
+   "entity_population": "source users matching U*@ (human accounts); see DATA.md burn-in section",
+   "kind": "prefix",
+   "max_rows": 0,
+   "max_seconds": 1209600,
+   "statement": "corpus days 7.00 to 14.00 scored (burn-in days 0 to 7.00)"
+  },
+  "events_scored": 4542974,
+  "events_skipped": 70712458,
+  "events_warmed": 4181736,
+  "files": [
+   {
+    "path": "data/lanl/auth.txt.gz",
+    "sha256": "9c6b0cc261b0edd19324f6fd1839743224938a7f644ed202ca70bd70a89bf672"
+   },
+   {
+    "path": "data/lanl/redteam.txt.gz",
+    "sha256": "606635837c684ad11e464075ecf97bc5df325ff7d7f64614d2d8c8af18051669"
+   }
+  ],
+  "no_opinion": 0,
+  "row_errors": 0,
+  "rows_prefiltered": 160034401,
+  "rows_read": 239471570
+ },
+ "hypothesis": [
+  "E1",
+  "E2",
+  "E3",
+  "E4",
+  "E9"
+ ],
+ "kind": "analysis",
+ "paper_refs": {
+  "equations": [
+   18
+  ],
+  "sections": [
+   "§10.2",
+   "§10.3",
+   "§12.3",
+   "§12.4",
+   "§12.5"
+  ]
+ },
+ "parameters": {
+  "bh_denominator": "exact per-day scored-event counts recorded by the run",
+  "bootstrap_resamples": 2000,
+  "bootstrap_seed": 20260814,
+  "budgets": [
+   10,
+   25,
+   50,
+   100
+  ],
+  "ground_truth_caveat": "unlabelled events count as negatives; the corpus has no true negative class (§12.5), so realised FDR is an upper bound",
+  "q_grid": [
+   0.001,
+   0.005,
+   0.01,
+   0.05,
+   0.1,
+   0.25
+  ],
+  "top_k_per_day": 200
+ },
+ "provenance_complete": true,
+ "results": {
+  "ablations": {
+   "e4": {
+    "arm": "cooccurrence-partitioned (14)",
+    "design": "paired: both arms scored the same events, so only discordant pairs carry evidence (McNemar); the bootstrap resamples events with both arms' outcomes travelling together",
+    "hypothesis": "E4",
+    "per_budget": [
+     {
+      "arm_detected": 0,
+      "bootstrap_delta": {
+       "observed_delta": 0,
+       "low": 0,
+       "high": 0,
+       "level": 0.95,
+       "resamples": 2000,
+       "seed": 20260814,
+       "excludes_zero": false
+      },
+      "budget_per_day": 10,
+      "framework_detected": 0,
+      "mcnemar": {
+       "both_detected": 0,
+       "neither_detected": 0,
+       "only_a": 0,
+       "only_b": 0,
+       "statistic": 0,
+       "p_value": 1,
+       "exact": false,
+       "delta": 0
+      },
+      "paired_events": 0
+     },
+     {
+      "arm_detected": 0,
+      "bootstrap_delta": {
+       "observed_delta": 0,
+       "low": 0,
+       "high": 0,
+       "level": 0.95,
+       "resamples": 2000,
+       "seed": 20260814,
+       "excludes_zero": false
+      },
+      "budget_per_day": 25,
+      "framework_detected": 0,
+      "mcnemar": {
+       "both_detected": 0,
+       "neither_detected": 0,
+       "only_a": 0,
+       "only_b": 0,
+       "statistic": 0,
+       "p_value": 1,
+       "exact": false,
+       "delta": 0
+      },
+      "paired_events": 0
+     },
+     {
+      "arm_detected": 0,
+      "bootstrap_delta": {
+       "observed_delta": 0,
+       "low": 0,
+       "high": 0,
+       "level": 0.95,
+       "resamples": 2000,
+       "seed": 20260814,
+       "excludes_zero": false
+      },
+      "budget_per_day": 50,
+      "framework_detected": 0,
+      "mcnemar": {
+       "both_detected": 0,
+       "neither_detected": 0,
+       "only_a": 0,
+       "only_b": 0,
+       "statistic": 0,
+       "p_value": 1,
+       "exact": false,
+       "delta": 0
+      },
+      "paired_events": 0
+     },
+     {
+      "arm_detected": 0,
+      "bootstrap_delta": {
+       "observed_delta": 0,
+       "low": 0,
+       "high": 0,
+       "level": 0.95,
+       "resamples": 2000,
+       "seed": 20260814,
+       "excludes_zero": false
+      },
+      "budget_per_day": 100,
+      "framework_detected": 0,
+      "mcnemar": {
+       "both_detected": 0,
+       "neither_detected": 0,
+       "only_a": 0,
+       "only_b": 0,
+       "statistic": 0,
+       "p_value": 1,
+       "exact": false,
+       "delta": 0
+      },
+      "paired_events": 0
+     }
+    ]
+   },
+   "e9": {
+    "arm": "timing-cells-168 (§7.1)",
+    "design": "paired: both arms scored the same events, so only discordant pairs carry evidence (McNemar); the bootstrap resamples events with both arms' outcomes travelling together",
+    "hypothesis": "E9",
+    "per_budget": [
+     {
+      "arm_detected": 0,
+      "bootstrap_delta": {
+       "observed_delta": 0,
+       "low": 0,
+       "high": 0,
+       "level": 0.95,
+       "resamples": 2000,
+       "seed": 20260814,
+       "excludes_zero": false
+      },
+      "budget_per_day": 10,
+      "framework_detected": 0,
+      "mcnemar": {
+       "both_detected": 0,
+       "neither_detected": 0,
+       "only_a": 0,
+       "only_b": 0,
+       "statistic": 0,
+       "p_value": 1,
+       "exact": false,
+       "delta": 0
+      },
+      "paired_events": 0
+     },
+     {
+      "arm_detected": 0,
+      "bootstrap_delta": {
+       "observed_delta": 0,
+       "low": 0,
+       "high": 0,
+       "level": 0.95,
+       "resamples": 2000,
+       "seed": 20260814,
+       "excludes_zero": false
+      },
+      "budget_per_day": 25,
+      "framework_detected": 0,
+      "mcnemar": {
+       "both_detected": 0,
+       "neither_detected": 0,
+       "only_a": 0,
+       "only_b": 0,
+       "statistic": 0,
+       "p_value": 1,
+       "exact": false,
+       "delta": 0
+      },
+      "paired_events": 0
+     },
+     {
+      "arm_detected": 0,
+      "bootstrap_delta": {
+       "observed_delta": 0,
+       "low": 0,
+       "high": 0,
+       "level": 0.95,
+       "resamples": 2000,
+       "seed": 20260814,
+       "excludes_zero": false
+      },
+      "budget_per_day": 50,
+      "framework_detected": 0,
+      "mcnemar": {
+       "both_detected": 0,
+       "neither_detected": 0,
+       "only_a": 0,
+       "only_b": 0,
+       "statistic": 0,
+       "p_value": 1,
+       "exact": false,
+       "delta": 0
+      },
+      "paired_events": 0
+     },
+     {
+      "arm_detected": 0,
+      "bootstrap_delta": {
+       "observed_delta": 0,
+       "low": 0,
+       "high": 0,
+       "level": 0.95,
+       "resamples": 2000,
+       "seed": 20260814,
+       "excludes_zero": false
+      },
+      "budget_per_day": 100,
+      "framework_detected": 0,
+      "mcnemar": {
+       "both_detected": 0,
+       "neither_detected": 0,
+       "only_a": 0,
+       "only_b": 0,
+       "statistic": 0,
+       "p_value": 1,
+       "exact": false,
+       "delta": 0
+      },
+      "paired_events": 0
+     }
+    ]
+   }
+  },
+  "baseline_source": {
+   "caveats": [
+    "the framework's per-day budget is exact (the day's b smallest combined p-values over the full scored population); each baseline's threshold is a quantile estimated from a deterministic 1-in-100 sample, so the two arms estimate the same operating point with different precision",
+    "the baseline feature encoding is the conventional one for these detectors (hashed categoricals, hour and weekday fractions) and was not tuned in their favour; a different encoding would move their results",
+    "Detector IV inside the framework is itself a marginal outlier detector over the population, so the population_rare category is in part the framework measured against one of its own components (§12.4)",
+    "the categories are structural properties of each event relative to its history, assigned from evidence and not from which detector scored it lowest; an event may belong to more than one category, so the rows are overlapping subsets of the labelled population and do not sum to it"
+   ],
+   "models": [
+    "eif",
+    "hst",
+    "iforest",
+    "rrcf"
+   ],
+   "run_id": "baselines-lanl-d7-30-001",
+   "source_file": "results/baselines-lanl-d7-30.json"
+  },
+  "calibration_bh": [
+   {
+    "nominal_q": 0.001,
+    "procedure": "benjamini-hochberg",
+    "discoveries": 1400,
+    "true_positives": 0,
+    "realised_fdr": {
+     "point": 1,
+     "low": 0.9972636092227101,
+     "high": 1,
+     "n": 1400,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "conservatism_ratio": 1000,
+    "saturated_days": 7
+   },
+   {
+    "nominal_q": 0.005,
+    "procedure": "benjamini-hochberg",
+    "discoveries": 1400,
+    "true_positives": 0,
+    "realised_fdr": {
+     "point": 1,
+     "low": 0.9972636092227101,
+     "high": 1,
+     "n": 1400,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "conservatism_ratio": 200,
+    "saturated_days": 7
+   },
+   {
+    "nominal_q": 0.01,
+    "procedure": "benjamini-hochberg",
+    "discoveries": 1400,
+    "true_positives": 0,
+    "realised_fdr": {
+     "point": 1,
+     "low": 0.9972636092227101,
+     "high": 1,
+     "n": 1400,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "conservatism_ratio": 100,
+    "saturated_days": 7
+   },
+   {
+    "nominal_q": 0.05,
+    "procedure": "benjamini-hochberg",
+    "discoveries": 1400,
+    "true_positives": 0,
+    "realised_fdr": {
+     "point": 1,
+     "low": 0.9972636092227101,
+     "high": 1,
+     "n": 1400,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "conservatism_ratio": 20,
+    "saturated_days": 7
+   },
+   {
+    "nominal_q": 0.1,
+    "procedure": "benjamini-hochberg",
+    "discoveries": 1400,
+    "true_positives": 0,
+    "realised_fdr": {
+     "point": 1,
+     "low": 0.9972636092227101,
+     "high": 1,
+     "n": 1400,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "conservatism_ratio": 10,
+    "saturated_days": 7
+   },
+   {
+    "nominal_q": 0.25,
+    "procedure": "benjamini-hochberg",
+    "discoveries": 1400,
+    "true_positives": 0,
+    "realised_fdr": {
+     "point": 1,
+     "low": 0.9972636092227101,
+     "high": 1,
+     "n": 1400,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "conservatism_ratio": 4,
+    "saturated_days": 7
+   }
+  ],
+  "calibration_by": [
+   {
+    "nominal_q": 0.001,
+    "procedure": "benjamini-yekutieli",
+    "discoveries": 1400,
+    "true_positives": 0,
+    "realised_fdr": {
+     "point": 1,
+     "low": 0.9972636092227101,
+     "high": 1,
+     "n": 1400,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "conservatism_ratio": 1000,
+    "saturated_days": 7
+   },
+   {
+    "nominal_q": 0.005,
+    "procedure": "benjamini-yekutieli",
+    "discoveries": 1400,
+    "true_positives": 0,
+    "realised_fdr": {
+     "point": 1,
+     "low": 0.9972636092227101,
+     "high": 1,
+     "n": 1400,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "conservatism_ratio": 200,
+    "saturated_days": 7
+   },
+   {
+    "nominal_q": 0.01,
+    "procedure": "benjamini-yekutieli",
+    "discoveries": 1400,
+    "true_positives": 0,
+    "realised_fdr": {
+     "point": 1,
+     "low": 0.9972636092227101,
+     "high": 1,
+     "n": 1400,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "conservatism_ratio": 100,
+    "saturated_days": 7
+   },
+   {
+    "nominal_q": 0.05,
+    "procedure": "benjamini-yekutieli",
+    "discoveries": 1400,
+    "true_positives": 0,
+    "realised_fdr": {
+     "point": 1,
+     "low": 0.9972636092227101,
+     "high": 1,
+     "n": 1400,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "conservatism_ratio": 20,
+    "saturated_days": 7
+   },
+   {
+    "nominal_q": 0.1,
+    "procedure": "benjamini-yekutieli",
+    "discoveries": 1400,
+    "true_positives": 0,
+    "realised_fdr": {
+     "point": 1,
+     "low": 0.9972636092227101,
+     "high": 1,
+     "n": 1400,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "conservatism_ratio": 10,
+    "saturated_days": 7
+   },
+   {
+    "nominal_q": 0.25,
+    "procedure": "benjamini-yekutieli",
+    "discoveries": 1400,
+    "true_positives": 0,
+    "realised_fdr": {
+     "point": 1,
+     "low": 0.9972636092227101,
+     "high": 1,
+     "n": 1400,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "conservatism_ratio": 4,
+    "saturated_days": 7
+   }
+  ],
+  "category_census": [
+   {
+    "category": {
+     "id": "population_rare",
+     "structural_test": "the observed value holds less than one part in a thousand of its field's observed mass in the population",
+     "whitepaper_section": "§9",
+     "contrast_with_marginal_detectors": "this is the category isolation-based detectors answer well, and it is retained as the control: it is the part of the problem the standard formulation already solves, so any advantage the framework shows elsewhere can be read against a category where it should show none"
+    },
+    "labelled_total": 549,
+    "labelled_uncategorised": 128,
+    "red_team_events": 0,
+    "share_of_labelled": 0
+   },
+   {
+    "category": {
+     "id": "novel_value",
+     "structural_test": "the entity has history for the field but has never taken this value",
+     "whitepaper_section": "§3.1, §6",
+     "contrast_with_marginal_detectors": "a detector fitted to a pooled feature cloud holds no per-entity state, so the proposition 'this entity has not previously exhibited this value' is not expressible in it; a value common in the population is unremarkable to it however new it is to the account that produced it"
+    },
+    "labelled_total": 549,
+    "labelled_uncategorised": 128,
+    "red_team_events": 215,
+    "share_of_labelled": 0.39162112932604737
+   },
+   {
+    "category": {
+     "id": "off_hours",
+     "structural_test": "the entity's own fitted circular density at this time of day is below the uniform level 1/2π",
+     "whitepaper_section": "§3.1, §7.1, §7.2",
+     "contrast_with_marginal_detectors": "an hour-of-day feature is scored against the population's working pattern rather than the entity's, and a rectangular encoding cuts the circle at midnight, so an entity whose ordinary hours straddle midnight is scored as two disjoint populations rather than one (§7.1)"
+    },
+    "labelled_total": 549,
+    "labelled_uncategorised": 128,
+    "red_team_events": 181,
+    "share_of_labelled": 0.3296903460837887
+   },
+   {
+    "category": {
+     "id": "volume_burst",
+     "structural_test": "the entity's observed count in the window exceeds its own predicted rate",
+     "whitepaper_section": "§3.1, §7.4",
+     "contrast_with_marginal_detectors": "a rate is only anomalous relative to the entity's own history; a population-fitted model reads a quiet account's tenfold increase as ordinary whenever busier accounts sustain that rate routinely"
+    },
+    "labelled_total": 549,
+    "labelled_uncategorised": 128,
+    "red_team_events": 199,
+    "share_of_labelled": 0.36247723132969034
+   },
+   {
+    "category": {
+     "id": "novel_pair",
+     "structural_test": "two eligible values have never co-occurred, in a graph that carries mass",
+     "whitepaper_section": "§3.3, §8",
+     "contrast_with_marginal_detectors": "each value is individually frequent, so every marginal is satisfied and the combination is invisible to any detector that scores fields independently; only a joint model has the question in its vocabulary"
+    },
+    "labelled_total": 549,
+    "labelled_uncategorised": 128,
+    "red_team_events": 31,
+    "share_of_labelled": 0.056466302367941715
+   }
+  ],
+  "category_comparison": [
+   {
+    "category": {
+     "id": "population_rare",
+     "structural_test": "the observed value holds less than one part in a thousand of its field's observed mass in the population",
+     "whitepaper_section": "§9",
+     "contrast_with_marginal_detectors": "this is the category isolation-based detectors answer well, and it is retained as the control: it is the part of the problem the standard formulation already solves, so any advantage the framework shows elsewhere can be read against a category where it should show none"
+    },
+    "budget_per_day": 10,
+    "red_team_events_in_category": 0,
+    "common_days": [
+     7,
+     8,
+     9,
+     12,
+     13
+    ],
+    "framework_detected": 0,
+    "framework_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0,
+     "n": 0,
+     "level": 0,
+     "kind": ""
+    },
+    "baseline": "eif",
+    "baseline_detected": 0,
+    "baseline_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0,
+     "n": 0,
+     "level": 0,
+     "kind": ""
+    },
+    "delta_percentage_points": 0,
+    "mcnemar": {
+     "both_detected": 0,
+     "neither_detected": 0,
+     "only_a": 0,
+     "only_b": 0,
+     "statistic": 0,
+     "p_value": 0,
+     "exact": false,
+     "delta": 0
+    },
+    "bootstrap_delta": {
+     "observed_delta": 0,
+     "low": 0,
+     "high": 0,
+     "level": 0,
+     "resamples": 0,
+     "seed": 0,
+     "excludes_zero": false
+    },
+    "unmeasurable": "no labelled event in this run exhibits this category, so neither arm can be credited or faulted for it"
+   },
+   {
+    "category": {
+     "id": "population_rare",
+     "structural_test": "the observed value holds less than one part in a thousand of its field's observed mass in the population",
+     "whitepaper_section": "§9",
+     "contrast_with_marginal_detectors": "this is the category isolation-based detectors answer well, and it is retained as the control: it is the part of the problem the standard formulation already solves, so any advantage the framework shows elsewhere can be read against a category where it should show none"
+    },
+    "budget_per_day": 10,
+    "red_team_events_in_category": 0,
+    "common_days": [
+     7,
+     8,
+     9,
+     12,
+     13
+    ],
+    "framework_detected": 0,
+    "framework_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0,
+     "n": 0,
+     "level": 0,
+     "kind": ""
+    },
+    "baseline": "hst",
+    "baseline_detected": 0,
+    "baseline_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0,
+     "n": 0,
+     "level": 0,
+     "kind": ""
+    },
+    "delta_percentage_points": 0,
+    "mcnemar": {
+     "both_detected": 0,
+     "neither_detected": 0,
+     "only_a": 0,
+     "only_b": 0,
+     "statistic": 0,
+     "p_value": 0,
+     "exact": false,
+     "delta": 0
+    },
+    "bootstrap_delta": {
+     "observed_delta": 0,
+     "low": 0,
+     "high": 0,
+     "level": 0,
+     "resamples": 0,
+     "seed": 0,
+     "excludes_zero": false
+    },
+    "unmeasurable": "no labelled event in this run exhibits this category, so neither arm can be credited or faulted for it"
+   },
+   {
+    "category": {
+     "id": "population_rare",
+     "structural_test": "the observed value holds less than one part in a thousand of its field's observed mass in the population",
+     "whitepaper_section": "§9",
+     "contrast_with_marginal_detectors": "this is the category isolation-based detectors answer well, and it is retained as the control: it is the part of the problem the standard formulation already solves, so any advantage the framework shows elsewhere can be read against a category where it should show none"
+    },
+    "budget_per_day": 10,
+    "red_team_events_in_category": 0,
+    "common_days": [
+     7,
+     8,
+     9,
+     12,
+     13
+    ],
+    "framework_detected": 0,
+    "framework_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0,
+     "n": 0,
+     "level": 0,
+     "kind": ""
+    },
+    "baseline": "iforest",
+    "baseline_detected": 0,
+    "baseline_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0,
+     "n": 0,
+     "level": 0,
+     "kind": ""
+    },
+    "delta_percentage_points": 0,
+    "mcnemar": {
+     "both_detected": 0,
+     "neither_detected": 0,
+     "only_a": 0,
+     "only_b": 0,
+     "statistic": 0,
+     "p_value": 0,
+     "exact": false,
+     "delta": 0
+    },
+    "bootstrap_delta": {
+     "observed_delta": 0,
+     "low": 0,
+     "high": 0,
+     "level": 0,
+     "resamples": 0,
+     "seed": 0,
+     "excludes_zero": false
+    },
+    "unmeasurable": "no labelled event in this run exhibits this category, so neither arm can be credited or faulted for it"
+   },
+   {
+    "category": {
+     "id": "population_rare",
+     "structural_test": "the observed value holds less than one part in a thousand of its field's observed mass in the population",
+     "whitepaper_section": "§9",
+     "contrast_with_marginal_detectors": "this is the category isolation-based detectors answer well, and it is retained as the control: it is the part of the problem the standard formulation already solves, so any advantage the framework shows elsewhere can be read against a category where it should show none"
+    },
+    "budget_per_day": 10,
+    "red_team_events_in_category": 0,
+    "common_days": [
+     7,
+     8,
+     9,
+     12,
+     13
+    ],
+    "framework_detected": 0,
+    "framework_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0,
+     "n": 0,
+     "level": 0,
+     "kind": ""
+    },
+    "baseline": "rrcf",
+    "baseline_detected": 0,
+    "baseline_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0,
+     "n": 0,
+     "level": 0,
+     "kind": ""
+    },
+    "delta_percentage_points": 0,
+    "mcnemar": {
+     "both_detected": 0,
+     "neither_detected": 0,
+     "only_a": 0,
+     "only_b": 0,
+     "statistic": 0,
+     "p_value": 0,
+     "exact": false,
+     "delta": 0
+    },
+    "bootstrap_delta": {
+     "observed_delta": 0,
+     "low": 0,
+     "high": 0,
+     "level": 0,
+     "resamples": 0,
+     "seed": 0,
+     "excludes_zero": false
+    },
+    "unmeasurable": "no labelled event in this run exhibits this category, so neither arm can be credited or faulted for it"
+   },
+   {
+    "category": {
+     "id": "population_rare",
+     "structural_test": "the observed value holds less than one part in a thousand of its field's observed mass in the population",
+     "whitepaper_section": "§9",
+     "contrast_with_marginal_detectors": "this is the category isolation-based detectors answer well, and it is retained as the control: it is the part of the problem the standard formulation already solves, so any advantage the framework shows elsewhere can be read against a category where it should show none"
+    },
+    "budget_per_day": 25,
+    "red_team_events_in_category": 0,
+    "common_days": [
+     7,
+     8,
+     9,
+     12,
+     13
+    ],
+    "framework_detected": 0,
+    "framework_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0,
+     "n": 0,
+     "level": 0,
+     "kind": ""
+    },
+    "baseline": "eif",
+    "baseline_detected": 0,
+    "baseline_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0,
+     "n": 0,
+     "level": 0,
+     "kind": ""
+    },
+    "delta_percentage_points": 0,
+    "mcnemar": {
+     "both_detected": 0,
+     "neither_detected": 0,
+     "only_a": 0,
+     "only_b": 0,
+     "statistic": 0,
+     "p_value": 0,
+     "exact": false,
+     "delta": 0
+    },
+    "bootstrap_delta": {
+     "observed_delta": 0,
+     "low": 0,
+     "high": 0,
+     "level": 0,
+     "resamples": 0,
+     "seed": 0,
+     "excludes_zero": false
+    },
+    "unmeasurable": "no labelled event in this run exhibits this category, so neither arm can be credited or faulted for it"
+   },
+   {
+    "category": {
+     "id": "population_rare",
+     "structural_test": "the observed value holds less than one part in a thousand of its field's observed mass in the population",
+     "whitepaper_section": "§9",
+     "contrast_with_marginal_detectors": "this is the category isolation-based detectors answer well, and it is retained as the control: it is the part of the problem the standard formulation already solves, so any advantage the framework shows elsewhere can be read against a category where it should show none"
+    },
+    "budget_per_day": 25,
+    "red_team_events_in_category": 0,
+    "common_days": [
+     7,
+     8,
+     9,
+     12,
+     13
+    ],
+    "framework_detected": 0,
+    "framework_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0,
+     "n": 0,
+     "level": 0,
+     "kind": ""
+    },
+    "baseline": "hst",
+    "baseline_detected": 0,
+    "baseline_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0,
+     "n": 0,
+     "level": 0,
+     "kind": ""
+    },
+    "delta_percentage_points": 0,
+    "mcnemar": {
+     "both_detected": 0,
+     "neither_detected": 0,
+     "only_a": 0,
+     "only_b": 0,
+     "statistic": 0,
+     "p_value": 0,
+     "exact": false,
+     "delta": 0
+    },
+    "bootstrap_delta": {
+     "observed_delta": 0,
+     "low": 0,
+     "high": 0,
+     "level": 0,
+     "resamples": 0,
+     "seed": 0,
+     "excludes_zero": false
+    },
+    "unmeasurable": "no labelled event in this run exhibits this category, so neither arm can be credited or faulted for it"
+   },
+   {
+    "category": {
+     "id": "population_rare",
+     "structural_test": "the observed value holds less than one part in a thousand of its field's observed mass in the population",
+     "whitepaper_section": "§9",
+     "contrast_with_marginal_detectors": "this is the category isolation-based detectors answer well, and it is retained as the control: it is the part of the problem the standard formulation already solves, so any advantage the framework shows elsewhere can be read against a category where it should show none"
+    },
+    "budget_per_day": 25,
+    "red_team_events_in_category": 0,
+    "common_days": [
+     7,
+     8,
+     9,
+     12,
+     13
+    ],
+    "framework_detected": 0,
+    "framework_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0,
+     "n": 0,
+     "level": 0,
+     "kind": ""
+    },
+    "baseline": "iforest",
+    "baseline_detected": 0,
+    "baseline_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0,
+     "n": 0,
+     "level": 0,
+     "kind": ""
+    },
+    "delta_percentage_points": 0,
+    "mcnemar": {
+     "both_detected": 0,
+     "neither_detected": 0,
+     "only_a": 0,
+     "only_b": 0,
+     "statistic": 0,
+     "p_value": 0,
+     "exact": false,
+     "delta": 0
+    },
+    "bootstrap_delta": {
+     "observed_delta": 0,
+     "low": 0,
+     "high": 0,
+     "level": 0,
+     "resamples": 0,
+     "seed": 0,
+     "excludes_zero": false
+    },
+    "unmeasurable": "no labelled event in this run exhibits this category, so neither arm can be credited or faulted for it"
+   },
+   {
+    "category": {
+     "id": "population_rare",
+     "structural_test": "the observed value holds less than one part in a thousand of its field's observed mass in the population",
+     "whitepaper_section": "§9",
+     "contrast_with_marginal_detectors": "this is the category isolation-based detectors answer well, and it is retained as the control: it is the part of the problem the standard formulation already solves, so any advantage the framework shows elsewhere can be read against a category where it should show none"
+    },
+    "budget_per_day": 25,
+    "red_team_events_in_category": 0,
+    "common_days": [
+     7,
+     8,
+     9,
+     12,
+     13
+    ],
+    "framework_detected": 0,
+    "framework_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0,
+     "n": 0,
+     "level": 0,
+     "kind": ""
+    },
+    "baseline": "rrcf",
+    "baseline_detected": 0,
+    "baseline_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0,
+     "n": 0,
+     "level": 0,
+     "kind": ""
+    },
+    "delta_percentage_points": 0,
+    "mcnemar": {
+     "both_detected": 0,
+     "neither_detected": 0,
+     "only_a": 0,
+     "only_b": 0,
+     "statistic": 0,
+     "p_value": 0,
+     "exact": false,
+     "delta": 0
+    },
+    "bootstrap_delta": {
+     "observed_delta": 0,
+     "low": 0,
+     "high": 0,
+     "level": 0,
+     "resamples": 0,
+     "seed": 0,
+     "excludes_zero": false
+    },
+    "unmeasurable": "no labelled event in this run exhibits this category, so neither arm can be credited or faulted for it"
+   },
+   {
+    "category": {
+     "id": "population_rare",
+     "structural_test": "the observed value holds less than one part in a thousand of its field's observed mass in the population",
+     "whitepaper_section": "§9",
+     "contrast_with_marginal_detectors": "this is the category isolation-based detectors answer well, and it is retained as the control: it is the part of the problem the standard formulation already solves, so any advantage the framework shows elsewhere can be read against a category where it should show none"
+    },
+    "budget_per_day": 50,
+    "red_team_events_in_category": 0,
+    "common_days": [
+     7,
+     8,
+     9,
+     12,
+     13
+    ],
+    "framework_detected": 0,
+    "framework_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0,
+     "n": 0,
+     "level": 0,
+     "kind": ""
+    },
+    "baseline": "eif",
+    "baseline_detected": 0,
+    "baseline_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0,
+     "n": 0,
+     "level": 0,
+     "kind": ""
+    },
+    "delta_percentage_points": 0,
+    "mcnemar": {
+     "both_detected": 0,
+     "neither_detected": 0,
+     "only_a": 0,
+     "only_b": 0,
+     "statistic": 0,
+     "p_value": 0,
+     "exact": false,
+     "delta": 0
+    },
+    "bootstrap_delta": {
+     "observed_delta": 0,
+     "low": 0,
+     "high": 0,
+     "level": 0,
+     "resamples": 0,
+     "seed": 0,
+     "excludes_zero": false
+    },
+    "unmeasurable": "no labelled event in this run exhibits this category, so neither arm can be credited or faulted for it"
+   },
+   {
+    "category": {
+     "id": "population_rare",
+     "structural_test": "the observed value holds less than one part in a thousand of its field's observed mass in the population",
+     "whitepaper_section": "§9",
+     "contrast_with_marginal_detectors": "this is the category isolation-based detectors answer well, and it is retained as the control: it is the part of the problem the standard formulation already solves, so any advantage the framework shows elsewhere can be read against a category where it should show none"
+    },
+    "budget_per_day": 50,
+    "red_team_events_in_category": 0,
+    "common_days": [
+     7,
+     8,
+     9,
+     12,
+     13
+    ],
+    "framework_detected": 0,
+    "framework_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0,
+     "n": 0,
+     "level": 0,
+     "kind": ""
+    },
+    "baseline": "hst",
+    "baseline_detected": 0,
+    "baseline_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0,
+     "n": 0,
+     "level": 0,
+     "kind": ""
+    },
+    "delta_percentage_points": 0,
+    "mcnemar": {
+     "both_detected": 0,
+     "neither_detected": 0,
+     "only_a": 0,
+     "only_b": 0,
+     "statistic": 0,
+     "p_value": 0,
+     "exact": false,
+     "delta": 0
+    },
+    "bootstrap_delta": {
+     "observed_delta": 0,
+     "low": 0,
+     "high": 0,
+     "level": 0,
+     "resamples": 0,
+     "seed": 0,
+     "excludes_zero": false
+    },
+    "unmeasurable": "no labelled event in this run exhibits this category, so neither arm can be credited or faulted for it"
+   },
+   {
+    "category": {
+     "id": "population_rare",
+     "structural_test": "the observed value holds less than one part in a thousand of its field's observed mass in the population",
+     "whitepaper_section": "§9",
+     "contrast_with_marginal_detectors": "this is the category isolation-based detectors answer well, and it is retained as the control: it is the part of the problem the standard formulation already solves, so any advantage the framework shows elsewhere can be read against a category where it should show none"
+    },
+    "budget_per_day": 50,
+    "red_team_events_in_category": 0,
+    "common_days": [
+     7,
+     8,
+     9,
+     12,
+     13
+    ],
+    "framework_detected": 0,
+    "framework_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0,
+     "n": 0,
+     "level": 0,
+     "kind": ""
+    },
+    "baseline": "iforest",
+    "baseline_detected": 0,
+    "baseline_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0,
+     "n": 0,
+     "level": 0,
+     "kind": ""
+    },
+    "delta_percentage_points": 0,
+    "mcnemar": {
+     "both_detected": 0,
+     "neither_detected": 0,
+     "only_a": 0,
+     "only_b": 0,
+     "statistic": 0,
+     "p_value": 0,
+     "exact": false,
+     "delta": 0
+    },
+    "bootstrap_delta": {
+     "observed_delta": 0,
+     "low": 0,
+     "high": 0,
+     "level": 0,
+     "resamples": 0,
+     "seed": 0,
+     "excludes_zero": false
+    },
+    "unmeasurable": "no labelled event in this run exhibits this category, so neither arm can be credited or faulted for it"
+   },
+   {
+    "category": {
+     "id": "population_rare",
+     "structural_test": "the observed value holds less than one part in a thousand of its field's observed mass in the population",
+     "whitepaper_section": "§9",
+     "contrast_with_marginal_detectors": "this is the category isolation-based detectors answer well, and it is retained as the control: it is the part of the problem the standard formulation already solves, so any advantage the framework shows elsewhere can be read against a category where it should show none"
+    },
+    "budget_per_day": 50,
+    "red_team_events_in_category": 0,
+    "common_days": [
+     7,
+     8,
+     9,
+     12,
+     13
+    ],
+    "framework_detected": 0,
+    "framework_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0,
+     "n": 0,
+     "level": 0,
+     "kind": ""
+    },
+    "baseline": "rrcf",
+    "baseline_detected": 0,
+    "baseline_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0,
+     "n": 0,
+     "level": 0,
+     "kind": ""
+    },
+    "delta_percentage_points": 0,
+    "mcnemar": {
+     "both_detected": 0,
+     "neither_detected": 0,
+     "only_a": 0,
+     "only_b": 0,
+     "statistic": 0,
+     "p_value": 0,
+     "exact": false,
+     "delta": 0
+    },
+    "bootstrap_delta": {
+     "observed_delta": 0,
+     "low": 0,
+     "high": 0,
+     "level": 0,
+     "resamples": 0,
+     "seed": 0,
+     "excludes_zero": false
+    },
+    "unmeasurable": "no labelled event in this run exhibits this category, so neither arm can be credited or faulted for it"
+   },
+   {
+    "category": {
+     "id": "population_rare",
+     "structural_test": "the observed value holds less than one part in a thousand of its field's observed mass in the population",
+     "whitepaper_section": "§9",
+     "contrast_with_marginal_detectors": "this is the category isolation-based detectors answer well, and it is retained as the control: it is the part of the problem the standard formulation already solves, so any advantage the framework shows elsewhere can be read against a category where it should show none"
+    },
+    "budget_per_day": 100,
+    "red_team_events_in_category": 0,
+    "common_days": [
+     7,
+     8,
+     9,
+     12,
+     13
+    ],
+    "framework_detected": 0,
+    "framework_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0,
+     "n": 0,
+     "level": 0,
+     "kind": ""
+    },
+    "baseline": "eif",
+    "baseline_detected": 0,
+    "baseline_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0,
+     "n": 0,
+     "level": 0,
+     "kind": ""
+    },
+    "delta_percentage_points": 0,
+    "mcnemar": {
+     "both_detected": 0,
+     "neither_detected": 0,
+     "only_a": 0,
+     "only_b": 0,
+     "statistic": 0,
+     "p_value": 0,
+     "exact": false,
+     "delta": 0
+    },
+    "bootstrap_delta": {
+     "observed_delta": 0,
+     "low": 0,
+     "high": 0,
+     "level": 0,
+     "resamples": 0,
+     "seed": 0,
+     "excludes_zero": false
+    },
+    "unmeasurable": "no labelled event in this run exhibits this category, so neither arm can be credited or faulted for it"
+   },
+   {
+    "category": {
+     "id": "population_rare",
+     "structural_test": "the observed value holds less than one part in a thousand of its field's observed mass in the population",
+     "whitepaper_section": "§9",
+     "contrast_with_marginal_detectors": "this is the category isolation-based detectors answer well, and it is retained as the control: it is the part of the problem the standard formulation already solves, so any advantage the framework shows elsewhere can be read against a category where it should show none"
+    },
+    "budget_per_day": 100,
+    "red_team_events_in_category": 0,
+    "common_days": [
+     7,
+     8,
+     9,
+     12,
+     13
+    ],
+    "framework_detected": 0,
+    "framework_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0,
+     "n": 0,
+     "level": 0,
+     "kind": ""
+    },
+    "baseline": "hst",
+    "baseline_detected": 0,
+    "baseline_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0,
+     "n": 0,
+     "level": 0,
+     "kind": ""
+    },
+    "delta_percentage_points": 0,
+    "mcnemar": {
+     "both_detected": 0,
+     "neither_detected": 0,
+     "only_a": 0,
+     "only_b": 0,
+     "statistic": 0,
+     "p_value": 0,
+     "exact": false,
+     "delta": 0
+    },
+    "bootstrap_delta": {
+     "observed_delta": 0,
+     "low": 0,
+     "high": 0,
+     "level": 0,
+     "resamples": 0,
+     "seed": 0,
+     "excludes_zero": false
+    },
+    "unmeasurable": "no labelled event in this run exhibits this category, so neither arm can be credited or faulted for it"
+   },
+   {
+    "category": {
+     "id": "population_rare",
+     "structural_test": "the observed value holds less than one part in a thousand of its field's observed mass in the population",
+     "whitepaper_section": "§9",
+     "contrast_with_marginal_detectors": "this is the category isolation-based detectors answer well, and it is retained as the control: it is the part of the problem the standard formulation already solves, so any advantage the framework shows elsewhere can be read against a category where it should show none"
+    },
+    "budget_per_day": 100,
+    "red_team_events_in_category": 0,
+    "common_days": [
+     7,
+     8,
+     9,
+     12,
+     13
+    ],
+    "framework_detected": 0,
+    "framework_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0,
+     "n": 0,
+     "level": 0,
+     "kind": ""
+    },
+    "baseline": "iforest",
+    "baseline_detected": 0,
+    "baseline_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0,
+     "n": 0,
+     "level": 0,
+     "kind": ""
+    },
+    "delta_percentage_points": 0,
+    "mcnemar": {
+     "both_detected": 0,
+     "neither_detected": 0,
+     "only_a": 0,
+     "only_b": 0,
+     "statistic": 0,
+     "p_value": 0,
+     "exact": false,
+     "delta": 0
+    },
+    "bootstrap_delta": {
+     "observed_delta": 0,
+     "low": 0,
+     "high": 0,
+     "level": 0,
+     "resamples": 0,
+     "seed": 0,
+     "excludes_zero": false
+    },
+    "unmeasurable": "no labelled event in this run exhibits this category, so neither arm can be credited or faulted for it"
+   },
+   {
+    "category": {
+     "id": "population_rare",
+     "structural_test": "the observed value holds less than one part in a thousand of its field's observed mass in the population",
+     "whitepaper_section": "§9",
+     "contrast_with_marginal_detectors": "this is the category isolation-based detectors answer well, and it is retained as the control: it is the part of the problem the standard formulation already solves, so any advantage the framework shows elsewhere can be read against a category where it should show none"
+    },
+    "budget_per_day": 100,
+    "red_team_events_in_category": 0,
+    "common_days": [
+     7,
+     8,
+     9,
+     12,
+     13
+    ],
+    "framework_detected": 0,
+    "framework_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0,
+     "n": 0,
+     "level": 0,
+     "kind": ""
+    },
+    "baseline": "rrcf",
+    "baseline_detected": 0,
+    "baseline_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0,
+     "n": 0,
+     "level": 0,
+     "kind": ""
+    },
+    "delta_percentage_points": 0,
+    "mcnemar": {
+     "both_detected": 0,
+     "neither_detected": 0,
+     "only_a": 0,
+     "only_b": 0,
+     "statistic": 0,
+     "p_value": 0,
+     "exact": false,
+     "delta": 0
+    },
+    "bootstrap_delta": {
+     "observed_delta": 0,
+     "low": 0,
+     "high": 0,
+     "level": 0,
+     "resamples": 0,
+     "seed": 0,
+     "excludes_zero": false
+    },
+    "unmeasurable": "no labelled event in this run exhibits this category, so neither arm can be credited or faulted for it"
+   },
+   {
+    "category": {
+     "id": "novel_value",
+     "structural_test": "the entity has history for the field but has never taken this value",
+     "whitepaper_section": "§3.1, §6",
+     "contrast_with_marginal_detectors": "a detector fitted to a pooled feature cloud holds no per-entity state, so the proposition 'this entity has not previously exhibited this value' is not expressible in it; a value common in the population is unremarkable to it however new it is to the account that produced it"
+    },
+    "budget_per_day": 10,
+    "red_team_events_in_category": 215,
+    "common_days": [
+     7,
+     8,
+     9,
+     12,
+     13
+    ],
+    "framework_detected": 0,
+    "framework_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.017553615486732753,
+     "n": 215,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "baseline": "eif",
+    "baseline_detected": 0,
+    "baseline_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.017553615486732753,
+     "n": 215,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "delta_percentage_points": 0,
+    "ratio_undefined": "the baseline detected nothing in this category, so a relative improvement is a division by zero; the difference is reported in percentage points of recall",
+    "mcnemar": {
+     "both_detected": 0,
+     "neither_detected": 215,
+     "only_a": 0,
+     "only_b": 0,
+     "statistic": 0,
+     "p_value": 1,
+     "exact": false,
+     "delta": 0
+    },
+    "bootstrap_delta": {
+     "observed_delta": 0,
+     "low": 0,
+     "high": 0,
+     "level": 0.95,
+     "resamples": 2000,
+     "seed": 20260814,
+     "excludes_zero": false
+    }
+   },
+   {
+    "category": {
+     "id": "novel_value",
+     "structural_test": "the entity has history for the field but has never taken this value",
+     "whitepaper_section": "§3.1, §6",
+     "contrast_with_marginal_detectors": "a detector fitted to a pooled feature cloud holds no per-entity state, so the proposition 'this entity has not previously exhibited this value' is not expressible in it; a value common in the population is unremarkable to it however new it is to the account that produced it"
+    },
+    "budget_per_day": 10,
+    "red_team_events_in_category": 215,
+    "common_days": [
+     7,
+     8,
+     9,
+     12,
+     13
+    ],
+    "framework_detected": 0,
+    "framework_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.017553615486732753,
+     "n": 215,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "baseline": "hst",
+    "baseline_detected": 0,
+    "baseline_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.017553615486732753,
+     "n": 215,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "delta_percentage_points": 0,
+    "ratio_undefined": "the baseline detected nothing in this category, so a relative improvement is a division by zero; the difference is reported in percentage points of recall",
+    "mcnemar": {
+     "both_detected": 0,
+     "neither_detected": 215,
+     "only_a": 0,
+     "only_b": 0,
+     "statistic": 0,
+     "p_value": 1,
+     "exact": false,
+     "delta": 0
+    },
+    "bootstrap_delta": {
+     "observed_delta": 0,
+     "low": 0,
+     "high": 0,
+     "level": 0.95,
+     "resamples": 2000,
+     "seed": 20260814,
+     "excludes_zero": false
+    }
+   },
+   {
+    "category": {
+     "id": "novel_value",
+     "structural_test": "the entity has history for the field but has never taken this value",
+     "whitepaper_section": "§3.1, §6",
+     "contrast_with_marginal_detectors": "a detector fitted to a pooled feature cloud holds no per-entity state, so the proposition 'this entity has not previously exhibited this value' is not expressible in it; a value common in the population is unremarkable to it however new it is to the account that produced it"
+    },
+    "budget_per_day": 10,
+    "red_team_events_in_category": 215,
+    "common_days": [
+     7,
+     8,
+     9,
+     12,
+     13
+    ],
+    "framework_detected": 0,
+    "framework_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.017553615486732753,
+     "n": 215,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "baseline": "iforest",
+    "baseline_detected": 0,
+    "baseline_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.017553615486732753,
+     "n": 215,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "delta_percentage_points": 0,
+    "ratio_undefined": "the baseline detected nothing in this category, so a relative improvement is a division by zero; the difference is reported in percentage points of recall",
+    "mcnemar": {
+     "both_detected": 0,
+     "neither_detected": 215,
+     "only_a": 0,
+     "only_b": 0,
+     "statistic": 0,
+     "p_value": 1,
+     "exact": false,
+     "delta": 0
+    },
+    "bootstrap_delta": {
+     "observed_delta": 0,
+     "low": 0,
+     "high": 0,
+     "level": 0.95,
+     "resamples": 2000,
+     "seed": 20260814,
+     "excludes_zero": false
+    }
+   },
+   {
+    "category": {
+     "id": "novel_value",
+     "structural_test": "the entity has history for the field but has never taken this value",
+     "whitepaper_section": "§3.1, §6",
+     "contrast_with_marginal_detectors": "a detector fitted to a pooled feature cloud holds no per-entity state, so the proposition 'this entity has not previously exhibited this value' is not expressible in it; a value common in the population is unremarkable to it however new it is to the account that produced it"
+    },
+    "budget_per_day": 10,
+    "red_team_events_in_category": 215,
+    "common_days": [
+     7,
+     8,
+     9,
+     12,
+     13
+    ],
+    "framework_detected": 0,
+    "framework_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.017553615486732753,
+     "n": 215,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "baseline": "rrcf",
+    "baseline_detected": 0,
+    "baseline_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.017553615486732753,
+     "n": 215,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "delta_percentage_points": 0,
+    "ratio_undefined": "the baseline detected nothing in this category, so a relative improvement is a division by zero; the difference is reported in percentage points of recall",
+    "mcnemar": {
+     "both_detected": 0,
+     "neither_detected": 215,
+     "only_a": 0,
+     "only_b": 0,
+     "statistic": 0,
+     "p_value": 1,
+     "exact": false,
+     "delta": 0
+    },
+    "bootstrap_delta": {
+     "observed_delta": 0,
+     "low": 0,
+     "high": 0,
+     "level": 0.95,
+     "resamples": 2000,
+     "seed": 20260814,
+     "excludes_zero": false
+    }
+   },
+   {
+    "category": {
+     "id": "novel_value",
+     "structural_test": "the entity has history for the field but has never taken this value",
+     "whitepaper_section": "§3.1, §6",
+     "contrast_with_marginal_detectors": "a detector fitted to a pooled feature cloud holds no per-entity state, so the proposition 'this entity has not previously exhibited this value' is not expressible in it; a value common in the population is unremarkable to it however new it is to the account that produced it"
+    },
+    "budget_per_day": 25,
+    "red_team_events_in_category": 215,
+    "common_days": [
+     7,
+     8,
+     9,
+     12,
+     13
+    ],
+    "framework_detected": 0,
+    "framework_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.017553615486732753,
+     "n": 215,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "baseline": "eif",
+    "baseline_detected": 0,
+    "baseline_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.017553615486732753,
+     "n": 215,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "delta_percentage_points": 0,
+    "ratio_undefined": "the baseline detected nothing in this category, so a relative improvement is a division by zero; the difference is reported in percentage points of recall",
+    "mcnemar": {
+     "both_detected": 0,
+     "neither_detected": 215,
+     "only_a": 0,
+     "only_b": 0,
+     "statistic": 0,
+     "p_value": 1,
+     "exact": false,
+     "delta": 0
+    },
+    "bootstrap_delta": {
+     "observed_delta": 0,
+     "low": 0,
+     "high": 0,
+     "level": 0.95,
+     "resamples": 2000,
+     "seed": 20260814,
+     "excludes_zero": false
+    }
+   },
+   {
+    "category": {
+     "id": "novel_value",
+     "structural_test": "the entity has history for the field but has never taken this value",
+     "whitepaper_section": "§3.1, §6",
+     "contrast_with_marginal_detectors": "a detector fitted to a pooled feature cloud holds no per-entity state, so the proposition 'this entity has not previously exhibited this value' is not expressible in it; a value common in the population is unremarkable to it however new it is to the account that produced it"
+    },
+    "budget_per_day": 25,
+    "red_team_events_in_category": 215,
+    "common_days": [
+     7,
+     8,
+     9,
+     12,
+     13
+    ],
+    "framework_detected": 0,
+    "framework_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.017553615486732753,
+     "n": 215,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "baseline": "hst",
+    "baseline_detected": 0,
+    "baseline_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.017553615486732753,
+     "n": 215,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "delta_percentage_points": 0,
+    "ratio_undefined": "the baseline detected nothing in this category, so a relative improvement is a division by zero; the difference is reported in percentage points of recall",
+    "mcnemar": {
+     "both_detected": 0,
+     "neither_detected": 215,
+     "only_a": 0,
+     "only_b": 0,
+     "statistic": 0,
+     "p_value": 1,
+     "exact": false,
+     "delta": 0
+    },
+    "bootstrap_delta": {
+     "observed_delta": 0,
+     "low": 0,
+     "high": 0,
+     "level": 0.95,
+     "resamples": 2000,
+     "seed": 20260814,
+     "excludes_zero": false
+    }
+   },
+   {
+    "category": {
+     "id": "novel_value",
+     "structural_test": "the entity has history for the field but has never taken this value",
+     "whitepaper_section": "§3.1, §6",
+     "contrast_with_marginal_detectors": "a detector fitted to a pooled feature cloud holds no per-entity state, so the proposition 'this entity has not previously exhibited this value' is not expressible in it; a value common in the population is unremarkable to it however new it is to the account that produced it"
+    },
+    "budget_per_day": 25,
+    "red_team_events_in_category": 215,
+    "common_days": [
+     7,
+     8,
+     9,
+     12,
+     13
+    ],
+    "framework_detected": 0,
+    "framework_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.017553615486732753,
+     "n": 215,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "baseline": "iforest",
+    "baseline_detected": 0,
+    "baseline_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.017553615486732753,
+     "n": 215,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "delta_percentage_points": 0,
+    "ratio_undefined": "the baseline detected nothing in this category, so a relative improvement is a division by zero; the difference is reported in percentage points of recall",
+    "mcnemar": {
+     "both_detected": 0,
+     "neither_detected": 215,
+     "only_a": 0,
+     "only_b": 0,
+     "statistic": 0,
+     "p_value": 1,
+     "exact": false,
+     "delta": 0
+    },
+    "bootstrap_delta": {
+     "observed_delta": 0,
+     "low": 0,
+     "high": 0,
+     "level": 0.95,
+     "resamples": 2000,
+     "seed": 20260814,
+     "excludes_zero": false
+    }
+   },
+   {
+    "category": {
+     "id": "novel_value",
+     "structural_test": "the entity has history for the field but has never taken this value",
+     "whitepaper_section": "§3.1, §6",
+     "contrast_with_marginal_detectors": "a detector fitted to a pooled feature cloud holds no per-entity state, so the proposition 'this entity has not previously exhibited this value' is not expressible in it; a value common in the population is unremarkable to it however new it is to the account that produced it"
+    },
+    "budget_per_day": 25,
+    "red_team_events_in_category": 215,
+    "common_days": [
+     7,
+     8,
+     9,
+     12,
+     13
+    ],
+    "framework_detected": 0,
+    "framework_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.017553615486732753,
+     "n": 215,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "baseline": "rrcf",
+    "baseline_detected": 0,
+    "baseline_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.017553615486732753,
+     "n": 215,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "delta_percentage_points": 0,
+    "ratio_undefined": "the baseline detected nothing in this category, so a relative improvement is a division by zero; the difference is reported in percentage points of recall",
+    "mcnemar": {
+     "both_detected": 0,
+     "neither_detected": 215,
+     "only_a": 0,
+     "only_b": 0,
+     "statistic": 0,
+     "p_value": 1,
+     "exact": false,
+     "delta": 0
+    },
+    "bootstrap_delta": {
+     "observed_delta": 0,
+     "low": 0,
+     "high": 0,
+     "level": 0.95,
+     "resamples": 2000,
+     "seed": 20260814,
+     "excludes_zero": false
+    }
+   },
+   {
+    "category": {
+     "id": "novel_value",
+     "structural_test": "the entity has history for the field but has never taken this value",
+     "whitepaper_section": "§3.1, §6",
+     "contrast_with_marginal_detectors": "a detector fitted to a pooled feature cloud holds no per-entity state, so the proposition 'this entity has not previously exhibited this value' is not expressible in it; a value common in the population is unremarkable to it however new it is to the account that produced it"
+    },
+    "budget_per_day": 50,
+    "red_team_events_in_category": 215,
+    "common_days": [
+     7,
+     8,
+     9,
+     12,
+     13
+    ],
+    "framework_detected": 0,
+    "framework_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.017553615486732753,
+     "n": 215,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "baseline": "eif",
+    "baseline_detected": 0,
+    "baseline_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.017553615486732753,
+     "n": 215,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "delta_percentage_points": 0,
+    "ratio_undefined": "the baseline detected nothing in this category, so a relative improvement is a division by zero; the difference is reported in percentage points of recall",
+    "mcnemar": {
+     "both_detected": 0,
+     "neither_detected": 215,
+     "only_a": 0,
+     "only_b": 0,
+     "statistic": 0,
+     "p_value": 1,
+     "exact": false,
+     "delta": 0
+    },
+    "bootstrap_delta": {
+     "observed_delta": 0,
+     "low": 0,
+     "high": 0,
+     "level": 0.95,
+     "resamples": 2000,
+     "seed": 20260814,
+     "excludes_zero": false
+    }
+   },
+   {
+    "category": {
+     "id": "novel_value",
+     "structural_test": "the entity has history for the field but has never taken this value",
+     "whitepaper_section": "§3.1, §6",
+     "contrast_with_marginal_detectors": "a detector fitted to a pooled feature cloud holds no per-entity state, so the proposition 'this entity has not previously exhibited this value' is not expressible in it; a value common in the population is unremarkable to it however new it is to the account that produced it"
+    },
+    "budget_per_day": 50,
+    "red_team_events_in_category": 215,
+    "common_days": [
+     7,
+     8,
+     9,
+     12,
+     13
+    ],
+    "framework_detected": 0,
+    "framework_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.017553615486732753,
+     "n": 215,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "baseline": "hst",
+    "baseline_detected": 0,
+    "baseline_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.017553615486732753,
+     "n": 215,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "delta_percentage_points": 0,
+    "ratio_undefined": "the baseline detected nothing in this category, so a relative improvement is a division by zero; the difference is reported in percentage points of recall",
+    "mcnemar": {
+     "both_detected": 0,
+     "neither_detected": 215,
+     "only_a": 0,
+     "only_b": 0,
+     "statistic": 0,
+     "p_value": 1,
+     "exact": false,
+     "delta": 0
+    },
+    "bootstrap_delta": {
+     "observed_delta": 0,
+     "low": 0,
+     "high": 0,
+     "level": 0.95,
+     "resamples": 2000,
+     "seed": 20260814,
+     "excludes_zero": false
+    }
+   },
+   {
+    "category": {
+     "id": "novel_value",
+     "structural_test": "the entity has history for the field but has never taken this value",
+     "whitepaper_section": "§3.1, §6",
+     "contrast_with_marginal_detectors": "a detector fitted to a pooled feature cloud holds no per-entity state, so the proposition 'this entity has not previously exhibited this value' is not expressible in it; a value common in the population is unremarkable to it however new it is to the account that produced it"
+    },
+    "budget_per_day": 50,
+    "red_team_events_in_category": 215,
+    "common_days": [
+     7,
+     8,
+     9,
+     12,
+     13
+    ],
+    "framework_detected": 0,
+    "framework_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.017553615486732753,
+     "n": 215,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "baseline": "iforest",
+    "baseline_detected": 0,
+    "baseline_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.017553615486732753,
+     "n": 215,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "delta_percentage_points": 0,
+    "ratio_undefined": "the baseline detected nothing in this category, so a relative improvement is a division by zero; the difference is reported in percentage points of recall",
+    "mcnemar": {
+     "both_detected": 0,
+     "neither_detected": 215,
+     "only_a": 0,
+     "only_b": 0,
+     "statistic": 0,
+     "p_value": 1,
+     "exact": false,
+     "delta": 0
+    },
+    "bootstrap_delta": {
+     "observed_delta": 0,
+     "low": 0,
+     "high": 0,
+     "level": 0.95,
+     "resamples": 2000,
+     "seed": 20260814,
+     "excludes_zero": false
+    }
+   },
+   {
+    "category": {
+     "id": "novel_value",
+     "structural_test": "the entity has history for the field but has never taken this value",
+     "whitepaper_section": "§3.1, §6",
+     "contrast_with_marginal_detectors": "a detector fitted to a pooled feature cloud holds no per-entity state, so the proposition 'this entity has not previously exhibited this value' is not expressible in it; a value common in the population is unremarkable to it however new it is to the account that produced it"
+    },
+    "budget_per_day": 50,
+    "red_team_events_in_category": 215,
+    "common_days": [
+     7,
+     8,
+     9,
+     12,
+     13
+    ],
+    "framework_detected": 0,
+    "framework_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.017553615486732753,
+     "n": 215,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "baseline": "rrcf",
+    "baseline_detected": 0,
+    "baseline_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.017553615486732753,
+     "n": 215,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "delta_percentage_points": 0,
+    "ratio_undefined": "the baseline detected nothing in this category, so a relative improvement is a division by zero; the difference is reported in percentage points of recall",
+    "mcnemar": {
+     "both_detected": 0,
+     "neither_detected": 215,
+     "only_a": 0,
+     "only_b": 0,
+     "statistic": 0,
+     "p_value": 1,
+     "exact": false,
+     "delta": 0
+    },
+    "bootstrap_delta": {
+     "observed_delta": 0,
+     "low": 0,
+     "high": 0,
+     "level": 0.95,
+     "resamples": 2000,
+     "seed": 20260814,
+     "excludes_zero": false
+    }
+   },
+   {
+    "category": {
+     "id": "novel_value",
+     "structural_test": "the entity has history for the field but has never taken this value",
+     "whitepaper_section": "§3.1, §6",
+     "contrast_with_marginal_detectors": "a detector fitted to a pooled feature cloud holds no per-entity state, so the proposition 'this entity has not previously exhibited this value' is not expressible in it; a value common in the population is unremarkable to it however new it is to the account that produced it"
+    },
+    "budget_per_day": 100,
+    "red_team_events_in_category": 215,
+    "common_days": [
+     7,
+     8,
+     9,
+     12,
+     13
+    ],
+    "framework_detected": 0,
+    "framework_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.017553615486732753,
+     "n": 215,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "baseline": "eif",
+    "baseline_detected": 0,
+    "baseline_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.017553615486732753,
+     "n": 215,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "delta_percentage_points": 0,
+    "ratio_undefined": "the baseline detected nothing in this category, so a relative improvement is a division by zero; the difference is reported in percentage points of recall",
+    "mcnemar": {
+     "both_detected": 0,
+     "neither_detected": 215,
+     "only_a": 0,
+     "only_b": 0,
+     "statistic": 0,
+     "p_value": 1,
+     "exact": false,
+     "delta": 0
+    },
+    "bootstrap_delta": {
+     "observed_delta": 0,
+     "low": 0,
+     "high": 0,
+     "level": 0.95,
+     "resamples": 2000,
+     "seed": 20260814,
+     "excludes_zero": false
+    }
+   },
+   {
+    "category": {
+     "id": "novel_value",
+     "structural_test": "the entity has history for the field but has never taken this value",
+     "whitepaper_section": "§3.1, §6",
+     "contrast_with_marginal_detectors": "a detector fitted to a pooled feature cloud holds no per-entity state, so the proposition 'this entity has not previously exhibited this value' is not expressible in it; a value common in the population is unremarkable to it however new it is to the account that produced it"
+    },
+    "budget_per_day": 100,
+    "red_team_events_in_category": 215,
+    "common_days": [
+     7,
+     8,
+     9,
+     12,
+     13
+    ],
+    "framework_detected": 0,
+    "framework_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.017553615486732753,
+     "n": 215,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "baseline": "hst",
+    "baseline_detected": 0,
+    "baseline_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.017553615486732753,
+     "n": 215,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "delta_percentage_points": 0,
+    "ratio_undefined": "the baseline detected nothing in this category, so a relative improvement is a division by zero; the difference is reported in percentage points of recall",
+    "mcnemar": {
+     "both_detected": 0,
+     "neither_detected": 215,
+     "only_a": 0,
+     "only_b": 0,
+     "statistic": 0,
+     "p_value": 1,
+     "exact": false,
+     "delta": 0
+    },
+    "bootstrap_delta": {
+     "observed_delta": 0,
+     "low": 0,
+     "high": 0,
+     "level": 0.95,
+     "resamples": 2000,
+     "seed": 20260814,
+     "excludes_zero": false
+    }
+   },
+   {
+    "category": {
+     "id": "novel_value",
+     "structural_test": "the entity has history for the field but has never taken this value",
+     "whitepaper_section": "§3.1, §6",
+     "contrast_with_marginal_detectors": "a detector fitted to a pooled feature cloud holds no per-entity state, so the proposition 'this entity has not previously exhibited this value' is not expressible in it; a value common in the population is unremarkable to it however new it is to the account that produced it"
+    },
+    "budget_per_day": 100,
+    "red_team_events_in_category": 215,
+    "common_days": [
+     7,
+     8,
+     9,
+     12,
+     13
+    ],
+    "framework_detected": 0,
+    "framework_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.017553615486732753,
+     "n": 215,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "baseline": "iforest",
+    "baseline_detected": 0,
+    "baseline_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.017553615486732753,
+     "n": 215,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "delta_percentage_points": 0,
+    "ratio_undefined": "the baseline detected nothing in this category, so a relative improvement is a division by zero; the difference is reported in percentage points of recall",
+    "mcnemar": {
+     "both_detected": 0,
+     "neither_detected": 215,
+     "only_a": 0,
+     "only_b": 0,
+     "statistic": 0,
+     "p_value": 1,
+     "exact": false,
+     "delta": 0
+    },
+    "bootstrap_delta": {
+     "observed_delta": 0,
+     "low": 0,
+     "high": 0,
+     "level": 0.95,
+     "resamples": 2000,
+     "seed": 20260814,
+     "excludes_zero": false
+    }
+   },
+   {
+    "category": {
+     "id": "novel_value",
+     "structural_test": "the entity has history for the field but has never taken this value",
+     "whitepaper_section": "§3.1, §6",
+     "contrast_with_marginal_detectors": "a detector fitted to a pooled feature cloud holds no per-entity state, so the proposition 'this entity has not previously exhibited this value' is not expressible in it; a value common in the population is unremarkable to it however new it is to the account that produced it"
+    },
+    "budget_per_day": 100,
+    "red_team_events_in_category": 215,
+    "common_days": [
+     7,
+     8,
+     9,
+     12,
+     13
+    ],
+    "framework_detected": 0,
+    "framework_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.017553615486732753,
+     "n": 215,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "baseline": "rrcf",
+    "baseline_detected": 0,
+    "baseline_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.017553615486732753,
+     "n": 215,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "delta_percentage_points": 0,
+    "ratio_undefined": "the baseline detected nothing in this category, so a relative improvement is a division by zero; the difference is reported in percentage points of recall",
+    "mcnemar": {
+     "both_detected": 0,
+     "neither_detected": 215,
+     "only_a": 0,
+     "only_b": 0,
+     "statistic": 0,
+     "p_value": 1,
+     "exact": false,
+     "delta": 0
+    },
+    "bootstrap_delta": {
+     "observed_delta": 0,
+     "low": 0,
+     "high": 0,
+     "level": 0.95,
+     "resamples": 2000,
+     "seed": 20260814,
+     "excludes_zero": false
+    }
+   },
+   {
+    "category": {
+     "id": "off_hours",
+     "structural_test": "the entity's own fitted circular density at this time of day is below the uniform level 1/2π",
+     "whitepaper_section": "§3.1, §7.1, §7.2",
+     "contrast_with_marginal_detectors": "an hour-of-day feature is scored against the population's working pattern rather than the entity's, and a rectangular encoding cuts the circle at midnight, so an entity whose ordinary hours straddle midnight is scored as two disjoint populations rather than one (§7.1)"
+    },
+    "budget_per_day": 10,
+    "red_team_events_in_category": 181,
+    "common_days": [
+     7,
+     8,
+     9,
+     12,
+     13
+    ],
+    "framework_detected": 0,
+    "framework_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.020782452406527156,
+     "n": 181,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "baseline": "eif",
+    "baseline_detected": 0,
+    "baseline_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.020782452406527156,
+     "n": 181,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "delta_percentage_points": 0,
+    "ratio_undefined": "the baseline detected nothing in this category, so a relative improvement is a division by zero; the difference is reported in percentage points of recall",
+    "mcnemar": {
+     "both_detected": 0,
+     "neither_detected": 181,
+     "only_a": 0,
+     "only_b": 0,
+     "statistic": 0,
+     "p_value": 1,
+     "exact": false,
+     "delta": 0
+    },
+    "bootstrap_delta": {
+     "observed_delta": 0,
+     "low": 0,
+     "high": 0,
+     "level": 0.95,
+     "resamples": 2000,
+     "seed": 20260814,
+     "excludes_zero": false
+    }
+   },
+   {
+    "category": {
+     "id": "off_hours",
+     "structural_test": "the entity's own fitted circular density at this time of day is below the uniform level 1/2π",
+     "whitepaper_section": "§3.1, §7.1, §7.2",
+     "contrast_with_marginal_detectors": "an hour-of-day feature is scored against the population's working pattern rather than the entity's, and a rectangular encoding cuts the circle at midnight, so an entity whose ordinary hours straddle midnight is scored as two disjoint populations rather than one (§7.1)"
+    },
+    "budget_per_day": 10,
+    "red_team_events_in_category": 181,
+    "common_days": [
+     7,
+     8,
+     9,
+     12,
+     13
+    ],
+    "framework_detected": 0,
+    "framework_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.020782452406527156,
+     "n": 181,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "baseline": "hst",
+    "baseline_detected": 0,
+    "baseline_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.020782452406527156,
+     "n": 181,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "delta_percentage_points": 0,
+    "ratio_undefined": "the baseline detected nothing in this category, so a relative improvement is a division by zero; the difference is reported in percentage points of recall",
+    "mcnemar": {
+     "both_detected": 0,
+     "neither_detected": 181,
+     "only_a": 0,
+     "only_b": 0,
+     "statistic": 0,
+     "p_value": 1,
+     "exact": false,
+     "delta": 0
+    },
+    "bootstrap_delta": {
+     "observed_delta": 0,
+     "low": 0,
+     "high": 0,
+     "level": 0.95,
+     "resamples": 2000,
+     "seed": 20260814,
+     "excludes_zero": false
+    }
+   },
+   {
+    "category": {
+     "id": "off_hours",
+     "structural_test": "the entity's own fitted circular density at this time of day is below the uniform level 1/2π",
+     "whitepaper_section": "§3.1, §7.1, §7.2",
+     "contrast_with_marginal_detectors": "an hour-of-day feature is scored against the population's working pattern rather than the entity's, and a rectangular encoding cuts the circle at midnight, so an entity whose ordinary hours straddle midnight is scored as two disjoint populations rather than one (§7.1)"
+    },
+    "budget_per_day": 10,
+    "red_team_events_in_category": 181,
+    "common_days": [
+     7,
+     8,
+     9,
+     12,
+     13
+    ],
+    "framework_detected": 0,
+    "framework_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.020782452406527156,
+     "n": 181,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "baseline": "iforest",
+    "baseline_detected": 0,
+    "baseline_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.020782452406527156,
+     "n": 181,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "delta_percentage_points": 0,
+    "ratio_undefined": "the baseline detected nothing in this category, so a relative improvement is a division by zero; the difference is reported in percentage points of recall",
+    "mcnemar": {
+     "both_detected": 0,
+     "neither_detected": 181,
+     "only_a": 0,
+     "only_b": 0,
+     "statistic": 0,
+     "p_value": 1,
+     "exact": false,
+     "delta": 0
+    },
+    "bootstrap_delta": {
+     "observed_delta": 0,
+     "low": 0,
+     "high": 0,
+     "level": 0.95,
+     "resamples": 2000,
+     "seed": 20260814,
+     "excludes_zero": false
+    }
+   },
+   {
+    "category": {
+     "id": "off_hours",
+     "structural_test": "the entity's own fitted circular density at this time of day is below the uniform level 1/2π",
+     "whitepaper_section": "§3.1, §7.1, §7.2",
+     "contrast_with_marginal_detectors": "an hour-of-day feature is scored against the population's working pattern rather than the entity's, and a rectangular encoding cuts the circle at midnight, so an entity whose ordinary hours straddle midnight is scored as two disjoint populations rather than one (§7.1)"
+    },
+    "budget_per_day": 10,
+    "red_team_events_in_category": 181,
+    "common_days": [
+     7,
+     8,
+     9,
+     12,
+     13
+    ],
+    "framework_detected": 0,
+    "framework_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.020782452406527156,
+     "n": 181,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "baseline": "rrcf",
+    "baseline_detected": 0,
+    "baseline_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.020782452406527156,
+     "n": 181,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "delta_percentage_points": 0,
+    "ratio_undefined": "the baseline detected nothing in this category, so a relative improvement is a division by zero; the difference is reported in percentage points of recall",
+    "mcnemar": {
+     "both_detected": 0,
+     "neither_detected": 181,
+     "only_a": 0,
+     "only_b": 0,
+     "statistic": 0,
+     "p_value": 1,
+     "exact": false,
+     "delta": 0
+    },
+    "bootstrap_delta": {
+     "observed_delta": 0,
+     "low": 0,
+     "high": 0,
+     "level": 0.95,
+     "resamples": 2000,
+     "seed": 20260814,
+     "excludes_zero": false
+    }
+   },
+   {
+    "category": {
+     "id": "off_hours",
+     "structural_test": "the entity's own fitted circular density at this time of day is below the uniform level 1/2π",
+     "whitepaper_section": "§3.1, §7.1, §7.2",
+     "contrast_with_marginal_detectors": "an hour-of-day feature is scored against the population's working pattern rather than the entity's, and a rectangular encoding cuts the circle at midnight, so an entity whose ordinary hours straddle midnight is scored as two disjoint populations rather than one (§7.1)"
+    },
+    "budget_per_day": 25,
+    "red_team_events_in_category": 181,
+    "common_days": [
+     7,
+     8,
+     9,
+     12,
+     13
+    ],
+    "framework_detected": 0,
+    "framework_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.020782452406527156,
+     "n": 181,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "baseline": "eif",
+    "baseline_detected": 0,
+    "baseline_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.020782452406527156,
+     "n": 181,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "delta_percentage_points": 0,
+    "ratio_undefined": "the baseline detected nothing in this category, so a relative improvement is a division by zero; the difference is reported in percentage points of recall",
+    "mcnemar": {
+     "both_detected": 0,
+     "neither_detected": 181,
+     "only_a": 0,
+     "only_b": 0,
+     "statistic": 0,
+     "p_value": 1,
+     "exact": false,
+     "delta": 0
+    },
+    "bootstrap_delta": {
+     "observed_delta": 0,
+     "low": 0,
+     "high": 0,
+     "level": 0.95,
+     "resamples": 2000,
+     "seed": 20260814,
+     "excludes_zero": false
+    }
+   },
+   {
+    "category": {
+     "id": "off_hours",
+     "structural_test": "the entity's own fitted circular density at this time of day is below the uniform level 1/2π",
+     "whitepaper_section": "§3.1, §7.1, §7.2",
+     "contrast_with_marginal_detectors": "an hour-of-day feature is scored against the population's working pattern rather than the entity's, and a rectangular encoding cuts the circle at midnight, so an entity whose ordinary hours straddle midnight is scored as two disjoint populations rather than one (§7.1)"
+    },
+    "budget_per_day": 25,
+    "red_team_events_in_category": 181,
+    "common_days": [
+     7,
+     8,
+     9,
+     12,
+     13
+    ],
+    "framework_detected": 0,
+    "framework_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.020782452406527156,
+     "n": 181,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "baseline": "hst",
+    "baseline_detected": 0,
+    "baseline_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.020782452406527156,
+     "n": 181,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "delta_percentage_points": 0,
+    "ratio_undefined": "the baseline detected nothing in this category, so a relative improvement is a division by zero; the difference is reported in percentage points of recall",
+    "mcnemar": {
+     "both_detected": 0,
+     "neither_detected": 181,
+     "only_a": 0,
+     "only_b": 0,
+     "statistic": 0,
+     "p_value": 1,
+     "exact": false,
+     "delta": 0
+    },
+    "bootstrap_delta": {
+     "observed_delta": 0,
+     "low": 0,
+     "high": 0,
+     "level": 0.95,
+     "resamples": 2000,
+     "seed": 20260814,
+     "excludes_zero": false
+    }
+   },
+   {
+    "category": {
+     "id": "off_hours",
+     "structural_test": "the entity's own fitted circular density at this time of day is below the uniform level 1/2π",
+     "whitepaper_section": "§3.1, §7.1, §7.2",
+     "contrast_with_marginal_detectors": "an hour-of-day feature is scored against the population's working pattern rather than the entity's, and a rectangular encoding cuts the circle at midnight, so an entity whose ordinary hours straddle midnight is scored as two disjoint populations rather than one (§7.1)"
+    },
+    "budget_per_day": 25,
+    "red_team_events_in_category": 181,
+    "common_days": [
+     7,
+     8,
+     9,
+     12,
+     13
+    ],
+    "framework_detected": 0,
+    "framework_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.020782452406527156,
+     "n": 181,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "baseline": "iforest",
+    "baseline_detected": 0,
+    "baseline_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.020782452406527156,
+     "n": 181,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "delta_percentage_points": 0,
+    "ratio_undefined": "the baseline detected nothing in this category, so a relative improvement is a division by zero; the difference is reported in percentage points of recall",
+    "mcnemar": {
+     "both_detected": 0,
+     "neither_detected": 181,
+     "only_a": 0,
+     "only_b": 0,
+     "statistic": 0,
+     "p_value": 1,
+     "exact": false,
+     "delta": 0
+    },
+    "bootstrap_delta": {
+     "observed_delta": 0,
+     "low": 0,
+     "high": 0,
+     "level": 0.95,
+     "resamples": 2000,
+     "seed": 20260814,
+     "excludes_zero": false
+    }
+   },
+   {
+    "category": {
+     "id": "off_hours",
+     "structural_test": "the entity's own fitted circular density at this time of day is below the uniform level 1/2π",
+     "whitepaper_section": "§3.1, §7.1, §7.2",
+     "contrast_with_marginal_detectors": "an hour-of-day feature is scored against the population's working pattern rather than the entity's, and a rectangular encoding cuts the circle at midnight, so an entity whose ordinary hours straddle midnight is scored as two disjoint populations rather than one (§7.1)"
+    },
+    "budget_per_day": 25,
+    "red_team_events_in_category": 181,
+    "common_days": [
+     7,
+     8,
+     9,
+     12,
+     13
+    ],
+    "framework_detected": 0,
+    "framework_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.020782452406527156,
+     "n": 181,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "baseline": "rrcf",
+    "baseline_detected": 0,
+    "baseline_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.020782452406527156,
+     "n": 181,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "delta_percentage_points": 0,
+    "ratio_undefined": "the baseline detected nothing in this category, so a relative improvement is a division by zero; the difference is reported in percentage points of recall",
+    "mcnemar": {
+     "both_detected": 0,
+     "neither_detected": 181,
+     "only_a": 0,
+     "only_b": 0,
+     "statistic": 0,
+     "p_value": 1,
+     "exact": false,
+     "delta": 0
+    },
+    "bootstrap_delta": {
+     "observed_delta": 0,
+     "low": 0,
+     "high": 0,
+     "level": 0.95,
+     "resamples": 2000,
+     "seed": 20260814,
+     "excludes_zero": false
+    }
+   },
+   {
+    "category": {
+     "id": "off_hours",
+     "structural_test": "the entity's own fitted circular density at this time of day is below the uniform level 1/2π",
+     "whitepaper_section": "§3.1, §7.1, §7.2",
+     "contrast_with_marginal_detectors": "an hour-of-day feature is scored against the population's working pattern rather than the entity's, and a rectangular encoding cuts the circle at midnight, so an entity whose ordinary hours straddle midnight is scored as two disjoint populations rather than one (§7.1)"
+    },
+    "budget_per_day": 50,
+    "red_team_events_in_category": 181,
+    "common_days": [
+     7,
+     8,
+     9,
+     12,
+     13
+    ],
+    "framework_detected": 0,
+    "framework_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.020782452406527156,
+     "n": 181,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "baseline": "eif",
+    "baseline_detected": 0,
+    "baseline_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.020782452406527156,
+     "n": 181,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "delta_percentage_points": 0,
+    "ratio_undefined": "the baseline detected nothing in this category, so a relative improvement is a division by zero; the difference is reported in percentage points of recall",
+    "mcnemar": {
+     "both_detected": 0,
+     "neither_detected": 181,
+     "only_a": 0,
+     "only_b": 0,
+     "statistic": 0,
+     "p_value": 1,
+     "exact": false,
+     "delta": 0
+    },
+    "bootstrap_delta": {
+     "observed_delta": 0,
+     "low": 0,
+     "high": 0,
+     "level": 0.95,
+     "resamples": 2000,
+     "seed": 20260814,
+     "excludes_zero": false
+    }
+   },
+   {
+    "category": {
+     "id": "off_hours",
+     "structural_test": "the entity's own fitted circular density at this time of day is below the uniform level 1/2π",
+     "whitepaper_section": "§3.1, §7.1, §7.2",
+     "contrast_with_marginal_detectors": "an hour-of-day feature is scored against the population's working pattern rather than the entity's, and a rectangular encoding cuts the circle at midnight, so an entity whose ordinary hours straddle midnight is scored as two disjoint populations rather than one (§7.1)"
+    },
+    "budget_per_day": 50,
+    "red_team_events_in_category": 181,
+    "common_days": [
+     7,
+     8,
+     9,
+     12,
+     13
+    ],
+    "framework_detected": 0,
+    "framework_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.020782452406527156,
+     "n": 181,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "baseline": "hst",
+    "baseline_detected": 0,
+    "baseline_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.020782452406527156,
+     "n": 181,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "delta_percentage_points": 0,
+    "ratio_undefined": "the baseline detected nothing in this category, so a relative improvement is a division by zero; the difference is reported in percentage points of recall",
+    "mcnemar": {
+     "both_detected": 0,
+     "neither_detected": 181,
+     "only_a": 0,
+     "only_b": 0,
+     "statistic": 0,
+     "p_value": 1,
+     "exact": false,
+     "delta": 0
+    },
+    "bootstrap_delta": {
+     "observed_delta": 0,
+     "low": 0,
+     "high": 0,
+     "level": 0.95,
+     "resamples": 2000,
+     "seed": 20260814,
+     "excludes_zero": false
+    }
+   },
+   {
+    "category": {
+     "id": "off_hours",
+     "structural_test": "the entity's own fitted circular density at this time of day is below the uniform level 1/2π",
+     "whitepaper_section": "§3.1, §7.1, §7.2",
+     "contrast_with_marginal_detectors": "an hour-of-day feature is scored against the population's working pattern rather than the entity's, and a rectangular encoding cuts the circle at midnight, so an entity whose ordinary hours straddle midnight is scored as two disjoint populations rather than one (§7.1)"
+    },
+    "budget_per_day": 50,
+    "red_team_events_in_category": 181,
+    "common_days": [
+     7,
+     8,
+     9,
+     12,
+     13
+    ],
+    "framework_detected": 0,
+    "framework_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.020782452406527156,
+     "n": 181,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "baseline": "iforest",
+    "baseline_detected": 0,
+    "baseline_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.020782452406527156,
+     "n": 181,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "delta_percentage_points": 0,
+    "ratio_undefined": "the baseline detected nothing in this category, so a relative improvement is a division by zero; the difference is reported in percentage points of recall",
+    "mcnemar": {
+     "both_detected": 0,
+     "neither_detected": 181,
+     "only_a": 0,
+     "only_b": 0,
+     "statistic": 0,
+     "p_value": 1,
+     "exact": false,
+     "delta": 0
+    },
+    "bootstrap_delta": {
+     "observed_delta": 0,
+     "low": 0,
+     "high": 0,
+     "level": 0.95,
+     "resamples": 2000,
+     "seed": 20260814,
+     "excludes_zero": false
+    }
+   },
+   {
+    "category": {
+     "id": "off_hours",
+     "structural_test": "the entity's own fitted circular density at this time of day is below the uniform level 1/2π",
+     "whitepaper_section": "§3.1, §7.1, §7.2",
+     "contrast_with_marginal_detectors": "an hour-of-day feature is scored against the population's working pattern rather than the entity's, and a rectangular encoding cuts the circle at midnight, so an entity whose ordinary hours straddle midnight is scored as two disjoint populations rather than one (§7.1)"
+    },
+    "budget_per_day": 50,
+    "red_team_events_in_category": 181,
+    "common_days": [
+     7,
+     8,
+     9,
+     12,
+     13
+    ],
+    "framework_detected": 0,
+    "framework_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.020782452406527156,
+     "n": 181,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "baseline": "rrcf",
+    "baseline_detected": 0,
+    "baseline_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.020782452406527156,
+     "n": 181,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "delta_percentage_points": 0,
+    "ratio_undefined": "the baseline detected nothing in this category, so a relative improvement is a division by zero; the difference is reported in percentage points of recall",
+    "mcnemar": {
+     "both_detected": 0,
+     "neither_detected": 181,
+     "only_a": 0,
+     "only_b": 0,
+     "statistic": 0,
+     "p_value": 1,
+     "exact": false,
+     "delta": 0
+    },
+    "bootstrap_delta": {
+     "observed_delta": 0,
+     "low": 0,
+     "high": 0,
+     "level": 0.95,
+     "resamples": 2000,
+     "seed": 20260814,
+     "excludes_zero": false
+    }
+   },
+   {
+    "category": {
+     "id": "off_hours",
+     "structural_test": "the entity's own fitted circular density at this time of day is below the uniform level 1/2π",
+     "whitepaper_section": "§3.1, §7.1, §7.2",
+     "contrast_with_marginal_detectors": "an hour-of-day feature is scored against the population's working pattern rather than the entity's, and a rectangular encoding cuts the circle at midnight, so an entity whose ordinary hours straddle midnight is scored as two disjoint populations rather than one (§7.1)"
+    },
+    "budget_per_day": 100,
+    "red_team_events_in_category": 181,
+    "common_days": [
+     7,
+     8,
+     9,
+     12,
+     13
+    ],
+    "framework_detected": 0,
+    "framework_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.020782452406527156,
+     "n": 181,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "baseline": "eif",
+    "baseline_detected": 0,
+    "baseline_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.020782452406527156,
+     "n": 181,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "delta_percentage_points": 0,
+    "ratio_undefined": "the baseline detected nothing in this category, so a relative improvement is a division by zero; the difference is reported in percentage points of recall",
+    "mcnemar": {
+     "both_detected": 0,
+     "neither_detected": 181,
+     "only_a": 0,
+     "only_b": 0,
+     "statistic": 0,
+     "p_value": 1,
+     "exact": false,
+     "delta": 0
+    },
+    "bootstrap_delta": {
+     "observed_delta": 0,
+     "low": 0,
+     "high": 0,
+     "level": 0.95,
+     "resamples": 2000,
+     "seed": 20260814,
+     "excludes_zero": false
+    }
+   },
+   {
+    "category": {
+     "id": "off_hours",
+     "structural_test": "the entity's own fitted circular density at this time of day is below the uniform level 1/2π",
+     "whitepaper_section": "§3.1, §7.1, §7.2",
+     "contrast_with_marginal_detectors": "an hour-of-day feature is scored against the population's working pattern rather than the entity's, and a rectangular encoding cuts the circle at midnight, so an entity whose ordinary hours straddle midnight is scored as two disjoint populations rather than one (§7.1)"
+    },
+    "budget_per_day": 100,
+    "red_team_events_in_category": 181,
+    "common_days": [
+     7,
+     8,
+     9,
+     12,
+     13
+    ],
+    "framework_detected": 0,
+    "framework_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.020782452406527156,
+     "n": 181,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "baseline": "hst",
+    "baseline_detected": 0,
+    "baseline_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.020782452406527156,
+     "n": 181,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "delta_percentage_points": 0,
+    "ratio_undefined": "the baseline detected nothing in this category, so a relative improvement is a division by zero; the difference is reported in percentage points of recall",
+    "mcnemar": {
+     "both_detected": 0,
+     "neither_detected": 181,
+     "only_a": 0,
+     "only_b": 0,
+     "statistic": 0,
+     "p_value": 1,
+     "exact": false,
+     "delta": 0
+    },
+    "bootstrap_delta": {
+     "observed_delta": 0,
+     "low": 0,
+     "high": 0,
+     "level": 0.95,
+     "resamples": 2000,
+     "seed": 20260814,
+     "excludes_zero": false
+    }
+   },
+   {
+    "category": {
+     "id": "off_hours",
+     "structural_test": "the entity's own fitted circular density at this time of day is below the uniform level 1/2π",
+     "whitepaper_section": "§3.1, §7.1, §7.2",
+     "contrast_with_marginal_detectors": "an hour-of-day feature is scored against the population's working pattern rather than the entity's, and a rectangular encoding cuts the circle at midnight, so an entity whose ordinary hours straddle midnight is scored as two disjoint populations rather than one (§7.1)"
+    },
+    "budget_per_day": 100,
+    "red_team_events_in_category": 181,
+    "common_days": [
+     7,
+     8,
+     9,
+     12,
+     13
+    ],
+    "framework_detected": 0,
+    "framework_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.020782452406527156,
+     "n": 181,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "baseline": "iforest",
+    "baseline_detected": 0,
+    "baseline_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.020782452406527156,
+     "n": 181,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "delta_percentage_points": 0,
+    "ratio_undefined": "the baseline detected nothing in this category, so a relative improvement is a division by zero; the difference is reported in percentage points of recall",
+    "mcnemar": {
+     "both_detected": 0,
+     "neither_detected": 181,
+     "only_a": 0,
+     "only_b": 0,
+     "statistic": 0,
+     "p_value": 1,
+     "exact": false,
+     "delta": 0
+    },
+    "bootstrap_delta": {
+     "observed_delta": 0,
+     "low": 0,
+     "high": 0,
+     "level": 0.95,
+     "resamples": 2000,
+     "seed": 20260814,
+     "excludes_zero": false
+    }
+   },
+   {
+    "category": {
+     "id": "off_hours",
+     "structural_test": "the entity's own fitted circular density at this time of day is below the uniform level 1/2π",
+     "whitepaper_section": "§3.1, §7.1, §7.2",
+     "contrast_with_marginal_detectors": "an hour-of-day feature is scored against the population's working pattern rather than the entity's, and a rectangular encoding cuts the circle at midnight, so an entity whose ordinary hours straddle midnight is scored as two disjoint populations rather than one (§7.1)"
+    },
+    "budget_per_day": 100,
+    "red_team_events_in_category": 181,
+    "common_days": [
+     7,
+     8,
+     9,
+     12,
+     13
+    ],
+    "framework_detected": 0,
+    "framework_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.020782452406527156,
+     "n": 181,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "baseline": "rrcf",
+    "baseline_detected": 0,
+    "baseline_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.020782452406527156,
+     "n": 181,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "delta_percentage_points": 0,
+    "ratio_undefined": "the baseline detected nothing in this category, so a relative improvement is a division by zero; the difference is reported in percentage points of recall",
+    "mcnemar": {
+     "both_detected": 0,
+     "neither_detected": 181,
+     "only_a": 0,
+     "only_b": 0,
+     "statistic": 0,
+     "p_value": 1,
+     "exact": false,
+     "delta": 0
+    },
+    "bootstrap_delta": {
+     "observed_delta": 0,
+     "low": 0,
+     "high": 0,
+     "level": 0.95,
+     "resamples": 2000,
+     "seed": 20260814,
+     "excludes_zero": false
+    }
+   },
+   {
+    "category": {
+     "id": "volume_burst",
+     "structural_test": "the entity's observed count in the window exceeds its own predicted rate",
+     "whitepaper_section": "§3.1, §7.4",
+     "contrast_with_marginal_detectors": "a rate is only anomalous relative to the entity's own history; a population-fitted model reads a quiet account's tenfold increase as ordinary whenever busier accounts sustain that rate routinely"
+    },
+    "budget_per_day": 10,
+    "red_team_events_in_category": 199,
+    "common_days": [
+     7,
+     8,
+     9,
+     12,
+     13
+    ],
+    "framework_detected": 0,
+    "framework_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.01893823305663494,
+     "n": 199,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "baseline": "eif",
+    "baseline_detected": 0,
+    "baseline_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.01893823305663494,
+     "n": 199,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "delta_percentage_points": 0,
+    "ratio_undefined": "the baseline detected nothing in this category, so a relative improvement is a division by zero; the difference is reported in percentage points of recall",
+    "mcnemar": {
+     "both_detected": 0,
+     "neither_detected": 199,
+     "only_a": 0,
+     "only_b": 0,
+     "statistic": 0,
+     "p_value": 1,
+     "exact": false,
+     "delta": 0
+    },
+    "bootstrap_delta": {
+     "observed_delta": 0,
+     "low": 0,
+     "high": 0,
+     "level": 0.95,
+     "resamples": 2000,
+     "seed": 20260814,
+     "excludes_zero": false
+    }
+   },
+   {
+    "category": {
+     "id": "volume_burst",
+     "structural_test": "the entity's observed count in the window exceeds its own predicted rate",
+     "whitepaper_section": "§3.1, §7.4",
+     "contrast_with_marginal_detectors": "a rate is only anomalous relative to the entity's own history; a population-fitted model reads a quiet account's tenfold increase as ordinary whenever busier accounts sustain that rate routinely"
+    },
+    "budget_per_day": 10,
+    "red_team_events_in_category": 199,
+    "common_days": [
+     7,
+     8,
+     9,
+     12,
+     13
+    ],
+    "framework_detected": 0,
+    "framework_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.01893823305663494,
+     "n": 199,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "baseline": "hst",
+    "baseline_detected": 0,
+    "baseline_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.01893823305663494,
+     "n": 199,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "delta_percentage_points": 0,
+    "ratio_undefined": "the baseline detected nothing in this category, so a relative improvement is a division by zero; the difference is reported in percentage points of recall",
+    "mcnemar": {
+     "both_detected": 0,
+     "neither_detected": 199,
+     "only_a": 0,
+     "only_b": 0,
+     "statistic": 0,
+     "p_value": 1,
+     "exact": false,
+     "delta": 0
+    },
+    "bootstrap_delta": {
+     "observed_delta": 0,
+     "low": 0,
+     "high": 0,
+     "level": 0.95,
+     "resamples": 2000,
+     "seed": 20260814,
+     "excludes_zero": false
+    }
+   },
+   {
+    "category": {
+     "id": "volume_burst",
+     "structural_test": "the entity's observed count in the window exceeds its own predicted rate",
+     "whitepaper_section": "§3.1, §7.4",
+     "contrast_with_marginal_detectors": "a rate is only anomalous relative to the entity's own history; a population-fitted model reads a quiet account's tenfold increase as ordinary whenever busier accounts sustain that rate routinely"
+    },
+    "budget_per_day": 10,
+    "red_team_events_in_category": 199,
+    "common_days": [
+     7,
+     8,
+     9,
+     12,
+     13
+    ],
+    "framework_detected": 0,
+    "framework_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.01893823305663494,
+     "n": 199,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "baseline": "iforest",
+    "baseline_detected": 0,
+    "baseline_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.01893823305663494,
+     "n": 199,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "delta_percentage_points": 0,
+    "ratio_undefined": "the baseline detected nothing in this category, so a relative improvement is a division by zero; the difference is reported in percentage points of recall",
+    "mcnemar": {
+     "both_detected": 0,
+     "neither_detected": 199,
+     "only_a": 0,
+     "only_b": 0,
+     "statistic": 0,
+     "p_value": 1,
+     "exact": false,
+     "delta": 0
+    },
+    "bootstrap_delta": {
+     "observed_delta": 0,
+     "low": 0,
+     "high": 0,
+     "level": 0.95,
+     "resamples": 2000,
+     "seed": 20260814,
+     "excludes_zero": false
+    }
+   },
+   {
+    "category": {
+     "id": "volume_burst",
+     "structural_test": "the entity's observed count in the window exceeds its own predicted rate",
+     "whitepaper_section": "§3.1, §7.4",
+     "contrast_with_marginal_detectors": "a rate is only anomalous relative to the entity's own history; a population-fitted model reads a quiet account's tenfold increase as ordinary whenever busier accounts sustain that rate routinely"
+    },
+    "budget_per_day": 10,
+    "red_team_events_in_category": 199,
+    "common_days": [
+     7,
+     8,
+     9,
+     12,
+     13
+    ],
+    "framework_detected": 0,
+    "framework_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.01893823305663494,
+     "n": 199,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "baseline": "rrcf",
+    "baseline_detected": 0,
+    "baseline_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.01893823305663494,
+     "n": 199,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "delta_percentage_points": 0,
+    "ratio_undefined": "the baseline detected nothing in this category, so a relative improvement is a division by zero; the difference is reported in percentage points of recall",
+    "mcnemar": {
+     "both_detected": 0,
+     "neither_detected": 199,
+     "only_a": 0,
+     "only_b": 0,
+     "statistic": 0,
+     "p_value": 1,
+     "exact": false,
+     "delta": 0
+    },
+    "bootstrap_delta": {
+     "observed_delta": 0,
+     "low": 0,
+     "high": 0,
+     "level": 0.95,
+     "resamples": 2000,
+     "seed": 20260814,
+     "excludes_zero": false
+    }
+   },
+   {
+    "category": {
+     "id": "volume_burst",
+     "structural_test": "the entity's observed count in the window exceeds its own predicted rate",
+     "whitepaper_section": "§3.1, §7.4",
+     "contrast_with_marginal_detectors": "a rate is only anomalous relative to the entity's own history; a population-fitted model reads a quiet account's tenfold increase as ordinary whenever busier accounts sustain that rate routinely"
+    },
+    "budget_per_day": 25,
+    "red_team_events_in_category": 199,
+    "common_days": [
+     7,
+     8,
+     9,
+     12,
+     13
+    ],
+    "framework_detected": 0,
+    "framework_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.01893823305663494,
+     "n": 199,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "baseline": "eif",
+    "baseline_detected": 0,
+    "baseline_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.01893823305663494,
+     "n": 199,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "delta_percentage_points": 0,
+    "ratio_undefined": "the baseline detected nothing in this category, so a relative improvement is a division by zero; the difference is reported in percentage points of recall",
+    "mcnemar": {
+     "both_detected": 0,
+     "neither_detected": 199,
+     "only_a": 0,
+     "only_b": 0,
+     "statistic": 0,
+     "p_value": 1,
+     "exact": false,
+     "delta": 0
+    },
+    "bootstrap_delta": {
+     "observed_delta": 0,
+     "low": 0,
+     "high": 0,
+     "level": 0.95,
+     "resamples": 2000,
+     "seed": 20260814,
+     "excludes_zero": false
+    }
+   },
+   {
+    "category": {
+     "id": "volume_burst",
+     "structural_test": "the entity's observed count in the window exceeds its own predicted rate",
+     "whitepaper_section": "§3.1, §7.4",
+     "contrast_with_marginal_detectors": "a rate is only anomalous relative to the entity's own history; a population-fitted model reads a quiet account's tenfold increase as ordinary whenever busier accounts sustain that rate routinely"
+    },
+    "budget_per_day": 25,
+    "red_team_events_in_category": 199,
+    "common_days": [
+     7,
+     8,
+     9,
+     12,
+     13
+    ],
+    "framework_detected": 0,
+    "framework_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.01893823305663494,
+     "n": 199,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "baseline": "hst",
+    "baseline_detected": 0,
+    "baseline_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.01893823305663494,
+     "n": 199,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "delta_percentage_points": 0,
+    "ratio_undefined": "the baseline detected nothing in this category, so a relative improvement is a division by zero; the difference is reported in percentage points of recall",
+    "mcnemar": {
+     "both_detected": 0,
+     "neither_detected": 199,
+     "only_a": 0,
+     "only_b": 0,
+     "statistic": 0,
+     "p_value": 1,
+     "exact": false,
+     "delta": 0
+    },
+    "bootstrap_delta": {
+     "observed_delta": 0,
+     "low": 0,
+     "high": 0,
+     "level": 0.95,
+     "resamples": 2000,
+     "seed": 20260814,
+     "excludes_zero": false
+    }
+   },
+   {
+    "category": {
+     "id": "volume_burst",
+     "structural_test": "the entity's observed count in the window exceeds its own predicted rate",
+     "whitepaper_section": "§3.1, §7.4",
+     "contrast_with_marginal_detectors": "a rate is only anomalous relative to the entity's own history; a population-fitted model reads a quiet account's tenfold increase as ordinary whenever busier accounts sustain that rate routinely"
+    },
+    "budget_per_day": 25,
+    "red_team_events_in_category": 199,
+    "common_days": [
+     7,
+     8,
+     9,
+     12,
+     13
+    ],
+    "framework_detected": 0,
+    "framework_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.01893823305663494,
+     "n": 199,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "baseline": "iforest",
+    "baseline_detected": 0,
+    "baseline_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.01893823305663494,
+     "n": 199,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "delta_percentage_points": 0,
+    "ratio_undefined": "the baseline detected nothing in this category, so a relative improvement is a division by zero; the difference is reported in percentage points of recall",
+    "mcnemar": {
+     "both_detected": 0,
+     "neither_detected": 199,
+     "only_a": 0,
+     "only_b": 0,
+     "statistic": 0,
+     "p_value": 1,
+     "exact": false,
+     "delta": 0
+    },
+    "bootstrap_delta": {
+     "observed_delta": 0,
+     "low": 0,
+     "high": 0,
+     "level": 0.95,
+     "resamples": 2000,
+     "seed": 20260814,
+     "excludes_zero": false
+    }
+   },
+   {
+    "category": {
+     "id": "volume_burst",
+     "structural_test": "the entity's observed count in the window exceeds its own predicted rate",
+     "whitepaper_section": "§3.1, §7.4",
+     "contrast_with_marginal_detectors": "a rate is only anomalous relative to the entity's own history; a population-fitted model reads a quiet account's tenfold increase as ordinary whenever busier accounts sustain that rate routinely"
+    },
+    "budget_per_day": 25,
+    "red_team_events_in_category": 199,
+    "common_days": [
+     7,
+     8,
+     9,
+     12,
+     13
+    ],
+    "framework_detected": 0,
+    "framework_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.01893823305663494,
+     "n": 199,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "baseline": "rrcf",
+    "baseline_detected": 0,
+    "baseline_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.01893823305663494,
+     "n": 199,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "delta_percentage_points": 0,
+    "ratio_undefined": "the baseline detected nothing in this category, so a relative improvement is a division by zero; the difference is reported in percentage points of recall",
+    "mcnemar": {
+     "both_detected": 0,
+     "neither_detected": 199,
+     "only_a": 0,
+     "only_b": 0,
+     "statistic": 0,
+     "p_value": 1,
+     "exact": false,
+     "delta": 0
+    },
+    "bootstrap_delta": {
+     "observed_delta": 0,
+     "low": 0,
+     "high": 0,
+     "level": 0.95,
+     "resamples": 2000,
+     "seed": 20260814,
+     "excludes_zero": false
+    }
+   },
+   {
+    "category": {
+     "id": "volume_burst",
+     "structural_test": "the entity's observed count in the window exceeds its own predicted rate",
+     "whitepaper_section": "§3.1, §7.4",
+     "contrast_with_marginal_detectors": "a rate is only anomalous relative to the entity's own history; a population-fitted model reads a quiet account's tenfold increase as ordinary whenever busier accounts sustain that rate routinely"
+    },
+    "budget_per_day": 50,
+    "red_team_events_in_category": 199,
+    "common_days": [
+     7,
+     8,
+     9,
+     12,
+     13
+    ],
+    "framework_detected": 0,
+    "framework_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.01893823305663494,
+     "n": 199,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "baseline": "eif",
+    "baseline_detected": 0,
+    "baseline_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.01893823305663494,
+     "n": 199,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "delta_percentage_points": 0,
+    "ratio_undefined": "the baseline detected nothing in this category, so a relative improvement is a division by zero; the difference is reported in percentage points of recall",
+    "mcnemar": {
+     "both_detected": 0,
+     "neither_detected": 199,
+     "only_a": 0,
+     "only_b": 0,
+     "statistic": 0,
+     "p_value": 1,
+     "exact": false,
+     "delta": 0
+    },
+    "bootstrap_delta": {
+     "observed_delta": 0,
+     "low": 0,
+     "high": 0,
+     "level": 0.95,
+     "resamples": 2000,
+     "seed": 20260814,
+     "excludes_zero": false
+    }
+   },
+   {
+    "category": {
+     "id": "volume_burst",
+     "structural_test": "the entity's observed count in the window exceeds its own predicted rate",
+     "whitepaper_section": "§3.1, §7.4",
+     "contrast_with_marginal_detectors": "a rate is only anomalous relative to the entity's own history; a population-fitted model reads a quiet account's tenfold increase as ordinary whenever busier accounts sustain that rate routinely"
+    },
+    "budget_per_day": 50,
+    "red_team_events_in_category": 199,
+    "common_days": [
+     7,
+     8,
+     9,
+     12,
+     13
+    ],
+    "framework_detected": 0,
+    "framework_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.01893823305663494,
+     "n": 199,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "baseline": "hst",
+    "baseline_detected": 0,
+    "baseline_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.01893823305663494,
+     "n": 199,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "delta_percentage_points": 0,
+    "ratio_undefined": "the baseline detected nothing in this category, so a relative improvement is a division by zero; the difference is reported in percentage points of recall",
+    "mcnemar": {
+     "both_detected": 0,
+     "neither_detected": 199,
+     "only_a": 0,
+     "only_b": 0,
+     "statistic": 0,
+     "p_value": 1,
+     "exact": false,
+     "delta": 0
+    },
+    "bootstrap_delta": {
+     "observed_delta": 0,
+     "low": 0,
+     "high": 0,
+     "level": 0.95,
+     "resamples": 2000,
+     "seed": 20260814,
+     "excludes_zero": false
+    }
+   },
+   {
+    "category": {
+     "id": "volume_burst",
+     "structural_test": "the entity's observed count in the window exceeds its own predicted rate",
+     "whitepaper_section": "§3.1, §7.4",
+     "contrast_with_marginal_detectors": "a rate is only anomalous relative to the entity's own history; a population-fitted model reads a quiet account's tenfold increase as ordinary whenever busier accounts sustain that rate routinely"
+    },
+    "budget_per_day": 50,
+    "red_team_events_in_category": 199,
+    "common_days": [
+     7,
+     8,
+     9,
+     12,
+     13
+    ],
+    "framework_detected": 0,
+    "framework_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.01893823305663494,
+     "n": 199,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "baseline": "iforest",
+    "baseline_detected": 0,
+    "baseline_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.01893823305663494,
+     "n": 199,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "delta_percentage_points": 0,
+    "ratio_undefined": "the baseline detected nothing in this category, so a relative improvement is a division by zero; the difference is reported in percentage points of recall",
+    "mcnemar": {
+     "both_detected": 0,
+     "neither_detected": 199,
+     "only_a": 0,
+     "only_b": 0,
+     "statistic": 0,
+     "p_value": 1,
+     "exact": false,
+     "delta": 0
+    },
+    "bootstrap_delta": {
+     "observed_delta": 0,
+     "low": 0,
+     "high": 0,
+     "level": 0.95,
+     "resamples": 2000,
+     "seed": 20260814,
+     "excludes_zero": false
+    }
+   },
+   {
+    "category": {
+     "id": "volume_burst",
+     "structural_test": "the entity's observed count in the window exceeds its own predicted rate",
+     "whitepaper_section": "§3.1, §7.4",
+     "contrast_with_marginal_detectors": "a rate is only anomalous relative to the entity's own history; a population-fitted model reads a quiet account's tenfold increase as ordinary whenever busier accounts sustain that rate routinely"
+    },
+    "budget_per_day": 50,
+    "red_team_events_in_category": 199,
+    "common_days": [
+     7,
+     8,
+     9,
+     12,
+     13
+    ],
+    "framework_detected": 0,
+    "framework_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.01893823305663494,
+     "n": 199,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "baseline": "rrcf",
+    "baseline_detected": 0,
+    "baseline_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.01893823305663494,
+     "n": 199,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "delta_percentage_points": 0,
+    "ratio_undefined": "the baseline detected nothing in this category, so a relative improvement is a division by zero; the difference is reported in percentage points of recall",
+    "mcnemar": {
+     "both_detected": 0,
+     "neither_detected": 199,
+     "only_a": 0,
+     "only_b": 0,
+     "statistic": 0,
+     "p_value": 1,
+     "exact": false,
+     "delta": 0
+    },
+    "bootstrap_delta": {
+     "observed_delta": 0,
+     "low": 0,
+     "high": 0,
+     "level": 0.95,
+     "resamples": 2000,
+     "seed": 20260814,
+     "excludes_zero": false
+    }
+   },
+   {
+    "category": {
+     "id": "volume_burst",
+     "structural_test": "the entity's observed count in the window exceeds its own predicted rate",
+     "whitepaper_section": "§3.1, §7.4",
+     "contrast_with_marginal_detectors": "a rate is only anomalous relative to the entity's own history; a population-fitted model reads a quiet account's tenfold increase as ordinary whenever busier accounts sustain that rate routinely"
+    },
+    "budget_per_day": 100,
+    "red_team_events_in_category": 199,
+    "common_days": [
+     7,
+     8,
+     9,
+     12,
+     13
+    ],
+    "framework_detected": 0,
+    "framework_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.01893823305663494,
+     "n": 199,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "baseline": "eif",
+    "baseline_detected": 0,
+    "baseline_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.01893823305663494,
+     "n": 199,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "delta_percentage_points": 0,
+    "ratio_undefined": "the baseline detected nothing in this category, so a relative improvement is a division by zero; the difference is reported in percentage points of recall",
+    "mcnemar": {
+     "both_detected": 0,
+     "neither_detected": 199,
+     "only_a": 0,
+     "only_b": 0,
+     "statistic": 0,
+     "p_value": 1,
+     "exact": false,
+     "delta": 0
+    },
+    "bootstrap_delta": {
+     "observed_delta": 0,
+     "low": 0,
+     "high": 0,
+     "level": 0.95,
+     "resamples": 2000,
+     "seed": 20260814,
+     "excludes_zero": false
+    }
+   },
+   {
+    "category": {
+     "id": "volume_burst",
+     "structural_test": "the entity's observed count in the window exceeds its own predicted rate",
+     "whitepaper_section": "§3.1, §7.4",
+     "contrast_with_marginal_detectors": "a rate is only anomalous relative to the entity's own history; a population-fitted model reads a quiet account's tenfold increase as ordinary whenever busier accounts sustain that rate routinely"
+    },
+    "budget_per_day": 100,
+    "red_team_events_in_category": 199,
+    "common_days": [
+     7,
+     8,
+     9,
+     12,
+     13
+    ],
+    "framework_detected": 0,
+    "framework_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.01893823305663494,
+     "n": 199,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "baseline": "hst",
+    "baseline_detected": 0,
+    "baseline_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.01893823305663494,
+     "n": 199,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "delta_percentage_points": 0,
+    "ratio_undefined": "the baseline detected nothing in this category, so a relative improvement is a division by zero; the difference is reported in percentage points of recall",
+    "mcnemar": {
+     "both_detected": 0,
+     "neither_detected": 199,
+     "only_a": 0,
+     "only_b": 0,
+     "statistic": 0,
+     "p_value": 1,
+     "exact": false,
+     "delta": 0
+    },
+    "bootstrap_delta": {
+     "observed_delta": 0,
+     "low": 0,
+     "high": 0,
+     "level": 0.95,
+     "resamples": 2000,
+     "seed": 20260814,
+     "excludes_zero": false
+    }
+   },
+   {
+    "category": {
+     "id": "volume_burst",
+     "structural_test": "the entity's observed count in the window exceeds its own predicted rate",
+     "whitepaper_section": "§3.1, §7.4",
+     "contrast_with_marginal_detectors": "a rate is only anomalous relative to the entity's own history; a population-fitted model reads a quiet account's tenfold increase as ordinary whenever busier accounts sustain that rate routinely"
+    },
+    "budget_per_day": 100,
+    "red_team_events_in_category": 199,
+    "common_days": [
+     7,
+     8,
+     9,
+     12,
+     13
+    ],
+    "framework_detected": 0,
+    "framework_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.01893823305663494,
+     "n": 199,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "baseline": "iforest",
+    "baseline_detected": 0,
+    "baseline_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.01893823305663494,
+     "n": 199,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "delta_percentage_points": 0,
+    "ratio_undefined": "the baseline detected nothing in this category, so a relative improvement is a division by zero; the difference is reported in percentage points of recall",
+    "mcnemar": {
+     "both_detected": 0,
+     "neither_detected": 199,
+     "only_a": 0,
+     "only_b": 0,
+     "statistic": 0,
+     "p_value": 1,
+     "exact": false,
+     "delta": 0
+    },
+    "bootstrap_delta": {
+     "observed_delta": 0,
+     "low": 0,
+     "high": 0,
+     "level": 0.95,
+     "resamples": 2000,
+     "seed": 20260814,
+     "excludes_zero": false
+    }
+   },
+   {
+    "category": {
+     "id": "volume_burst",
+     "structural_test": "the entity's observed count in the window exceeds its own predicted rate",
+     "whitepaper_section": "§3.1, §7.4",
+     "contrast_with_marginal_detectors": "a rate is only anomalous relative to the entity's own history; a population-fitted model reads a quiet account's tenfold increase as ordinary whenever busier accounts sustain that rate routinely"
+    },
+    "budget_per_day": 100,
+    "red_team_events_in_category": 199,
+    "common_days": [
+     7,
+     8,
+     9,
+     12,
+     13
+    ],
+    "framework_detected": 0,
+    "framework_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.01893823305663494,
+     "n": 199,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "baseline": "rrcf",
+    "baseline_detected": 0,
+    "baseline_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.01893823305663494,
+     "n": 199,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "delta_percentage_points": 0,
+    "ratio_undefined": "the baseline detected nothing in this category, so a relative improvement is a division by zero; the difference is reported in percentage points of recall",
+    "mcnemar": {
+     "both_detected": 0,
+     "neither_detected": 199,
+     "only_a": 0,
+     "only_b": 0,
+     "statistic": 0,
+     "p_value": 1,
+     "exact": false,
+     "delta": 0
+    },
+    "bootstrap_delta": {
+     "observed_delta": 0,
+     "low": 0,
+     "high": 0,
+     "level": 0.95,
+     "resamples": 2000,
+     "seed": 20260814,
+     "excludes_zero": false
+    }
+   },
+   {
+    "category": {
+     "id": "novel_pair",
+     "structural_test": "two eligible values have never co-occurred, in a graph that carries mass",
+     "whitepaper_section": "§3.3, §8",
+     "contrast_with_marginal_detectors": "each value is individually frequent, so every marginal is satisfied and the combination is invisible to any detector that scores fields independently; only a joint model has the question in its vocabulary"
+    },
+    "budget_per_day": 10,
+    "red_team_events_in_category": 31,
+    "common_days": [
+     7,
+     8,
+     9,
+     12,
+     13
+    ],
+    "framework_detected": 0,
+    "framework_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.11025539546043596,
+     "n": 31,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "baseline": "eif",
+    "baseline_detected": 0,
+    "baseline_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.11025539546043596,
+     "n": 31,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "delta_percentage_points": 0,
+    "ratio_undefined": "the baseline detected nothing in this category, so a relative improvement is a division by zero; the difference is reported in percentage points of recall",
+    "mcnemar": {
+     "both_detected": 0,
+     "neither_detected": 31,
+     "only_a": 0,
+     "only_b": 0,
+     "statistic": 0,
+     "p_value": 1,
+     "exact": false,
+     "delta": 0
+    },
+    "bootstrap_delta": {
+     "observed_delta": 0,
+     "low": 0,
+     "high": 0,
+     "level": 0.95,
+     "resamples": 2000,
+     "seed": 20260814,
+     "excludes_zero": false
+    }
+   },
+   {
+    "category": {
+     "id": "novel_pair",
+     "structural_test": "two eligible values have never co-occurred, in a graph that carries mass",
+     "whitepaper_section": "§3.3, §8",
+     "contrast_with_marginal_detectors": "each value is individually frequent, so every marginal is satisfied and the combination is invisible to any detector that scores fields independently; only a joint model has the question in its vocabulary"
+    },
+    "budget_per_day": 10,
+    "red_team_events_in_category": 31,
+    "common_days": [
+     7,
+     8,
+     9,
+     12,
+     13
+    ],
+    "framework_detected": 0,
+    "framework_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.11025539546043596,
+     "n": 31,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "baseline": "hst",
+    "baseline_detected": 0,
+    "baseline_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.11025539546043596,
+     "n": 31,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "delta_percentage_points": 0,
+    "ratio_undefined": "the baseline detected nothing in this category, so a relative improvement is a division by zero; the difference is reported in percentage points of recall",
+    "mcnemar": {
+     "both_detected": 0,
+     "neither_detected": 31,
+     "only_a": 0,
+     "only_b": 0,
+     "statistic": 0,
+     "p_value": 1,
+     "exact": false,
+     "delta": 0
+    },
+    "bootstrap_delta": {
+     "observed_delta": 0,
+     "low": 0,
+     "high": 0,
+     "level": 0.95,
+     "resamples": 2000,
+     "seed": 20260814,
+     "excludes_zero": false
+    }
+   },
+   {
+    "category": {
+     "id": "novel_pair",
+     "structural_test": "two eligible values have never co-occurred, in a graph that carries mass",
+     "whitepaper_section": "§3.3, §8",
+     "contrast_with_marginal_detectors": "each value is individually frequent, so every marginal is satisfied and the combination is invisible to any detector that scores fields independently; only a joint model has the question in its vocabulary"
+    },
+    "budget_per_day": 10,
+    "red_team_events_in_category": 31,
+    "common_days": [
+     7,
+     8,
+     9,
+     12,
+     13
+    ],
+    "framework_detected": 0,
+    "framework_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.11025539546043596,
+     "n": 31,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "baseline": "iforest",
+    "baseline_detected": 0,
+    "baseline_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.11025539546043596,
+     "n": 31,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "delta_percentage_points": 0,
+    "ratio_undefined": "the baseline detected nothing in this category, so a relative improvement is a division by zero; the difference is reported in percentage points of recall",
+    "mcnemar": {
+     "both_detected": 0,
+     "neither_detected": 31,
+     "only_a": 0,
+     "only_b": 0,
+     "statistic": 0,
+     "p_value": 1,
+     "exact": false,
+     "delta": 0
+    },
+    "bootstrap_delta": {
+     "observed_delta": 0,
+     "low": 0,
+     "high": 0,
+     "level": 0.95,
+     "resamples": 2000,
+     "seed": 20260814,
+     "excludes_zero": false
+    }
+   },
+   {
+    "category": {
+     "id": "novel_pair",
+     "structural_test": "two eligible values have never co-occurred, in a graph that carries mass",
+     "whitepaper_section": "§3.3, §8",
+     "contrast_with_marginal_detectors": "each value is individually frequent, so every marginal is satisfied and the combination is invisible to any detector that scores fields independently; only a joint model has the question in its vocabulary"
+    },
+    "budget_per_day": 10,
+    "red_team_events_in_category": 31,
+    "common_days": [
+     7,
+     8,
+     9,
+     12,
+     13
+    ],
+    "framework_detected": 0,
+    "framework_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.11025539546043596,
+     "n": 31,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "baseline": "rrcf",
+    "baseline_detected": 0,
+    "baseline_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.11025539546043596,
+     "n": 31,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "delta_percentage_points": 0,
+    "ratio_undefined": "the baseline detected nothing in this category, so a relative improvement is a division by zero; the difference is reported in percentage points of recall",
+    "mcnemar": {
+     "both_detected": 0,
+     "neither_detected": 31,
+     "only_a": 0,
+     "only_b": 0,
+     "statistic": 0,
+     "p_value": 1,
+     "exact": false,
+     "delta": 0
+    },
+    "bootstrap_delta": {
+     "observed_delta": 0,
+     "low": 0,
+     "high": 0,
+     "level": 0.95,
+     "resamples": 2000,
+     "seed": 20260814,
+     "excludes_zero": false
+    }
+   },
+   {
+    "category": {
+     "id": "novel_pair",
+     "structural_test": "two eligible values have never co-occurred, in a graph that carries mass",
+     "whitepaper_section": "§3.3, §8",
+     "contrast_with_marginal_detectors": "each value is individually frequent, so every marginal is satisfied and the combination is invisible to any detector that scores fields independently; only a joint model has the question in its vocabulary"
+    },
+    "budget_per_day": 25,
+    "red_team_events_in_category": 31,
+    "common_days": [
+     7,
+     8,
+     9,
+     12,
+     13
+    ],
+    "framework_detected": 0,
+    "framework_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.11025539546043596,
+     "n": 31,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "baseline": "eif",
+    "baseline_detected": 0,
+    "baseline_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.11025539546043596,
+     "n": 31,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "delta_percentage_points": 0,
+    "ratio_undefined": "the baseline detected nothing in this category, so a relative improvement is a division by zero; the difference is reported in percentage points of recall",
+    "mcnemar": {
+     "both_detected": 0,
+     "neither_detected": 31,
+     "only_a": 0,
+     "only_b": 0,
+     "statistic": 0,
+     "p_value": 1,
+     "exact": false,
+     "delta": 0
+    },
+    "bootstrap_delta": {
+     "observed_delta": 0,
+     "low": 0,
+     "high": 0,
+     "level": 0.95,
+     "resamples": 2000,
+     "seed": 20260814,
+     "excludes_zero": false
+    }
+   },
+   {
+    "category": {
+     "id": "novel_pair",
+     "structural_test": "two eligible values have never co-occurred, in a graph that carries mass",
+     "whitepaper_section": "§3.3, §8",
+     "contrast_with_marginal_detectors": "each value is individually frequent, so every marginal is satisfied and the combination is invisible to any detector that scores fields independently; only a joint model has the question in its vocabulary"
+    },
+    "budget_per_day": 25,
+    "red_team_events_in_category": 31,
+    "common_days": [
+     7,
+     8,
+     9,
+     12,
+     13
+    ],
+    "framework_detected": 0,
+    "framework_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.11025539546043596,
+     "n": 31,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "baseline": "hst",
+    "baseline_detected": 0,
+    "baseline_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.11025539546043596,
+     "n": 31,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "delta_percentage_points": 0,
+    "ratio_undefined": "the baseline detected nothing in this category, so a relative improvement is a division by zero; the difference is reported in percentage points of recall",
+    "mcnemar": {
+     "both_detected": 0,
+     "neither_detected": 31,
+     "only_a": 0,
+     "only_b": 0,
+     "statistic": 0,
+     "p_value": 1,
+     "exact": false,
+     "delta": 0
+    },
+    "bootstrap_delta": {
+     "observed_delta": 0,
+     "low": 0,
+     "high": 0,
+     "level": 0.95,
+     "resamples": 2000,
+     "seed": 20260814,
+     "excludes_zero": false
+    }
+   },
+   {
+    "category": {
+     "id": "novel_pair",
+     "structural_test": "two eligible values have never co-occurred, in a graph that carries mass",
+     "whitepaper_section": "§3.3, §8",
+     "contrast_with_marginal_detectors": "each value is individually frequent, so every marginal is satisfied and the combination is invisible to any detector that scores fields independently; only a joint model has the question in its vocabulary"
+    },
+    "budget_per_day": 25,
+    "red_team_events_in_category": 31,
+    "common_days": [
+     7,
+     8,
+     9,
+     12,
+     13
+    ],
+    "framework_detected": 0,
+    "framework_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.11025539546043596,
+     "n": 31,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "baseline": "iforest",
+    "baseline_detected": 0,
+    "baseline_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.11025539546043596,
+     "n": 31,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "delta_percentage_points": 0,
+    "ratio_undefined": "the baseline detected nothing in this category, so a relative improvement is a division by zero; the difference is reported in percentage points of recall",
+    "mcnemar": {
+     "both_detected": 0,
+     "neither_detected": 31,
+     "only_a": 0,
+     "only_b": 0,
+     "statistic": 0,
+     "p_value": 1,
+     "exact": false,
+     "delta": 0
+    },
+    "bootstrap_delta": {
+     "observed_delta": 0,
+     "low": 0,
+     "high": 0,
+     "level": 0.95,
+     "resamples": 2000,
+     "seed": 20260814,
+     "excludes_zero": false
+    }
+   },
+   {
+    "category": {
+     "id": "novel_pair",
+     "structural_test": "two eligible values have never co-occurred, in a graph that carries mass",
+     "whitepaper_section": "§3.3, §8",
+     "contrast_with_marginal_detectors": "each value is individually frequent, so every marginal is satisfied and the combination is invisible to any detector that scores fields independently; only a joint model has the question in its vocabulary"
+    },
+    "budget_per_day": 25,
+    "red_team_events_in_category": 31,
+    "common_days": [
+     7,
+     8,
+     9,
+     12,
+     13
+    ],
+    "framework_detected": 0,
+    "framework_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.11025539546043596,
+     "n": 31,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "baseline": "rrcf",
+    "baseline_detected": 0,
+    "baseline_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.11025539546043596,
+     "n": 31,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "delta_percentage_points": 0,
+    "ratio_undefined": "the baseline detected nothing in this category, so a relative improvement is a division by zero; the difference is reported in percentage points of recall",
+    "mcnemar": {
+     "both_detected": 0,
+     "neither_detected": 31,
+     "only_a": 0,
+     "only_b": 0,
+     "statistic": 0,
+     "p_value": 1,
+     "exact": false,
+     "delta": 0
+    },
+    "bootstrap_delta": {
+     "observed_delta": 0,
+     "low": 0,
+     "high": 0,
+     "level": 0.95,
+     "resamples": 2000,
+     "seed": 20260814,
+     "excludes_zero": false
+    }
+   },
+   {
+    "category": {
+     "id": "novel_pair",
+     "structural_test": "two eligible values have never co-occurred, in a graph that carries mass",
+     "whitepaper_section": "§3.3, §8",
+     "contrast_with_marginal_detectors": "each value is individually frequent, so every marginal is satisfied and the combination is invisible to any detector that scores fields independently; only a joint model has the question in its vocabulary"
+    },
+    "budget_per_day": 50,
+    "red_team_events_in_category": 31,
+    "common_days": [
+     7,
+     8,
+     9,
+     12,
+     13
+    ],
+    "framework_detected": 0,
+    "framework_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.11025539546043596,
+     "n": 31,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "baseline": "eif",
+    "baseline_detected": 0,
+    "baseline_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.11025539546043596,
+     "n": 31,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "delta_percentage_points": 0,
+    "ratio_undefined": "the baseline detected nothing in this category, so a relative improvement is a division by zero; the difference is reported in percentage points of recall",
+    "mcnemar": {
+     "both_detected": 0,
+     "neither_detected": 31,
+     "only_a": 0,
+     "only_b": 0,
+     "statistic": 0,
+     "p_value": 1,
+     "exact": false,
+     "delta": 0
+    },
+    "bootstrap_delta": {
+     "observed_delta": 0,
+     "low": 0,
+     "high": 0,
+     "level": 0.95,
+     "resamples": 2000,
+     "seed": 20260814,
+     "excludes_zero": false
+    }
+   },
+   {
+    "category": {
+     "id": "novel_pair",
+     "structural_test": "two eligible values have never co-occurred, in a graph that carries mass",
+     "whitepaper_section": "§3.3, §8",
+     "contrast_with_marginal_detectors": "each value is individually frequent, so every marginal is satisfied and the combination is invisible to any detector that scores fields independently; only a joint model has the question in its vocabulary"
+    },
+    "budget_per_day": 50,
+    "red_team_events_in_category": 31,
+    "common_days": [
+     7,
+     8,
+     9,
+     12,
+     13
+    ],
+    "framework_detected": 0,
+    "framework_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.11025539546043596,
+     "n": 31,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "baseline": "hst",
+    "baseline_detected": 0,
+    "baseline_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.11025539546043596,
+     "n": 31,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "delta_percentage_points": 0,
+    "ratio_undefined": "the baseline detected nothing in this category, so a relative improvement is a division by zero; the difference is reported in percentage points of recall",
+    "mcnemar": {
+     "both_detected": 0,
+     "neither_detected": 31,
+     "only_a": 0,
+     "only_b": 0,
+     "statistic": 0,
+     "p_value": 1,
+     "exact": false,
+     "delta": 0
+    },
+    "bootstrap_delta": {
+     "observed_delta": 0,
+     "low": 0,
+     "high": 0,
+     "level": 0.95,
+     "resamples": 2000,
+     "seed": 20260814,
+     "excludes_zero": false
+    }
+   },
+   {
+    "category": {
+     "id": "novel_pair",
+     "structural_test": "two eligible values have never co-occurred, in a graph that carries mass",
+     "whitepaper_section": "§3.3, §8",
+     "contrast_with_marginal_detectors": "each value is individually frequent, so every marginal is satisfied and the combination is invisible to any detector that scores fields independently; only a joint model has the question in its vocabulary"
+    },
+    "budget_per_day": 50,
+    "red_team_events_in_category": 31,
+    "common_days": [
+     7,
+     8,
+     9,
+     12,
+     13
+    ],
+    "framework_detected": 0,
+    "framework_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.11025539546043596,
+     "n": 31,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "baseline": "iforest",
+    "baseline_detected": 0,
+    "baseline_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.11025539546043596,
+     "n": 31,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "delta_percentage_points": 0,
+    "ratio_undefined": "the baseline detected nothing in this category, so a relative improvement is a division by zero; the difference is reported in percentage points of recall",
+    "mcnemar": {
+     "both_detected": 0,
+     "neither_detected": 31,
+     "only_a": 0,
+     "only_b": 0,
+     "statistic": 0,
+     "p_value": 1,
+     "exact": false,
+     "delta": 0
+    },
+    "bootstrap_delta": {
+     "observed_delta": 0,
+     "low": 0,
+     "high": 0,
+     "level": 0.95,
+     "resamples": 2000,
+     "seed": 20260814,
+     "excludes_zero": false
+    }
+   },
+   {
+    "category": {
+     "id": "novel_pair",
+     "structural_test": "two eligible values have never co-occurred, in a graph that carries mass",
+     "whitepaper_section": "§3.3, §8",
+     "contrast_with_marginal_detectors": "each value is individually frequent, so every marginal is satisfied and the combination is invisible to any detector that scores fields independently; only a joint model has the question in its vocabulary"
+    },
+    "budget_per_day": 50,
+    "red_team_events_in_category": 31,
+    "common_days": [
+     7,
+     8,
+     9,
+     12,
+     13
+    ],
+    "framework_detected": 0,
+    "framework_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.11025539546043596,
+     "n": 31,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "baseline": "rrcf",
+    "baseline_detected": 0,
+    "baseline_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.11025539546043596,
+     "n": 31,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "delta_percentage_points": 0,
+    "ratio_undefined": "the baseline detected nothing in this category, so a relative improvement is a division by zero; the difference is reported in percentage points of recall",
+    "mcnemar": {
+     "both_detected": 0,
+     "neither_detected": 31,
+     "only_a": 0,
+     "only_b": 0,
+     "statistic": 0,
+     "p_value": 1,
+     "exact": false,
+     "delta": 0
+    },
+    "bootstrap_delta": {
+     "observed_delta": 0,
+     "low": 0,
+     "high": 0,
+     "level": 0.95,
+     "resamples": 2000,
+     "seed": 20260814,
+     "excludes_zero": false
+    }
+   },
+   {
+    "category": {
+     "id": "novel_pair",
+     "structural_test": "two eligible values have never co-occurred, in a graph that carries mass",
+     "whitepaper_section": "§3.3, §8",
+     "contrast_with_marginal_detectors": "each value is individually frequent, so every marginal is satisfied and the combination is invisible to any detector that scores fields independently; only a joint model has the question in its vocabulary"
+    },
+    "budget_per_day": 100,
+    "red_team_events_in_category": 31,
+    "common_days": [
+     7,
+     8,
+     9,
+     12,
+     13
+    ],
+    "framework_detected": 0,
+    "framework_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.11025539546043596,
+     "n": 31,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "baseline": "eif",
+    "baseline_detected": 0,
+    "baseline_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.11025539546043596,
+     "n": 31,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "delta_percentage_points": 0,
+    "ratio_undefined": "the baseline detected nothing in this category, so a relative improvement is a division by zero; the difference is reported in percentage points of recall",
+    "mcnemar": {
+     "both_detected": 0,
+     "neither_detected": 31,
+     "only_a": 0,
+     "only_b": 0,
+     "statistic": 0,
+     "p_value": 1,
+     "exact": false,
+     "delta": 0
+    },
+    "bootstrap_delta": {
+     "observed_delta": 0,
+     "low": 0,
+     "high": 0,
+     "level": 0.95,
+     "resamples": 2000,
+     "seed": 20260814,
+     "excludes_zero": false
+    }
+   },
+   {
+    "category": {
+     "id": "novel_pair",
+     "structural_test": "two eligible values have never co-occurred, in a graph that carries mass",
+     "whitepaper_section": "§3.3, §8",
+     "contrast_with_marginal_detectors": "each value is individually frequent, so every marginal is satisfied and the combination is invisible to any detector that scores fields independently; only a joint model has the question in its vocabulary"
+    },
+    "budget_per_day": 100,
+    "red_team_events_in_category": 31,
+    "common_days": [
+     7,
+     8,
+     9,
+     12,
+     13
+    ],
+    "framework_detected": 0,
+    "framework_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.11025539546043596,
+     "n": 31,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "baseline": "hst",
+    "baseline_detected": 0,
+    "baseline_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.11025539546043596,
+     "n": 31,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "delta_percentage_points": 0,
+    "ratio_undefined": "the baseline detected nothing in this category, so a relative improvement is a division by zero; the difference is reported in percentage points of recall",
+    "mcnemar": {
+     "both_detected": 0,
+     "neither_detected": 31,
+     "only_a": 0,
+     "only_b": 0,
+     "statistic": 0,
+     "p_value": 1,
+     "exact": false,
+     "delta": 0
+    },
+    "bootstrap_delta": {
+     "observed_delta": 0,
+     "low": 0,
+     "high": 0,
+     "level": 0.95,
+     "resamples": 2000,
+     "seed": 20260814,
+     "excludes_zero": false
+    }
+   },
+   {
+    "category": {
+     "id": "novel_pair",
+     "structural_test": "two eligible values have never co-occurred, in a graph that carries mass",
+     "whitepaper_section": "§3.3, §8",
+     "contrast_with_marginal_detectors": "each value is individually frequent, so every marginal is satisfied and the combination is invisible to any detector that scores fields independently; only a joint model has the question in its vocabulary"
+    },
+    "budget_per_day": 100,
+    "red_team_events_in_category": 31,
+    "common_days": [
+     7,
+     8,
+     9,
+     12,
+     13
+    ],
+    "framework_detected": 0,
+    "framework_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.11025539546043596,
+     "n": 31,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "baseline": "iforest",
+    "baseline_detected": 0,
+    "baseline_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.11025539546043596,
+     "n": 31,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "delta_percentage_points": 0,
+    "ratio_undefined": "the baseline detected nothing in this category, so a relative improvement is a division by zero; the difference is reported in percentage points of recall",
+    "mcnemar": {
+     "both_detected": 0,
+     "neither_detected": 31,
+     "only_a": 0,
+     "only_b": 0,
+     "statistic": 0,
+     "p_value": 1,
+     "exact": false,
+     "delta": 0
+    },
+    "bootstrap_delta": {
+     "observed_delta": 0,
+     "low": 0,
+     "high": 0,
+     "level": 0.95,
+     "resamples": 2000,
+     "seed": 20260814,
+     "excludes_zero": false
+    }
+   },
+   {
+    "category": {
+     "id": "novel_pair",
+     "structural_test": "two eligible values have never co-occurred, in a graph that carries mass",
+     "whitepaper_section": "§3.3, §8",
+     "contrast_with_marginal_detectors": "each value is individually frequent, so every marginal is satisfied and the combination is invisible to any detector that scores fields independently; only a joint model has the question in its vocabulary"
+    },
+    "budget_per_day": 100,
+    "red_team_events_in_category": 31,
+    "common_days": [
+     7,
+     8,
+     9,
+     12,
+     13
+    ],
+    "framework_detected": 0,
+    "framework_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.11025539546043596,
+     "n": 31,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "baseline": "rrcf",
+    "baseline_detected": 0,
+    "baseline_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.11025539546043596,
+     "n": 31,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "delta_percentage_points": 0,
+    "ratio_undefined": "the baseline detected nothing in this category, so a relative improvement is a division by zero; the difference is reported in percentage points of recall",
+    "mcnemar": {
+     "both_detected": 0,
+     "neither_detected": 31,
+     "only_a": 0,
+     "only_b": 0,
+     "statistic": 0,
+     "p_value": 1,
+     "exact": false,
+     "delta": 0
+    },
+    "bootstrap_delta": {
+     "observed_delta": 0,
+     "low": 0,
+     "high": 0,
+     "level": 0.95,
+     "resamples": 2000,
+     "seed": 20260814,
+     "excludes_zero": false
+    }
+   }
+  ],
+  "detection": [
+   {
+    "budget_per_day": 10,
+    "alerts": 70,
+    "true_positives": 0,
+    "false_negatives": 549,
+    "red_team_scored": 549,
+    "recall_wilson": {
+     "point": 0,
+     "low": 0,
+     "high": 0.0069485722523209776,
+     "n": 549,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "recall_clopper_pearson": {
+     "point": 0,
+     "low": 0,
+     "high": 0.006696746586929037,
+     "n": 549,
+     "level": 0.95,
+     "kind": "clopper-pearson"
+    },
+    "precision_wilson": {
+     "point": 0,
+     "low": 0,
+     "high": 0.05202306241026692,
+     "n": 70,
+     "level": 0.95,
+     "kind": "wilson"
+    }
+   },
+   {
+    "budget_per_day": 25,
+    "alerts": 175,
+    "true_positives": 0,
+    "false_negatives": 549,
+    "red_team_scored": 549,
+    "recall_wilson": {
+     "point": 0,
+     "low": 0,
+     "high": 0.0069485722523209776,
+     "n": 549,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "recall_clopper_pearson": {
+     "point": 0,
+     "low": 0,
+     "high": 0.006696746586929037,
+     "n": 549,
+     "level": 0.95,
+     "kind": "clopper-pearson"
+    },
+    "precision_wilson": {
+     "point": 0,
+     "low": 0,
+     "high": 0.021479688468352066,
+     "n": 175,
+     "level": 0.95,
+     "kind": "wilson"
+    }
+   },
+   {
+    "budget_per_day": 50,
+    "alerts": 350,
+    "true_positives": 0,
+    "false_negatives": 549,
+    "red_team_scored": 549,
+    "recall_wilson": {
+     "point": 0,
+     "low": 0,
+     "high": 0.0069485722523209776,
+     "n": 549,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "recall_clopper_pearson": {
+     "point": 0,
+     "low": 0,
+     "high": 0.006696746586929037,
+     "n": 549,
+     "level": 0.95,
+     "kind": "clopper-pearson"
+    },
+    "precision_wilson": {
+     "point": 0,
+     "low": 0,
+     "high": 0.01085644071640782,
+     "n": 350,
+     "level": 0.95,
+     "kind": "wilson"
+    }
+   },
+   {
+    "budget_per_day": 100,
+    "alerts": 700,
+    "true_positives": 0,
+    "false_negatives": 549,
+    "red_team_scored": 549,
+    "recall_wilson": {
+     "point": 0,
+     "low": 0,
+     "high": 0.0069485722523209776,
+     "n": 549,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "recall_clopper_pearson": {
+     "point": 0,
+     "low": 0,
+     "high": 0.006696746586929037,
+     "n": 549,
+     "level": 0.95,
+     "kind": "clopper-pearson"
+    },
+    "precision_wilson": {
+     "point": 0,
+     "low": 0,
+     "high": 0.005457846753060832,
+     "n": 700,
+     "level": 0.95,
+     "kind": "wilson"
+    }
+   }
+  ],
+  "head_to_head": [
+   {
+    "budget_per_day": 10,
+    "framework_detected": 0,
+    "framework_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.0069485722523209776,
+     "n": 549,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "baseline": "eif",
+    "baseline_detected": 0,
+    "baseline_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.0069485722523209776,
+     "n": 549,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "red_team_events": 549,
+    "common_days": [
+     7,
+     8,
+     9,
+     12,
+     13
+    ],
+    "delta_percentage_points": 0,
+    "ratio_undefined": "the baseline detected nothing at this budget, so a relative improvement is a division by zero; the difference is reported in percentage points of recall",
+    "mcnemar": {
+     "both_detected": 0,
+     "neither_detected": 549,
+     "only_a": 0,
+     "only_b": 0,
+     "statistic": 0,
+     "p_value": 1,
+     "exact": false,
+     "delta": 0
+    },
+    "bootstrap_delta": {
+     "observed_delta": 0,
+     "low": 0,
+     "high": 0,
+     "level": 0.95,
+     "resamples": 2000,
+     "seed": 20260814,
+     "excludes_zero": false
+    },
+    "caveats": [
+     "the framework's per-day budget is exact (the day's b smallest combined p-values over the full scored population); each baseline's threshold is a quantile estimated from a deterministic 1-in-100 sample, so the two arms estimate the same operating point with different precision",
+     "the baseline feature encoding is the conventional one for these detectors (hashed categoricals, hour and weekday fractions) and was not tuned in their favour; a different encoding would move their results",
+     "Detector IV inside the framework is itself a marginal outlier detector over the population, so the population_rare category is in part the framework measured against one of its own components (§12.4)",
+     "the categories are structural properties of each event relative to its history, assigned from evidence and not from which detector scored it lowest; an event may belong to more than one category, so the rows are overlapping subsets of the labelled population and do not sum to it"
+    ]
+   },
+   {
+    "budget_per_day": 10,
+    "framework_detected": 0,
+    "framework_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.0069485722523209776,
+     "n": 549,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "baseline": "hst",
+    "baseline_detected": 0,
+    "baseline_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.0069485722523209776,
+     "n": 549,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "red_team_events": 549,
+    "common_days": [
+     7,
+     8,
+     9,
+     12,
+     13
+    ],
+    "delta_percentage_points": 0,
+    "ratio_undefined": "the baseline detected nothing at this budget, so a relative improvement is a division by zero; the difference is reported in percentage points of recall",
+    "mcnemar": {
+     "both_detected": 0,
+     "neither_detected": 549,
+     "only_a": 0,
+     "only_b": 0,
+     "statistic": 0,
+     "p_value": 1,
+     "exact": false,
+     "delta": 0
+    },
+    "bootstrap_delta": {
+     "observed_delta": 0,
+     "low": 0,
+     "high": 0,
+     "level": 0.95,
+     "resamples": 2000,
+     "seed": 20260814,
+     "excludes_zero": false
+    },
+    "caveats": [
+     "the framework's per-day budget is exact (the day's b smallest combined p-values over the full scored population); each baseline's threshold is a quantile estimated from a deterministic 1-in-100 sample, so the two arms estimate the same operating point with different precision",
+     "the baseline feature encoding is the conventional one for these detectors (hashed categoricals, hour and weekday fractions) and was not tuned in their favour; a different encoding would move their results",
+     "Detector IV inside the framework is itself a marginal outlier detector over the population, so the population_rare category is in part the framework measured against one of its own components (§12.4)",
+     "the categories are structural properties of each event relative to its history, assigned from evidence and not from which detector scored it lowest; an event may belong to more than one category, so the rows are overlapping subsets of the labelled population and do not sum to it"
+    ]
+   },
+   {
+    "budget_per_day": 10,
+    "framework_detected": 0,
+    "framework_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.0069485722523209776,
+     "n": 549,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "baseline": "iforest",
+    "baseline_detected": 0,
+    "baseline_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.0069485722523209776,
+     "n": 549,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "red_team_events": 549,
+    "common_days": [
+     7,
+     8,
+     9,
+     12,
+     13
+    ],
+    "delta_percentage_points": 0,
+    "ratio_undefined": "the baseline detected nothing at this budget, so a relative improvement is a division by zero; the difference is reported in percentage points of recall",
+    "mcnemar": {
+     "both_detected": 0,
+     "neither_detected": 549,
+     "only_a": 0,
+     "only_b": 0,
+     "statistic": 0,
+     "p_value": 1,
+     "exact": false,
+     "delta": 0
+    },
+    "bootstrap_delta": {
+     "observed_delta": 0,
+     "low": 0,
+     "high": 0,
+     "level": 0.95,
+     "resamples": 2000,
+     "seed": 20260814,
+     "excludes_zero": false
+    },
+    "caveats": [
+     "the framework's per-day budget is exact (the day's b smallest combined p-values over the full scored population); each baseline's threshold is a quantile estimated from a deterministic 1-in-100 sample, so the two arms estimate the same operating point with different precision",
+     "the baseline feature encoding is the conventional one for these detectors (hashed categoricals, hour and weekday fractions) and was not tuned in their favour; a different encoding would move their results",
+     "Detector IV inside the framework is itself a marginal outlier detector over the population, so the population_rare category is in part the framework measured against one of its own components (§12.4)",
+     "the categories are structural properties of each event relative to its history, assigned from evidence and not from which detector scored it lowest; an event may belong to more than one category, so the rows are overlapping subsets of the labelled population and do not sum to it"
+    ]
+   },
+   {
+    "budget_per_day": 10,
+    "framework_detected": 0,
+    "framework_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.0069485722523209776,
+     "n": 549,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "baseline": "rrcf",
+    "baseline_detected": 0,
+    "baseline_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.0069485722523209776,
+     "n": 549,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "red_team_events": 549,
+    "common_days": [
+     7,
+     8,
+     9,
+     12,
+     13
+    ],
+    "delta_percentage_points": 0,
+    "ratio_undefined": "the baseline detected nothing at this budget, so a relative improvement is a division by zero; the difference is reported in percentage points of recall",
+    "mcnemar": {
+     "both_detected": 0,
+     "neither_detected": 549,
+     "only_a": 0,
+     "only_b": 0,
+     "statistic": 0,
+     "p_value": 1,
+     "exact": false,
+     "delta": 0
+    },
+    "bootstrap_delta": {
+     "observed_delta": 0,
+     "low": 0,
+     "high": 0,
+     "level": 0.95,
+     "resamples": 2000,
+     "seed": 20260814,
+     "excludes_zero": false
+    },
+    "caveats": [
+     "the framework's per-day budget is exact (the day's b smallest combined p-values over the full scored population); each baseline's threshold is a quantile estimated from a deterministic 1-in-100 sample, so the two arms estimate the same operating point with different precision",
+     "the baseline feature encoding is the conventional one for these detectors (hashed categoricals, hour and weekday fractions) and was not tuned in their favour; a different encoding would move their results",
+     "Detector IV inside the framework is itself a marginal outlier detector over the population, so the population_rare category is in part the framework measured against one of its own components (§12.4)",
+     "the categories are structural properties of each event relative to its history, assigned from evidence and not from which detector scored it lowest; an event may belong to more than one category, so the rows are overlapping subsets of the labelled population and do not sum to it"
+    ]
+   },
+   {
+    "budget_per_day": 25,
+    "framework_detected": 0,
+    "framework_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.0069485722523209776,
+     "n": 549,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "baseline": "eif",
+    "baseline_detected": 0,
+    "baseline_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.0069485722523209776,
+     "n": 549,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "red_team_events": 549,
+    "common_days": [
+     7,
+     8,
+     9,
+     12,
+     13
+    ],
+    "delta_percentage_points": 0,
+    "ratio_undefined": "the baseline detected nothing at this budget, so a relative improvement is a division by zero; the difference is reported in percentage points of recall",
+    "mcnemar": {
+     "both_detected": 0,
+     "neither_detected": 549,
+     "only_a": 0,
+     "only_b": 0,
+     "statistic": 0,
+     "p_value": 1,
+     "exact": false,
+     "delta": 0
+    },
+    "bootstrap_delta": {
+     "observed_delta": 0,
+     "low": 0,
+     "high": 0,
+     "level": 0.95,
+     "resamples": 2000,
+     "seed": 20260814,
+     "excludes_zero": false
+    },
+    "caveats": [
+     "the framework's per-day budget is exact (the day's b smallest combined p-values over the full scored population); each baseline's threshold is a quantile estimated from a deterministic 1-in-100 sample, so the two arms estimate the same operating point with different precision",
+     "the baseline feature encoding is the conventional one for these detectors (hashed categoricals, hour and weekday fractions) and was not tuned in their favour; a different encoding would move their results",
+     "Detector IV inside the framework is itself a marginal outlier detector over the population, so the population_rare category is in part the framework measured against one of its own components (§12.4)",
+     "the categories are structural properties of each event relative to its history, assigned from evidence and not from which detector scored it lowest; an event may belong to more than one category, so the rows are overlapping subsets of the labelled population and do not sum to it"
+    ]
+   },
+   {
+    "budget_per_day": 25,
+    "framework_detected": 0,
+    "framework_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.0069485722523209776,
+     "n": 549,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "baseline": "hst",
+    "baseline_detected": 0,
+    "baseline_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.0069485722523209776,
+     "n": 549,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "red_team_events": 549,
+    "common_days": [
+     7,
+     8,
+     9,
+     12,
+     13
+    ],
+    "delta_percentage_points": 0,
+    "ratio_undefined": "the baseline detected nothing at this budget, so a relative improvement is a division by zero; the difference is reported in percentage points of recall",
+    "mcnemar": {
+     "both_detected": 0,
+     "neither_detected": 549,
+     "only_a": 0,
+     "only_b": 0,
+     "statistic": 0,
+     "p_value": 1,
+     "exact": false,
+     "delta": 0
+    },
+    "bootstrap_delta": {
+     "observed_delta": 0,
+     "low": 0,
+     "high": 0,
+     "level": 0.95,
+     "resamples": 2000,
+     "seed": 20260814,
+     "excludes_zero": false
+    },
+    "caveats": [
+     "the framework's per-day budget is exact (the day's b smallest combined p-values over the full scored population); each baseline's threshold is a quantile estimated from a deterministic 1-in-100 sample, so the two arms estimate the same operating point with different precision",
+     "the baseline feature encoding is the conventional one for these detectors (hashed categoricals, hour and weekday fractions) and was not tuned in their favour; a different encoding would move their results",
+     "Detector IV inside the framework is itself a marginal outlier detector over the population, so the population_rare category is in part the framework measured against one of its own components (§12.4)",
+     "the categories are structural properties of each event relative to its history, assigned from evidence and not from which detector scored it lowest; an event may belong to more than one category, so the rows are overlapping subsets of the labelled population and do not sum to it"
+    ]
+   },
+   {
+    "budget_per_day": 25,
+    "framework_detected": 0,
+    "framework_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.0069485722523209776,
+     "n": 549,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "baseline": "iforest",
+    "baseline_detected": 0,
+    "baseline_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.0069485722523209776,
+     "n": 549,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "red_team_events": 549,
+    "common_days": [
+     7,
+     8,
+     9,
+     12,
+     13
+    ],
+    "delta_percentage_points": 0,
+    "ratio_undefined": "the baseline detected nothing at this budget, so a relative improvement is a division by zero; the difference is reported in percentage points of recall",
+    "mcnemar": {
+     "both_detected": 0,
+     "neither_detected": 549,
+     "only_a": 0,
+     "only_b": 0,
+     "statistic": 0,
+     "p_value": 1,
+     "exact": false,
+     "delta": 0
+    },
+    "bootstrap_delta": {
+     "observed_delta": 0,
+     "low": 0,
+     "high": 0,
+     "level": 0.95,
+     "resamples": 2000,
+     "seed": 20260814,
+     "excludes_zero": false
+    },
+    "caveats": [
+     "the framework's per-day budget is exact (the day's b smallest combined p-values over the full scored population); each baseline's threshold is a quantile estimated from a deterministic 1-in-100 sample, so the two arms estimate the same operating point with different precision",
+     "the baseline feature encoding is the conventional one for these detectors (hashed categoricals, hour and weekday fractions) and was not tuned in their favour; a different encoding would move their results",
+     "Detector IV inside the framework is itself a marginal outlier detector over the population, so the population_rare category is in part the framework measured against one of its own components (§12.4)",
+     "the categories are structural properties of each event relative to its history, assigned from evidence and not from which detector scored it lowest; an event may belong to more than one category, so the rows are overlapping subsets of the labelled population and do not sum to it"
+    ]
+   },
+   {
+    "budget_per_day": 25,
+    "framework_detected": 0,
+    "framework_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.0069485722523209776,
+     "n": 549,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "baseline": "rrcf",
+    "baseline_detected": 0,
+    "baseline_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.0069485722523209776,
+     "n": 549,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "red_team_events": 549,
+    "common_days": [
+     7,
+     8,
+     9,
+     12,
+     13
+    ],
+    "delta_percentage_points": 0,
+    "ratio_undefined": "the baseline detected nothing at this budget, so a relative improvement is a division by zero; the difference is reported in percentage points of recall",
+    "mcnemar": {
+     "both_detected": 0,
+     "neither_detected": 549,
+     "only_a": 0,
+     "only_b": 0,
+     "statistic": 0,
+     "p_value": 1,
+     "exact": false,
+     "delta": 0
+    },
+    "bootstrap_delta": {
+     "observed_delta": 0,
+     "low": 0,
+     "high": 0,
+     "level": 0.95,
+     "resamples": 2000,
+     "seed": 20260814,
+     "excludes_zero": false
+    },
+    "caveats": [
+     "the framework's per-day budget is exact (the day's b smallest combined p-values over the full scored population); each baseline's threshold is a quantile estimated from a deterministic 1-in-100 sample, so the two arms estimate the same operating point with different precision",
+     "the baseline feature encoding is the conventional one for these detectors (hashed categoricals, hour and weekday fractions) and was not tuned in their favour; a different encoding would move their results",
+     "Detector IV inside the framework is itself a marginal outlier detector over the population, so the population_rare category is in part the framework measured against one of its own components (§12.4)",
+     "the categories are structural properties of each event relative to its history, assigned from evidence and not from which detector scored it lowest; an event may belong to more than one category, so the rows are overlapping subsets of the labelled population and do not sum to it"
+    ]
+   },
+   {
+    "budget_per_day": 50,
+    "framework_detected": 0,
+    "framework_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.0069485722523209776,
+     "n": 549,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "baseline": "eif",
+    "baseline_detected": 0,
+    "baseline_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.0069485722523209776,
+     "n": 549,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "red_team_events": 549,
+    "common_days": [
+     7,
+     8,
+     9,
+     12,
+     13
+    ],
+    "delta_percentage_points": 0,
+    "ratio_undefined": "the baseline detected nothing at this budget, so a relative improvement is a division by zero; the difference is reported in percentage points of recall",
+    "mcnemar": {
+     "both_detected": 0,
+     "neither_detected": 549,
+     "only_a": 0,
+     "only_b": 0,
+     "statistic": 0,
+     "p_value": 1,
+     "exact": false,
+     "delta": 0
+    },
+    "bootstrap_delta": {
+     "observed_delta": 0,
+     "low": 0,
+     "high": 0,
+     "level": 0.95,
+     "resamples": 2000,
+     "seed": 20260814,
+     "excludes_zero": false
+    },
+    "caveats": [
+     "the framework's per-day budget is exact (the day's b smallest combined p-values over the full scored population); each baseline's threshold is a quantile estimated from a deterministic 1-in-100 sample, so the two arms estimate the same operating point with different precision",
+     "the baseline feature encoding is the conventional one for these detectors (hashed categoricals, hour and weekday fractions) and was not tuned in their favour; a different encoding would move their results",
+     "Detector IV inside the framework is itself a marginal outlier detector over the population, so the population_rare category is in part the framework measured against one of its own components (§12.4)",
+     "the categories are structural properties of each event relative to its history, assigned from evidence and not from which detector scored it lowest; an event may belong to more than one category, so the rows are overlapping subsets of the labelled population and do not sum to it"
+    ]
+   },
+   {
+    "budget_per_day": 50,
+    "framework_detected": 0,
+    "framework_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.0069485722523209776,
+     "n": 549,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "baseline": "hst",
+    "baseline_detected": 0,
+    "baseline_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.0069485722523209776,
+     "n": 549,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "red_team_events": 549,
+    "common_days": [
+     7,
+     8,
+     9,
+     12,
+     13
+    ],
+    "delta_percentage_points": 0,
+    "ratio_undefined": "the baseline detected nothing at this budget, so a relative improvement is a division by zero; the difference is reported in percentage points of recall",
+    "mcnemar": {
+     "both_detected": 0,
+     "neither_detected": 549,
+     "only_a": 0,
+     "only_b": 0,
+     "statistic": 0,
+     "p_value": 1,
+     "exact": false,
+     "delta": 0
+    },
+    "bootstrap_delta": {
+     "observed_delta": 0,
+     "low": 0,
+     "high": 0,
+     "level": 0.95,
+     "resamples": 2000,
+     "seed": 20260814,
+     "excludes_zero": false
+    },
+    "caveats": [
+     "the framework's per-day budget is exact (the day's b smallest combined p-values over the full scored population); each baseline's threshold is a quantile estimated from a deterministic 1-in-100 sample, so the two arms estimate the same operating point with different precision",
+     "the baseline feature encoding is the conventional one for these detectors (hashed categoricals, hour and weekday fractions) and was not tuned in their favour; a different encoding would move their results",
+     "Detector IV inside the framework is itself a marginal outlier detector over the population, so the population_rare category is in part the framework measured against one of its own components (§12.4)",
+     "the categories are structural properties of each event relative to its history, assigned from evidence and not from which detector scored it lowest; an event may belong to more than one category, so the rows are overlapping subsets of the labelled population and do not sum to it"
+    ]
+   },
+   {
+    "budget_per_day": 50,
+    "framework_detected": 0,
+    "framework_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.0069485722523209776,
+     "n": 549,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "baseline": "iforest",
+    "baseline_detected": 0,
+    "baseline_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.0069485722523209776,
+     "n": 549,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "red_team_events": 549,
+    "common_days": [
+     7,
+     8,
+     9,
+     12,
+     13
+    ],
+    "delta_percentage_points": 0,
+    "ratio_undefined": "the baseline detected nothing at this budget, so a relative improvement is a division by zero; the difference is reported in percentage points of recall",
+    "mcnemar": {
+     "both_detected": 0,
+     "neither_detected": 549,
+     "only_a": 0,
+     "only_b": 0,
+     "statistic": 0,
+     "p_value": 1,
+     "exact": false,
+     "delta": 0
+    },
+    "bootstrap_delta": {
+     "observed_delta": 0,
+     "low": 0,
+     "high": 0,
+     "level": 0.95,
+     "resamples": 2000,
+     "seed": 20260814,
+     "excludes_zero": false
+    },
+    "caveats": [
+     "the framework's per-day budget is exact (the day's b smallest combined p-values over the full scored population); each baseline's threshold is a quantile estimated from a deterministic 1-in-100 sample, so the two arms estimate the same operating point with different precision",
+     "the baseline feature encoding is the conventional one for these detectors (hashed categoricals, hour and weekday fractions) and was not tuned in their favour; a different encoding would move their results",
+     "Detector IV inside the framework is itself a marginal outlier detector over the population, so the population_rare category is in part the framework measured against one of its own components (§12.4)",
+     "the categories are structural properties of each event relative to its history, assigned from evidence and not from which detector scored it lowest; an event may belong to more than one category, so the rows are overlapping subsets of the labelled population and do not sum to it"
+    ]
+   },
+   {
+    "budget_per_day": 50,
+    "framework_detected": 0,
+    "framework_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.0069485722523209776,
+     "n": 549,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "baseline": "rrcf",
+    "baseline_detected": 0,
+    "baseline_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.0069485722523209776,
+     "n": 549,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "red_team_events": 549,
+    "common_days": [
+     7,
+     8,
+     9,
+     12,
+     13
+    ],
+    "delta_percentage_points": 0,
+    "ratio_undefined": "the baseline detected nothing at this budget, so a relative improvement is a division by zero; the difference is reported in percentage points of recall",
+    "mcnemar": {
+     "both_detected": 0,
+     "neither_detected": 549,
+     "only_a": 0,
+     "only_b": 0,
+     "statistic": 0,
+     "p_value": 1,
+     "exact": false,
+     "delta": 0
+    },
+    "bootstrap_delta": {
+     "observed_delta": 0,
+     "low": 0,
+     "high": 0,
+     "level": 0.95,
+     "resamples": 2000,
+     "seed": 20260814,
+     "excludes_zero": false
+    },
+    "caveats": [
+     "the framework's per-day budget is exact (the day's b smallest combined p-values over the full scored population); each baseline's threshold is a quantile estimated from a deterministic 1-in-100 sample, so the two arms estimate the same operating point with different precision",
+     "the baseline feature encoding is the conventional one for these detectors (hashed categoricals, hour and weekday fractions) and was not tuned in their favour; a different encoding would move their results",
+     "Detector IV inside the framework is itself a marginal outlier detector over the population, so the population_rare category is in part the framework measured against one of its own components (§12.4)",
+     "the categories are structural properties of each event relative to its history, assigned from evidence and not from which detector scored it lowest; an event may belong to more than one category, so the rows are overlapping subsets of the labelled population and do not sum to it"
+    ]
+   },
+   {
+    "budget_per_day": 100,
+    "framework_detected": 0,
+    "framework_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.0069485722523209776,
+     "n": 549,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "baseline": "eif",
+    "baseline_detected": 0,
+    "baseline_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.0069485722523209776,
+     "n": 549,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "red_team_events": 549,
+    "common_days": [
+     7,
+     8,
+     9,
+     12,
+     13
+    ],
+    "delta_percentage_points": 0,
+    "ratio_undefined": "the baseline detected nothing at this budget, so a relative improvement is a division by zero; the difference is reported in percentage points of recall",
+    "mcnemar": {
+     "both_detected": 0,
+     "neither_detected": 549,
+     "only_a": 0,
+     "only_b": 0,
+     "statistic": 0,
+     "p_value": 1,
+     "exact": false,
+     "delta": 0
+    },
+    "bootstrap_delta": {
+     "observed_delta": 0,
+     "low": 0,
+     "high": 0,
+     "level": 0.95,
+     "resamples": 2000,
+     "seed": 20260814,
+     "excludes_zero": false
+    },
+    "caveats": [
+     "the framework's per-day budget is exact (the day's b smallest combined p-values over the full scored population); each baseline's threshold is a quantile estimated from a deterministic 1-in-100 sample, so the two arms estimate the same operating point with different precision",
+     "the baseline feature encoding is the conventional one for these detectors (hashed categoricals, hour and weekday fractions) and was not tuned in their favour; a different encoding would move their results",
+     "Detector IV inside the framework is itself a marginal outlier detector over the population, so the population_rare category is in part the framework measured against one of its own components (§12.4)",
+     "the categories are structural properties of each event relative to its history, assigned from evidence and not from which detector scored it lowest; an event may belong to more than one category, so the rows are overlapping subsets of the labelled population and do not sum to it"
+    ]
+   },
+   {
+    "budget_per_day": 100,
+    "framework_detected": 0,
+    "framework_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.0069485722523209776,
+     "n": 549,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "baseline": "hst",
+    "baseline_detected": 0,
+    "baseline_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.0069485722523209776,
+     "n": 549,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "red_team_events": 549,
+    "common_days": [
+     7,
+     8,
+     9,
+     12,
+     13
+    ],
+    "delta_percentage_points": 0,
+    "ratio_undefined": "the baseline detected nothing at this budget, so a relative improvement is a division by zero; the difference is reported in percentage points of recall",
+    "mcnemar": {
+     "both_detected": 0,
+     "neither_detected": 549,
+     "only_a": 0,
+     "only_b": 0,
+     "statistic": 0,
+     "p_value": 1,
+     "exact": false,
+     "delta": 0
+    },
+    "bootstrap_delta": {
+     "observed_delta": 0,
+     "low": 0,
+     "high": 0,
+     "level": 0.95,
+     "resamples": 2000,
+     "seed": 20260814,
+     "excludes_zero": false
+    },
+    "caveats": [
+     "the framework's per-day budget is exact (the day's b smallest combined p-values over the full scored population); each baseline's threshold is a quantile estimated from a deterministic 1-in-100 sample, so the two arms estimate the same operating point with different precision",
+     "the baseline feature encoding is the conventional one for these detectors (hashed categoricals, hour and weekday fractions) and was not tuned in their favour; a different encoding would move their results",
+     "Detector IV inside the framework is itself a marginal outlier detector over the population, so the population_rare category is in part the framework measured against one of its own components (§12.4)",
+     "the categories are structural properties of each event relative to its history, assigned from evidence and not from which detector scored it lowest; an event may belong to more than one category, so the rows are overlapping subsets of the labelled population and do not sum to it"
+    ]
+   },
+   {
+    "budget_per_day": 100,
+    "framework_detected": 0,
+    "framework_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.0069485722523209776,
+     "n": 549,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "baseline": "iforest",
+    "baseline_detected": 0,
+    "baseline_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.0069485722523209776,
+     "n": 549,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "red_team_events": 549,
+    "common_days": [
+     7,
+     8,
+     9,
+     12,
+     13
+    ],
+    "delta_percentage_points": 0,
+    "ratio_undefined": "the baseline detected nothing at this budget, so a relative improvement is a division by zero; the difference is reported in percentage points of recall",
+    "mcnemar": {
+     "both_detected": 0,
+     "neither_detected": 549,
+     "only_a": 0,
+     "only_b": 0,
+     "statistic": 0,
+     "p_value": 1,
+     "exact": false,
+     "delta": 0
+    },
+    "bootstrap_delta": {
+     "observed_delta": 0,
+     "low": 0,
+     "high": 0,
+     "level": 0.95,
+     "resamples": 2000,
+     "seed": 20260814,
+     "excludes_zero": false
+    },
+    "caveats": [
+     "the framework's per-day budget is exact (the day's b smallest combined p-values over the full scored population); each baseline's threshold is a quantile estimated from a deterministic 1-in-100 sample, so the two arms estimate the same operating point with different precision",
+     "the baseline feature encoding is the conventional one for these detectors (hashed categoricals, hour and weekday fractions) and was not tuned in their favour; a different encoding would move their results",
+     "Detector IV inside the framework is itself a marginal outlier detector over the population, so the population_rare category is in part the framework measured against one of its own components (§12.4)",
+     "the categories are structural properties of each event relative to its history, assigned from evidence and not from which detector scored it lowest; an event may belong to more than one category, so the rows are overlapping subsets of the labelled population and do not sum to it"
+    ]
+   },
+   {
+    "budget_per_day": 100,
+    "framework_detected": 0,
+    "framework_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.0069485722523209776,
+     "n": 549,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "baseline": "rrcf",
+    "baseline_detected": 0,
+    "baseline_recall": {
+     "point": 0,
+     "low": 0,
+     "high": 0.0069485722523209776,
+     "n": 549,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "red_team_events": 549,
+    "common_days": [
+     7,
+     8,
+     9,
+     12,
+     13
+    ],
+    "delta_percentage_points": 0,
+    "ratio_undefined": "the baseline detected nothing at this budget, so a relative improvement is a division by zero; the difference is reported in percentage points of recall",
+    "mcnemar": {
+     "both_detected": 0,
+     "neither_detected": 549,
+     "only_a": 0,
+     "only_b": 0,
+     "statistic": 0,
+     "p_value": 1,
+     "exact": false,
+     "delta": 0
+    },
+    "bootstrap_delta": {
+     "observed_delta": 0,
+     "low": 0,
+     "high": 0,
+     "level": 0.95,
+     "resamples": 2000,
+     "seed": 20260814,
+     "excludes_zero": false
+    },
+    "caveats": [
+     "the framework's per-day budget is exact (the day's b smallest combined p-values over the full scored population); each baseline's threshold is a quantile estimated from a deterministic 1-in-100 sample, so the two arms estimate the same operating point with different precision",
+     "the baseline feature encoding is the conventional one for these detectors (hashed categoricals, hour and weekday fractions) and was not tuned in their favour; a different encoding would move their results",
+     "Detector IV inside the framework is itself a marginal outlier detector over the population, so the population_rare category is in part the framework measured against one of its own components (§12.4)",
+     "the categories are structural properties of each event relative to its history, assigned from evidence and not from which detector scored it lowest; an event may belong to more than one category, so the rows are overlapping subsets of the labelled population and do not sum to it"
+    ]
+   }
+  ],
+  "headline": "",
+  "prediction": "§10.2 predicts realised FDR below nominal q (super-uniform discrete statistics under Fisher); the conservatism ratio quantifies it",
+  "red_team_population": {
+   "n": 549,
+   "source": "the run's complete red_team_scored list: every labelled event that received a combined p-value, whether or not it was alerted"
+  }
+ },
+ "run": {
+  "finished_at": "2026-08-15T20:33:36Z",
+  "go_version": "go1.26.3",
+  "parent_file": "results/lanl-sample16-d7-14.json",
+  "parent_run": "lanl-sample16-d7-14-001",
+  "run_id": "analysis-sample16-001",
+  "started_at": "2026-08-15T20:33:36Z"
+ },
+ "schema_version": "1"
+}

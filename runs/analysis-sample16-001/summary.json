@@ -1,0 +1,19 @@
+{
+ "counts": {
+  "events_scored": 4542974,
+  "events_skipped": 70712458,
+  "events_warmed": 4181736,
+  "row_errors": 0,
+  "rows_read": 239471570
+ },
+ "coverage": "corpus days 7.00 to 14.00 scored (burn-in days 0 to 7.00)",
+ "hypotheses": [
+  "E1",
+  "E2",
+  "E3",
+  "E4",
+  "E9"
+ ],
+ "kind": "analysis",
+ "run_id": "analysis-sample16-001"
+}

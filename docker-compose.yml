@@ -1,0 +1,49 @@
+# Per-entity state store for the framework (§6.2, §7.2, §7.4, §8.2).
+#
+# The project name and host port are deliberately non-default. A development machine
+# may already run other Postgres containers on 5432 and 5433, and this stack must
+# never bind over one of them or join their network.
+name: cad
+
+services:
+  postgres:
+    image: postgres:16.4-alpine
+    container_name: cad-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: cad
+      POSTGRES_USER: cad
+      # Development-only credential. Nothing in this stack holds real telemetry:
+      # the corpora are public, and DATA.md records their licences.
+      POSTGRES_PASSWORD: cad_dev_only
+      # Deterministic collation. Ordering feeds ORDER BY clauses in the scoring and
+      # reporting paths, and a locale-dependent collation would make row order, and
+      # therefore float accumulation order, depend on the host.
+      POSTGRES_INITDB_ARGS: "--locale=C --encoding=UTF8"
+    command:
+      # Sizing for a single-machine replay of a corpus of LANL's order, not for
+      # production. T5 reports measured throughput and latency.
+      - postgres
+      - -c
+      - max_connections=64
+      - -c
+      - shared_buffers=512MB
+      - -c
+      - work_mem=32MB
+      - -c
+      - synchronous_commit=off
+      - -c
+      - fsync=off
+    ports:
+      - "127.0.0.1:55432:5432"
+    volumes:
+      - cad-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U cad -d cad"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+volumes:
+  cad-pgdata:
+    name: cad-pgdata

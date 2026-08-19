@@ -1,0 +1,10 @@
+{
+ "source": "lanl.dns",
+ "delimiter": ",",
+ "time_column": 0,
+ "time_unit_seconds": 1,
+ "entity_column": 1,
+ "columns": ["", "dns.source_computer", "dns.computer_resolved"],
+ "missing_token": "?",
+ "entity_admit_regex": ""
+}

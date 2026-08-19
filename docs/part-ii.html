@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Calibrated Behavioural Anomaly Detection — Part II: Measured Performance</title>
+<style>
+:root{
+  --ink:#17191B; --ink-2:#454B50; --ink-3:#6B7379;
+  --accent:#1C4657; --accent-2:#7E5209;
+  --rule:#D9DEE0; --rule-2:#B3BBBF;
+  --panel:#F1F4F5; --panel-2:#FBF7EF;
+  --crit:#862B36; --good:#1F5537;
+}
+@page{ size:Letter; margin:22mm 21mm 20mm 21mm; }
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#FFFFFF;color:var(--ink);
+  font-family:Georgia,"Sitka Text",Cambria,serif;font-size:10.2pt;line-height:1.52;
+  text-align:justify;max-width:176mm;margin:0 auto;padding:12mm 6mm 18mm;
+  font-variant-numeric:tabular-nums}
+h1{font-size:18.5pt;color:var(--accent);line-height:1.25;text-align:left;
+  margin:0 0 2mm}
+h2{font-size:12.5pt;color:var(--accent);text-align:left;margin:7mm 0 2.5mm;
+  border-bottom:1px solid var(--rule);padding-bottom:1mm}
+h3{font-size:10.5pt;color:var(--ink);text-align:left;margin:4mm 0 1.5mm}
+p{margin:0 0 2.6mm}
+code,.mono{font-family:"Cascadia Mono",Consolas,monospace;font-size:.92em}
+.subtitle{color:var(--ink-2);font-size:11pt;text-align:left;margin:0 0 1mm}
+.date{color:var(--ink-3);font-size:9pt;text-align:left;margin:0 0 5mm;
+  font-family:"Segoe UI",Calibri,sans-serif}
+.abstract{background:var(--panel);font-size:9.8pt;border:1px solid var(--rule);
+  border-radius:2px;padding:3mm 4mm;margin:0 0 6mm}
+.scoreboard{font-family:"Segoe UI",Calibri,sans-serif;font-size:9pt;
+  color:var(--ink-2);text-align:left;margin:0 0 4mm}
+.pending{background:var(--panel-2);border-left:3px solid var(--accent-2);
+  padding:2.5mm 3.5mm;margin:2mm 0 4mm;font-size:9.6pt;text-align:left;
+  color:var(--ink-2)}
+.tablewrap{overflow-x:auto;margin:2mm 0 3mm}
+table{border-collapse:collapse;width:100%;font-size:8.7pt;text-align:left}
+caption{caption-side:top;text-align:left;color:var(--ink-3);font-size:8.5pt;
+  font-family:"Segoe UI",Calibri,sans-serif;padding-bottom:1mm}
+th{font-family:"Segoe UI",Calibri,sans-serif;font-size:7.6pt;text-transform:uppercase;
+  letter-spacing:.05em;color:var(--ink-2);border-bottom:1px solid var(--rule-2);
+  padding:1.2mm 1.8mm;vertical-align:bottom;text-align:left}
+td{border-bottom:1px solid var(--rule);padding:1.1mm 1.8mm;vertical-align:top}
+th:not(:first-child),td:not(:first-child){text-align:right}
+tr{break-inside:avoid}
+.caveats{margin:1mm 0 3mm 6mm;font-size:9.2pt;color:var(--ink-2);text-align:left}
+.caveats li{margin:0 0 1.2mm}
+.prov{color:var(--ink-3);font-size:8pt;
+  font-family:"Cascadia Mono",Consolas,monospace;text-align:left;
+  border-top:1px solid var(--rule);margin-top:2mm;padding-top:1.2mm}
+.dirty{color:var(--crit);font-weight:bold;
+  font-family:"Segoe UI",Calibri,sans-serif}
+.sid{font-family:"Cascadia Mono",Consolas,monospace;color:var(--accent-2);
+  margin-right:2mm}
+@media print{ body{max-width:none;padding:0} }
+</style>
+</head>
+<body>
+
+<h1>Calibrated Behavioural Anomaly Detection over Schema-Evolving Security Telemetry</h1>
+<p class="subtitle">Part II: Measured Performance</p>
+<p class="date">Generated <span class="gen">15 August 2026</span></p>
+<p class="abstract">Every figure in this document was read from a recorded run
+committed under <span class="mono">results/</span>: the provenance table below names
+the run, the file and the commit behind each section, and no number appears that did
+not come out of one of those files. Hypotheses whose runs have not yet been recorded
+are shown as explicit not-yet-measured panels rather than estimated, and a section
+whose headline figure is missing is withheld entirely rather than half-filled.</p>
+
+<h2>Provenance of every figure</h2>
+<div class="tablewrap"><table>
+<thead><tr><th>Run</th><th>File</th><th>Commit</th><th>Coverage</th><th>Corpus</th></tr></thead>
+<tbody><tr><td class="mono">baselines-lanl-d7-30-001</td><td class="mono">baselines-lanl-d7-30.json</td><td class="mono"></td><td>—</td><td>derived from an exported feature file</td></tr><tr><td class="mono">control-wraparound-002</td><td class="mono">control-wraparound.json</td><td class="mono"></td><td>control</td><td>synthetic (control)</td></tr><tr><td class="mono">e7-lanl-prefix-002</td><td class="mono">e7-lanl-prefix.json</td><td class="mono"></td><td>prefix</td><td>auth.txt.gz</td></tr><tr><td class="mono">e8-determinism-002</td><td class="mono">e8-determinism.json</td><td class="mono"></td><td>control</td><td>synthetic (control)</td></tr><tr><td class="mono">lanl-dns-e6-002</td><td class="mono">lanl-dns-e6.json</td><td class="mono">b3258882347a</td><td>corpus days 7.00 to 30.00 scored (burn-in days 0 to 7.00)</td><td>dns.txt.gz</td></tr></tbody>
+</table></div>
+
+<p class="scoreboard">4 measured, 5 not yet measured.</p>
+
+<section>
+<h2><span class="sid">E8</span>Determinism (R4)</h2>
+<p>The same probe was scored inside 5 batch compositions whose recorded sizes range from 37 to 2,037 events. Every composition produced the byte-identical verdict digest 4e576f78c540… (identical = true), and 64 repeated runs of the same batch reproduced it (stable = true).</p>
+<p>The negative control is a detector standardising against the batch per equation (1); its scores MUST differ across these compositions, or the check has no power. Its recorded score bit patterns across the same compositions — 0x4017fffffffffffe, 0x4010f876ccdf6cd9, 0x3feae2a81b75e578, 0x3fd127e61956a83e, 0x3fc12b309b421387 — do differ (differs = true), decaying with batch composition as the √((1−p)/p) dependence of a batch-standardised score predicts; that measured decay is what gives the identity above its power.</p>
+<p>The run records pass = true.</p>
+<div class="tablewrap"><table><caption>Verdict digests across batch compositions; digests are shown to twelve hex characters and carried in full by the result file</caption><thead><tr><th>Composition</th><th>Batch size</th><th>Verdict digest</th><th>Combined p</th><th>j</th></tr></thead><tbody><tr><td>probe_alone</td><td>37</td><td>4e576f78c540…</td><td>1.53e-05</td><td>2</td></tr><tr><td>one_co_resident</td><td>38</td><td>4e576f78c540…</td><td>1.53e-05</td><td>2</td></tr><tr><td>campaign_50</td><td>87</td><td>4e576f78c540…</td><td>1.53e-05</td><td>2</td></tr><tr><td>campaign_500</td><td>537</td><td>4e576f78c540…</td><td>1.53e-05</td><td>2</td></tr><tr><td>campaign_2000</td><td>2,037</td><td>4e576f78c540…</td><td>1.53e-05</td><td>2</td></tr></tbody></table></div><p class="prov">Source: e8-determinism.json, run e8-determinism-002, commit .</p>
+</section>
+<section>
+<h2><span class="sid">E7</span>Evidence sufficiency (R5)</h2>
+<p>Of 49,581 sampled verdicts, 39,268 were reconstructed from their evidence cards alone — a recorded share of 79.2% — while 10,312 were partially reconstructable and 1 failed.</p>
+<p>The partial cases are, as the run records them: novelty verdicts whose (5) tail needs the full value set: (4) is validated from the card, the tail is not recomputable from the card alone.</p>
+<p>Reconstruction was checked to the recorded tolerance of 1e-9 relative.</p>
+<div class="tablewrap"><table><caption>Reconstruction outcomes per detector</caption><thead><tr><th>Detector</th><th>Sampled</th><th>Reconstructed</th><th>Partial</th><th>Failed</th></tr></thead><tbody><tr><td>cooccurrence</td><td>4,938</td><td>4,938</td><td>0</td><td>0</td></tr><tr><td>novelty</td><td>34,767</td><td>24,455</td><td>10,312</td><td>0</td></tr><tr><td>timing</td><td>4,938</td><td>4,937</td><td>0</td><td>1</td></tr><tr><td>volume</td><td>4,938</td><td>4,938</td><td>0</td><td>0</td></tr></tbody></table></div><p class="prov">Source: e7-lanl-prefix.json, run e7-lanl-prefix-002, commit .</p>
+</section>
+<section>
+<h2><span class="sid">E6</span>Schema as configuration (R2)</h2>
+<p>The second source, dns.txt.gz, was onboarded by a configuration file alone: the run names config/schemas/lanl-dns.json as the schema that configured it. The run read 6,004,253 rows and scored 5,599,989 events.</p>
+<p>The result file records the rows read and events scored above but carries no code-change count; the onboarding claim rests on the recorded schema path.</p>
+<p>Coverage as recorded: corpus days 7.00 to 30.00 scored (burn-in days 0 to 7.00).</p>
+<p>The run records its partition state as: fallback: single-block degeneration (15), recorded per §8.4.</p>
+<div class="tablewrap"><table><caption>Corpus accounting as recorded</caption><thead><tr><th>Figure</th><th>Value</th></tr></thead><tbody><tr><td>Rows read</td><td>6,004,253</td></tr><tr><td>Events warmed (burn-in)</td><td>404,263</td></tr><tr><td>Events scored</td><td>5,599,989</td></tr><tr><td>Events skipped</td><td>0</td></tr><tr><td>Row errors</td><td>0</td></tr><tr><td>No opinion</td><td>0</td></tr></tbody></table></div><p class="prov">Source: lanl-dns-e6.json, run lanl-dns-e6-002, commit b3258882347a.</p>
+</section>
+<section>
+<h2><span class="sid">§12.5</span>Negative control: wraparound at midnight</h2>
+<p>The control&#39;s prescribed input is synthetic — entity active exclusively 23:00-01:00 for 14 nights, 8 events per night — and the probabilities below are real runs of the scoring code over it.</p>
+<p>Either side of midnight the circular estimator returns P = 0.771 at 23:30 and P = 0.771 at 00:30; the 168-cell estimator returns 0.659 and 0.223 at the same probes, splitting the entity&#39;s one nightly window at the day boundary. At the 12:00 probe, far from the window, the two estimators return 0.000977 and 0.0101.</p>
+<p>Against the recorded acceptance criteria — 23:30 and 00:30 unremarkable (P &gt;= 0.20), 12:00 unusual (P &lt;= 0.02) — the run records circular_passes = true and cells_show_defect = true.</p>
+<div class="tablewrap"><table><caption>Wraparound probes</caption><thead><tr><th>Probe</th><th>Circular estimator P</th><th>168-cell estimator P</th></tr></thead><tbody><tr><td>23:30</td><td>0.771</td><td>0.659</td></tr><tr><td>00:30</td><td>0.771</td><td>0.223</td></tr><tr><td>12:00</td><td>0.000977</td><td>0.0101</td></tr></tbody></table></div><p class="prov">Source: control-wraparound.json, run control-wraparound-002, commit .</p>
+</section>
+<section>
+<h2><span class="sid">E1 · E2</span>Detection at matched budget</h2>
+<div class="pending">Not yet measured: baselines-lanl-d7-30.json claims the detection hypotheses but no result of kind &#34;analysis&#34; carrying results.head_to_head is present in the results directory; the head-to-head comparison has not been produced.</div>
+</section>
+<section>
+<h2><span class="sid">E3</span>Calibration: realised against nominal FDR</h2>
+<div class="pending">Not yet measured: no analysis result (kind &#34;analysis&#34;) is present in the results directory, so results.calibration_bh and results.calibration_by have not been produced.</div>
+</section>
+<section>
+<h2><span class="sid">E4</span>Partition ablation</h2>
+<div class="pending">Not yet measured: no analysis result (kind &#34;analysis&#34;) is present in the results directory, so results.ablations.e4 has not been produced.</div>
+</section>
+<section>
+<h2><span class="sid">E5</span>Schema growth</h2>
+<div class="pending">Not yet measured: no result file of kind &#34;e5&#34; is present in the results directory, so the schema-growth treatments have no recorded run.</div>
+</section>
+<section>
+<h2><span class="sid">E9</span>Representation ablation</h2>
+<div class="pending">Not yet measured: no analysis result (kind &#34;analysis&#34;) is present in the results directory, so results.ablations.e9 has not been produced.</div>
+</section>
+
+</body>
+</html>

@@ -1,0 +1,547 @@
+{
+ "corpus": {
+  "burn_in": {
+   "end_seconds": 604800,
+   "fixed_at_commit": "24c5a53"
+  },
+  "coverage": {
+   "entity_population": "U*@ human accounts",
+   "from_seconds": 604800,
+   "kind": "window",
+   "to_seconds": 1814400
+  },
+  "events_scored": 8672445,
+  "files": [
+   {
+    "path": "data/lanl/auth-sample16-d0-21.txt.gz",
+    "sha256": "windowed run; full-corpus hash carried by the primary replay result"
+   }
+  ],
+  "rows_read": 30220657
+ },
+ "hypothesis": [
+  "E5"
+ ],
+ "kind": "e5",
+ "paper_refs": {
+  "equations": [
+   18,
+   20
+  ],
+  "sections": [
+   "§11.2",
+   "§11.3",
+   "§12.3"
+  ]
+ },
+ "parameters": {
+  "cooccurrence_approximation": "the co-occurrence verdict is dropped in held-out eras when its minimising pair touches the held-out field; the graph itself still contains the field's nodes, an approximation recorded here",
+  "held_out_fields": [
+   "auth.logon_type",
+   "auth.authentication_orientation",
+   "auth.destination_computer"
+  ],
+  "introduce_at": 1209600,
+  "mi_estimator": "maximum pairwise empirical MI (nats) against retained categorical fields, on a deterministic 1-in-16 event sample",
+  "n0": 1000,
+  "q_grid": [
+   0.001,
+   0.01,
+   0.05,
+   0.1
+  ],
+  "treatment_c": "NOT RUN: mask embedding and borrowing requires a mask-similarity model; a shallow version degrades to treatment A without reporting it (§11.2), which would be worse than declaring the treatment unimplemented"
+ },
+ "provenance_complete": true,
+ "results": {
+  "arms": {
+   "auth.authentication_orientation|A": {
+    "eras": [
+     {
+      "era": "pre_introduction",
+      "nominal_q": 0.001,
+      "discoveries": 140000,
+      "true_positives": 146,
+      "censored": true,
+      "censored_days": 7,
+      "note": "right-censored: on 7 day(s) the BH cut reached the last of 20000 retained alerts, so the discovery count is a lower bound and no realised FDR is reported for this era"
+     },
+     {
+      "era": "post_introduction",
+      "nominal_q": 0.001,
+      "discoveries": 140000,
+      "true_positives": 4,
+      "censored": true,
+      "censored_days": 7,
+      "note": "right-censored: on 7 day(s) the BH cut reached the last of 20000 retained alerts, so the discovery count is a lower bound and no realised FDR is reported for this era"
+     },
+     {
+      "era": "pre_introduction",
+      "nominal_q": 0.01,
+      "discoveries": 140000,
+      "true_positives": 146,
+      "censored": true,
+      "censored_days": 7,
+      "note": "right-censored: on 7 day(s) the BH cut reached the last of 20000 retained alerts, so the discovery count is a lower bound and no realised FDR is reported for this era"
+     },
+     {
+      "era": "post_introduction",
+      "nominal_q": 0.01,
+      "discoveries": 140000,
+      "true_positives": 4,
+      "censored": true,
+      "censored_days": 7,
+      "note": "right-censored: on 7 day(s) the BH cut reached the last of 20000 retained alerts, so the discovery count is a lower bound and no realised FDR is reported for this era"
+     },
+     {
+      "era": "pre_introduction",
+      "nominal_q": 0.05,
+      "discoveries": 140000,
+      "true_positives": 146,
+      "censored": true,
+      "censored_days": 7,
+      "note": "right-censored: on 7 day(s) the BH cut reached the last of 20000 retained alerts, so the discovery count is a lower bound and no realised FDR is reported for this era"
+     },
+     {
+      "era": "post_introduction",
+      "nominal_q": 0.05,
+      "discoveries": 140000,
+      "true_positives": 4,
+      "censored": true,
+      "censored_days": 7,
+      "note": "right-censored: on 7 day(s) the BH cut reached the last of 20000 retained alerts, so the discovery count is a lower bound and no realised FDR is reported for this era"
+     },
+     {
+      "era": "pre_introduction",
+      "nominal_q": 0.1,
+      "discoveries": 140000,
+      "true_positives": 146,
+      "censored": true,
+      "censored_days": 7,
+      "note": "right-censored: on 7 day(s) the BH cut reached the last of 20000 retained alerts, so the discovery count is a lower bound and no realised FDR is reported for this era"
+     },
+     {
+      "era": "post_introduction",
+      "nominal_q": 0.1,
+      "discoveries": 140000,
+      "true_positives": 4,
+      "censored": true,
+      "censored_days": 7,
+      "note": "right-censored: on 7 day(s) the BH cut reached the last of 20000 retained alerts, so the discovery count is a lower bound and no realised FDR is reported for this era"
+     }
+    ],
+    "held_out_field": "auth.authentication_orientation",
+    "max_pairwise_mi": 0.3654351251319853,
+    "mi_against_field": "auth.destination_computer",
+    "treatment": "A"
+   },
+   "auth.authentication_orientation|B": {
+    "eras": [
+     {
+      "era": "pre_introduction",
+      "nominal_q": 0.001,
+      "discoveries": 140000,
+      "true_positives": 146,
+      "censored": true,
+      "censored_days": 7,
+      "note": "right-censored: on 7 day(s) the BH cut reached the last of 20000 retained alerts, so the discovery count is a lower bound and no realised FDR is reported for this era"
+     },
+     {
+      "era": "post_introduction",
+      "nominal_q": 0.001,
+      "discoveries": 140000,
+      "true_positives": 4,
+      "censored": true,
+      "censored_days": 7,
+      "note": "right-censored: on 7 day(s) the BH cut reached the last of 20000 retained alerts, so the discovery count is a lower bound and no realised FDR is reported for this era"
+     },
+     {
+      "era": "pre_introduction",
+      "nominal_q": 0.01,
+      "discoveries": 140000,
+      "true_positives": 146,
+      "censored": true,
+      "censored_days": 7,
+      "note": "right-censored: on 7 day(s) the BH cut reached the last of 20000 retained alerts, so the discovery count is a lower bound and no realised FDR is reported for this era"
+     },
+     {
+      "era": "post_introduction",
+      "nominal_q": 0.01,
+      "discoveries": 140000,
+      "true_positives": 4,
+      "censored": true,
+      "censored_days": 7,
+      "note": "right-censored: on 7 day(s) the BH cut reached the last of 20000 retained alerts, so the discovery count is a lower bound and no realised FDR is reported for this era"
+     },
+     {
+      "era": "pre_introduction",
+      "nominal_q": 0.05,
+      "discoveries": 140000,
+      "true_positives": 146,
+      "censored": true,
+      "censored_days": 7,
+      "note": "right-censored: on 7 day(s) the BH cut reached the last of 20000 retained alerts, so the discovery count is a lower bound and no realised FDR is reported for this era"
+     },
+     {
+      "era": "post_introduction",
+      "nominal_q": 0.05,
+      "discoveries": 140000,
+      "true_positives": 4,
+      "censored": true,
+      "censored_days": 7,
+      "note": "right-censored: on 7 day(s) the BH cut reached the last of 20000 retained alerts, so the discovery count is a lower bound and no realised FDR is reported for this era"
+     },
+     {
+      "era": "pre_introduction",
+      "nominal_q": 0.1,
+      "discoveries": 140000,
+      "true_positives": 146,
+      "censored": true,
+      "censored_days": 7,
+      "note": "right-censored: on 7 day(s) the BH cut reached the last of 20000 retained alerts, so the discovery count is a lower bound and no realised FDR is reported for this era"
+     },
+     {
+      "era": "post_introduction",
+      "nominal_q": 0.1,
+      "discoveries": 140000,
+      "true_positives": 4,
+      "censored": true,
+      "censored_days": 7,
+      "note": "right-censored: on 7 day(s) the BH cut reached the last of 20000 retained alerts, so the discovery count is a lower bound and no realised FDR is reported for this era"
+     }
+    ],
+    "held_out_field": "auth.authentication_orientation",
+    "max_pairwise_mi": 0.3654351251319853,
+    "mi_against_field": "auth.destination_computer",
+    "treatment": "B"
+   },
+   "auth.destination_computer|A": {
+    "eras": [
+     {
+      "era": "pre_introduction",
+      "nominal_q": 0.001,
+      "discoveries": 140000,
+      "true_positives": 124,
+      "censored": true,
+      "censored_days": 7,
+      "note": "right-censored: on 7 day(s) the BH cut reached the last of 20000 retained alerts, so the discovery count is a lower bound and no realised FDR is reported for this era"
+     },
+     {
+      "era": "post_introduction",
+      "nominal_q": 0.001,
+      "discoveries": 140000,
+      "true_positives": 4,
+      "censored": true,
+      "censored_days": 7,
+      "note": "right-censored: on 7 day(s) the BH cut reached the last of 20000 retained alerts, so the discovery count is a lower bound and no realised FDR is reported for this era"
+     },
+     {
+      "era": "pre_introduction",
+      "nominal_q": 0.01,
+      "discoveries": 140000,
+      "true_positives": 124,
+      "censored": true,
+      "censored_days": 7,
+      "note": "right-censored: on 7 day(s) the BH cut reached the last of 20000 retained alerts, so the discovery count is a lower bound and no realised FDR is reported for this era"
+     },
+     {
+      "era": "post_introduction",
+      "nominal_q": 0.01,
+      "discoveries": 140000,
+      "true_positives": 4,
+      "censored": true,
+      "censored_days": 7,
+      "note": "right-censored: on 7 day(s) the BH cut reached the last of 20000 retained alerts, so the discovery count is a lower bound and no realised FDR is reported for this era"
+     },
+     {
+      "era": "pre_introduction",
+      "nominal_q": 0.05,
+      "discoveries": 140000,
+      "true_positives": 124,
+      "censored": true,
+      "censored_days": 7,
+      "note": "right-censored: on 7 day(s) the BH cut reached the last of 20000 retained alerts, so the discovery count is a lower bound and no realised FDR is reported for this era"
+     },
+     {
+      "era": "post_introduction",
+      "nominal_q": 0.05,
+      "discoveries": 140000,
+      "true_positives": 4,
+      "censored": true,
+      "censored_days": 7,
+      "note": "right-censored: on 7 day(s) the BH cut reached the last of 20000 retained alerts, so the discovery count is a lower bound and no realised FDR is reported for this era"
+     },
+     {
+      "era": "pre_introduction",
+      "nominal_q": 0.1,
+      "discoveries": 140000,
+      "true_positives": 124,
+      "censored": true,
+      "censored_days": 7,
+      "note": "right-censored: on 7 day(s) the BH cut reached the last of 20000 retained alerts, so the discovery count is a lower bound and no realised FDR is reported for this era"
+     },
+     {
+      "era": "post_introduction",
+      "nominal_q": 0.1,
+      "discoveries": 140000,
+      "true_positives": 4,
+      "censored": true,
+      "censored_days": 7,
+      "note": "right-censored: on 7 day(s) the BH cut reached the last of 20000 retained alerts, so the discovery count is a lower bound and no realised FDR is reported for this era"
+     }
+    ],
+    "held_out_field": "auth.destination_computer",
+    "max_pairwise_mi": 0.3654351251319858,
+    "mi_against_field": "auth.authentication_orientation",
+    "treatment": "A"
+   },
+   "auth.destination_computer|B": {
+    "eras": [
+     {
+      "era": "pre_introduction",
+      "nominal_q": 0.001,
+      "discoveries": 140000,
+      "true_positives": 124,
+      "censored": true,
+      "censored_days": 7,
+      "note": "right-censored: on 7 day(s) the BH cut reached the last of 20000 retained alerts, so the discovery count is a lower bound and no realised FDR is reported for this era"
+     },
+     {
+      "era": "post_introduction",
+      "nominal_q": 0.001,
+      "discoveries": 140000,
+      "true_positives": 4,
+      "censored": true,
+      "censored_days": 7,
+      "note": "right-censored: on 7 day(s) the BH cut reached the last of 20000 retained alerts, so the discovery count is a lower bound and no realised FDR is reported for this era"
+     },
+     {
+      "era": "pre_introduction",
+      "nominal_q": 0.01,
+      "discoveries": 140000,
+      "true_positives": 124,
+      "censored": true,
+      "censored_days": 7,
+      "note": "right-censored: on 7 day(s) the BH cut reached the last of 20000 retained alerts, so the discovery count is a lower bound and no realised FDR is reported for this era"
+     },
+     {
+      "era": "post_introduction",
+      "nominal_q": 0.01,
+      "discoveries": 140000,
+      "true_positives": 4,
+      "censored": true,
+      "censored_days": 7,
+      "note": "right-censored: on 7 day(s) the BH cut reached the last of 20000 retained alerts, so the discovery count is a lower bound and no realised FDR is reported for this era"
+     },
+     {
+      "era": "pre_introduction",
+      "nominal_q": 0.05,
+      "discoveries": 140000,
+      "true_positives": 124,
+      "censored": true,
+      "censored_days": 7,
+      "note": "right-censored: on 7 day(s) the BH cut reached the last of 20000 retained alerts, so the discovery count is a lower bound and no realised FDR is reported for this era"
+     },
+     {
+      "era": "post_introduction",
+      "nominal_q": 0.05,
+      "discoveries": 140000,
+      "true_positives": 4,
+      "censored": true,
+      "censored_days": 7,
+      "note": "right-censored: on 7 day(s) the BH cut reached the last of 20000 retained alerts, so the discovery count is a lower bound and no realised FDR is reported for this era"
+     },
+     {
+      "era": "pre_introduction",
+      "nominal_q": 0.1,
+      "discoveries": 140000,
+      "true_positives": 124,
+      "censored": true,
+      "censored_days": 7,
+      "note": "right-censored: on 7 day(s) the BH cut reached the last of 20000 retained alerts, so the discovery count is a lower bound and no realised FDR is reported for this era"
+     },
+     {
+      "era": "post_introduction",
+      "nominal_q": 0.1,
+      "discoveries": 140000,
+      "true_positives": 4,
+      "censored": true,
+      "censored_days": 7,
+      "note": "right-censored: on 7 day(s) the BH cut reached the last of 20000 retained alerts, so the discovery count is a lower bound and no realised FDR is reported for this era"
+     }
+    ],
+    "held_out_field": "auth.destination_computer",
+    "max_pairwise_mi": 0.3654351251319858,
+    "mi_against_field": "auth.authentication_orientation",
+    "treatment": "B"
+   },
+   "auth.logon_type|A": {
+    "eras": [
+     {
+      "era": "pre_introduction",
+      "nominal_q": 0.001,
+      "discoveries": 140000,
+      "true_positives": 143,
+      "censored": true,
+      "censored_days": 7,
+      "note": "right-censored: on 7 day(s) the BH cut reached the last of 20000 retained alerts, so the discovery count is a lower bound and no realised FDR is reported for this era"
+     },
+     {
+      "era": "post_introduction",
+      "nominal_q": 0.001,
+      "discoveries": 140000,
+      "true_positives": 4,
+      "censored": true,
+      "censored_days": 7,
+      "note": "right-censored: on 7 day(s) the BH cut reached the last of 20000 retained alerts, so the discovery count is a lower bound and no realised FDR is reported for this era"
+     },
+     {
+      "era": "pre_introduction",
+      "nominal_q": 0.01,
+      "discoveries": 140000,
+      "true_positives": 143,
+      "censored": true,
+      "censored_days": 7,
+      "note": "right-censored: on 7 day(s) the BH cut reached the last of 20000 retained alerts, so the discovery count is a lower bound and no realised FDR is reported for this era"
+     },
+     {
+      "era": "post_introduction",
+      "nominal_q": 0.01,
+      "discoveries": 140000,
+      "true_positives": 4,
+      "censored": true,
+      "censored_days": 7,
+      "note": "right-censored: on 7 day(s) the BH cut reached the last of 20000 retained alerts, so the discovery count is a lower bound and no realised FDR is reported for this era"
+     },
+     {
+      "era": "pre_introduction",
+      "nominal_q": 0.05,
+      "discoveries": 140000,
+      "true_positives": 143,
+      "censored": true,
+      "censored_days": 7,
+      "note": "right-censored: on 7 day(s) the BH cut reached the last of 20000 retained alerts, so the discovery count is a lower bound and no realised FDR is reported for this era"
+     },
+     {
+      "era": "post_introduction",
+      "nominal_q": 0.05,
+      "discoveries": 140000,
+      "true_positives": 4,
+      "censored": true,
+      "censored_days": 7,
+      "note": "right-censored: on 7 day(s) the BH cut reached the last of 20000 retained alerts, so the discovery count is a lower bound and no realised FDR is reported for this era"
+     },
+     {
+      "era": "pre_introduction",
+      "nominal_q": 0.1,
+      "discoveries": 140000,
+      "true_positives": 143,
+      "censored": true,
+      "censored_days": 7,
+      "note": "right-censored: on 7 day(s) the BH cut reached the last of 20000 retained alerts, so the discovery count is a lower bound and no realised FDR is reported for this era"
+     },
+     {
+      "era": "post_introduction",
+      "nominal_q": 0.1,
+      "discoveries": 140000,
+      "true_positives": 4,
+      "censored": true,
+      "censored_days": 7,
+      "note": "right-censored: on 7 day(s) the BH cut reached the last of 20000 retained alerts, so the discovery count is a lower bound and no realised FDR is reported for this era"
+     }
+    ],
+    "held_out_field": "auth.logon_type",
+    "max_pairwise_mi": 0.07411075531057862,
+    "mi_against_field": "auth.destination_computer",
+    "treatment": "A"
+   },
+   "auth.logon_type|B": {
+    "eras": [
+     {
+      "era": "pre_introduction",
+      "nominal_q": 0.001,
+      "discoveries": 140000,
+      "true_positives": 143,
+      "censored": true,
+      "censored_days": 7,
+      "note": "right-censored: on 7 day(s) the BH cut reached the last of 20000 retained alerts, so the discovery count is a lower bound and no realised FDR is reported for this era"
+     },
+     {
+      "era": "post_introduction",
+      "nominal_q": 0.001,
+      "discoveries": 140000,
+      "true_positives": 4,
+      "censored": true,
+      "censored_days": 7,
+      "note": "right-censored: on 7 day(s) the BH cut reached the last of 20000 retained alerts, so the discovery count is a lower bound and no realised FDR is reported for this era"
+     },
+     {
+      "era": "pre_introduction",
+      "nominal_q": 0.01,
+      "discoveries": 140000,
+      "true_positives": 143,
+      "censored": true,
+      "censored_days": 7,
+      "note": "right-censored: on 7 day(s) the BH cut reached the last of 20000 retained alerts, so the discovery count is a lower bound and no realised FDR is reported for this era"
+     },
+     {
+      "era": "post_introduction",
+      "nominal_q": 0.01,
+      "discoveries": 140000,
+      "true_positives": 4,
+      "censored": true,
+      "censored_days": 7,
+      "note": "right-censored: on 7 day(s) the BH cut reached the last of 20000 retained alerts, so the discovery count is a lower bound and no realised FDR is reported for this era"
+     },
+     {
+      "era": "pre_introduction",
+      "nominal_q": 0.05,
+      "discoveries": 140000,
+      "true_positives": 143,
+      "censored": true,
+      "censored_days": 7,
+      "note": "right-censored: on 7 day(s) the BH cut reached the last of 20000 retained alerts, so the discovery count is a lower bound and no realised FDR is reported for this era"
+     },
+     {
+      "era": "post_introduction",
+      "nominal_q": 0.05,
+      "discoveries": 140000,
+      "true_positives": 4,
+      "censored": true,
+      "censored_days": 7,
+      "note": "right-censored: on 7 day(s) the BH cut reached the last of 20000 retained alerts, so the discovery count is a lower bound and no realised FDR is reported for this era"
+     },
+     {
+      "era": "pre_introduction",
+      "nominal_q": 0.1,
+      "discoveries": 140000,
+      "true_positives": 143,
+      "censored": true,
+      "censored_days": 7,
+      "note": "right-censored: on 7 day(s) the BH cut reached the last of 20000 retained alerts, so the discovery count is a lower bound and no realised FDR is reported for this era"
+     },
+     {
+      "era": "post_introduction",
+      "nominal_q": 0.1,
+      "discoveries": 140000,
+      "true_positives": 4,
+      "censored": true,
+      "censored_days": 7,
+      "note": "right-censored: on 7 day(s) the BH cut reached the last of 20000 retained alerts, so the discovery count is a lower bound and no realised FDR is reported for this era"
+     }
+    ],
+    "held_out_field": "auth.logon_type",
+    "max_pairwise_mi": 0.07411075531057862,
+    "mi_against_field": "auth.destination_computer",
+    "treatment": "B"
+   }
+  }
+ },
+ "run": {
+  "finished_at": "2026-08-16T23:22:26Z",
+  "go_version": "go1.26.3",
+  "run_id": "e5-schema-growth-001",
+  "started_at": "2026-08-16T19:43:04Z"
+ },
+ "schema_version": "1"
+}

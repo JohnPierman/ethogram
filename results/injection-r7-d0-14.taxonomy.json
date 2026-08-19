@@ -1,0 +1,167 @@
+{
+ "corpus": "Temp/verify.txt.gz",
+ "corpus_manifest": "Temp/verify.txt.gz.manifest.json",
+ "events_injected": 856,
+ "kind": "attack-taxonomy",
+ "labels": "Temp/verify-labels.txt.gz",
+ "labels_sha256": "d47b590629bb81212db721a2a72f180fc2ce81cc9a9148a55c45e4aeb3090990",
+ "note": "synthetic attacks, plausible by construction: every destination, authentication type and logon type is a value that occurs in the corpus, and only the combination, the timing or the volume is unprecedented for the victim account. Planted values are the most COMMON ones the victim has never used, so that per-entity novelty is tested with population rarity held out; choosing arbitrary unused values instead plants population-rare ones and the population detector wins for the wrong reason. Sensitivity measured against these labels is a claim about whether a detector responds to a mechanism, NOT about detecting a real campaign, and the two must not be combined into one headline. Victims are disjoint from the accounts the real labels name, so the account alone says which ground truth a label belongs to. LIMIT ON PRECISION: value choice is deterministic given the corpus, so every victim of a type receives the same planted values. The events of one type are therefore not independent draws, and its effective sample size is closer to the victim count than to the event count — read a per-type rate as a coarse one",
+ "order": [
+  "credential_spray",
+  "lateral_chain",
+  "off_hours",
+  "privilege_escalation",
+  "low_and_slow",
+  "account_takeover"
+ ],
+ "parameters": {
+  "inject_from": 604800,
+  "inject_to": 1209600,
+  "min_profiled_events": 200,
+  "per_type_victims": 8,
+  "profile_end_seconds": 604800,
+  "seed": 42
+ },
+ "per_type": {
+  "account_takeover": {
+   "events": 120,
+   "victims": [
+    "U170@C1045",
+    "U202@DOM1",
+    "U3324@DOM1",
+    "U3535@DOM1",
+    "U5270@DOM1",
+    "U6837@DOM1",
+    "U831@DOM1",
+    "U9274@DOM1"
+   ]
+  },
+  "credential_spray": {
+   "events": 320,
+   "victims": [
+    "U3236@DOM1",
+    "U4307@DOM1",
+    "U5111@DOM1",
+    "U5465@DOM1",
+    "U5991@DOM1",
+    "U691@DOM1",
+    "U8422@DOM1",
+    "U9201@DOM1"
+   ]
+  },
+  "lateral_chain": {
+   "events": 40,
+   "victims": [
+    "U1692@DOM1",
+    "U1836@DOM1",
+    "U3382@DOM1",
+    "U4651@DOM1",
+    "U5087@DOM9",
+    "U6587@DOM1",
+    "U7513@DOM1",
+    "U7984@DOM1"
+   ]
+  },
+  "low_and_slow": {
+   "events": 288,
+   "victims": [
+    "U3089@DOM1",
+    "U3522@DOM1",
+    "U4084@DOM1",
+    "U5340@DOM1",
+    "U6239@DOM1",
+    "U6525@DOM1",
+    "U7430@DOM1",
+    "U9036@DOM1"
+   ]
+  },
+  "off_hours": {
+   "events": 64,
+   "victims": [
+    "U3157@DOM1",
+    "U3265@DOM1",
+    "U4264@DOM1",
+    "U4358@DOM1",
+    "U750@DOM1",
+    "U7966@DOM1",
+    "U9890@DOM1",
+    "U996@DOM1"
+   ]
+  },
+  "privilege_escalation": {
+   "events": 24,
+   "victims": [
+    "U2958@DOM1",
+    "U354@DOM1",
+    "U4710@DOM1",
+    "U5058@DOM1",
+    "U5955@DOM1",
+    "U7849@DOM1",
+    "U8570@DOM1",
+    "U8628@DOM1"
+   ]
+  }
+ },
+ "premise": {
+  "account_takeover": "destination, authentication type, logon type and hour all change at once. An upper bound: a detector that misses this misses everything",
+  "credential_spray": "many destinations never used by this account, inside ten minutes: categorical novelty and the volume null together",
+  "lateral_chain": "a connected path of hops, each sourced from the previous hop's destination, so the PAIRINGS are new though every computer is real. No detector scoring fields independently can express this",
+  "low_and_slow": "single-signal: familiar values only, a modest sustained increase. Isolates the volume null, and is the case the dispersion widening was built to tolerate — so it is the type most likely to be missed BY DESIGN",
+  "off_hours": "single-signal: every value is one the account already uses, twelve hours from its own established window. Isolates the timing null",
+  "privilege_escalation": "single-signal: an authentication type absent from this account's history, at its usual hour and host. Isolates categorical novelty"
+ },
+ "run": {
+  "run_id": "inject-r7-d0-14-002"
+ },
+ "schema_version": 1,
+ "victim_type": {
+  "U1692@DOM1": "lateral_chain",
+  "U170@C1045": "account_takeover",
+  "U1836@DOM1": "lateral_chain",
+  "U202@DOM1": "account_takeover",
+  "U2958@DOM1": "privilege_escalation",
+  "U3089@DOM1": "low_and_slow",
+  "U3157@DOM1": "off_hours",
+  "U3236@DOM1": "credential_spray",
+  "U3265@DOM1": "off_hours",
+  "U3324@DOM1": "account_takeover",
+  "U3382@DOM1": "lateral_chain",
+  "U3522@DOM1": "low_and_slow",
+  "U3535@DOM1": "account_takeover",
+  "U354@DOM1": "privilege_escalation",
+  "U4084@DOM1": "low_and_slow",
+  "U4264@DOM1": "off_hours",
+  "U4307@DOM1": "credential_spray",
+  "U4358@DOM1": "off_hours",
+  "U4651@DOM1": "lateral_chain",
+  "U4710@DOM1": "privilege_escalation",
+  "U5058@DOM1": "privilege_escalation",
+  "U5087@DOM9": "lateral_chain",
+  "U5111@DOM1": "credential_spray",
+  "U5270@DOM1": "account_takeover",
+  "U5340@DOM1": "low_and_slow",
+  "U5465@DOM1": "credential_spray",
+  "U5955@DOM1": "privilege_escalation",
+  "U5991@DOM1": "credential_spray",
+  "U6239@DOM1": "low_and_slow",
+  "U6525@DOM1": "low_and_slow",
+  "U6587@DOM1": "lateral_chain",
+  "U6837@DOM1": "account_takeover",
+  "U691@DOM1": "credential_spray",
+  "U7430@DOM1": "low_and_slow",
+  "U750@DOM1": "off_hours",
+  "U7513@DOM1": "lateral_chain",
+  "U7849@DOM1": "privilege_escalation",
+  "U7966@DOM1": "off_hours",
+  "U7984@DOM1": "lateral_chain",
+  "U831@DOM1": "account_takeover",
+  "U8422@DOM1": "credential_spray",
+  "U8570@DOM1": "privilege_escalation",
+  "U8628@DOM1": "privilege_escalation",
+  "U9036@DOM1": "low_and_slow",
+  "U9201@DOM1": "credential_spray",
+  "U9274@DOM1": "account_takeover",
+  "U9890@DOM1": "off_hours",
+  "U996@DOM1": "off_hours"
+ }
+}

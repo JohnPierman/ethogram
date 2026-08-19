@@ -1,0 +1,112 @@
+{
+ "corpus": {
+  "coverage": {
+   "kind": "control"
+  },
+  "files": [],
+  "synthetic": "E8 requires no corpus (§12.3); the probe and its history are constructed so the batch compositions differ by two orders of magnitude"
+ },
+ "hypothesis": [
+  "E8"
+ ],
+ "kind": "e8",
+ "paper_refs": {
+  "equations": [
+   1,
+   2,
+   18
+  ],
+  "sections": [
+   "§3.2",
+   "§4",
+   "§5.2",
+   "§12.3"
+  ]
+ },
+ "parameters": {
+  "alpha": 1,
+  "bandwidth_hours": 1.5,
+  "compositions": 5,
+  "half_life_days": 7,
+  "repeats": 64
+ },
+ "provenance_complete": true,
+ "results": {
+  "batch_independence": {
+   "cases": [
+    {
+     "name": "probe_alone",
+     "batch_size": 37,
+     "verdict_digest": "4e576f78c540afb3c57375adde963703b1c0ed60359772d78378c8832be24384",
+     "combined_p": 0.000015348678523973752,
+     "combined_p_bits": "0x3ef018212821329e",
+     "j": 2
+    },
+    {
+     "name": "one_co_resident",
+     "batch_size": 38,
+     "verdict_digest": "4e576f78c540afb3c57375adde963703b1c0ed60359772d78378c8832be24384",
+     "combined_p": 0.000015348678523973752,
+     "combined_p_bits": "0x3ef018212821329e",
+     "j": 2
+    },
+    {
+     "name": "campaign_50",
+     "batch_size": 87,
+     "verdict_digest": "4e576f78c540afb3c57375adde963703b1c0ed60359772d78378c8832be24384",
+     "combined_p": 0.000015348678523973752,
+     "combined_p_bits": "0x3ef018212821329e",
+     "j": 2
+    },
+    {
+     "name": "campaign_500",
+     "batch_size": 537,
+     "verdict_digest": "4e576f78c540afb3c57375adde963703b1c0ed60359772d78378c8832be24384",
+     "combined_p": 0.000015348678523973752,
+     "combined_p_bits": "0x3ef018212821329e",
+     "j": 2
+    },
+    {
+     "name": "campaign_2000",
+     "batch_size": 2037,
+     "verdict_digest": "4e576f78c540afb3c57375adde963703b1c0ed60359772d78378c8832be24384",
+     "combined_p": 0.000015348678523973752,
+     "combined_p_bits": "0x3ef018212821329e",
+     "j": 2
+    }
+   ],
+   "identical": true
+  },
+  "negative_control": {
+   "description": "a detector standardising against the batch per equation (1); its scores MUST differ across these compositions, or the check has no power",
+   "differs": true,
+   "digests": [
+    "0x4017fffffffffffe",
+    "0x4010f876ccdf6cd9",
+    "0x3feae2a81b75e578",
+    "0x3fd127e61956a83e",
+    "0x3fc12b309b421387"
+   ]
+  },
+  "pass": true,
+  "repeat_determinism": {
+   "digest": "4e576f78c540afb3c57375adde963703b1c0ed60359772d78378c8832be24384",
+   "repeats": 64,
+   "stable": true
+  }
+ },
+ "run": {
+  "detectors": [
+   "novelty",
+   "timing",
+   "volume",
+   "cooccurrence"
+  ],
+  "finished_at": "2026-08-14T23:30:20Z",
+  "go_version": "go1.26.3",
+  "os_arch": "windows/amd64",
+  "run_id": "e8-determinism-002",
+  "started_at": "2026-08-14T23:30:20Z"
+ },
+ "schema_version": "1"
+}

@@ -1,0 +1,1100 @@
+// Command partiii renders Part III of the whitepaper, "Implementation", in two
+// forms from one content structure: docs/IMPLEMENTATION.md (the -out-md flag, the
+// primary artefact, browsable in a repository file view) and docs/part-iii.html
+// (the -out flag, matching Part I and Part II's visual identity). Both renderings
+// are produced from the same in-Go sections, so the two cannot drift: an edit to
+// the content appears in both or in neither.
+//
+// Part I fixes the specification and Part II reports the measurements; Part III is
+// a precise account of what was actually built and why. Unlike Part II it is prose
+// about code, not measurements: it takes no -results flag, because it reads no
+// result files, and the only measured figures it quotes are recorded in the
+// repository's own artefacts and cited as such.
+//
+// Accuracy is the document's whole point. Every factual claim — file path, package
+// name, constant value, function name, flag name — was verified against the source
+// before it was written, and anything that could not be verified was left out.
+// Where the implementation deviates from the specification, section 10 says so;
+// where something failed during evaluation, section 11 says how; where something
+// does not exist, section 13 says so plainly.
+//
+// Rendering is deterministic: neither document carries a timestamp or a value read
+// from the environment, so two renders are byte-identical. The HTML path goes
+// through html/template's auto-escaping throughout — nothing is emitted as
+// template.HTML — and the Markdown contains no raw HTML. Inline code spans are
+// authored with backtick markup, which Markdown carries natively and which the
+// HTML renderer parses into structured segments before the template runs, so prose
+// is never trusted as markup.
+package main
+
+import (
+	"flag"
+	"fmt"
+	"html/template"
+	"log"
+	"os"
+	"path/filepath"
+	"strings"
+	"unicode"
+)
+
+func main() {
+	var (
+		outHTML  = flag.String("out", "", "output HTML path")
+		outMD    = flag.String("out-md", "", "output Markdown path (the primary artefact)")
+		coverage = flag.String("coverage", "",
+			"go test -coverprofile output; the §12 coverage table is measured from it. "+
+				"Without it the table is omitted and the document says NOT MEASURED, "+
+				"rather than printing figures that could have drifted")
+	)
+	flag.Parse()
+	if *outHTML == "" && *outMD == "" {
+		log.Fatal("at least one of -out-md and -out is required")
+	}
+
+	var measured []packageCoverage
+	if *coverage != "" {
+		var err error
+		if measured, err = readCoverage(*coverage, modulePath); err != nil {
+			log.Fatal(err)
+		}
+		log.Printf("coverage measured from %s: %d packages", *coverage, len(measured))
+	} else {
+		log.Printf("no -coverage profile given; §12's table will render as NOT MEASURED")
+	}
+
+	if *outMD != "" {
+		if err := renderMarkdown(*outMD, measured); err != nil {
+			log.Fatal(err)
+		}
+		log.Printf("wrote %s", *outMD)
+	}
+	if *outHTML != "" {
+		if err := renderHTML(*outHTML, measured); err != nil {
+			log.Fatal(err)
+		}
+		log.Printf("wrote %s", *outHTML)
+	}
+}
+
+// ---------------------------------------------------------------------------
+// Shared front matter. Both renderings read these, so neither can drift.
+// ---------------------------------------------------------------------------
+
+const (
+	docTitle    = "Calibrated Behavioural Anomaly Detection over Schema-Evolving Security Telemetry"
+	docSubtitle = "Part III: Implementation"
+	docByline   = "Companion to Part I, the specification, and Part II, the measured performance"
+)
+
+const docAbstract = "This document is prose about code. Part I fixes the framework and " +
+	"Part II reports what was measured; Part III records what was actually built — the " +
+	"mechanisms that enforce the requirements, the places where the implementation " +
+	"deviates from the specification and why, the defects the evaluation uncovered, and " +
+	"the things that do not exist. Every file path, constant, and function named here was " +
+	"checked against the source at the time of writing; where a claim could not be " +
+	"verified it was omitted, and where something is not implemented this document says so " +
+	"plainly rather than describing intent as behaviour. Section signs (§) and equation " +
+	"numbers (1)–(20) refer to Part I throughout; this document's own sections are cited " +
+	"by bare number."
+
+// ---------------------------------------------------------------------------
+// Rendering: HTML.
+// ---------------------------------------------------------------------------
+
+// renderHTML executes the template over the authored sections and writes the page.
+func renderHTML(outPath string, measured []packageCoverage) error {
+	var buf strings.Builder
+	if err := paperTemplate.Execute(&buf, viewOf(document(measured))); err != nil {
+		return fmt.Errorf("partiii: execute template: %w", err)
+	}
+	return writeArtefact(outPath, buf.String())
+}
+
+// renderMarkdown writes the same content as repository-browsable Markdown.
+func renderMarkdown(outPath string, measured []packageCoverage) error {
+	return writeArtefact(outPath, markdownDocument(document(measured)))
+}
+
+func writeArtefact(outPath, content string) error {
+	if dir := filepath.Dir(outPath); dir != "." {
+		if err := os.MkdirAll(dir, 0o755); err != nil {
+			return fmt.Errorf("partiii: create output directory: %w", err)
+		}
+	}
+	if err := os.WriteFile(outPath, []byte(content), 0o644); err != nil { //nolint:gosec // a document meant to be read
+		return fmt.Errorf("partiii: write document: %w", err)
+	}
+	return nil
+}
+
+var paperTemplate = template.Must(template.New("partiii").Parse(paperHTML))
+
+// ---------------------------------------------------------------------------
+// Authoring model. Content is written as plain strings in which `backticks` mark
+// inline code spans — native Markdown, and parsed into segments for the HTML
+// template so prose is never trusted as markup.
+// ---------------------------------------------------------------------------
+
+type table struct {
+	Caption string
+	Head    []string
+	Rows    [][]string
+}
+
+type subsection struct {
+	Title string
+	Paras []string
+	Table *table
+}
+
+type section struct {
+	Number string
+	Title  string
+	Paras  []string
+	// Code is an optional preformatted block, rendered as a fenced ```go block in
+	// Markdown and a <pre> in HTML. It follows the paragraphs and precedes the table.
+	Code string
+	// Table follows the paragraphs (and Code, when present).
+	Table *table
+	Subs  []subsection
+}
+
+// ---------------------------------------------------------------------------
+// View model for the HTML template: the same content with inline code parsed out.
+// ---------------------------------------------------------------------------
+
+// inline is one run of a paragraph or table cell: literal text, or a code span.
+type inline struct {
+	Text string
+	Code bool
+}
+
+type viewTable struct {
+	Caption string
+	Head    []string
+	Rows    [][][]inline
+}
+
+type viewSub struct {
+	Title string
+	Paras [][]inline
+	Table *viewTable
+}
+
+type viewSection struct {
+	Number string
+	Title  string
+	Paras  [][]inline
+	Code   string
+	Table  *viewTable
+	Subs   []viewSub
+}
+
+type viewDoc struct {
+	Title    string
+	Subtitle string
+	Byline   string
+	Abstract []inline
+	Sections []viewSection
+}
+
+// parseInline splits a string on backtick pairs: odd-indexed fragments between a
+// matched pair become code spans. An unterminated trailing backtick is treated as
+// literal absence rather than an error, so an authoring slip degrades to plain text
+// instead of shifting every subsequent span.
+func parseInline(s string) []inline {
+	parts := strings.Split(s, "`")
+	out := make([]inline, 0, len(parts))
+	for i, p := range parts {
+		if p == "" {
+			continue
+		}
+		code := i%2 == 1 && i != len(parts)-1
+		out = append(out, inline{Text: p, Code: code})
+	}
+	return out
+}
+
+func parseParas(paras []string) [][]inline {
+	out := make([][]inline, 0, len(paras))
+	for _, p := range paras {
+		out = append(out, parseInline(p))
+	}
+	return out
+}
+
+func parseTable(t *table) *viewTable {
+	if t == nil {
+		return nil
+	}
+	v := &viewTable{Caption: t.Caption, Head: t.Head}
+	for _, row := range t.Rows {
+		cells := make([][]inline, 0, len(row))
+		for _, c := range row {
+			cells = append(cells, parseInline(c))
+		}
+		v.Rows = append(v.Rows, cells)
+	}
+	return v
+}
+
+func viewOf(sections []section) viewDoc {
+	doc := viewDoc{
+		Title:    docTitle,
+		Subtitle: docSubtitle,
+		Byline:   docByline,
+		Abstract: parseInline(docAbstract),
+		Sections: make([]viewSection, 0, len(sections)),
+	}
+	for _, s := range sections {
+		vs := viewSection{
+			Number: s.Number,
+			Title:  s.Title,
+			Paras:  parseParas(s.Paras),
+			Code:   s.Code,
+			Table:  parseTable(s.Table),
+		}
+		for _, sub := range s.Subs {
+			vs.Subs = append(vs.Subs, viewSub{
+				Title: sub.Title,
+				Paras: parseParas(sub.Paras),
+				Table: parseTable(sub.Table),
+			})
+		}
+		doc.Sections = append(doc.Sections, vs)
+	}
+	return doc
+}
+
+// ---------------------------------------------------------------------------
+// Rendering: Markdown. GitHub-flavoured, no raw HTML; headings mirror the HTML
+// heading hierarchy exactly, which a test asserts.
+// ---------------------------------------------------------------------------
+
+func markdownDocument(sections []section) string {
+	var b strings.Builder
+	b.WriteString("# " + docSubtitle + "\n\n")
+	b.WriteString("**" + docTitle + ".** " + docByline + ".\n\n")
+	b.WriteString("> " + docAbstract + "\n\n")
+
+	b.WriteString("## Contents\n\n")
+	for _, s := range sections {
+		heading := mdSectionHeading(s)
+		fmt.Fprintf(&b, "%s. [%s](#%s)\n", s.Number, s.Title, slugOf(heading))
+	}
+	b.WriteString("\n")
+
+	for _, s := range sections {
+		b.WriteString("## " + mdSectionHeading(s) + "\n\n")
+		writeMarkdownBody(&b, s.Paras, s.Code, s.Table)
+		for _, sub := range s.Subs {
+			b.WriteString("### " + sub.Title + "\n\n")
+			writeMarkdownBody(&b, sub.Paras, "", sub.Table)
+		}
+	}
+	return b.String()
+}
+
+func mdSectionHeading(s section) string { return s.Number + ". " + s.Title }
+
+func writeMarkdownBody(b *strings.Builder, paras []string, code string, t *table) {
+	for _, p := range paras {
+		b.WriteString(p + "\n\n")
+	}
+	if code != "" {
+		b.WriteString("```go\n" + code + "\n```\n\n")
+	}
+	if t == nil {
+		return
+	}
+	if t.Caption != "" {
+		b.WriteString("*" + t.Caption + "*\n\n")
+	}
+	b.WriteString("| " + strings.Join(escapeCells(t.Head), " | ") + " |\n")
+	b.WriteString("|" + strings.Repeat(" --- |", len(t.Head)) + "\n")
+	for _, row := range t.Rows {
+		b.WriteString("| " + strings.Join(escapeCells(row), " | ") + " |\n")
+	}
+	b.WriteString("\n")
+}
+
+// escapeCells protects the one character GitHub-flavoured Markdown tables cannot
+// carry literally in a cell.
+func escapeCells(cells []string) []string {
+	out := make([]string, len(cells))
+	for i, c := range cells {
+		out[i] = strings.ReplaceAll(c, "|", "\\|")
+	}
+	return out
+}
+
+// slugOf reproduces the anchor GitHub derives from a heading: lower-case, letters
+// and digits kept, spaces and hyphens become hyphens, everything else dropped.
+func slugOf(heading string) string {
+	var b strings.Builder
+	for _, r := range strings.ToLower(heading) {
+		switch {
+		case unicode.IsLetter(r) || unicode.IsDigit(r):
+			b.WriteRune(r)
+		case r == ' ' || r == '-':
+			b.WriteRune('-')
+		}
+	}
+	return b.String()
+}
+
+// ---------------------------------------------------------------------------
+// The document. Sections follow a fixed order; §, (n), Rn and En refer to Part I
+// throughout, and this document's own sections are cited by bare number.
+// ---------------------------------------------------------------------------
+
+// modulePath is stripped from coverage-profile block names to recover a package's
+// repository-relative path.
+const modulePath = "github.com/JohnPierman/ethogram"
+
+func document(measured []packageCoverage) []section {
+	return []section{
+		sectionScope(),
+		sectionArchitecture(),
+		sectionScoreBeforeObserve(),
+		sectionDeterminism(),
+		sectionDetectors(),
+		sectionCombination(),
+		sectionHarness(),
+		sectionTaxonomy(),
+		sectionProvenance(),
+		sectionDeviations(),
+		sectionDefects(),
+		sectionTesting(measured),
+		sectionNotImplemented(),
+	}
+}
+
+func sectionScope() section {
+	return section{
+		Number: "1",
+		Title:  "Scope",
+		Paras: []string{
+			"Part I fixes the specification: the event model of §5.1, the detector contract of §5.2, " +
+				"the four detectors of §6–§9, the combination and calibration of §10, the schema-growth " +
+				"analysis of §11 and the evaluation design of §12, together with the requirements R1–R6 " +
+				"and the hypotheses E1–E9. Part II reports the measurements, and is generated from the " +
+				"recorded result files so that no figure in it was typed by hand. This document records " +
+				"the implementation itself: the mechanisms by which the requirements are enforced rather " +
+				"than promised, the deviations from the specification and their reasons (section 10), the " +
+				"defects the evaluation uncovered (section 11), and what was not built or not run " +
+				"(section 13).",
+			"The implementation is Go throughout the scoring path: 93 Go files of roughly 26,000 lines, " +
+				"of which 32 are test files carrying 230 test functions, on Go 1.26 with a single direct " +
+				"external dependency, the `pgx` Postgres driver. A Python sidecar exists for exactly two " +
+				"jobs, both outside the scoring path: the offline Leiden partition of §8.2 " +
+				"(`sidecar/partition.py`) and the §12.4 baseline detectors (`sidecar/baselines.py`). Every " +
+				"number an event receives is computed by Go code under `domain/`.",
+			"This document is rendered by a small command — `cmd/partiii` — from one content structure " +
+				"into two artefacts: `docs/IMPLEMENTATION.md`, the browsable form, and `docs/part-iii.html`, " +
+				"which shares the papers' visual identity. It takes no `-results` flag, because it is prose " +
+				"about code rather than a report of measurements. The only measured figures quoted here are " +
+				"the coverage table of section 12 and incident figures that are recorded in the " +
+				"repository's own artefacts — source comments, the changelog, and committed result files — " +
+				"and are cited as such.",
+		},
+	}
+}
+
+func sectionArchitecture() section {
+	return section{
+		Number: "2",
+		Title:  "Architecture",
+		Paras: []string{
+			"The layering is conventional and strict: domain, application, infrastructure, and " +
+				"composition roots under `cmd/`. The domain holds all of the mathematics; the application " +
+				"layer contains one orchestration, `application.ReplayCorpusCommand`, which owns the " +
+				"§5.2 per-event ordering and no statistics of its own; infrastructure holds the corpus " +
+				"reader, the partition loader, and the state stores; and each command under `cmd/` is a " +
+				"composition root that wires concrete stores into domain constructors.",
+		},
+		Table: &table{
+			Caption: "The four layers as they exist in the tree.",
+			Head:    []string{"Layer", "Contents", "Responsibility"},
+			Rows: [][]string{
+				{"`domain/`", "`calibration`, `cellgrid`, `cooccurrence`, `detector`, `event`, `marginal`, `novelty`, `registry`, `statistics`, `timing`, `volume`",
+					"every score, estimator, correction and test statistic; no clock, no randomness, no I/O beyond repository interfaces it defines"},
+				{"`application/`", "`replay.go`",
+					"the §5.2 order per event: score all detectors against pre-event state, combine per (18), sink, then commit observations"},
+				{"`infrastructure/`", "`corpus`, `partition`, `state/memory`, `state/postgres`",
+					"reading corpora against a declarative schema, loading partitions, and persisting detector state"},
+				{"`cmd/`", "`replay`, `analyse`, `e5`, `e7`, `e8`, `features`, `report`, `partii`, `partiii`, `wraparound`",
+					"composition roots: flags, wiring, provenance blocks, and result JSON"},
+			},
+		},
+		Subs: []subsection{{
+			Title: "How the dependency rule is enforced",
+			Paras: []string{
+				"The rule that the domain must not know about infrastructure is not a convention; it is " +
+					"asserted by AST-based architecture tests in `domain/architecture_test.go` that parse " +
+					"every non-test file under `domain/` with `go/parser`. " +
+					"`TestDomainDoesNotImportOuterLayers` reads imports only and fails on any module-local " +
+					"import whose path begins `application/`, `infrastructure/` or `cmd/`, naming the file " +
+					"and position — dependencies point inward only.",
+				"`TestR4DomainHasNoWallClockOrRandomness` enforces the other half. It rejects a fixed set " +
+					"of forbidden imports — `math/rand` and `math/rand/v2` (R4 forbids a stochastic " +
+					"component in the scoring path), `database/sql`, `net/http` and `github.com/jackc/pgx/v5` " +
+					"(the domain must not know a database or an HTTP client exists), and `os/exec` (the " +
+					"domain must not shell out) — and walks every call expression rejecting `time.Now`, " +
+					"`time.Since`, `time.Until` and the `rand` entry points. Test files are exempt: a test " +
+					"may measure elapsed time or seed a simulated null; the scoring path may not.",
+				"A third test, `TestNoNeutralScoreConstants`, guards R3 lexically: a bare floating-point " +
+					"literal `0.5` in a return statement fails the build, because a neutral score standing " +
+					"in for absent evidence is the specific anti-pattern R3 forbids. Genuine midpoints must " +
+					"be named constants. All three tests refuse to pass vacuously — `goFilesUnder` fails " +
+					"outright if it finds no files to scan.",
+			},
+		}},
+	}
+}
+
+func sectionScoreBeforeObserve() section {
+	return section{
+		Number: "3",
+		Title:  "Score before Observe, by construction",
+		Paras: []string{
+			"§5.2 requires that an event be scored against pre-event state and only then folded into " +
+				"history, and warns that violating the order is silent: a first-ever value that updates " +
+				"state before being scored is already a known value by the time it is scored, and novelty " +
+				"detection quietly dies while continuing to emit plausible numbers. The implementation " +
+				"discharges this with capability separation rather than convention or a runtime check. " +
+				"The contract, from `domain/detector/detector.go`, is:",
+		},
+		Code: `type Detector interface {
+	ID() ID
+	NullHypothesis() string
+	Score(ctx context.Context, e *event.Event) (Verdicts, Observation, error)
+}
+
+type Observation interface {
+	EventID() event.ID
+	DetectorID() ID
+	Commit(ctx context.Context) error
+}`,
+		Subs: []subsection{{
+			Title: "Why the mechanism is the type system",
+			Paras: []string{
+				"`Score` receives no means of writing state. Its state access is a read-only repository " +
+					"injected at construction, and the only value it returns that can lead to a state " +
+					"change is the `Observation` — a value carrying the update the event implies, computed " +
+					"from the pre-event state while the event was being scored. The write capability lives " +
+					"solely behind `Observation.Commit`. A detector therefore cannot update history while " +
+					"scoring, because it holds no writer with which to do so; and the framework cannot " +
+					"update history before scoring, because the observation that carries the update does " +
+					"not exist until `Score` has produced it. This is stronger than an unforgeable token " +
+					"handed from Score to Observe: a token proves Score ran first but leaves Score holding " +
+					"a writer it might use; removing the writer removes the failure mode outright.",
+				"`application/replay.go` applies the order per event: every registered detector scores, " +
+					"then every shadow detector; the evaluated verdicts are sorted canonically and " +
+					"combined; the scored event is sunk; and only then are the collected observations " +
+					"committed, in registration order, followed by `registry.Registry.ObserveEvent`. " +
+					"Burn-in events run through exactly the same path — scored and observed but neither " +
+					"combined nor sunk — so state warms under the code that scoring uses and a first-ever " +
+					"value is still novel at the moment it is scored even during warm-up. Every `Commit` " +
+					"is idempotent per event, so a replayed delivery cannot double-count a decayed count, " +
+					"an edge weight, or a sketch. A detector whose state an event does not touch returns " +
+					"`detector.NoObservation`, whose `Commit` does nothing and cannot fail.",
+			},
+		}},
+	}
+}
+
+func sectionDeterminism() section {
+	return section{
+		Number: "4",
+		Title:  "Determinism: five ways Go leaks nondeterminism, and how each is closed",
+		Paras: []string{
+			"R4 requires that a replay reproduce a run exactly, and E8 sharpens that to byte-identical " +
+				"verdicts. Five mechanisms in a straightforward Go implementation would silently break it. " +
+				"Each is closed structurally — by making the nondeterministic path inexpressible — rather " +
+				"than by care at call sites.",
+		},
+		Table: &table{
+			Caption: "The five traps and their closures.",
+			Head:    []string{"Trap", "Where it would enter", "How it is closed"},
+			Rows: [][]string{
+				{"Map iteration order", "enumerating an event's fields, or a registry's",
+					"`event.Event` keeps its value map unexported and never returns it; the only enumeration is `Event.All`, which yields fields in sorted field-path order fixed once in `event.New`. The field registry maintains an insertion-sorted path cache and `FindBySource` returns entries in that order. Nondeterministic traversal is not expressible, not merely discouraged."},
+				{"Float accumulation order", "the sums of equations (5), (9) and (18)",
+					"floating-point addition is not associative, so every accumulation runs over a fixed sequence: `novelty.Estimator.Estimate` sorts history by value before summing; `calibration.Fisher` sums in the caller's slice order and callers pass canonically sorted verdicts (`Verdicts.SortCanonical`); detector registration order is a slice, never a map, because it is part of the combined statistic; the BH step-up breaks p-value ties by original index."},
+				{"Goroutine reduction order", "concurrent scoring or a parallel fold",
+					"the replay loop is single-threaded by construction and detectors run in registration order; the only goroutine in `cmd/replay` logs progress. The one `sync.Pool` in the scoring path (`domain/timing`) recycles a scratch buffer whose every element is overwritten before use, so pooling cannot reach the arithmetic. R4 tests that do score concurrently re-sort into canonical order and require byte-identical bytes."},
+				{"`time.Now`", "decay factors and timestamps",
+					"the architecture test rejects `time.Now`, `time.Since` and `time.Until` from the domain outright. `event.Timestamp` is a distinct type from any wall-clock representation, and decay (`novelty.DecayFactor`, δ = 2^(−Δt/T½)) is driven by the event timestamp and each state row's own last-observed timestamp — the §6.2 lazy rule, applied on read, with no sweep job. Composition roots use the wall clock only for provenance timestamps."},
+				{"Postgres row order", "history rows feeding equation (5)",
+					"repository contracts require a total order — `marginal.Repository.FindCategorical` documents ascending value order explicitly — and every SELECT feeding scoring in `infrastructure/state/postgres` carries an explicit `ORDER BY` with `COLLATE \"C\"`; the compose file initialises the database with `--locale=C` so ordering cannot depend on the host locale. The in-memory stores sort identically."},
+			},
+		},
+		Subs: []subsection{{
+			Title: "Making byte-identical mean what it says",
+			Paras: []string{
+				"`domain/detector/canonical.go` encodes verdicts for comparison using IEEE-754 bit " +
+					"patterns via `math.Float64bits`, never formatted decimals: formatting would hide a " +
+					"discrepancy in the low bits, which is precisely the discrepancy map-ordered float " +
+					"accumulation produces. Every variable-length component is length-prefixed and " +
+					"map-valued evidence is emitted in sorted key order; `Verdicts.Digest` is a SHA-256 " +
+					"over that encoding and is what E8's recorded run compares. Event identifiers are " +
+					"likewise content-derived (`event.Event.digest`): a digest of source, entity, " +
+					"timestamp and the sorted fields, excluding arrival order and batch position, which is " +
+					"what lets E8 assert identical scores across differing batch compositions.",
+			},
+		}},
+	}
+}
+
+func sectionDetectors() section {
+	return section{
+		Number: "5",
+		Title:  "The four detectors",
+		Paras: []string{
+			"The replay registers five detector implementations covering Part I's Detectors I–IV — " +
+				"`novelty`, `timing` and `volume` (the two halves of Detector II), `cooccurrence`, and " +
+				"`marginal` — each stating its null hypothesis in one sentence through " +
+				"`Detector.NullHypothesis`, as §5.2 requires, so the evidence card can show what was " +
+				"actually tested.",
+		},
+		Subs: []subsection{
+			{
+				Title: "Detector I — per-entity categorical novelty (§6)",
+				Paras: []string{
+					"`domain/novelty` implements the posterior predictive of a symmetric " +
+						"Dirichlet–multinomial with concentration α, one category reserved for the unseen " +
+						"(equation (4)), and the p-value as the discrete tail mass of equation (5): the total " +
+						"probability of values no more probable than the observed one, the reserved category " +
+						"included. The reserved category is what discharges R2 here — the estimator is well " +
+						"defined without enumerating the value set, so a field nobody declared is admitted. " +
+						"For a value absent from the history the predictive equals the reserved mass and the " +
+						"tail reduces to it exactly; with no history at all the general path yields P = 1 with " +
+						"no special case, which §6.2 states is the correct verdict for a first observation.",
+					"Scope is per (source, entity, field), and iteration is over the registry's entries " +
+						"for the source rather than over the event's fields, for two reasons: no detector " +
+						"names a field (R2), and only the registry knows which absent fields must yield " +
+						"`abstained_unexpected` rather than `abstained_structural` — a distinction drawn from " +
+						"the §5.3 Beta posterior on presence, not from configuration. Decay is lazy per §6.2: " +
+						"each row stores a count beside its own last-observed timestamp and is discounted by " +
+						"2^(−Δt/T½) only when read, so no sweep job exists; `novelty.Accumulate` keeps the " +
+						"per-value counts and their total consistent by induction. Where the §13.3 " +
+						"cardinality bound has truncated a value set, the verdict carries a caveat that the " +
+						"reserved mass of (4) is no longer exact, reported rather than concealed.",
+				},
+			},
+			{
+				Title: "Detector II — circular timing and volume (§7)",
+				Paras: []string{
+					"`domain/timing` estimates each entity's time-of-day density on the 24-hour circle by " +
+						"von Mises kernel density estimation, maintained not as samples but as decayed " +
+						"trigonometric moments (equation (6)): fixed state of 2H + 1 floats per entity " +
+						"regardless of event count. The fitted density is the truncated Fourier series of " +
+						"equation (7), whose per-harmonic smoothing factors r_h = I_h(κ)/I_0(κ) are the von " +
+						"Mises kernel's own Fourier coefficients; κ derives from an operator-facing bandwidth " +
+						"in hours via equation (8) (`timing.KappaForBandwidthHours`, default 1.5 h), and the " +
+						"truncation order is H = ⌈3√(2κ)⌉ (`timing.HarmonicOrder`). The p-value is the " +
+						"level-set tail of equation (9): the normalised mass of the `GridSize` = 512 grid " +
+						"cells whose density does not exceed the density at the event's own phase, floored at " +
+						"the grid's resolution limit 1/2G. Cold start needs no branch: zero moments give the " +
+						"uniform density and P = 1 everywhere — an evaluated verdict, because the model has " +
+						"an answer: nothing is unusual yet.",
+					"The Bessel ratio deserves its own paragraph, because it is the one place the standard " +
+						"library genuinely runs out. Go's `math` package carries only the unmodified Bessel " +
+						"functions (`J0`, `Jn`, `Y0`, …); there is no modified I_h. Computing I_h(κ) and " +
+						"I_0(κ) separately and dividing is not an option either, since I_h(κ) overflows " +
+						"float64 for κ around 713 and above while the ratio the estimator needs stays inside " +
+						"(0, 1). `domain/timing/bessel.go` therefore computes the ratio directly by backward " +
+						"recurrence on the consecutive ratio ρ_h = I_h(κ)/I_{h−1}(κ), which satisfies " +
+						"ρ_h = 1/(2h/κ + ρ_{h+1}): the recurrence is seeded with ρ = 0 at order " +
+						"H + 40 + ⌊2κ⌋ — far beyond the turning point h ≈ κ, past which the true ratios " +
+						"decay so fast that the seed's error is extinguished before the retained orders are " +
+						"reached — and run downward to h = 1, with r_h recovered as the running product. " +
+						"Every intermediate stays within (0, 1), which is what makes the large-κ regime safe.",
+					"`domain/volume` answers how much where timing answers when. The entity's event rate " +
+						"carries a Gamma(a, b) posterior under the same power discounting (equation (10): " +
+						"a ← δa + k, b ← δb + 1), and the null for the count observed in the window — the " +
+						"calendar hour containing the event, with expected activity fraction ρ integrated " +
+						"from the timing detector's own fitted density — is the negative binomial predictive " +
+						"of equation (11). `volume.UpperTail` sums the tail upward from the observed count " +
+						"directly, so a deep tail is not lost to cancellation against 1; the first term is " +
+						"assembled in log space through `math.Lgamma`, since the shape a is generally " +
+						"non-integral, and subsequent terms follow the exact ratio. The predictive is " +
+						"structurally overdispersed, Var/E = (b + ρ)/b > 1, which is why a Poisson null " +
+						"would over-reject. The two halves deliberately share state — volume reads the " +
+						"timing moments — and §10.2's Brown correction exists for exactly the correlation " +
+						"that sharing induces; section 6 records where that correction actually stands.",
+				},
+			},
+			{
+				Title: "Detector III — population co-occurrence (§8)",
+				Paras: []string{
+					"`domain/cooccurrence` maintains the decayed k-partite graph of equation (12): nodes " +
+						"are (field, token) pairs for fields whose registry kind `IsEligible()` — neither " +
+						"identifier nor excluded, and settled — where the token is the value's own text for " +
+						"a categorical, boolean or discrete field and its magnitude band for a continuous " +
+						"one (`FieldKind.Token`). Edges join nodes of distinct fields only, and " +
+						"every weight, degree and the graph total decay under the same §6.2 lazy rule as " +
+						"every other count. The null of equation (13) is Poisson-DCSBM: a pair's decayed " +
+						"weight against the maximum-likelihood rate λ of equation (14) when a partition is " +
+						"held, degenerating to the single-block configuration model of equation (15) when " +
+						"none is — and the fallback is reported in the verdict's evidence, per §8.4, never " +
+						"silent. The p-value is a lower tail (`PoissonLowerTail`, evaluated through the " +
+						"identity Pr(Poisson(λ) ≤ n) = Q(n + 1, λ) on the existing chi-square machinery): " +
+						"small exactly when co-occurrence ought to have been observed and was not.",
+					"Partitioning is a scheduled batch computation, never in the scoring path — community " +
+						"detection is stochastic and the scoring path may not be (R4). `sidecar/partition.py` " +
+						"runs Leiden (via `igraph` and `leidenalg`) under a fixed recorded seed on the graph " +
+						"the replay exports at the burn-in boundary, so the partition is computed from " +
+						"burn-in state only and never conditions on the window it will score. Blocks are " +
+						"field-local per §8.2, and the output carries seed, input-graph checksum, resolution, " +
+						"the block degree sums D_r and the inter-block weights m_rs under the Karrer–Newman " +
+						"convention, in which weight internal to a block counts from both endpoints. That " +
+						"convention is load-bearing: with one block, D_1 = 2m and m_11 = 2m, so (14) " +
+						"collapses to (15) exactly — an earlier draft had m_11 = m, wrong by a factor of two, " +
+						"and the one-block collapse is now guarded by an exact-equality regression test.",
+					"Per §8.5 the detector emits one verdict per event: every pair of the event's eligible " +
+						"present values is priced in fixed (i < j) order, the minimising pair's tail is " +
+						"Šidák-corrected by equation (16) for the T = F_e(F_e − 1)/2 tests the event " +
+						"induced, and ties resolve to the first pair in the fixed order. Fewer than two " +
+						"eligible fields is an abstention, not a score. The E4 ablation arm is the same " +
+						"detector over the same graph — `WithID` renaming it `cooccurrence-partitioned`, and " +
+						"`ReadOnly()` so the shared graph is not fed twice — differing only in whether λ " +
+						"comes from (14) or (15).",
+				},
+			},
+			{
+				Title: "Detector IV — population-scope marginal outliers (§9)",
+				Paras: []string{
+					"`domain/marginal` is the framework's own instance of the question isolation-based " +
+						"methods answer well: is this value rare against the population marginal for its " +
+						"field? It is kept precisely so the other detectors can be credited only with what " +
+						"they add beyond it. For categorical and boolean fields the arithmetic is Detector " +
+						"I's, delegated rather than restated — `marginal.Estimator.EstimateCategorical` " +
+						"calls `novelty.Estimator.Estimate` — so a divergence between the two detectors' " +
+						"verdicts on the same event is attributable to scope alone: Detector I's counts are " +
+						"per entity, Detector IV's pool every entity the source has seen. A field absent " +
+						"from the event yields nothing here, not an abstention: Detector I already reports " +
+						"absence through the §5.3 Beta posterior, and a second verdict per absent field " +
+						"would double-count one observation in §10.2's J.",
+					"Numeric fields are scored against a deterministic bounded quantile sketch " +
+						"(`marginal.Sketch`): sorted (mean, weight) centroids, bounded at " +
+						"`DefaultMaxCentroids` = 128, compressed by merging the adjacent pair with the " +
+						"smallest combined weight, ties to the lower index — a rule that is a pure function " +
+						"of the insertion sequence, chosen over the t-digest cited at [44] because the " +
+						"scoring path must be reproducible (R4) and exact quantiles are not required for a " +
+						"two-sided tail. The p-value is 2·min(CDF(x), 1 − CDF(x)), floored at 1/(weight + 1) " +
+						"— the mass one further observation would carry — so equation (18) never receives a " +
+						"zero.",
+					"The detector abstains at both ends, and the two bounds are one statement made from " +
+						"opposite directions. The floor, `minMarginalObservations` = 1,000, is the " +
+						"reciprocal of the one-in-a-thousand share the `population_rare` category tests: " +
+						"below a thousand observations the marginal cannot resolve a share finer than the " +
+						"threshold being asked about, so a verdict would assert a rarity its own sample " +
+						"cannot distinguish from a single observation. The ceiling, `MaxCardinality` = " +
+						"1,000, is the same reciprocal read from the other end: with K distinct values the " +
+						"average value already holds a share of 1/K, so once K exceeds a thousand nearly " +
+						"every value is in the tail and membership of the tail distinguishes nothing. " +
+						"Neither bound may be moved after seeing a result without moving the threshold both " +
+						"derive from and re-running. The ceiling is also what keeps the detector affordable " +
+						"— equation (5)'s tail is linear in K, and at population scope K belongs to the " +
+						"source, not one entity — and the detector asks `Repository.Cardinality` before " +
+						"paying for the history, declining in constant time. What the ceiling excludes is " +
+						"not lost: §6 scores those fields per entity, where they carry their signal, and the " +
+						"§12.4 baselines score every field, so the head-to-head is not narrowed by the bound.",
+				},
+			},
+		},
+	}
+}
+
+func sectionCombination() section {
+	return section{
+		Number: "6",
+		Title:  "Combination and calibration (§10)",
+		Paras: []string{
+			"`domain/calibration` implements the combination and calibration machinery. " +
+				"`calibration.Fisher` is equation (18): X² = −2 Σ ln P_i against χ²(2J), summed in the " +
+				"caller's slice order — callers pass canonically ordered verdicts, and sorting inside " +
+				"Fisher would hide the ordering obligation rather than discharge it. Abstentions are " +
+				"never encoded: any p-value outside (0, 1] is rejected with an error, the caller drops " +
+				"abstaining detectors and J shrinks with them (R3), and an event on which every detector " +
+				"abstained combines to nothing at all — `application.ScoredEvent.Combined` is nil, " +
+				"counted as no opinion, never a null score.",
+			"`calibration.Brown` implements the correction of equation (19) for correlated detectors, " +
+				"with the covariance terms of Kost & McDermott as the cubic polynomial in ρ " +
+				"(`KostMcDermott`), the effective degrees of freedom evaluated for non-integral f through " +
+				"`ChiSquareSurvivalNonIntegral`, and an exact reduction: a nil or all-zero covariance " +
+				"yields c = 1 and f = 2J exactly in float arithmetic through the general path, so the " +
+				"correction degrades to Fisher rather than to failure. It must be said plainly that Brown " +
+				"is implemented and tested but not wired into the replay's per-event combination, which " +
+				"applies (18) uncorrected; section 13 records this. `calibration.Sidak` is equation (16), " +
+				"evaluated as −expm1(T·log1p(−minP)) so a tiny minimum keeps full relative precision, and " +
+				"floored at the smallest positive float64 because a zero would poison (18)'s logarithm. " +
+				"`calibration.BenjaminiHochberg` and `BenjaminiYekutieli` are the §10.3 step-up " +
+				"procedures, ties broken by original index and the BY harmonic number accumulated in " +
+				"ascending order — one fixed summation order, as everywhere.",
+		},
+		Subs: []subsection{{
+			Title: "Working in log space",
+			Paras: []string{
+				"The linear survival function underflows, and on this corpus the underflow is not an " +
+					"edge case. Past roughly X² = 1450 at two degrees of freedom the χ² tail is smaller " +
+					"than the least positive float64, so every event from there downward reports P exactly " +
+					"zero and becomes indistinguishable from every other. Measured on LANL days 7–13, all " +
+					"1,400 retained alerts — seven days at the 200-per-day retention limit — had a combined " +
+					"p-value of exactly zero, while labelled attack events sat at p = 1e−274: representable, " +
+					"vastly less extreme than the zeros, and unable to enter the alert set at all, because " +
+					"the ordering among the zeros was decided by the timestamp tie-break rather than by " +
+					"evidence. The entire alert budget was being allocated by a tie-break.",
+				"`calibration.ChiSquareLogSurvival` removes the floor by computing ln Q directly. The " +
+					"survival function is the regularised upper incomplete gamma Q(a, x); its continued " +
+					"fraction is split so the fraction itself — of order 1/x, never underflowing — is " +
+					"computed in linear space (`upperGammaContinuedFractionFactor`) while the prefactor " +
+					"x^a e^(−x)/Γ(a), which is what collapses to zero in the deep tail, is added as a " +
+					"logarithm via `math.Lgamma`. Below the series/fraction split the tail is not small, so " +
+					"its logarithm is taken from the same series the linear path uses and the two agree " +
+					"exactly; where the series loses all significance against 1 the code falls through to " +
+					"the continued fraction, which is accurate exactly where the series is not. The " +
+					"logarithm continues smoothly to −1e5 and beyond, so the ordering survives as far as " +
+					"the arithmetic that produced X² is meaningful.",
+				"The consequence is threaded through, not bolted on: `application.CombinedScore` carries " +
+					"`LogP` beside P, alert ordering in `cmd/replay` (`alertLess`) compares LogP with time " +
+					"and entity as deterministic tie-breaks, and the BH step-up in `cmd/analyse` compares " +
+					"in log space — `LogP ≤ ln((i/m)·q)` — because comparing p directly would compare " +
+					"zeros and land the cut on the last row regardless of q. P is retained because it is " +
+					"what §6–§9 define and what a verdict card must show; LogP is what any comparison " +
+					"between events uses.",
+			},
+		}},
+	}
+}
+
+func sectionHarness() section {
+	return section{
+		Number: "7",
+		Title:  "The evaluation harness",
+		Paras: []string{
+			"Everything measured in Part II is produced by a small set of batch commands, each of which " +
+				"writes a result JSON with full provenance and nothing else; the renderers read only " +
+				"those files (section 9).",
+		},
+		Subs: []subsection{
+			{
+				Title: "cmd/replay — the streaming pass",
+				Paras: []string{
+					"`cmd/replay` streams a corpus through `application.ReplayCorpusCommand` in one pass. " +
+						"The burn-in boundary is a frozen split (`-burnin`, default 604,800 s — corpus day 7, " +
+						"recorded in the result as fixed at commit `24c5a53`): events before it warm state " +
+						"through the identical scoring path but are neither combined nor retained. At the " +
+						"boundary an `OnBurnInComplete` hook fires once, exporting the co-occurrence graph " +
+						"and, when `-leiden` names a Python interpreter, running the partition batch there — " +
+						"so the E4 arm's partition is computed from burn-in state only. Ablations run as " +
+						"shadows: detectors scored on every event but excluded from the combination " +
+						"(`-shadow-cells` adds the 168-cell grid for E9; `-leiden` adds the read-only " +
+						"partitioned co-occurrence arm for E4), and the accumulator recomputes each arm's " +
+						"substituted combination through the same equation (18) code path. Per day, only the " +
+						"K smallest combined p-values are retained (`-topk`, default 200), maintained by " +
+						"binary-search insertion under the deterministic order of `alertLess`; the exact " +
+						"per-day scored counts are recorded separately because they are the BH denominator " +
+						"and retention would otherwise destroy them.",
+					"`-entity-sample` exists so a full pass can be rehearsed in minutes rather than hours, " +
+						"and it is a sample of entities, not of events. A per-entity detector is a statement " +
+						"about one entity's own history: thinning events within an entity would corrupt " +
+						"exactly the histories being tested, while dropping whole entities (FNV-1a of the " +
+						"identifier, modulo N, equals zero — deterministic, no RNG) leaves every retained " +
+						"history whole. Every labelled entity is kept regardless of the sample, so the thing " +
+						"being measured is not itself thinned — which inflates the labelled share of the " +
+						"corpus relative to the full population, and therefore a detection rate measured on " +
+						"a sampled run is not comparable to one measured on the full population. The result " +
+						"file records the sampling, its selector, and this warning verbatim, so a sampled " +
+						"run announces itself. A run also claims only the hypotheses it holds evidence for: " +
+						"`hypothesisList` adds E1–E3 only when labelled events were actually scored, so a " +
+						"run that matched none cannot assert a detection measurement it never made.",
+				},
+			},
+			{
+				Title: "cmd/analyse — derived results",
+				Paras: []string{
+					"`cmd/analyse` derives the evaluation tables from a replay's result JSON — it reads " +
+						"results, never the corpus, and every file it writes cites the parent run. It applies " +
+						"BH and BY per scored day over a q grid, using the run's exact per-day test counts " +
+						"where recorded and saying so when it must fall back to a run-wide mean; a day whose " +
+						"step-up threshold reaches the last retained alert is reported as saturated rather " +
+						"than silently truncated. Every proportion carries n and an interval — Wilson " +
+						"throughout, with the exact Clopper–Pearson alongside for recall — and every " +
+						"comparison between two arms measured on the same events is tested as paired data: " +
+						"McNemar on the discordant pairs (exact binomial when their total is < 25, Edwards' " +
+						"continuity-corrected χ² otherwise) and a paired bootstrap in which an event is " +
+						"drawn once and both arms' outcomes travel together, driven by a counter-based " +
+						"splitmix64 generator whose seed is recorded, deliberately not `math/rand`. The " +
+						"recall denominator is the run's complete `red_team_scored` list — every labelled " +
+						"event that received a combined p-value, alerted or not — and comparisons against " +
+						"the baselines are confined to the days both arms scored " +
+						"(`restrictToCommonDays`), for reasons section 11 makes concrete.",
+				},
+			},
+			{
+				Title: "The baselines sidecar",
+				Paras: []string{
+					"`sidecar/baselines.py` runs the four §12.4 baselines — scikit-learn's Isolation " +
+						"Forest, a numpy Extended Isolation Forest, numpy Half-Space Trees, and Robust " +
+						"Random Cut Forest via the `rrcf` package — over the feature CSV that `cmd/features` " +
+						"exports: the conventional encoding for such detectors (categoricals hashed to " +
+						"[0, 1) with FNV-1a, hour-of-day and day-of-week fractions), deliberately not tuned " +
+						"in their favour and not the framework's. The baselines are not held to R2 or R4 " +
+						"(§12.4) and are free to use RNGs; every seed and library version is recorded so a " +
+						"run reproduces exactly. Because streaming the full window through the tree " +
+						"ensembles is not feasible, the export carries a deterministic 1-in-100 uniform " +
+						"sample plus every red-team event, each row flagged; per-day alert-budget thresholds " +
+						"are estimated as score quantiles of the day's uniform sample, with red-team rows " +
+						"excluded from threshold estimation so their inclusion cannot bias it. This is the " +
+						"asymmetry the analysis records as a caveat: the framework's per-day budget is " +
+						"exact, each baseline's threshold is a sample-quantile estimate of the same " +
+						"operating point.",
+				},
+			},
+		},
+	}
+}
+
+func sectionTaxonomy() section {
+	return section{
+		Number: "8",
+		Title:  "The anomaly taxonomy",
+		Paras: []string{
+			"Detection is reported per kind of anomaly, not only in aggregate, so the framework's " +
+				"advantage can be attributed rather than asserted. The replay assigns each scored event " +
+				"zero or more of five structural categories (`classify` in `cmd/replay/main.go`), read " +
+				"from the sufficient statistics its verdicts already carry — the same numbers an analyst " +
+				"reads off the evidence card, needing no second pass over state.",
+			"The definitions are the anti-circularity argument. Every category is a structural fact " +
+				"about the event relative to the history it was scored against — did this entity ever " +
+				"take this value, had this pair ever co-occurred, is this hour less likely than chance " +
+				"for this entity — and never a fact about which detector produced the smallest p-value. " +
+				"A partition drawn along our own detectors' firing would be a partition chosen in our " +
+				"favour, and every per-category margin computed on it would flatter the framework by " +
+				"construction; under the structural definition both arms are measured over the same " +
+				"subset of labelled events, on a partition neither arm chose, and any method scoring the " +
+				"same stream would agree on the assignments. `population_rare` is retained deliberately " +
+				"as the control: it is the category a conventional isolation forest over a pooled feature " +
+				"cloud answers well, so the framework's advantage elsewhere can be read against a " +
+				"category where it should show none. `cmd/analyse/categories.go` carries each category's " +
+				"metadata — the structural predicate stated so it can be checked against the code, the " +
+				"motivating Part I section, and the contrast with marginal detectors — into the result " +
+				"JSON, so the table needs no second document to interpret.",
+		},
+		Table: &table{
+			Caption: "The five categories, their structural predicates as implemented, and their Part I grounding.",
+			Head:    []string{"Category", "Structural test (from verdict evidence)", "Part I"},
+			Rows: [][]string{
+				{"`population_rare`", "the observed value holds under one part in a thousand of its field's observed population mass: `N > 0` and `n_v/N < 0.001` on the marginal verdict", "§9"},
+				{"`novel_value`", "the entity has history for the field but has never taken this value: `N > 0` and `n_v = 0` on the novelty verdict", "§3.1, §6"},
+				{"`off_hours`", "the entity's own fitted circular density at this time is below the uniform level 1/2π, with weight `W ≥ 8` so a cold start cannot qualify trivially", "§3.1, §7.1, §7.2"},
+				{"`volume_burst`", "the observed running count exceeds the entity's own predicted count for the window: `k_obs > expected_count > 0`", "§3.1, §7.4"},
+				{"`novel_pair`", "two eligible values have never co-occurred in a graph that carries mass: `m > 0` and `w_min_pair = 0`", "§3.3, §8"},
+			},
+		},
+	}
+}
+
+func sectionProvenance() section {
+	return section{
+		Number: "9",
+		Title:  "Provenance discipline",
+		Paras: []string{
+			"The rule is structural: never put a number in a dashboard, table or paper that did not " +
+				"come out of a recorded run. Every result JSON carries a `schema_version` and a `kind`; " +
+				"the list of hypotheses the run actually bears on; a `run` block with run id, git SHA, a " +
+				"`git_dirty` flag, Go version and OS/architecture; a `corpus` block with each input " +
+				"file's SHA-256, row counts, an explicit coverage statement in the terms that were " +
+				"applied (corpus days, not row counts, when the cap was temporal), and the frozen " +
+				"burn-in; the parameters, including seeds where anything downstream draws from one; and " +
+				"the measured outcomes. Derived results (`cmd/analyse`) cite their parent run by id and " +
+				"file, so the chain from figure to corpus bytes stays unbroken.",
+			"The renderers — `cmd/report` for the dashboard and figures, `cmd/partii` for Part II — read " +
+				"only `results/*.json`. A hypothesis whose result file is absent renders as an explicit " +
+				"not-measured panel naming what is missing, never as a blank and never as a zero; a " +
+				"section whose headline figure is missing is withheld entirely rather than half-filled. " +
+				"`cmd/report -verify-provenance` checks instead of rendering — every figure must have a " +
+				"backing result file and every result file must carry its provenance block — and " +
+				"`make figures` depends on it, as does CI, so an orphan figure fails the build rather " +
+				"than shipping.",
+			"The gate has caught a real mistake. The replay used to write the offline Leiden partition " +
+				"into `results/`, beside the run it belonged to; a partition is an intermediate artefact, " +
+				"not a measurement, and it carries no `schema_version`, so `-verify-provenance` rejected " +
+				"the whole directory — correctly. The partition is now written beside the graph it was " +
+				"computed from (`<graph>.partition.json`), and the episode is recorded in the code at the " +
+				"site of the fix: a file in `results/` is a measurement with provenance, and putting " +
+				"anything else there makes the gate say so.",
+		},
+	}
+}
+
+func sectionDeviations() section {
+	return section{
+		Number: "10",
+		Title:  "Deviations from the specification",
+		Paras: []string{
+			"The implementation departs from Part I in the following places. Each deviation is " +
+				"deliberate, recorded here and — where it affects a verdict — in the verdict's own " +
+				"evidence.",
+		},
+		Table: &table{
+			Caption: "Deviations, where they live, and why.",
+			Head:    []string{"Deviation", "Where", "Reason"},
+			Rows: [][]string{
+				{"The identifier guard exempts numeric fields", "`domain/registry/infer.go`",
+					"§5.1's discriminating statistic — distinct values over observations — cannot alone separate an opaque token from a continuous measurement: a byte count scores near one exactly as a GUID does. §8.2 admits numeric fields to the graph through quantile bins, which independently prevents both harms the guard exists for, so applying the guard there would silently discard a real signal by classifying a measurement as an identifier. The residual risk, a purely numeric surrogate key, is admitted in the safe direction and handled by configuration (`ExcludedFields`). See also section 13: the binning itself is not yet built."},
+				{"Boolean requires exactly K = 2", "`domain/registry` (`BooleanCardinality`)",
+					"§6.1 states a boolean field is the case K = 2, so the test is an equality, not an upper bound: a field observed with one value is a constant categorical field, not a boolean. Recognised token pairs are data, not logic, so a new source's vocabulary is a configuration change; an unlisted pair classifies as categorical, which is harmless because (4) treats boolean as K = 2 anyway."},
+				{"Detector IV abstains above a cardinality ceiling", "`domain/marginal` (`MaxCardinality` = 1,000)",
+					"§9 specifies only the minimum-observation floor. The ceiling is the same one-in-a-thousand threshold read from the other end — beyond a thousand distinct values the average share is already below the rarity being tested, so the tail no longer separates — and it is also what keeps the detector affordable: equation (5) is linear in K, and admitting the host and account fields on LANL auth cost a factor of four in throughput for verdicts that carried no information. §6 scores those fields per entity, where the signal actually lives; the §12.4 baselines score every field, so the comparison is not narrowed."},
+				{"A simplified bounded quantile sketch, not a t-digest", "`domain/marginal/marginal.go` (`Sketch`)",
+					"the reference t-digest at [44] is built for tail resolution; the scoring path needs determinism (R4). The sketch keeps sorted centroids bounded at 128 and compresses by merging the adjacent pair of smallest combined weight, ties to the lower index — a pure function of the insertion sequence, so two sketches fed the same values in the same order are bit-identical. Exact quantiles are not required for a two-sided tail."},
+				{"`LogP` carried beside P", "`application/replay.go`, `domain/calibration/chisquare.go`",
+					"§6–§9 define P and the verdict card must show it, but P underflows across the entire region alerts are drawn from (section 6). Ranking and BH thresholding therefore use ln P; this is an addition to the specification, not a reinterpretation of it."},
+				{"Brown's correction is applied, and its estimator is under review", "`application/replay.go` (`combine`), `domain/calibration/correlation.go`",
+					"the per-event combination applies Brown (19) with a covariance estimated directly from burn-in co-evaluations and frozen at the boundary, reducing exactly to Fisher when the covariance is zero. The first measurement (`results/lanl-brown-d7-9.json`) shows the direct estimator is the wrong choice while the marginals are miscalibrated: (19) presumes each P_i uniform, and volume's tail reaching e^−1000 drove one pair's direct covariance to 8044.1 against the 0.139 Kost–McDermott implies from the same correlation of 0.042. The correction then compressed every alert into 0.18 log-units. Recorded here rather than presented as settled."},
+				{"The volume null carries a measured dispersion, not equation (11)'s", "`domain/volume` (`Dispersion`, `UpperTailDispersed`)",
+					"(11)'s overdispersion Var/E = (b+ρ)/b expresses uncertainty about μ, and that uncertainty shrinks with history: at T½ = 7 days the discounted period count settles at b ≈ 10.6, so Var/E ≤ 1.09 and the null is Poisson in all but name. Real telemetry arrives in sessions, so the detector rejected entities for their own habitual behaviour — an entity whose daily volume had always swung between 60 and 480 events scored P = 1.4e−79 for doing 240 again. The null is therefore widened by φ̂, the discounted Pearson dispersion of the entity's own completed windows, floored at 1 so the correction can only widen and never sharpen, and equal to (11) exactly below five windows. §7.4's stated purpose is to avoid a null that over-rejects because counts are overdispersed; the literal (11) does not achieve it."},
+				{"Equation (14) is evaluated as a live configuration term times a frozen block affinity", "`domain/cooccurrence/dcsbm.go` (`Lambda`, `affinity`)",
+					"the partition is frozen at the burn-in boundary as §8.2 requires, while k_i, k_j and m are read from the live decayed graph, so the literal λ = k_i·k_j·m_rs/(D_r·D_s) mixes two graphs and carries the ratio of their scales — inflating λ as the live graph outgrows the snapshot and collapsing the lower tail for every pair. λ is therefore factored as (k_i·k_j/2m_live)·ω_rs with ω_rs = m_rs·2m_snapshot/(D_r·D_s), a ratio measured entirely within the snapshot. It is an algebraic identity when the two graphs coincide, and the single-block collapse still gives k_i·k_j/2m exactly."},
+				{"E5's correlation measure is the maximum pairwise mutual information", "`cmd/e5`",
+					"a documented simplification of §11.3's “mutual information between the held-out field and the retained ones”; the run measures the MI rather than assuming it, and records the simplification in its output."},
+				{"E5 drops the co-occurrence verdict when its minimising pair touches the held-out field", "`cmd/e5`",
+					"an approximation of the true reduced-schema graph — rebuilding the graph without the field would require a pass per treatment — recorded in the output rather than concealed."},
+				{"Treatment C of §11.2 is not run", "`cmd/e5`",
+					"mask embedding and borrowing requires a mask-similarity model over registry statistics; Part I's own analysis records that a shallow version degrades to treatment A without saying so, which is worse than reporting the treatment as unimplemented. It is recorded as NOT RUN with that reason."},
+				{"DARPA OpTC is not run", "`DATA.md`",
+					"capacity, not difficulty: the binding constraint was scoring time, not data access, and a third corpus would have bought breadth at the cost of the depth the ablations need. Stated plainly rather than half-run; no figure anywhere draws on it."},
+			},
+		},
+	}
+}
+
+func sectionDefects() section {
+	return section{
+		Number: "11",
+		Title:  "Defects found during evaluation",
+		Paras: []string{
+			"These were real errors, found while evaluating the system this document describes. They " +
+				"are recorded with the same discipline as the results, because a Part II reader deciding " +
+				"how much to trust the figures deserves to know what previously produced wrong ones.",
+		},
+		Table: &table{
+			Caption: "Defect, how it surfaced, and the fix.",
+			Head:    []string{"Defect", "How it surfaced", "Fix"},
+			Rows: [][]string{
+				{"Recall denominator taken from the retained alert lists",
+					"a labelled event scored unremarkably never reached a day's top-K list, so it vanished from the denominator as well as the numerator: the reported recall was an upper bound presented as a measurement — inflated by exactly the misses recall exists to count",
+					"the denominator is now the run's complete `red_team_scored` list, every labelled event that received a combined p-value; a run predating that list renders with its provenance stating the figure is an upper bound, rather than silently substituting one"},
+				{"Baseline comparison spanned mismatched day windows",
+					"the baselines were scored over days 7–30 while a replay could cover fewer; the head-to-head presented two numbers side by side that ranged over different denominators",
+					"every comparison — aggregate and per category — is confined to the days both arms scored (`restrictToCommonDays`), and the retained window travels with each row of the result"},
+				{"E5 discovery counts right-censored by the retention limit and reported as measurements",
+					"the first run retained 200 alerts per day and reported 800 discoveries before the schema grew and 600 after — identically at every q from 0.001 to 0.1, and identically for both treatments, because 800 and 600 are four and three days of the cap rather than counts of anything; every realised FDR derived from them was 1.0, describing the retention limit and not the composite",
+					"censoring is detected per era — a day whose BH cut reaches the last retained alert marks the era's count a lower bound — the realised FDR is omitted entirely for a censored era rather than rendered, the retention limit was raised to 20,000 with the sorted-slice insertion replaced by a bounded heap, and the censored run was withdrawn rather than reported"},
+				{"Combined p-values underflowed to zero and the alert budget was allocated by tie-break",
+					"on LANL days 7–13 every one of the 1,400 retained alerts had P exactly 0 while labelled attack events sat at 1e−274 and could never enter the set; the ordering among the zeros — the entire budget — was decided by the timestamp tie-break",
+					"`ChiSquareLogSurvival` computes ln Q with the prefactor in log space; alert ordering and the BH step-up now compare `LogP` (section 6)"},
+				{"Detector IV scanned the whole population marginal per verdict",
+					"equation (5)'s tail is linear in the distinct value count, which at population scope belongs to the source: admitting the host and account fields on LANL auth cost a factor of four in throughput for verdicts the cardinality argument shows carried no information",
+					"the detector asks `Repository.Cardinality` before fetching any history and declines above the ceiling in constant time; the abstention explains itself in the verdict"},
+				{"The Leiden partition was written into `results/`",
+					"`-verify-provenance` rejected the whole results directory: the partition is an intermediate artefact with no `schema_version`, and the gate treats everything under `results/` as a measurement with provenance — which is the gate working, not failing",
+					"the partition is written beside the graph it was computed from (`<graph>.partition.json`), never into `results/`; the reasoning is recorded at the site of the fix"},
+				{"A batch run was destroyed by a console control event",
+					"a replay seven eighths of the way through its burn-in was terminated with `STATUS_CONTROL_C_EXIT` by a console event it had no interest in — an hour of compute with nothing written, since the result file is written only at the end",
+					"the `-detached` flag ignores `os.Interrupt` and `SIGTERM` for long batch runs, confined to the flag so interactive runs stay interruptible; a detached run remains killable by anything that does not go through the console"},
+				{"The coverage gate could fail — or pass — for the wrong reason",
+					"the gate named `./application/...` as a literal pattern while that layer was still empty; `go test` exits non-zero on a pattern matching no packages, so the gate failed for a reason unrelated to coverage",
+					"the scope is resolved from the packages that actually exist, and an empty scope fails loudly rather than letting the gate pass vacuously"},
+				{"CI ran a linter that could not report findings",
+					"`.golangci.yml` uses the version 2 schema but CI drove it through an action running v1, which rejected the configuration as an error instead of reporting findings — a check that cannot fail in the intended way",
+					"moved to the v8 action with the linter pinned at v2.1.6, so findings are findings again"},
+			},
+		},
+	}
+}
+
+func sectionTesting(measured []packageCoverage) section {
+	return section{
+		Number: "12",
+		Title:  "Testing strategy",
+		Paras: []string{
+			"Development was test-first throughout: the estimator fixtures were computed before the " +
+				"estimators, and several are verified independently in exact arithmetic — exact rationals " +
+				"for the Dirichlet predictive of (4), dyadic expectations at δ = 1/2 steps for the moment " +
+				"decay of (6), exact √2 expressions for the non-integral shape a = 1/2 that is the " +
+				"paper's stated reason (11) goes through log-gamma, and scipy-generated fixtures for the " +
+				"Bessel ratio, against which the backward recurrence shows a worst relative error of " +
+				"2.22e−15 across κ ∈ [0.5, 700] and remains finite and monotone at κ = 5,000, where " +
+				"computing I_h and I_0 separately overflows.",
+			"Three families of test guard properties rather than values. The architecture tests of " +
+				"section 2 assert the shape of the code. The determinism family asserts E8's byte-identical " +
+				"claim literally: one probe event scored inside batch compositions differing in size by two " +
+				"orders of magnitude must yield byte-identical verdicts and an identical combined p-value; " +
+				"the same event against the same state, scored repeatedly, must be byte-identical every " +
+				"time; and the negative control — a detector standardising against its batch per equation " +
+				"(1) — is required to fail the same check, because a check that cannot fail is not " +
+				"evidence. The controls family implements §12.5 as first-class tests: an identifier field " +
+				"accrues no state and no verdicts, proven against the wired detector and its repository; " +
+				"and the wraparound control, in which an entity active only between 23:00 and 01:00 must " +
+				"score inside-window times as unremarkable and midday at the grid floor, with exactly one " +
+				"fitted mode — midnight is not a seam. The 168-cell ablation exhibits the defect on both " +
+				"sides of midnight by construction, which is what E9 measures the cost of.",
+			coverageParagraph(measured),
+		},
+		Table: coverageTable(measured),
+	}
+}
+
+func sectionNotImplemented() section {
+	return section{
+		Number: "13",
+		Title:  "Not implemented, not run",
+		Paras: []string{
+			"What follows does not exist or was not exercised, stated completely. Nothing in Part II " +
+				"draws on any of it, and nothing earlier in this document describes any of it as " +
+				"operative.",
+		},
+		Table: &table{
+			Caption: "Absences, their state, and the consequence.",
+			Head:    []string{"Item", "State", "Consequence"},
+			Rows: [][]string{
+				{"ADAPTIVE quantile binning of numeric fields, from a streaming digest (§8.2)",
+					"not implemented; what stands in its place is FIXED-boundary banding on the 1-2-5 series (`registry.Band`), and numeric fields are admitted to the graph and to Detector I through it — a discrete field by its exact value, a continuous one by its band",
+					"the substitution is deliberate rather than expedient, and the reason is that a band is a PERSISTED IDENTITY: Detector I keeps a decayed count per (entity, field, value) over a seven-day half-life and the graph keeps edge weights the same way, so an adaptive boundary would change what a stored label means while the counts filed under it stayed put, making the history a sum over incomparable quantities. A fixed boundary cannot drift. The cost is that bands are not equal-occupancy, so a field whose values all fall inside one band contributes nothing — resolution on narrowly-spread fields is forfeited to keep every other field's counts meaningful. What is NOT claimed is §8.2's mechanism: no digest informs the boundaries, and a field whose distribution the 1-2-5 series suits badly is served worse than quantile bins would serve it. LANL auth and CERT r5.2 logon carry no numeric fields, so no recorded result changes"},
+				{"A usable dependence correction (19)",
+					"Brown's correction is implemented, wired, and MEASURED (`results/lanl-brown-d7-9.json`) — and the measurement rejects the estimator it consumes",
+					"the covariance is estimated directly from burn-in co-evaluations, but (19) assumes each P_i is uniform, which fixes Var(−2 ln P_i) = 4. With volume's tail reaching e^−1000 the direct estimate reached 8044.1 for one pair against the 0.139 Kost–McDermott implies from the same correlation, so it measured the marginals' misspecification rather than the detectors' dependence. The resulting c flattened every alert into a span of 0.18 log-units. Until the marginals are calibrated, no recorded combined score carries a trustworthy dependence correction"},
+				{"Conformal calibration of §10.1",
+					"not implemented; referenced in commentary only",
+					"where a detector's model-based tail proves miscalibrated, the fallback §10.1 describes does not yet exist in code — and two tails have now been measured as miscalibrated, so this absence is load-bearing rather than theoretical. Calibration rests on the estimators and on §10.3's FDR control, and §10.3 reports realised FDR = 1.0 at every q"},
+				{"Treatment C of §11.2 (mask embedding and borrowing)",
+					"not run, by decision recorded in `cmd/e5`",
+					"E5 compares treatments A and B only; a shallow C would degrade to A without saying so, which is worse than its absence"},
+				{"A committed E5 result",
+					"no E5 result file exists under `results/` at the time of writing: the first run's discovery counts were right-censored (section 11) and the run was withdrawn",
+					"Part II renders E5 from whatever `results/` holds; until a clean run is recorded, that is a censoring-aware absence, not a measurement"},
+				{"DARPA OpTC",
+					"not retrieved, not run; recorded in `DATA.md` with the reason",
+					"no figure, table or card anywhere draws on it; hypotheses are reported from the corpora that were run"},
+				{"A recorded CERT run",
+					"the CERT schema and evaluation split are committed as configuration (`config/schemas/cert-r52-logon.json`, `DATA.md`); no CERT result file exists under `results/` at the time of writing",
+					"E6's recorded demonstration is the LANL dns source; CERT onboarding is prepared but unexercised"},
+				{"Postgres-backed replay runs",
+					"the Postgres state store exists (`infrastructure/state/postgres`, integration-tested, C-locale `ORDER BY` throughout); the recorded runs used the in-memory stores",
+					"T5's state-size and throughput figures describe the in-memory implementation; the database path is exercised by integration tests, not by a recorded corpus run"},
+				{"Decay of the numeric marginal sketch",
+					"not implemented, by decision recorded in `domain/marginal`: a centroid carries no timestamp, so the only decay a t-digest admits without rebuilding is a uniform scaling of every centroid weight",
+					"a quantile is a ratio of weights, so uniform scaling would leave every quantile — and every numeric p-value — exactly where it is; its sole effect would be to trip the §9 abstention gate more often while presenting itself as recency. Genuine recency needs per-observation ages the structure does not keep. The consequence stands: on a corpus with numeric fields, Detector IV's two halves answer on different timescales. LANL auth has none"},
+				{"An online serving path",
+					"none exists; every command is a batch composition root and the domain forbids `net/http` outright",
+					"the framework is exercised through the replay harness only; production ingestion, alert delivery and operator workflow are outside what was built"},
+			},
+		},
+	}
+}

@@ -1,0 +1,97 @@
+{
+ "corpus": {
+  "burn_in": {
+   "end_seconds": 21600,
+   "note": "six hours; this run measures evidence sufficiency, not detection"
+  },
+  "coverage": {
+   "entity_population": "U*@ human accounts",
+   "kind": "prefix",
+   "max_events": 700000
+  },
+  "events_scored": 181643,
+  "files": [
+   {
+    "path": "data/lanl/auth.txt.gz",
+    "sha256": "prefix run; full-corpus hash carried by the primary replay result"
+   }
+  ],
+  "rows_read": 2806687
+ },
+ "hypothesis": [
+  "E7"
+ ],
+ "kind": "e7",
+ "paper_refs": {
+  "equations": [
+   4,
+   5,
+   7,
+   9,
+   11,
+   14,
+   15,
+   16
+  ],
+  "sections": [
+   "§5.2",
+   "§6.4",
+   "§7.7",
+   "§12.3"
+  ]
+ },
+ "parameters": {
+  "sample_mod": 37,
+  "tolerance": "1e-9 relative"
+ },
+ "provenance_complete": true,
+ "results": {
+  "by_detector": {
+   "cooccurrence": {
+    "sampled": 4938,
+    "reconstructed": 4938,
+    "partial": 0,
+    "failed": 0
+   },
+   "novelty": {
+    "sampled": 34767,
+    "reconstructed": 24455,
+    "partial": 10312,
+    "failed": 0
+   },
+   "timing": {
+    "sampled": 4938,
+    "reconstructed": 4937,
+    "partial": 0,
+    "failed": 1
+   },
+   "volume": {
+    "sampled": 4938,
+    "reconstructed": 4938,
+    "partial": 0,
+    "failed": 0
+   }
+  },
+  "partial_definition": "novelty verdicts whose (5) tail needs the full value set: (4) is validated from the card, the tail is not recomputable from the card alone",
+  "proportion_reconstructed": 0.7919969343095137,
+  "totals": {
+   "sampled": 49581,
+   "reconstructed": 39268,
+   "partial": 10312,
+   "failed": 1
+  }
+ },
+ "run": {
+  "detectors": [
+   "cooccurrence",
+   "novelty",
+   "timing",
+   "volume"
+  ],
+  "finished_at": "2026-08-14T22:46:42Z",
+  "go_version": "go1.26.3",
+  "run_id": "e7-lanl-prefix-002",
+  "started_at": "2026-08-14T22:45:08Z"
+ },
+ "schema_version": "1"
+}

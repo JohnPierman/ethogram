@@ -1,0 +1,12 @@
+{
+ "source": "cert.r52.logon",
+ "delimiter": ",",
+ "time_column": 1,
+ "time_layout": "01/02/2006 15:04:05",
+ "epoch_rfc3339": "2010-01-01T00:00:00Z",
+ "time_unit_seconds": 0,
+ "entity_column": 2,
+ "columns": ["cert.event_id", "", "cert.user", "cert.pc", "cert.activity"],
+ "missing_token": "",
+ "entity_admit_regex": "^[A-Z]{3}[0-9]{4}$"
+}

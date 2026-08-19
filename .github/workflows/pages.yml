@@ -1,0 +1,158 @@
+name: pages
+
+# Publishes the thesis, the dashboard and the evaluation report to GitHub Pages.
+#
+# The point is not convenience. This repository's central discipline is that no number
+# reaches a reader unless a recorded run produced it, and the checks that enforce it —
+# verify-provenance for the figures, dashboard-check for the dashboard — run BEFORE the
+# publish step and fail the job. A page that cannot be built without a backing run is the
+# provenance rule made enforceable rather than merely stated.
+#
+# It runs only on main, so a pull request cannot publish, and only after ci has passed on
+# the same commit, so a page is never published from a tree whose tests are red.
+
+on:
+  workflow_run:
+    workflows: ["ci"]
+    types: [completed]
+    branches: ["main"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# One publish at a time. Not cancel-in-progress: a half-finished deploy would leave the
+# published page in a state no commit corresponds to.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+env:
+  GO_VERSION: "1.26"
+
+jobs:
+  publish:
+    # Two conditions, and the second is not a formality.
+    #
+    # `vars.PUBLISH_PAGES` must be set to 'true' on the repository. Until it is, this job
+    # is SKIPPED rather than run, because publishing is not currently possible: this
+    # repository is private, and GitHub Pages for a private repository requires a paid
+    # plan. The alternative — making the repository public — would publish the thesis, the
+    # dashboard and corpus-derived figures, which LICENSE ("private and proprietary; all
+    # rights reserved") and DATA.md's corpus terms both bear on. That is a decision for the
+    # repository owner, not a default.
+    #
+    # It is a skip and not a `continue-on-error`, deliberately. A job that runs and reports
+    # success without publishing would say the site is live when it is not, and a job that
+    # fails on every merge to main teaches everyone to ignore a red check — the same
+    # alert-fatigue failure docs/THESIS.md §2.1 is about. Skipped states what is true: this
+    # is switched off, and here is the switch.
+    #
+    # To enable: Settings -> Pages -> Source: GitHub Actions, then set the repository
+    # variable PUBLISH_PAGES to 'true'.
+    #
+    # The provenance gates below are not lost while this is off: ci.yml runs
+    # verify-provenance and dashboard-check on every push to main independently.
+    #
+    # Only when ci actually passed. workflow_run fires on failure too, and publishing a
+    # dashboard built from a tree with failing tests is exactly what this gate prevents.
+    if: >
+      vars.PUBLISH_PAGES == 'true' &&
+      (github.event_name == 'workflow_dispatch' ||
+       github.event.workflow_run.conclusion == 'success')
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache-dependency-path: go.mod
+
+      # The provenance gates, before anything is assembled. Both are the same checks ci
+      # runs; repeating them here means the publish path cannot be satisfied by a green
+      # ci on a different commit.
+      - name: verify provenance of committed evidence
+        run: make verify-provenance
+
+      - name: dashboard is current with results
+        run: make dashboard-check
+
+      # Markdown is rendered to nothing here on purpose: the site serves the committed
+      # HTML artefacts plus the Markdown sources, and GitHub renders the latter. Adding a
+      # static-site generator would put a build step between the results and the reader,
+      # which is the thing this project keeps removing.
+      - name: assemble the site
+        run: |
+          mkdir -p _site
+          cp -r docs/. _site/
+          cp README.md _site/README.md
+          cp DATA.md _site/DATA.md
+          cat > _site/index.html <<'HTML'
+          <!doctype html>
+          <html lang="en">
+          <head>
+          <meta charset="utf-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1">
+          <title>Idiolect</title>
+          <style>
+          :root{--ink:#17191B;--ink-3:#6B7379;--accent:#1C4657;--rule:#D9DEE0;
+            --panel:#F1F4F5;--page:#FFFFFF}
+          @media (prefers-color-scheme:dark){:root{--ink:#E8EAEB;--ink-3:#8C9499;
+            --accent:#7FB3C8;--rule:#3A4147;--panel:#22272B;--page:#17191B}}
+          *{box-sizing:border-box;margin:0;padding:0}
+          body{background:var(--page);color:var(--ink);font-family:Georgia,serif;
+            line-height:1.6;max-width:44rem;margin:0 auto;padding:3rem 1.25rem}
+          h1{color:var(--accent);font-size:2rem;margin-bottom:.25rem}
+          p{margin:1rem 0;max-width:38rem}
+          .sub{color:var(--ink-3);font-family:"Segoe UI",sans-serif;font-size:.9rem}
+          a{color:var(--accent)}
+          ul{list-style:none;margin:2rem 0}
+          li{background:var(--panel);border:1px solid var(--rule);border-radius:6px;
+            padding:.9rem 1.1rem;margin:.6rem 0}
+          li b{display:block;font-size:1.05rem}
+          li span{color:var(--ink-3);font-size:.88rem;
+            font-family:"Segoe UI",sans-serif}
+          footer{margin-top:3rem;color:var(--ink-3);font-size:.8rem;
+            border-top:1px solid var(--rule);padding-top:.8rem}
+          </style>
+          </head>
+          <body>
+          <h1>Idiolect</h1>
+          <p class="sub">Calibrated behavioural anomaly detection over schema-evolving
+          security telemetry</p>
+          <p>An <i>idiolect</i> is the speech pattern peculiar to one individual. An
+          account has one too — and this reports when it stops speaking in its own.</p>
+          <ul>
+            <li><a href="THESIS.md"><b>The thesis</b></a>
+              <span>The problem, the models behind every detector, and the results,
+              including the ones that failed. Start here.</span></li>
+            <li><a href="dashboard.html"><b>Results dashboard</b></a>
+              <span>Interactive: every recorded run, by arm, budget and anomaly
+              category, against the industry baselines.</span></li>
+            <li><a href="report.html"><b>Evaluation report</b></a>
+              <span>The per-hypothesis scoreboard and figures.</span></li>
+            <li><a href="IMPLEMENTATION.md"><b>Specification versus code</b></a>
+              <span>Generated. Every deviation, recorded.</span></li>
+            <li><a href="DATA.md"><b>Corpora</b></a>
+              <span>Sources, checksums and licences.</span></li>
+          </ul>
+          <footer>Every number published here came out of a recorded run. This site is
+          built only if <code>make verify-provenance</code> and
+          <code>make dashboard-check</code> both pass, so a figure without a backing run
+          fails the build rather than reaching a reader.</footer>
+          </body>
+          </html>
+          HTML
+
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+      - id: deploy
+        uses: actions/deploy-pages@v4

@@ -1,0 +1,133 @@
+name: ci
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  GO_VERSION: "1.26"
+
+jobs:
+  build:
+    name: build, vet, test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache-dependency-path: go.mod
+
+      - name: gofmt
+        run: make fmt-check
+
+      - name: go vet
+        run: make vet
+
+      - name: build
+        run: make build
+
+      # E8 gates every other hypothesis, so it runs before the rest of the suite and
+      # its output is surfaced separately in the log.
+      - name: E8 determinism (gates everything else)
+        run: make e8
+
+      # The corpora are not in CI by design: they are large, and LANL is distributed
+      # behind a consent gate. Corpus-dependent tests are behind the `corpus` build
+      # tag and Postgres-dependent tests behind `integration`, so this step must pass
+      # with neither present.
+      - name: test with race detector
+        run: make test
+
+      - name: coverage gate (80% on domain and application)
+        run: make cover
+
+      - name: upload coverage profile
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage
+          path: coverage.out
+          if-no-files-found: ignore
+
+  lint:
+    name: golangci-lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache-dependency-path: go.mod
+      # .golangci.yml uses the version 2 configuration schema, which requires action
+      # v8. Action v6 drives golangci-lint v1 and rejects that schema outright with a
+      # configuration error rather than a lint finding.
+      #
+      # install-mode: goinstall compiles golangci-lint with the Go toolchain selected
+      # above rather than downloading a prebuilt binary. The published v2.1.6 binary is
+      # built with go1.24 and refuses to load a config whose module targets a newer Go
+      # ("the Go language version used to build golangci-lint is lower than the targeted
+      # Go version"), which fails as a config error rather than as a lint finding.
+      # Compiling from source keeps the linter and the module on the same Go version.
+      - uses: golangci/golangci-lint-action@v8
+        with:
+          version: v2.1.6
+          install-mode: goinstall
+          args: --timeout=5m
+
+  provenance:
+    name: provenance of committed evidence
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache-dependency-path: go.mod
+      # Fails if any committed figure or table lacks a backing results/*.json from a
+      # real run. This is the check that keeps invented numbers out of the report.
+      #
+      # Gated on cmd/report existing so that the job activates by itself when the
+      # renderer lands, rather than reporting a false failure until then. It must never
+      # be made unconditionally green: this is the check that keeps invented numbers out
+      # of the report, so a permanently passing version would be worse than none.
+      - name: check whether the report renderer exists yet
+        id: renderer
+        run: |
+          if [ -f cmd/report/main.go ]; then
+            echo "present=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "present=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::cmd/report does not exist yet; provenance verification is pending Phase 6."
+          fi
+      - name: verify provenance
+        if: steps.renderer.outputs.present == 'true'
+        run: make verify-provenance
+
+      # The committed dashboard must agree with the committed results. Regenerating it
+      # from unchanged results produces an unchanged file — it carries no build
+      # timestamp for exactly this reason — so a difference here means a result changed
+      # without the dashboard being regenerated, and a reader would be shown stale
+      # numbers under a current run's provenance footer.
+      - name: dashboard is current with results
+        run: make dashboard-check
+
+      # The figures and the static report carry the same guarantee, and previously had
+      # none. Running the renderer as a diagnostic silently rewrote four committed SVGs
+      # and produced two more, so the committed figures had drifted from the committed
+      # results with nothing to say so. A figure names a run id in the manifest, which
+      # makes a stale one evidence for a run that no longer exists.
+      - name: figures and report are current with results
+        run: make figures-check
+
+      # docs/THESIS.md is canonical and docs/thesis.html is generated from it. The page
+      # carries no timestamp, so unchanged prose reproduces it byte for byte and a
+      # difference here means the Markdown moved without the rendered document following.
+      - name: thesis page is current with its source
+        run: make thesis-check

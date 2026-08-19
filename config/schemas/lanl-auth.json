@@ -1,0 +1,12 @@
+{
+ "source": "lanl.auth",
+ "delimiter": ",",
+ "time_column": 0,
+ "time_unit_seconds": 1,
+ "entity_column": 1,
+ "columns": ["", "auth.source_user", "auth.destination_user", "auth.source_computer",
+             "auth.destination_computer", "auth.authentication_type", "auth.logon_type",
+             "auth.authentication_orientation", "auth.success_failure"],
+ "missing_token": "?",
+ "entity_admit_regex": "^U[0-9]"
+}
