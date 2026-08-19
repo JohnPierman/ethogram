@@ -11,6 +11,24 @@ Equation numbers `(1)`–`(20)`, requirements `R1`–`R6`, and evaluation hypoth
 
 ### Added
 
+- **detection broken out by attack type at 10, 100 and 1000 alerts a day** (paper section
+  3.6), from `lanl-inj-b1000-conf-d7-14-001`: 856 planted attacks across six types plus the
+  549 real labelled events. Attribution is by victim account, which the taxonomy makes
+  unambiguous -- victims are disjoint from every account the real labels name, so the account
+  alone says which ground truth an event belongs to. Two results carry the section:
+  - the population `marginal` arm detects **120 of 120 planted account takeovers**. A
+    synthetic takeover moves an account onto values that are rare population-wide, which is
+    precisely that detector's question, so the sweep is the expected result -- and it is the
+    one place a population-scope model is the right instrument
+  - **Detector V is the broadest arm**, the only one reaching four of the six types, and the
+    only one reaching credential spray (117/320), lateral movement (26/40) or privilege
+    escalation at all
+- **low-and-slow exfiltration is invisible to every arm at every budget: 0 of 288.** Recorded
+  as a confirmed prediction rather than an unexplained gap -- it is the type the volume
+  detector's dispersion widening was expected to miss. With off-hours (2 of 64, timing only)
+  these are 352 of the 856 planted events, and they are where the detection headroom is
+- results `lanl-inj-b1000-conf-d7-14.json` and `analysis-r11-b1000-conf.json`
+
 - **the paper now cites its sources.** It carried a reference list that nothing referred to,
   which is a defect in a paper rather than a formatting quibble. There are now 18 references
   and 14 inline citations, and **every reference is cited** -- checked mechanically, not by
@@ -23,9 +41,28 @@ Equation numbers `(1)`–`(20)`, requirements `R1`–`R6`, and evaluation hypoth
   `sidecar/` stays Python -- the comparison's credibility rests on the models being the
   canonical ones
 
+### Fixed
+
+- **two claims the wider budget disproved.** The paper and the README both said five of six
+  planted attack types were invisible to every arm. That was measured at 700 alerts and is
+  false at 7,000: five of six are reached. Corrected in both places, and the paper now
+  separates the two statements it had conflated -- "the detectors cannot express this attack"
+  and "this budget cannot afford this attack" -- because only the second is true of four of
+  them
+- the README described `noveltyrate` as **"not yet measured"** and told the reader not to read
+  it as a capability. A recorded run now includes it (185 of 549 at the widest budget, second
+  only to Detector I), so the warning was itself the stale claim. It stays opt-in until a
+  second corpus agrees
+- the README said the composite **"catches nothing"** while its best component caught 60.
+  Under conformal calibration it catches 6 at 100/day and 113 at 1000/day -- still beaten by
+  its own best component at every budget, which is the accurate and less absolute version of
+  the same point
+- `coverage.out` is git-ignored. It is a generated profile that CI uploads as an artefact, and
+  it had begun showing up as an untracked file in every status
+
 ### Changed
 
-- the paper is 10 pages and 3,759 words, up from 9 and 3,393. The ceiling is 15, exceeded
+- the paper is 11 pages and 4,633 words, up from 9 and 3,393. The ceiling is 15, exceeded
   only for figures and citations, and `make paper` still fails the build above it
 
 ### Removed

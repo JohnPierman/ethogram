@@ -274,35 +274,115 @@ alerts over seven days and 1,405 labelled events:
 | composite | 20/120 | 0 | 0 | 0 | 0 | 0 | 0/549 |
 
 Two readings. The population marginal detects **76 of 120 account-takeover events, 63%
-recall**, and that is the only planted type any arm reaches — **five of six are invisible to
-everything**, including low-and-slow, which the design's dispersion widening was expected to
-miss. And the two useful arms are sensitive to *disjoint* things: the marginal to planted
-takeover, the novelty detector to the real campaign.
+recall**, and at this budget that is the only planted type any arm reaches. And the two useful
+arms are sensitive to *disjoint* things: the marginal to planted takeover, the novelty detector
+to the real campaign.
 
-### 3.4 A budget is a ceiling, not a quota
+Both readings are budget-dependent, and §3.6 shows how far. At ten times this budget five of
+the six types are reached rather than one, so "the detectors cannot express this attack" and
+"this budget cannot afford this attack" are different statements, and only the second is true
+of four of them.
 
-With a few hundred labelled events in the corpus, most of what a large budget permits is cost
-without return. Truncating each queue where `U` peaks (`v/c = 10`, `lanl-r11`):
+### 3.4 Widening the budget, and the sixth detector
 
-| Budget | Permitted | TP | **Optimal** | TP | Precision | Suppressed | **TP forgone** |
+`lanl-r11-b1000-conf-d7-14-001` is the first recorded run to include Detector V, and the
+first at a budget of 1000 alerts a day. 549 labelled events among 4,190,603 scored:
+
+| Arm | 10/day | 100/day | 1000/day |
+|---|---|---|---|
+| I `novelty` | **11** | **60** | **201** |
+| V `noveltyrate` | 0 | 22 | **185** |
+| `pairing` | 4 | 59 | 127 |
+| corrected minimum | 4 | 47 | 161 |
+| composite | 0 | 6 | 113 |
+| II(a) `timing` | 0 | 0 | 6 |
+| II(b) `volume`, IV `marginal` | 0 | 0 | 0 |
+
+Three findings.
+
+**Detector V detects, and this is the first time it has been measured.** It reaches 185 of
+549 at the widest budget, second only to Detector I. Its per-entity novelty *rate* null was
+built because Detector I's p-value for a first-ever value is approximately one over the size
+of the account's history, which makes the detector structurally unable to alert on a small
+account however anomalous it is; the rate question is scale-free by construction. Nothing
+before this run substantiated that, and the arm remains off by default until a second corpus
+agrees.
+
+**Conformal calibration moves the composite off zero — and not far enough.** The composite
+catches 6 at 100 alerts a day where the uncalibrated composite caught 0, which is the
+predicted direction: putting the detectors on a common scale is what lets an informative one
+reach the minimum. It is still an order of magnitude below its own best component's 60. Per-arm
+figures are unchanged by calibration, as they must be, since a rank transform applied within
+one detector is monotone and cannot reorder that detector's own alerts.
+
+**Widening the budget buys recall at a steep price in precision.** Detector I's recall rises
+from 2.0% to 36.6% between 10 and 1000 alerts a day, while its precision falls from 15.7% to
+2.9%. A budget of 1000 a day is 7,000 alerts across the window against 549 labelled events, so
+most of what it permits cannot be anything but cost.
+
+### 3.5 A budget is a ceiling, not a quota
+
+Truncating each queue where `U` peaks, at an exchange rate of ten false positives to one true
+positive (`v/c = 10`), on the corrected-minimum arm:
+
+| Budget | Permitted | TP | **Optimal** | TP | Precision | Suppressed | TP forgone |
 |---|---|---|---|---|---|---|---|
 | 10/day | 70 | 4 | **30** | 4 | 6.7% → **13.3%** | 40 | **0** |
 | 100/day | 700 | 47 | **221** | 47 | 6.7% → **21.3%** | 479 | **0** |
+| 1000/day | 7,000 | 161 | **315** | 74 | 2.3% → **23.5%** | 6,685 | 87 |
 
-At a 100/day budget, **68% of the queue can be suppressed for zero lost detections** and
-precision triples. For the composite, whose queue holds no true positives at all, the optimum
-is to emit nothing — the objective correctly declining to deploy it.
+At 10 and 100 a day the truncation is free: two thirds of the queue can be discarded for no
+loss of detection at all. At 1000 a day it stops being free and starts being a decision — the
+objective discards 6,685 alerts and 87 true positives with them, because at this exchange rate
+those 87 are not worth 6,685 wasted investigations. Precision rises tenfold, from 2.3% to
+23.5%.
 
-This is an oracle bound: the optimum is located using the labels, so it measures the headroom
-a cutoff has rather than being a deployable rule. A deployable version needs a per-alert
-probability of being a true positive.
+For the composite the optimum is to emit **nothing at every budget**, including the one where
+it finds 113 true positives: 113 detections do not pay for 6,887 false ones at `v/c = 10`. The
+objective declining to deploy a detector is a usable answer, and it is the one the framework's
+own headline arm receives.
 
-### 3.5 Budgets of 10, 100 and 1000 per day, and Detector V
+This is an oracle bound. The optimum is located using the labels, so it measures the headroom
+a cutoff has rather than being a rule that can be shipped; a deployable version needs a
+calibrated per-alert probability, which the combination work above is a prerequisite for.
 
-*Left blank: the runs are in progress. No recorded run yet includes Detector V, so nothing in
-this paper claims it works.*
+### 3.6 Per-attack-type detection at these budgets
 
-### 3.6 What the baselines do
+`lanl-inj-b1000-conf-d7-14-001`, 856 planted attacks across six types plus the 549 real
+labelled events, 1,405 labelled in total. Attribution is by victim account, which the
+taxonomy fixes: victims are disjoint from every account the real labels name, so the account
+alone says which ground truth a labelled event belongs to. Detections at **1000 alerts a
+day**:
+
+| Arm | acct takeover | cred spray | lateral | low & slow | off hours | priv esc | real campaign |
+|---|---|---|---|---|---|---|---|
+| IV `marginal` | **120/120** | 0/320 | 0/40 | 0/288 | 0/64 | 0/24 | 0/549 |
+| V `noveltyrate` | 64/120 | **117/320** | **26/40** | 0/288 | 0/64 | **4/24** | 173/549 |
+| I `novelty` | 30/120 | 80/320 | 15/40 | 0/288 | 0/64 | 0/24 | **178/549** |
+| `pairing` | 12/120 | 0/320 | 0/40 | 0/288 | 0/64 | 0/24 | 130/549 |
+| II(a) `timing` | 4/120 | 0/320 | 0/40 | 0/288 | 2/64 | 0/24 | 6/549 |
+| II(b) `volume` | 0/120 | 0/320 | 0/40 | 0/288 | 0/64 | 0/24 | 0/549 |
+
+**The population marginal detects every planted account takeover: 120 of 120.** A synthetic
+takeover moves an account onto values that are rare in the population, which is exactly the
+question that detector asks, so a clean sweep is the expected result rather than a surprising
+one — and it is worth stating as the one place a population-scope model is the right
+instrument.
+
+**Detector V is the broadest arm.** It is the only one reaching four of the six types, and
+the only one reaching credential spray (117 of 320), lateral movement (26 of 40) and
+privilege escalation at all. Its documentation claimed it took credential spray, lateral
+movement and account takeover "from nothing to nearly everything"; measured, it takes them
+from nothing to between a third and two thirds, which is a real effect and a smaller one than
+the claim.
+
+**Low-and-slow is invisible to every arm at every budget: 0 of 288.** This is the type the
+volume detector's dispersion widening was expected to miss, so it is a confirmed prediction
+rather than an unexplained gap. Off-hours is reached only by the timing detector and only
+twice in 64. Between them these two types are 352 of the 856 planted events, and they are
+where the remaining detection headroom is.
+
+### 3.7 What the baselines do
 
 Six population-scope baselines spanning four inductive biases — isolation forest [11], extended
 isolation forest [12], half-space trees [13], local outlier factor [14], one-class SVM [15]
@@ -371,8 +451,8 @@ building one needs a calibrated per-alert probability.
 
 What is not claimed: that this detects insider threat at deployable precision. Sixteen per
 cent of a queue being real is a thousand-fold improvement on chance and still not good enough
-to alert on unattended, and five of six synthetic attack types are invisible to every arm
-tested. What is established is narrower and more useful — that the per-entity formulation
+to alert on unattended, and low-and-slow exfiltration — 288 planted events — is invisible to
+every arm at every budget. What is established is narrower and more useful — that the per-entity formulation
 carries signal where the population formulation carries none, and that the combination layer
 is the defect standing between the two.
 

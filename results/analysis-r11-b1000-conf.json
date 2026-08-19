@@ -1,0 +1,754 @@
+{
+ "corpus": {
+  "burn_in": {
+   "end_seconds": 604800,
+   "fixed_at_commit": "24c5a53"
+  },
+  "coverage": {
+   "entity_population": "source users matching U*@ (human accounts); see DATA.md burn-in section",
+   "kind": "full",
+   "max_rows": 0,
+   "max_seconds": 0,
+   "statement": "full corpus scored from day 7.00"
+  },
+  "events_scored": 4190603,
+  "events_skipped": 0,
+  "events_warmed": 3808702,
+  "files": [
+   {
+    "path": "data/lanl/auth-r11-d0-14.txt.gz",
+    "sha256": "77d2897145ce4fd1d66e2534ae4a8e52310ea4f915edc6c6750d8d826131961f"
+   },
+   {
+    "path": "data/lanl/redteam.txt.gz",
+    "sha256": "606635837c684ad11e464075ecf97bc5df325ff7d7f64614d2d8c8af18051669"
+   }
+  ],
+  "no_opinion": 0,
+  "row_errors": 0,
+  "rows_prefiltered": 8031091,
+  "rows_read": 16030396
+ },
+ "hypothesis": [
+  "E1",
+  "E2",
+  "E3"
+ ],
+ "kind": "analysis",
+ "paper_refs": {
+  "equations": [
+   18
+  ],
+  "sections": [
+   "§10.2",
+   "§10.3",
+   "§12.3",
+   "§12.4",
+   "§12.5"
+  ]
+ },
+ "parameters": {
+  "bh_denominator": "exact per-day scored-event counts recorded by the run",
+  "bootstrap_resamples": 2000,
+  "bootstrap_seed": 20260814,
+  "budgets": [
+   10,
+   100,
+   1000
+  ],
+  "ground_truth_caveat": "unlabelled events count as negatives; the corpus has no true negative class (§12.5), so realised FDR is an upper bound",
+  "objective": {
+   "form": "U = v*TP - c*FP, scored in units of c",
+   "minimum_precision": 0.09090909090909091,
+   "scored": true,
+   "units": "one false positive",
+   "value_ratio": 10
+  },
+  "q_grid": [
+   0.001,
+   0.005,
+   0.01,
+   0.05,
+   0.1,
+   0.25
+  ],
+  "top_k_per_day": 1000
+ },
+ "provenance_complete": true,
+ "results": {
+  "ablations": {},
+  "baseline_source": null,
+  "calibration_bh": [
+   {
+    "nominal_q": 0.001,
+    "procedure": "benjamini-hochberg",
+    "discoveries": 3867,
+    "true_positives": 80,
+    "realised_fdr": {
+     "point": 0.9793121282648047,
+     "low": 0.9743273125137131,
+     "high": 0.9833455964484092,
+     "n": 3867,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "conservatism_ratio": 979.3121282648048,
+    "saturated_days": 2
+   },
+   {
+    "nominal_q": 0.005,
+    "procedure": "benjamini-hochberg",
+    "discoveries": 4765,
+    "true_positives": 110,
+    "realised_fdr": {
+     "point": 0.9769150052465897,
+     "low": 0.9722513452396155,
+     "high": 0.9808103237729565,
+     "n": 4765,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "conservatism_ratio": 195.38300104931793,
+    "saturated_days": 3
+   },
+   {
+    "nominal_q": 0.01,
+    "procedure": "benjamini-hochberg",
+    "discoveries": 5147,
+    "true_positives": 113,
+    "realised_fdr": {
+     "point": 0.9780454633767243,
+     "low": 0.9736713339760174,
+     "high": 0.9817065473549842,
+     "n": 5147,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "conservatism_ratio": 97.80454633767242,
+    "saturated_days": 4
+   },
+   {
+    "nominal_q": 0.05,
+    "procedure": "benjamini-hochberg",
+    "discoveries": 5352,
+    "true_positives": 113,
+    "realised_fdr": {
+     "point": 0.9788863976083707,
+     "low": 0.974677442653409,
+     "high": 0.9824083933281319,
+     "n": 5352,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "conservatism_ratio": 19.577727952167415,
+    "saturated_days": 5
+   },
+   {
+    "nominal_q": 0.1,
+    "procedure": "benjamini-hochberg",
+    "discoveries": 5474,
+    "true_positives": 113,
+    "realised_fdr": {
+     "point": 0.9793569601753745,
+     "low": 0.975240514691334,
+     "high": 0.9828010860836225,
+     "n": 5474,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "conservatism_ratio": 9.793569601753745,
+    "saturated_days": 5
+   },
+   {
+    "nominal_q": 0.25,
+    "procedure": "benjamini-hochberg",
+    "discoveries": 6035,
+    "true_positives": 113,
+    "realised_fdr": {
+     "point": 0.9812758906379453,
+     "low": 0.9775373076172493,
+     "high": 0.9844021702796286,
+     "n": 6035,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "conservatism_ratio": 3.925103562551781,
+    "saturated_days": 5
+   }
+  ],
+  "calibration_by": [
+   {
+    "nominal_q": 0.001,
+    "procedure": "benjamini-yekutieli",
+    "discoveries": 2909,
+    "true_positives": 65,
+    "realised_fdr": {
+     "point": 0.9776555517359917,
+     "low": 0.9716213376755954,
+     "high": 0.9824299003636757,
+     "n": 2909,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "conservatism_ratio": 977.6555517359917,
+    "saturated_days": 2
+   },
+   {
+    "nominal_q": 0.005,
+    "procedure": "benjamini-yekutieli",
+    "discoveries": 3378,
+    "true_positives": 71,
+    "realised_fdr": {
+     "point": 0.9789816459443458,
+     "low": 0.9735724756706825,
+     "high": 0.9833026586025985,
+     "n": 3378,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "conservatism_ratio": 195.79632918886915,
+    "saturated_days": 2
+   },
+   {
+    "nominal_q": 0.01,
+    "procedure": "benjamini-yekutieli",
+    "discoveries": 3668,
+    "true_positives": 76,
+    "realised_fdr": {
+     "point": 0.9792802617230099,
+     "low": 0.9741442810691725,
+     "high": 0.983413402025689,
+     "n": 3668,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "conservatism_ratio": 97.92802617230099,
+    "saturated_days": 2
+   },
+   {
+    "nominal_q": 0.05,
+    "procedure": "benjamini-yekutieli",
+    "discoveries": 4592,
+    "true_positives": 107,
+    "realised_fdr": {
+     "point": 0.976698606271777,
+     "low": 0.971920483175907,
+     "high": 0.9806798271758359,
+     "n": 4592,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "conservatism_ratio": 19.53397212543554,
+    "saturated_days": 2
+   },
+   {
+    "nominal_q": 0.1,
+    "procedure": "benjamini-yekutieli",
+    "discoveries": 4963,
+    "true_positives": 111,
+    "realised_fdr": {
+     "point": 0.9776344952649607,
+     "low": 0.9731362165582489,
+     "high": 0.9813939490020754,
+     "n": 4963,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "conservatism_ratio": 9.776344952649607,
+    "saturated_days": 3
+   },
+   {
+    "nominal_q": 0.25,
+    "procedure": "benjamini-yekutieli",
+    "discoveries": 5218,
+    "true_positives": 113,
+    "realised_fdr": {
+     "point": 0.9783441931774627,
+     "low": 0.9740287179402002,
+     "high": 0.9819558785602457,
+     "n": 5218,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "conservatism_ratio": 3.9133767727098507,
+    "saturated_days": 5
+   }
+  ],
+  "category_census": [
+   {
+    "category": {
+     "id": "population_rare",
+     "structural_test": "the observed value holds less than one part in a thousand of its field's observed mass in the population",
+     "whitepaper_section": "§9",
+     "contrast_with_marginal_detectors": "this is the category isolation-based detectors answer well, and it is retained as the control: it is the part of the problem the standard formulation already solves, so any advantage the framework shows elsewhere can be read against a category where it should show none"
+    },
+    "labelled_total": 549,
+    "labelled_uncategorised": 92,
+    "red_team_events": 0,
+    "share_of_labelled": 0
+   },
+   {
+    "category": {
+     "id": "novel_value",
+     "structural_test": "the entity has history for the field but has never taken this value",
+     "whitepaper_section": "§3.1, §6",
+     "contrast_with_marginal_detectors": "a detector fitted to a pooled feature cloud holds no per-entity state, so the proposition 'this entity has not previously exhibited this value' is not expressible in it; a value common in the population is unremarkable to it however new it is to the account that produced it"
+    },
+    "labelled_total": 549,
+    "labelled_uncategorised": 92,
+    "red_team_events": 215,
+    "share_of_labelled": 0.39162112932604737
+   },
+   {
+    "category": {
+     "id": "off_hours",
+     "structural_test": "the entity's own fitted circular density at this time of day is below the uniform level 1/2π",
+     "whitepaper_section": "§3.1, §7.1, §7.2",
+     "contrast_with_marginal_detectors": "an hour-of-day feature is scored against the population's working pattern rather than the entity's, and a rectangular encoding cuts the circle at midnight, so an entity whose ordinary hours straddle midnight is scored as two disjoint populations rather than one (§7.1)"
+    },
+    "labelled_total": 549,
+    "labelled_uncategorised": 92,
+    "red_team_events": 181,
+    "share_of_labelled": 0.3296903460837887
+   },
+   {
+    "category": {
+     "id": "volume_burst",
+     "structural_test": "the entity's observed count in the window exceeds its own predicted rate",
+     "whitepaper_section": "§3.1, §7.4",
+     "contrast_with_marginal_detectors": "a rate is only anomalous relative to the entity's own history; a population-fitted model reads a quiet account's tenfold increase as ordinary whenever busier accounts sustain that rate routinely"
+    },
+    "labelled_total": 549,
+    "labelled_uncategorised": 92,
+    "red_team_events": 199,
+    "share_of_labelled": 0.36247723132969034
+   },
+   {
+    "category": {
+     "id": "novel_pair",
+     "structural_test": "two eligible values have never co-occurred, in a graph that carries mass",
+     "whitepaper_section": "§3.3, §8",
+     "contrast_with_marginal_detectors": "each value is individually frequent, so every marginal is satisfied and the combination is invisible to any detector that scores fields independently; only a joint model has the question in its vocabulary"
+    },
+    "labelled_total": 549,
+    "labelled_uncategorised": 92,
+    "red_team_events": 362,
+    "share_of_labelled": 0.6593806921675774
+   }
+  ],
+  "category_comparison": null,
+  "detection": [
+   {
+    "budget_per_day": 10,
+    "alerts": 70,
+    "true_positives": 0,
+    "false_negatives": 549,
+    "red_team_scored": 549,
+    "recall_wilson": {
+     "point": 0,
+     "low": 0,
+     "high": 0.0069485722523209776,
+     "n": 549,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "recall_clopper_pearson": {
+     "point": 0,
+     "low": 0,
+     "high": 0.006696746586929037,
+     "n": 549,
+     "level": 0.95,
+     "kind": "clopper-pearson"
+    },
+    "precision_wilson": {
+     "point": 0,
+     "low": 0,
+     "high": 0.05202306241026692,
+     "n": 70,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "false_positives": 70,
+    "true_false_ratio": 0,
+    "objective_utility": -70,
+    "is_worthwhile": false,
+    "is_objective_maximum": true
+   },
+   {
+    "budget_per_day": 100,
+    "alerts": 700,
+    "true_positives": 6,
+    "false_negatives": 543,
+    "red_team_scored": 549,
+    "recall_wilson": {
+     "point": 0.01092896174863388,
+     "low": 0.0050181998617519295,
+     "high": 0.02363641452713034,
+     "n": 549,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "recall_clopper_pearson": {
+     "point": 0.01092896174863388,
+     "low": 0.004021003611506216,
+     "high": 0.023635083911579258,
+     "n": 549,
+     "level": 0.95,
+     "kind": "clopper-pearson"
+    },
+    "precision_wilson": {
+     "point": 0.008571428571428572,
+     "low": 0.003934113884221076,
+     "high": 0.018573026924501572,
+     "n": 700,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "false_positives": 694,
+    "true_false_ratio": 0.008645533141210375,
+    "break_even_value_ratio": 115.66666666666667,
+    "objective_utility": -634,
+    "is_worthwhile": false
+   },
+   {
+    "budget_per_day": 1000,
+    "alerts": 7000,
+    "true_positives": 113,
+    "false_negatives": 436,
+    "red_team_scored": 549,
+    "recall_wilson": {
+     "point": 0.2058287795992714,
+     "low": 0.17410874549315256,
+     "high": 0.2416369536644061,
+     "n": 549,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "recall_clopper_pearson": {
+     "point": 0.2058287795992714,
+     "low": 0.17275750033561127,
+     "high": 0.24210238857792382,
+     "n": 549,
+     "level": 0.95,
+     "kind": "clopper-pearson"
+    },
+    "precision_wilson": {
+     "point": 0.016142857142857143,
+     "low": 0.013444880296388871,
+     "high": 0.01937160479569298,
+     "n": 7000,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "false_positives": 6887,
+    "true_false_ratio": 0.016407724698707712,
+    "break_even_value_ratio": 60.94690265486726,
+    "objective_utility": -5757,
+    "is_worthwhile": false
+   }
+  ],
+  "gap": {
+   "note": "gap = best labelled log p − the cut's log p, in log-units. Positive means the labelled event is LESS extreme than the cut and is therefore missed; the figure is how far the composite would have to move it to publish it. Null where the day scored no labelled event, or retained fewer alerts than the budget.",
+   "per_day": [
+    {
+     "day": 7,
+     "labelled_scored": 1,
+     "alerts_retained": 1000,
+     "best_labelled_log_p": -0.6463267063119391,
+     "cuts": [
+      {
+       "budget_per_day": 10,
+       "cut_log_p": -28.70146617024613,
+       "gap_log_units": 28.05513946393419
+      },
+      {
+       "budget_per_day": 100,
+       "cut_log_p": -22.112643451008694,
+       "gap_log_units": 21.466316744696755
+      },
+      {
+       "budget_per_day": 1000,
+       "cut_log_p": -11.062927072182113,
+       "gap_log_units": 10.416600365870174
+      }
+     ]
+    },
+    {
+     "day": 8,
+     "labelled_scored": 261,
+     "alerts_retained": 1000,
+     "best_labelled_log_p": -25.271069725447155,
+     "cuts": [
+      {
+       "budget_per_day": 10,
+       "cut_log_p": -35.28547695781852,
+       "gap_log_units": 10.014407232371362
+      },
+      {
+       "budget_per_day": 100,
+       "cut_log_p": -24.175703206444453,
+       "gap_log_units": -1.0953665190027024
+      },
+      {
+       "budget_per_day": 1000,
+       "cut_log_p": -12.077520606979757,
+       "gap_log_units": -13.193549118467399
+      }
+     ]
+    },
+    {
+     "day": 9,
+     "labelled_scored": 5,
+     "alerts_retained": 1000,
+     "best_labelled_log_p": -10.67804334315965,
+     "cuts": [
+      {
+       "budget_per_day": 10,
+       "cut_log_p": -28.325815825465646,
+       "gap_log_units": 17.647772482305996
+      },
+      {
+       "budget_per_day": 100,
+       "cut_log_p": -22.456656325949396,
+       "gap_log_units": 11.778612982789745
+      },
+      {
+       "budget_per_day": 1000,
+       "cut_log_p": -19.739662533181956,
+       "gap_log_units": 9.061619190022306
+      }
+     ]
+    },
+    {
+     "day": 10,
+     "labelled_scored": 0,
+     "alerts_retained": 1000,
+     "best_labelled_log_p": null,
+     "cuts": [
+      {
+       "budget_per_day": 10,
+       "cut_log_p": -24.665102974132097,
+       "gap_log_units": null
+      },
+      {
+       "budget_per_day": 100,
+       "cut_log_p": -12.30350146849593,
+       "gap_log_units": null
+      },
+      {
+       "budget_per_day": 1000,
+       "cut_log_p": -5.568012460593316,
+       "gap_log_units": null
+      }
+     ]
+    },
+    {
+     "day": 11,
+     "labelled_scored": 0,
+     "alerts_retained": 1000,
+     "best_labelled_log_p": null,
+     "cuts": [
+      {
+       "budget_per_day": 10,
+       "cut_log_p": -23.14803133423485,
+       "gap_log_units": null
+      },
+      {
+       "budget_per_day": 100,
+       "cut_log_p": -12.531899085328476,
+       "gap_log_units": null
+      },
+      {
+       "budget_per_day": 1000,
+       "cut_log_p": -5.816391828829449,
+       "gap_log_units": null
+      }
+     ]
+    },
+    {
+     "day": 12,
+     "labelled_scored": 207,
+     "alerts_retained": 1000,
+     "best_labelled_log_p": -24.27634311627729,
+     "cuts": [
+      {
+       "budget_per_day": 10,
+       "cut_log_p": -36.42924426578841,
+       "gap_log_units": 12.152901149511123
+      },
+      {
+       "budget_per_day": 100,
+       "cut_log_p": -26.175829167695092,
+       "gap_log_units": 1.899486051417803
+      },
+      {
+       "budget_per_day": 1000,
+       "cut_log_p": -16.702811962552843,
+       "gap_log_units": -7.573531153724446
+      }
+     ]
+    },
+    {
+     "day": 13,
+     "labelled_scored": 75,
+     "alerts_retained": 1000,
+     "best_labelled_log_p": -22.87413365787542,
+     "cuts": [
+      {
+       "budget_per_day": 10,
+       "cut_log_p": -34.43074921275355,
+       "gap_log_units": 11.556615554878128
+      },
+      {
+       "budget_per_day": 100,
+       "cut_log_p": -23.451147371271446,
+       "gap_log_units": 0.5770137133960276
+      },
+      {
+       "budget_per_day": 1000,
+       "cut_log_p": -11.343697556604297,
+       "gap_log_units": -11.530436101271121
+      }
+     ]
+    }
+   ],
+   "distribution": [
+    {
+     "budget_per_day": 10,
+     "inside_the_cut": 0,
+     "within_10_log_units": 0,
+     "within_50_log_units": 549,
+     "within_200_log_units": 0,
+     "beyond_200_log_units": 0,
+     "unmeasurable": 0
+    },
+    {
+     "budget_per_day": 100,
+     "inside_the_cut": 7,
+     "within_10_log_units": 72,
+     "within_50_log_units": 470,
+     "within_200_log_units": 0,
+     "beyond_200_log_units": 0,
+     "unmeasurable": 0
+    },
+    {
+     "budget_per_day": 1000,
+     "inside_the_cut": 113,
+     "within_10_log_units": 315,
+     "within_50_log_units": 121,
+     "within_200_log_units": 0,
+     "beyond_200_log_units": 0,
+     "unmeasurable": 0
+    }
+   ]
+  },
+  "head_to_head": null,
+  "headline": "",
+  "prediction": "§10.2 predicts realised FDR below nominal q (super-uniform discrete statistics under Fisher); the conservatism ratio quantifies it",
+  "red_team_population": {
+   "n": 549,
+   "source": "the run's complete red_team_scored list: every labelled event that received a combined p-value, whether or not it was alerted"
+  },
+  "utility_cutoff": [
+   {
+    "arm": "composite",
+    "combination": "Fisher (18) with Brown's correction (19)",
+    "budgets": [
+     {
+      "budget_per_day": 10,
+      "alerts_at_budget": 70,
+      "true_positives_at_budget": 0,
+      "optimal_alerts": 0,
+      "true_positives_at_optimal": 0,
+      "objective_at_budget": -70,
+      "objective_at_optimal": 0,
+      "precision_at_optimal": 0,
+      "is_worthwhile_at_optimal": false,
+      "alerts_suppressed": 70,
+      "true_positives_forgone": 0
+     },
+     {
+      "budget_per_day": 100,
+      "alerts_at_budget": 700,
+      "true_positives_at_budget": 6,
+      "optimal_alerts": 0,
+      "true_positives_at_optimal": 0,
+      "objective_at_budget": -634,
+      "objective_at_optimal": 0,
+      "precision_at_optimal": 0,
+      "is_worthwhile_at_optimal": false,
+      "alerts_suppressed": 700,
+      "true_positives_forgone": 6
+     },
+     {
+      "budget_per_day": 1000,
+      "alerts_at_budget": 7000,
+      "true_positives_at_budget": 113,
+      "optimal_alerts": 0,
+      "true_positives_at_optimal": 0,
+      "objective_at_budget": -5757,
+      "objective_at_optimal": 0,
+      "precision_at_optimal": 0,
+      "is_worthwhile_at_optimal": false,
+      "alerts_suppressed": 7000,
+      "true_positives_forgone": 113
+     }
+    ]
+   },
+   {
+    "arm": "min-p",
+    "combination": "Sidak over detectors, P = 1 - (1 - min_i P_i)^J, evaluated in log space; equation (16) applied one level above the pairwise use in section 8.5",
+    "budgets": [
+     {
+      "budget_per_day": 10,
+      "alerts_at_budget": 70,
+      "true_positives_at_budget": 4,
+      "optimal_alerts": 30,
+      "true_positives_at_optimal": 4,
+      "objective_at_budget": -26,
+      "objective_at_optimal": 14,
+      "precision_at_optimal": 0.13333333333333333,
+      "is_worthwhile_at_optimal": true,
+      "alerts_suppressed": 40,
+      "true_positives_forgone": 0
+     },
+     {
+      "budget_per_day": 100,
+      "alerts_at_budget": 700,
+      "true_positives_at_budget": 47,
+      "optimal_alerts": 221,
+      "true_positives_at_optimal": 47,
+      "objective_at_budget": -183,
+      "objective_at_optimal": 296,
+      "precision_at_optimal": 0.21266968325791855,
+      "is_worthwhile_at_optimal": true,
+      "alerts_suppressed": 479,
+      "true_positives_forgone": 0
+     },
+     {
+      "budget_per_day": 1000,
+      "alerts_at_budget": 7000,
+      "true_positives_at_budget": 161,
+      "optimal_alerts": 315,
+      "true_positives_at_optimal": 74,
+      "objective_at_budget": -5229,
+      "objective_at_optimal": 499,
+      "precision_at_optimal": 0.23492063492063492,
+      "is_worthwhile_at_optimal": true,
+      "alerts_suppressed": 6685,
+      "true_positives_forgone": 87
+     }
+    ]
+   }
+  ]
+ },
+ "run": {
+  "finished_at": "2026-08-19T20:50:16Z",
+  "go_version": "go1.26.3",
+  "parent_file": "results/lanl-r11-b1000-conf-d7-14.json",
+  "parent_run": "lanl-r11-b1000-conf-d7-14-001",
+  "run_id": "analysis-r11-b1000-conf-001",
+  "started_at": "2026-08-19T20:50:15Z"
+ },
+ "schema_version": "1"
+}
