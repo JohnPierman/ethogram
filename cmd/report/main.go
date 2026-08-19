@@ -97,7 +97,7 @@ func isRenderedArtefact(name string) bool {
 //
 // # Why this exists
 //
-// docs/dashboard.html and docs/thesis.html have had currency gates for some time; the
+// docs/dashboard.html and docs/paper.html have had currency gates for some time; the
 // figures did not, and the gap was not theoretical. Running the renderer as a diagnostic
 // silently rewrote four committed SVGs and produced two the repository had never held —
 // which means the committed figures had been stale against the committed results, and

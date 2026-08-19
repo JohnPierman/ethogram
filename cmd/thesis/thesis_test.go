@@ -302,7 +302,7 @@ func TestRenderIsDeterministicAndSelfContained(t *testing.T) {
 //
 // The footer used to name the -in flag's value, and the Makefile passes an absolute path.
 // The rendered page therefore embedded a machine-specific path, so the same source produced
-// different bytes on a developer's machine and on a runner, and `make thesis-check` failed
+// different bytes on a developer's machine and on a runner, and `make paper-check` failed
 // on a branch whose prose had not moved. A generated artefact must depend on its input, not
 // on the invocation that produced it.
 func TestThePageDoesNotDependOnWhereItWasGenerated(t *testing.T) {

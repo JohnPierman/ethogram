@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-// A Markdown renderer for exactly the subset docs/THESIS.md uses, and nothing more.
+// A Markdown renderer for exactly the subset docs/PAPER.md uses, and nothing more.
 //
 // # Why not a library
 //
@@ -18,7 +18,7 @@ import (
 //
 // # Why generate rather than hand-write the HTML
 //
-// The alternative was to write docs/thesis.html by hand beside docs/THESIS.md. That
+// The alternative was to write docs/paper.html by hand beside docs/PAPER.md. That
 // duplicates two thousand lines of prose across two files that must then be kept in
 // agreement by memory, which is the defect this repository has now fixed twice: a
 // hand-maintained coverage table that drifted from `go test -cover`, and a hand-written

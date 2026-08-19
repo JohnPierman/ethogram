@@ -9,6 +9,21 @@ Equation numbers `(1)`–`(20)`, requirements `R1`–`R6`, and evaluation hypoth
 
 ## [Unreleased]
 
+### Removed
+
+- **`docs/THESIS.md`, replaced by `docs/PAPER.md`.** The thesis was 1,970 lines rendering to
+  38 printed pages. The paper is its trimmed replacement at 385 lines and 9 pages, written
+  from a full audit of every quantitative claim against the recorded results. Keeping both
+  meant maintaining two documents that disagreed: the thesis still asserted in section 5.3
+  that "no method tested -- ours or seven published baselines -- surfaces the labelled
+  intrusion at a realistic alert budget", which its own section 15 tables contradict, and it
+  reported E6's row count as 6,004,252 where the recorded value is 6,004,253. One document,
+  and it is the one whose every figure was checked
+- the rendering machinery follows: `make thesis` and `make thesis-check` become
+  **`make paper-check`**, `cmd/thesis` defaults to `docs/PAPER.md`, CI gates the paper's
+  currency instead of the thesis's, and GitHub Pages links the paper. Stale comments naming
+  the deleted file are corrected rather than left to puzzle a reader
+
 ### Fixed
 
 - **a replay aborted at the burn-in boundary when Brown's covariance implied an impossible

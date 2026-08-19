@@ -126,8 +126,8 @@ jobs:
       - name: figures and report are current with results
         run: make figures-check
 
-      # docs/THESIS.md is canonical and docs/thesis.html is generated from it. The page
+      # docs/PAPER.md is canonical and docs/paper.html is generated from it. The page
       # carries no timestamp, so unchanged prose reproduces it byte for byte and a
       # difference here means the Markdown moved without the rendered document following.
-      - name: thesis page is current with its source
-        run: make thesis-check
+      - name: paper page is current with its source
+        run: make paper-check

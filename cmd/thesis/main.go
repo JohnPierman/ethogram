@@ -1,4 +1,4 @@
-// Command thesis renders docs/THESIS.md as a self-contained HTML document with diagrams.
+// Command thesis renders docs/PAPER.md as a self-contained HTML document with diagrams.
 //
 // # Why this is generated and not hand-written
 //
@@ -31,8 +31,8 @@ import (
 
 func main() {
 	var (
-		inPath  = flag.String("in", "docs/THESIS.md", "the canonical Markdown source")
-		outPath = flag.String("out", "docs/thesis.html", "rendered HTML output")
+		inPath  = flag.String("in", "docs/PAPER.md", "the canonical Markdown source")
+		outPath = flag.String("out", "docs/paper.html", "rendered HTML output")
 		check   = flag.Bool("check", false,
 			"verify the committed HTML matches the Markdown instead of writing it")
 	)
@@ -82,10 +82,10 @@ func main() {
 // It is a constant rather than the -in flag's value. The flag carries whatever path the
 // caller used — the Makefile passes an absolute one — and embedding that would make the
 // rendered page depend on WHERE it was generated, so the same source would produce
-// different bytes on a developer's machine and on a CI runner. `make thesis-check` caught
+// different bytes on a developer's machine and on a CI runner. `make paper-check` caught
 // exactly that. The footer is describing a fact about the repository, not about the
 // invocation, so it states the repository-relative path.
-const canonicalSource = "docs/THESIS.md"
+const canonicalSource = "docs/PAPER.md"
 
 // render produces the page and the list of figures that were defined but never referenced.
 func render(source string) (page []byte, unusedFigures []string, err error) {

@@ -24,7 +24,6 @@ RESULTS   := $(ROOT)/results
 FIGURES   := $(ROOT)/docs/figures
 REPORT    := $(ROOT)/docs/report.html
 DASHBOARD := $(ROOT)/docs/dashboard.html
-THESIS    := $(ROOT)/docs/thesis.html
 PAPER_MD   := $(ROOT)/docs/PAPER.md
 PAPER_HTML := $(ROOT)/docs/paper.html
 PAPER_PDF  := $(ROOT)/docs/paper.pdf
@@ -213,21 +212,14 @@ figures-check:
 dashboard-check:
 	$(GO) run ./cmd/dashboard -check -results $(RESULTS) -out $(DASHBOARD)
 
-# The thesis as a reading document: the same prose, with diagrams and a contents list.
-#
-# docs/THESIS.md stays canonical. This renders it rather than duplicating it, because two
-# copies of two thousand lines kept in agreement by memory is the defect this repository has
-# already fixed twice — a coverage table that drifted from `go test -cover`, and a detector
-# list that claimed a composition the code had stopped using.
-.PHONY: thesis
-thesis:
-	$(GO) run ./cmd/thesis -in $(ROOT)/docs/THESIS.md -out $(THESIS)
-
-# Fails when the Markdown has moved and the rendered page has not. The page carries no
-# timestamp, so an unchanged source reproduces it byte for byte.
-.PHONY: thesis-check
-thesis-check:
-	$(GO) run ./cmd/thesis -check -in $(ROOT)/docs/THESIS.md -out $(THESIS)
+# Fails when docs/PAPER.md has moved and the rendered page has not. The page carries no
+# timestamp, so an unchanged source reproduces it byte for byte. The gate exists because two
+# copies of an argument kept in agreement by memory is the defect this repository has already
+# fixed twice: a coverage table that drifted from go test -cover, and a detector list that
+# claimed a composition the code had stopped using.
+.PHONY: paper-check
+paper-check:
+	$(GO) run ./cmd/thesis -check -in $(PAPER_MD) -out $(PAPER_HTML)
 
 # The paper: the project's presentable artefact, rendered and printed.
 #

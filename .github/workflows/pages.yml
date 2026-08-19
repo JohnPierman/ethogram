@@ -1,6 +1,6 @@
 name: pages
 
-# Publishes the thesis, the dashboard and the evaluation report to GitHub Pages.
+# Publishes the paper, the dashboard and the evaluation report to GitHub Pages.
 #
 # The point is not convenience. This repository's central discipline is that no number
 # reaches a reader unless a recorded run produced it, and the checks that enforce it —
@@ -47,7 +47,7 @@ jobs:
     # It is a skip and not a `continue-on-error`, deliberately. A job that runs and reports
     # success without publishing would say the site is live when it is not, and a job that
     # fails on every merge to main teaches everyone to ignore a red check — the same
-    # alert-fatigue failure docs/THESIS.md §2.1 is about. Skipped states what is true: this
+    # alert-fatigue failure the paper is about. Skipped states what is true: this
     # is switched off, and here is the switch.
     #
     # To enable: Settings -> Pages -> Source: GitHub Actions, then set the repository
@@ -129,7 +129,7 @@ jobs:
           <p>An <i>idiolect</i> is the speech pattern peculiar to one individual. An
           account has one too — and this reports when it stops speaking in its own.</p>
           <ul>
-            <li><a href="THESIS.md"><b>The thesis</b></a>
+            <li><a href="PAPER.md"><b>The paper</b></a>
               <span>The problem, the models behind every detector, and the results,
               including the ones that failed. Start here.</span></li>
             <li><a href="dashboard.html"><b>Results dashboard</b></a>
