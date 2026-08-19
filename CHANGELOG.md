@@ -9,6 +9,25 @@ Equation numbers `(1)`–`(20)`, requirements `R1`–`R6`, and evaluation hypoth
 
 ## [Unreleased]
 
+### Added
+
+- **the paper now cites its sources.** It carried a reference list that nothing referred to,
+  which is a defect in a paper rather than a formatting quibble. There are now 18 references
+  and 14 inline citations, and **every reference is cited** -- checked mechanically, not by
+  eye. Added along the way: the Leiden partition, higher criticism for the sparse-versus-
+  diffuse argument about why Fisher loses to the minimum, conformal prediction, and each of
+  the six population baselines by its own paper
+- the baselines' provenance is now stated where the comparison is made: all six run from
+  their **reference scikit-learn implementations**, not reimplementations, so a difference in
+  the comparison is a difference in method rather than in somebody's port of it. That is why
+  `sidecar/` stays Python -- the comparison's credibility rests on the models being the
+  canonical ones
+
+### Changed
+
+- the paper is 10 pages and 3,759 words, up from 9 and 3,393. The ceiling is 15, exceeded
+  only for figures and citations, and `make paper` still fails the build above it
+
 ### Removed
 
 - **`docs/` now holds only the two published documents**: the paper (`PAPER.md`, its rendered

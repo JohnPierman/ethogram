@@ -175,7 +175,7 @@ claim has no backing run, the section says so and is left empty rather than fill
 <h2 id="1-the-problem">1. The problem<a class="anchor" href="#1-the-problem" aria-label="link to this section">#</a></h2>
 <p>An intrusion detector reads authentication logs and decides which events an analyst should
 look at. The difficulty is arithmetic before it is anything else.</p>
-<p>On the public LANL corpus used throughout this paper, days 7 to 13 contain <strong>42,218,530
+<p>On the public LANL authentication corpus [2] used throughout this paper, days 7 to 13 contain <strong>42,218,530
 scored events, of which 549 are labelled red-team activity</strong> — a base rate of
 <strong>1.30 × 10⁻⁵</strong>, or one in 76,901.</p>
 <figure class="fig">
@@ -229,13 +229,13 @@ error rate; the volume follows from it.</figcaption>
 For a detector that misses nothing, the share of alerts that are real is</p>
 <pre><code>P(intrusion | alarm) = p / (p + (1 − p)·α)</code></pre>
 <p>so a queue that is half real requires α ≈ 1.3 × 10⁻⁵: about 78 false alerts a day against
-78 real ones. Axelsson reached the same order of magnitude in 1999 from a structurally
+78 real ones. Axelsson [1] reached the same order of magnitude from a structurally
 identical scenario, and concluded that suppressing false alarms, rather than recognising
 intrusions, is the binding constraint. Published detectors typically operate two to three
 orders of magnitude above what the arithmetic permits.</p>
 <h3 id="11-why-the-standard-formulation-cannot-get-there">1.1 Why the standard formulation cannot get there<a class="anchor" href="#11-why-the-standard-formulation-cannot-get-there" aria-label="link to this section">#</a></h3>
 <p>The conventional approach reduces each event to a fixed-length numeric vector and fits one
-model over the pooled cloud: isolation forests, local outlier factor, one-class SVM, PCA
+model over the pooled cloud: isolation forests [11], local outlier factor [14], one-class SVM [15], PCA
 reconstruction error, autoencoders. All are instances of the same question — *is this point
 unusual for the population?*</p>
 <p>That question is the wrong one, and the failure is not a matter of tuning.</p>
@@ -343,7 +343,7 @@ conventional model already does.</p>
 <tr><td>I <code>novelty</code></td><td>the value is drawn from the entity&#39;s historical distribution over that field</td><td>entity</td><td>on</td></tr>
 <tr><td>II(a) <code>timing</code></td><td>the event&#39;s time of day is drawn from the entity&#39;s historical circular density</td><td>entity</td><td>on</td></tr>
 <tr><td>II(b) <code>volume</code></td><td>the count in this window is drawn from the entity&#39;s negative binomial</td><td>entity</td><td>on</td></tr>
-<tr><td>III <code>cooccurrence</code></td><td>the pair&#39;s co-occurrence weight is drawn from a Poisson degree-corrected block model</td><td>population</td><td>on</td></tr>
+<tr><td>III <code>cooccurrence</code></td><td>the pair&#39;s co-occurrence weight is drawn from a Poisson degree-corrected block model [9]</td><td>population</td><td>on</td></tr>
 <tr><td>IV <code>marginal</code></td><td>the value is drawn from the population marginal for its field</td><td>population</td><td>on</td></tr>
 <tr><td>V <code>noveltyrate</code></td><td>the count of first-ever values in this window follows the entity&#39;s own historical rate</td><td>entity</td><td>opt-in</td></tr>
 <tr><td>— <code>pairing</code></td><td>the pairing is drawn from the entity&#39;s own history of pairings</td><td>entity</td><td>opt-in</td></tr>
@@ -358,7 +358,8 @@ it arrived with, would merge values a source distinguishes (<code>007</code> and
 and would commit before the evidence is in, since a column that looks integral for forty-nine
 events can emit a sentinel on the fiftieth. Instead each kind supplies the <em>representation</em>
 its detectors can score: the value&#39;s own text where the vocabulary is already bounded, and a
-fixed-boundary magnitude band where it is not.</p>
+fixed-boundary magnitude band where it is not. Where a vocabulary is open rather than
+bounded, the mass reserved for the unseen follows Good–Turing [8].</p>
 <p>The identifier case is load-bearing. A field taking a distinct value on essentially every
 event is formally maximally novel on every observation; untreated it saturates any novelty
 detector, grows state without bound, and reduces a co-occurrence graph to singletons. Such
@@ -438,7 +439,9 @@ card alone, with no query back to the store.</p>
 </tbody></table></div>
 <p>R6 replaced an earlier requirement that an operator-chosen error rate map to a predictable
 alert volume. That requirement was withdrawn rather than satisfied: it was never met, its
-enforcement mechanism was measured to be vacuous on this corpus, and holding it made a
+enforcement mechanism — false-discovery control [6], in the dependency-tolerant form [7]
+the detectors&#39; correlation requires — was measured to be vacuous on this corpus, reporting a
+realised false discovery rate of 1.0 at every nominal level. Holding the requirement made a
 bounded queue the objective when the binding problem is that the queue&#39;s contents are wrong.
 R6 is the only requirement here that is not a structural property, and that is stated rather
 than glossed: R1–R5 fail a build, R6 can only be measured against labelled data.</p>
@@ -469,7 +472,7 @@ marginal alerts stop paying.</p>
 <tr><td>IV <code>marginal</code></td><td>population</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
 <tr><td>II(a) <code>timing</code></td><td>entity</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
 <tr><td>II(b) <code>volume</code></td><td>entity</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
-<tr><td><strong>composite</strong> (Fisher + Brown)</td><td>mixed</td><td><strong>0</strong></td><td><strong>0</strong></td><td><strong>0</strong></td><td><strong>0</strong></td></tr>
+<tr><td><strong>composite</strong> (Fisher [4] + Brown [5])</td><td>mixed</td><td><strong>0</strong></td><td><strong>0</strong></td><td><strong>0</strong></td><td><strong>0</strong></td></tr>
 </tbody></table></div>
 <p><code>lanl-r11-d7-14-001</code>, 549 labelled events among 4,190,603 scored.</p>
 <p><strong>Replicated on a disjoint entity sample</strong> (<code>lanl-holdout-r7-fixed-d7-9-001</code>, 262 labelled
@@ -540,23 +543,28 @@ detectors that know nothing.</figcaption>
 <thead><tr><th>Configuration</th><th><code>lanl-r11</code> (549)</th><th><code>lanl-holdout-r7-fixed</code> (262)</th></tr></thead>
 <tbody>
 <tr><td><code>novelty</code> alone</td><td><strong>60</strong></td><td><strong>21</strong></td></tr>
-<tr><td>corrected minimum, Šidák</td><td>47</td><td>20</td></tr>
-<tr><td>Fisher + Brown <em>(the reported composite)</em></td><td><strong>0</strong></td><td><strong>0</strong></td></tr>
+<tr><td>corrected minimum, Šidák [3]</td><td>47</td><td>20</td></tr>
+<tr><td>Fisher [4] + Brown [5] <em>(the reported composite)</em></td><td><strong>0</strong></td><td><strong>0</strong></td></tr>
 </tbody></table></div>
 <p>No combination rule beats the best single detector. Combining <em>subtracts</em> value.</p>
 <p>Both failures are diagnosed, and the diagnoses differ:</p>
 <p><strong>Fisher averages an informative detector with uninformative ones.</strong> Labelled events sit at
 the 0.07th percentile of the novelty detector&#39;s own distribution and at the 18th to 36th of
 every other detector&#39;s. Summing <code>−2 ln P</code> across five detectors dilutes one signal with four
-non-signals. Fisher is powerful against diffuse alternatives; this signal is sparse.</p>
+non-signals. Fisher is powerful against diffuse alternatives and the minimum against
+sparse ones, which is the distinction higher criticism [16] is built on; this signal is
+sparse.</p>
 <p><strong>The minimum compares raw p-values across detectors that share no scale.</strong> Under it the
 novelty detector carries 1,273 of the 1,400 retained alerts, so the population marginal&#39;s
 signal never becomes the minimum however extreme it is <em>within its own distribution</em>. That
 signal is not weak; it is unreachable.</p>
-<p>The second diagnosis predicts its own fix. Conformal calibration replaces each detector&#39;s
+<p>The second diagnosis predicts its own fix. Conformal calibration [17] replaces each detector&#39;s
 model tail with its rank in that detector&#39;s own burn-in distribution, which is exactly what
 puts several detectors on one scale. At entity scope it already moves recall from 15 of 46 to
 25 of 46.</p>
+<p>The block structure Detector III conditions on is computed offline by Leiden [10] and never
+in the scoring path, because community detection is stochastic and the scoring path may not
+be (R4).</p>
 <p>A related incompatibility was found while measuring the sixth detector: with six detectors
 the burn-in covariance implies <code>Var[X²] = −27.5</code>, which no joint distribution of the
 statistics can produce. The estimator is measuring the marginals&#39; misspecification rather
@@ -598,9 +606,11 @@ probability of being a true positive.</p>
 <p>*Left blank: the runs are in progress. No recorded run yet includes Detector V, so nothing in
 this paper claims it works.*</p>
 <h3 id="36-what-the-baselines-do">3.6 What the baselines do<a class="anchor" href="#36-what-the-baselines-do" aria-label="link to this section">#</a></h3>
-<p>Six population-scope baselines spanning four inductive biases — isolation forest, extended
-isolation forest, half-space trees, local outlier factor, one-class SVM, PCA — detect <strong>0 of
-262</strong> at every budget on the matched comparison. One per-entity baseline, an uncalibrated
+<p>Six population-scope baselines spanning four inductive biases — isolation forest [11], extended
+isolation forest [12], half-space trees [13], local outlier factor [14], one-class SVM [15]
+and PCA reconstruction error — detect <strong>0 of 262</strong> at every budget on the matched
+comparison. All six run from their reference scikit-learn implementations [18] rather than
+being reimplemented, so a difference in the comparison is a difference in method. One per-entity baseline, an uncalibrated
 EWMA z-score, detects <strong>1</strong>. Isolation, density, boundary and linear-subspace models fail
 together, and the category census says why: not one labelled event is a population-marginal
 outlier.</p>
@@ -651,14 +661,24 @@ is the defect standing between the two.</p>
 <hr>
 <h2 id="references">References<a class="anchor" href="#references" aria-label="link to this section">#</a></h2>
 <ol>
-<li>Axelsson, S. <em>The base-rate fallacy and its implications for the difficulty of intrusion detection.</em> ACM CCS, 1999.</li>
-<li>Kent, A. D. <em>Comprehensive, Multi-Source Cyber-Security Events.</em> Los Alamos National Laboratory, 2015. CC0 1.0.</li>
-<li>Brown, M. B. <em>A method for combining non-independent, one-sided tests of significance.</em> Biometrics 31(4), 1975.</li>
+<li>Axelsson, S. <em>The base-rate fallacy and its implications for the difficulty of intrusion detection.</em> ACM Conference on Computer and Communications Security, 1999.</li>
+<li>Kent, A. D. <em>Comprehensive, Multi-Source Cyber-Security Events Data Set.</em> Los Alamos National Laboratory, 2015. CC0 1.0.</li>
+<li>Šidák, Z. <em>Rectangular confidence regions for the means of multivariate normal distributions.</em> Journal of the American Statistical Association 62(318), 1967.</li>
 <li>Fisher, R. A. <em>Statistical Methods for Research Workers.</em> Oliver and Boyd, 1932.</li>
+<li>Brown, M. B. <em>A method for combining non-independent, one-sided tests of significance.</em> Biometrics 31(4), 1975.</li>
+<li>Benjamini, Y. and Hochberg, Y. <em>Controlling the false discovery rate: a practical and powerful approach to multiple testing.</em> Journal of the Royal Statistical Society B 57(1), 1995.</li>
+<li>Benjamini, Y. and Yekutieli, D. <em>The control of the false discovery rate in multiple testing under dependency.</em> Annals of Statistics 29(4), 2001.</li>
+<li>Good, I. J. <em>The population frequencies of species and the estimation of population parameters.</em> Biometrika 40(3–4), 1953.</li>
 <li>Karrer, B. and Newman, M. E. J. <em>Stochastic blockmodels and community structure in networks.</em> Physical Review E 83, 2011.</li>
-<li>Good, I. J. <em>The population frequencies of species and the estimation of population parameters.</em> Biometrika 40, 1953.</li>
-<li>Šidák, Z. <em>Rectangular confidence regions for the means of multivariate normal distributions.</em> JASA 62, 1967.</li>
-<li>Benjamini, Y. and Hochberg, Y. <em>Controlling the false discovery rate.</em> JRSS B 57(1), 1995.</li>
+<li>Traag, V. A., Waltman, L. and van Eck, N. J. <em>From Louvain to Leiden: guaranteeing well-connected communities.</em> Scientific Reports 9, 2019.</li>
+<li>Liu, F. T., Ting, K. M. and Zhou, Z.-H. <em>Isolation Forest.</em> IEEE International Conference on Data Mining, 2008.</li>
+<li>Hariri, S., Carrasco Kind, M. and Brunner, R. J. <em>Extended Isolation Forest.</em> IEEE Transactions on Knowledge and Data Engineering 33(4), 2021.</li>
+<li>Tan, S. C., Ting, K. M. and Liu, T. F. <em>Fast anomaly detection for streaming data.</em> International Joint Conference on Artificial Intelligence, 2011.</li>
+<li>Breunig, M. M., Kriegel, H.-P., Ng, R. T. and Sander, J. <em>LOF: identifying density-based local outliers.</em> ACM SIGMOD, 2000.</li>
+<li>Schölkopf, B., Platt, J. C., Shawe-Taylor, J., Smola, A. J. and Williamson, R. C. <em>Estimating the support of a high-dimensional distribution.</em> Neural Computation 13(7), 2001.</li>
+<li>Donoho, D. and Jin, J. <em>Higher criticism for detecting sparse heterogeneous mixtures.</em> Annals of Statistics 32(3), 2004.</li>
+<li>Vovk, V., Gammerman, A. and Shafer, G. <em>Algorithmic Learning in a Random World.</em> Springer, 2005.</li>
+<li>Pedregosa, F. et al. <em>Scikit-learn: machine learning in Python.</em> Journal of Machine Learning Research 12, 2011.</li>
 </ol>
 
 <footer>Generated by <code>cmd/thesis</code> from <code>docs/PAPER.md</code>, which stays canonical for the prose: this page is never edited directly, so the two cannot disagree. Every quantitative claim traces to a recorded run in <code>results/</code>. Diagrams are hand-authored inline SVG with no external resources, and their two carrying colours are validated for contrast and colour-vision separation against both the light and dark surfaces.</footer>

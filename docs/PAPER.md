@@ -12,7 +12,7 @@ claim has no backing run, the section says so and is left empty rather than fill
 An intrusion detector reads authentication logs and decides which events an analyst should
 look at. The difficulty is arithmetic before it is anything else.
 
-On the public LANL corpus used throughout this paper, days 7 to 13 contain **42,218,530
+On the public LANL authentication corpus [2] used throughout this paper, days 7 to 13 contain **42,218,530
 scored events, of which 549 are labelled red-team activity** — a base rate of
 **1.30 × 10⁻⁵**, or one in 76,901.
 
@@ -26,7 +26,7 @@ P(intrusion | alarm) = p / (p + (1 − p)·α)
 ```
 
 so a queue that is half real requires α ≈ 1.3 × 10⁻⁵: about 78 false alerts a day against
-78 real ones. Axelsson reached the same order of magnitude in 1999 from a structurally
+78 real ones. Axelsson [1] reached the same order of magnitude from a structurally
 identical scenario, and concluded that suppressing false alarms, rather than recognising
 intrusions, is the binding constraint. Published detectors typically operate two to three
 orders of magnitude above what the arithmetic permits.
@@ -34,7 +34,7 @@ orders of magnitude above what the arithmetic permits.
 ### 1.1 Why the standard formulation cannot get there
 
 The conventional approach reduces each event to a fixed-length numeric vector and fits one
-model over the pooled cloud: isolation forests, local outlier factor, one-class SVM, PCA
+model over the pooled cloud: isolation forests [11], local outlier factor [14], one-class SVM [15], PCA
 reconstruction error, autoencoders. All are instances of the same question — *is this point
 unusual for the population?*
 
@@ -89,7 +89,7 @@ conventional model already does.
 | I `novelty` | the value is drawn from the entity's historical distribution over that field | entity | on |
 | II(a) `timing` | the event's time of day is drawn from the entity's historical circular density | entity | on |
 | II(b) `volume` | the count in this window is drawn from the entity's negative binomial | entity | on |
-| III `cooccurrence` | the pair's co-occurrence weight is drawn from a Poisson degree-corrected block model | population | on |
+| III `cooccurrence` | the pair's co-occurrence weight is drawn from a Poisson degree-corrected block model [9] | population | on |
 | IV `marginal` | the value is drawn from the population marginal for its field | population | on |
 | V `noveltyrate` | the count of first-ever values in this window follows the entity's own historical rate | entity | opt-in |
 | — `pairing` | the pairing is drawn from the entity's own history of pairings | entity | opt-in |
@@ -106,7 +106,8 @@ it arrived with, would merge values a source distinguishes (`007` and `7`, `TRUE
 and would commit before the evidence is in, since a column that looks integral for forty-nine
 events can emit a sentinel on the fiftieth. Instead each kind supplies the *representation*
 its detectors can score: the value's own text where the vocabulary is already bounded, and a
-fixed-boundary magnitude band where it is not.
+fixed-boundary magnitude band where it is not. Where a vocabulary is open rather than
+bounded, the mass reserved for the unseen follows Good–Turing [8].
 
 The identifier case is load-bearing. A field taking a distinct value on essentially every
 event is formally maximally novel on every observation; untreated it saturates any novelty
@@ -155,7 +156,9 @@ card alone, with no query back to the store.
 
 R6 replaced an earlier requirement that an operator-chosen error rate map to a predictable
 alert volume. That requirement was withdrawn rather than satisfied: it was never met, its
-enforcement mechanism was measured to be vacuous on this corpus, and holding it made a
+enforcement mechanism — false-discovery control [6], in the dependency-tolerant form [7]
+the detectors' correlation requires — was measured to be vacuous on this corpus, reporting a
+realised false discovery rate of 1.0 at every nominal level. Holding the requirement made a
 bounded queue the objective when the binding problem is that the queue's contents are wrong.
 R6 is the only requirement here that is not a structural property, and that is stated rather
 than glossed: R1–R5 fail a build, R6 can only be measured against labelled data.
@@ -199,7 +202,7 @@ Labelled LANL red-team events caught, days 7–14:
 | IV `marginal` | population | 0 | 0 | 0 | 0 |
 | II(a) `timing` | entity | 0 | 0 | 0 | 0 |
 | II(b) `volume` | entity | 0 | 0 | 0 | 0 |
-| **composite** (Fisher + Brown) | mixed | **0** | **0** | **0** | **0** |
+| **composite** (Fisher [4] + Brown [5]) | mixed | **0** | **0** | **0** | **0** |
 
 `lanl-r11-d7-14-001`, 549 labelled events among 4,190,603 scored.
 
@@ -223,8 +226,8 @@ Two combination rules are implemented. At 100 alerts/day:
 | Configuration | `lanl-r11` (549) | `lanl-holdout-r7-fixed` (262) |
 |---|---|---|
 | `novelty` alone | **60** | **21** |
-| corrected minimum, Šidák | 47 | 20 |
-| Fisher + Brown *(the reported composite)* | **0** | **0** |
+| corrected minimum, Šidák [3] | 47 | 20 |
+| Fisher [4] + Brown [5] *(the reported composite)* | **0** | **0** |
 
 No combination rule beats the best single detector. Combining *subtracts* value.
 
@@ -233,17 +236,23 @@ Both failures are diagnosed, and the diagnoses differ:
 **Fisher averages an informative detector with uninformative ones.** Labelled events sit at
 the 0.07th percentile of the novelty detector's own distribution and at the 18th to 36th of
 every other detector's. Summing `−2 ln P` across five detectors dilutes one signal with four
-non-signals. Fisher is powerful against diffuse alternatives; this signal is sparse.
+non-signals. Fisher is powerful against diffuse alternatives and the minimum against
+sparse ones, which is the distinction higher criticism [16] is built on; this signal is
+sparse.
 
 **The minimum compares raw p-values across detectors that share no scale.** Under it the
 novelty detector carries 1,273 of the 1,400 retained alerts, so the population marginal's
 signal never becomes the minimum however extreme it is *within its own distribution*. That
 signal is not weak; it is unreachable.
 
-The second diagnosis predicts its own fix. Conformal calibration replaces each detector's
+The second diagnosis predicts its own fix. Conformal calibration [17] replaces each detector's
 model tail with its rank in that detector's own burn-in distribution, which is exactly what
 puts several detectors on one scale. At entity scope it already moves recall from 15 of 46 to
 25 of 46.
+
+The block structure Detector III conditions on is computed offline by Leiden [10] and never
+in the scoring path, because community detection is stochastic and the scoring path may not
+be (R4).
 
 A related incompatibility was found while measuring the sixth detector: with six detectors
 the burn-in covariance implies `Var[X²] = −27.5`, which no joint distribution of the
@@ -295,9 +304,11 @@ this paper claims it works.*
 
 ### 3.6 What the baselines do
 
-Six population-scope baselines spanning four inductive biases — isolation forest, extended
-isolation forest, half-space trees, local outlier factor, one-class SVM, PCA — detect **0 of
-262** at every budget on the matched comparison. One per-entity baseline, an uncalibrated
+Six population-scope baselines spanning four inductive biases — isolation forest [11], extended
+isolation forest [12], half-space trees [13], local outlier factor [14], one-class SVM [15]
+and PCA reconstruction error — detect **0 of 262** at every budget on the matched
+comparison. All six run from their reference scikit-learn implementations [18] rather than
+being reimplemented, so a difference in the comparison is a difference in method. One per-entity baseline, an uncalibrated
 EWMA z-score, detects **1**. Isolation, density, boundary and linear-subspace models fail
 together, and the category census says why: not one labelled event is a population-marginal
 outlier.
@@ -370,16 +381,39 @@ is the defect standing between the two.
 ## References
 
 1. Axelsson, S. *The base-rate fallacy and its implications for the difficulty of intrusion
-   detection.* ACM CCS, 1999.
-2. Kent, A. D. *Comprehensive, Multi-Source Cyber-Security Events.* Los Alamos National
-   Laboratory, 2015. CC0 1.0.
-3. Brown, M. B. *A method for combining non-independent, one-sided tests of significance.*
-   Biometrics 31(4), 1975.
+   detection.* ACM Conference on Computer and Communications Security, 1999.
+2. Kent, A. D. *Comprehensive, Multi-Source Cyber-Security Events Data Set.* Los Alamos
+   National Laboratory, 2015. CC0 1.0.
+3. Šidák, Z. *Rectangular confidence regions for the means of multivariate normal
+   distributions.* Journal of the American Statistical Association 62(318), 1967.
 4. Fisher, R. A. *Statistical Methods for Research Workers.* Oliver and Boyd, 1932.
-5. Karrer, B. and Newman, M. E. J. *Stochastic blockmodels and community structure in
+5. Brown, M. B. *A method for combining non-independent, one-sided tests of significance.*
+   Biometrics 31(4), 1975.
+6. Benjamini, Y. and Hochberg, Y. *Controlling the false discovery rate: a practical and
+   powerful approach to multiple testing.* Journal of the Royal Statistical Society B 57(1),
+   1995.
+7. Benjamini, Y. and Yekutieli, D. *The control of the false discovery rate in multiple
+   testing under dependency.* Annals of Statistics 29(4), 2001.
+8. Good, I. J. *The population frequencies of species and the estimation of population
+   parameters.* Biometrika 40(3–4), 1953.
+9. Karrer, B. and Newman, M. E. J. *Stochastic blockmodels and community structure in
    networks.* Physical Review E 83, 2011.
-6. Good, I. J. *The population frequencies of species and the estimation of population
-   parameters.* Biometrika 40, 1953.
-7. Šidák, Z. *Rectangular confidence regions for the means of multivariate normal
-   distributions.* JASA 62, 1967.
-8. Benjamini, Y. and Hochberg, Y. *Controlling the false discovery rate.* JRSS B 57(1), 1995.
+10. Traag, V. A., Waltman, L. and van Eck, N. J. *From Louvain to Leiden: guaranteeing
+    well-connected communities.* Scientific Reports 9, 2019.
+11. Liu, F. T., Ting, K. M. and Zhou, Z.-H. *Isolation Forest.* IEEE International Conference
+    on Data Mining, 2008.
+12. Hariri, S., Carrasco Kind, M. and Brunner, R. J. *Extended Isolation Forest.* IEEE
+    Transactions on Knowledge and Data Engineering 33(4), 2021.
+13. Tan, S. C., Ting, K. M. and Liu, T. F. *Fast anomaly detection for streaming data.*
+    International Joint Conference on Artificial Intelligence, 2011.
+14. Breunig, M. M., Kriegel, H.-P., Ng, R. T. and Sander, J. *LOF: identifying density-based
+    local outliers.* ACM SIGMOD, 2000.
+15. Schölkopf, B., Platt, J. C., Shawe-Taylor, J., Smola, A. J. and Williamson, R. C.
+    *Estimating the support of a high-dimensional distribution.* Neural Computation 13(7),
+    2001.
+16. Donoho, D. and Jin, J. *Higher criticism for detecting sparse heterogeneous mixtures.*
+    Annals of Statistics 32(3), 2004.
+17. Vovk, V., Gammerman, A. and Shafer, G. *Algorithmic Learning in a Random World.*
+    Springer, 2005.
+18. Pedregosa, F. et al. *Scikit-learn: machine learning in Python.* Journal of Machine
+    Learning Research 12, 2011.
