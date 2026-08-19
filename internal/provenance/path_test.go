@@ -41,13 +41,13 @@ func TestRecordedPathCutsBackToTheDataRoot(t *testing.T) {
 // user name, home directory or drive letter comes out.
 func TestRecordedPathNamesNoMachine(t *testing.T) {
 	for _, in := range []string{
-		`C:\Users\JohnPierman\Documents\calibrated-anomaly-detection\data\lanl\auth.txt.gz`,
-		`C:\Users\JOHNPI~1\AppData\Local\Temp\verify.txt.gz`,
-		"/home/jpierman/work/private-notes/corpus.gz",
-		"/Users/jpierman/Library/data/lanl/dns.txt.gz",
+		`C:\Users\someone\Documents\calibrated-anomaly-detection\data\lanl\auth.txt.gz`,
+		`C:\Users\SOMEONE~1\AppData\Local\Temp\verify.txt.gz`,
+		"/home/someone/work/private-notes/corpus.gz",
+		"/Users/someone/Library/data/lanl/dns.txt.gz",
 	} {
 		got := provenance.RecordedPath(in)
-		for _, leak := range []string{"Users", "JohnPierman", "JOHNPI~1", "jpierman", "home", "AppData", "C:"} {
+		for _, leak := range []string{"Users", "someone", "SOMEONE~1", "someone", "home", "AppData", "C:"} {
 			if strings.Contains(got, leak) {
 				t.Errorf("RecordedPath(%q) = %q, which still contains %q", in, got, leak)
 			}
@@ -59,7 +59,7 @@ func TestRecordedPathNamesNoMachine(t *testing.T) {
 // still worth naming, just not locating.
 func TestRecordedPathOutsideTheDataRootKeepsEnoughToIdentify(t *testing.T) {
 	for _, tc := range []struct{ in, want string }{
-		{`C:\Users\JOHNPI~1\AppData\Local\Temp\verify.txt.gz`, "Temp/verify.txt.gz"},
+		{`C:\Users\SOMEONE~1\AppData\Local\Temp\verify.txt.gz`, "Temp/verify.txt.gz"},
 		{"/tmp/scratch/verify-labels.txt.gz", "scratch/verify-labels.txt.gz"},
 		{"corpus.gz", "corpus.gz"},
 	} {
