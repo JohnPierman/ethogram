@@ -731,6 +731,8 @@ func extractArms(results map[string]any, budgets []int, events []labelledEvent,
 		}
 	}
 
+	arms = append(arms, unionArms(mapOf(results, "union_arm"), events, len(types) > 0)...)
+
 	// Entity-day rankings spend their budget on entity-days rather than events, so they
 	// carry a different unit and the page never puts them in one table with the rest.
 	entityDays := mapOf(results, "entity_days")
@@ -752,6 +754,118 @@ func extractArms(results map[string]any, budgets []int, events []labelledEvent,
 		})
 	}
 	return arms
+}
+
+// unionGroupings are the union arm's two arm sets, and the accountings each is reported
+// under. The two accountings are not alternative presentations of one number: at equal cost
+// the union is charged the same alerts per day as every other arm, and at equal depth it is
+// charged whatever the deduplicated union of the arms' own top lists costs, which is more.
+// Showing only one of them would either flatter the union or understate what it finds.
+var unionGroupings = []struct{ field, label, scope string }{
+	{"entity_scope_arms", "union: per-entity arms", scopePerEntity},
+	{"all_arms", "union: all arms", scopeMixed},
+}
+
+var unionAccountings = []struct{ field, label string }{
+	{"at_equal_cost", "equal cost"},
+	{"at_equal_depth", "equal depth"},
+}
+
+// unionArms reads the union arm, which differs from every other arm here in one way that
+// matters: it NAMES the labelled events it caught instead of leaving them to be recovered.
+//
+// caughtFromRank recovers a per-detector arm's catch by re-ranking the labelled events on
+// that detector's p-value, which reproduces the arm's own order. A union ranks on a fused
+// rank, which is not a p-value and which no labelled event carries, so there is nothing to
+// re-rank on. The run records the keys for exactly this reason.
+func unionArms(union map[string]any, events []labelledEvent, hasTypes bool) []Arm {
+	if union == nil {
+		return nil
+	}
+	byKey := make(map[string][]string, len(events))
+	for _, e := range events {
+		byKey[e.key] = e.categories
+	}
+	kindOf := make(map[string]string, len(events))
+	for _, e := range events {
+		kindOf[e.key] = e.attackType
+	}
+
+	out := []Arm{}
+	for _, g := range unionGroupings {
+		grp := mapOf(union, g.field)
+		if grp == nil {
+			continue
+		}
+		for _, acc := range unionAccountings {
+			at := mapOf(grp, acc.field)
+			detections := detectionsFrom(at)
+			if len(detections) == 0 {
+				continue
+			}
+			arm := Arm{
+				Name: g.label + " (" + acc.label + ")", Group: "combination",
+				Scope: g.scope, Unit: "event", Detections: detections,
+				Note: unionNote(acc.field),
+			}
+			arm.PerCategory, arm.PerType = unionTallies(grp, acc.field, byKey, kindOf, hasTypes)
+			out = append(out, arm)
+		}
+	}
+	return out
+}
+
+func unionNote(accounting string) string {
+	if accounting == "at_equal_depth" {
+		return "every arm keeps its own top B and the deduplicated union is emitted " +
+			"whole, so this costs more than B alerts a day"
+	}
+	return "truncated to the same alerts a day every other arm is allowed"
+}
+
+// unionTallies buckets the union's named catch per budget, by structural category and by
+// attack type.
+func unionTallies(grp map[string]any, accounting string, byKey map[string][]string,
+	kindOf map[string]string, hasTypes bool) (perCat, perType map[string]map[string]int) {
+	perCat = map[string]map[string]int{}
+	if hasTypes {
+		perType = map[string]map[string]int{}
+	}
+	for key, raw := range mapOf(grp, accounting) {
+		perDay, ok := budgetOf(key)
+		if !ok {
+			continue
+		}
+		budget := strconv.Itoa(perDay)
+		cats := map[string]int{}
+		types := map[string]int{}
+		total := 0
+		for _, item := range listOf(raw, "caught_red_team") {
+			eventKey, ok := item.(string)
+			if !ok {
+				continue
+			}
+			total++
+			for _, c := range byKey[eventKey] {
+				cats[c]++
+			}
+			if kind := kindOf[eventKey]; kind != "" {
+				types[kind]++
+			} else {
+				types[realCampaign]++
+			}
+		}
+		if total == 0 {
+			continue
+		}
+		cats[""] = total
+		perCat[budget] = cats
+		if perType != nil {
+			types[""] = total
+			perType[budget] = types
+		}
+	}
+	return perCat, perType
 }
 
 func extractDetectors(results map[string]any) []DetectorStat {

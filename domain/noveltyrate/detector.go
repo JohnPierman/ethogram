@@ -47,9 +47,12 @@
 // It sees only novelty. An attack that reuses every value the account already uses — one
 // that departs in timing or in volume alone — is invisible to it and must remain the
 // business of Detectors II(a) and II(b). Reporting it as a general improvement would be
-// wrong: measured on planted attacks it takes credential spray, lateral movement and
-// account takeover from nothing to nearly everything, and leaves off-hours and
-// low-and-slow exactly where they were.
+// wrong. Measured on planted attacks at 1000 alerts a day it takes credential spray from
+// 0 to 117 of 320, lateral movement from 0 to 26 of 40 and account takeover to 64 of 120,
+// and leaves off-hours and low-and-slow exactly where they were: a real effect on three of
+// six types, between a third and two thirds of each, and nothing on the other three. An
+// earlier version of this comment said "from nothing to nearly everything", which the
+// measurement does not support.
 package noveltyrate
 
 import (

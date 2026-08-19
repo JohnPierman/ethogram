@@ -23,19 +23,28 @@ On LANL days 7–14, labelled red-team events caught per alert budget:
 | `noveltyrate` (per-entity) | 0 | 22 | **185** |
 | `pairing` (per-entity) | 4 | 59 | 127 |
 | composite (Fisher) | 0 | 6 | 113 |
+| union of all arms, same budget | 2 | 21 | 96 |
 
-549 labelled events, `lanl-r11-b1000-conf-d7-14-001`. `novelty` replicated on a second
+549 labelled events, `lanl-r11-b1000-union-d7-14-002`. `novelty` replicated on a second
 subset at 21 of 262.
 
 At 10 alerts/day that is 11 hits in 70 alerts — **16% precision against a 0.013% base rate,
 about 1,200× better than chance**. Precision improves as the budget tightens.
 
-**The composite is beaten by its own best component at every budget.** Combining seven
-p-values loses most of the signal one of them carries; conformal calibration moves it off
-zero but not near `novelty`. Use the detectors directly. The paper diagnoses why.
+**No combination beats its own best component at the same budget.** Three rules are
+implemented -- Fisher, the corrected minimum, and a union that alerts when any arm ranks an
+event highly -- and all three lose to simply using the best arm. The union was built to test
+the diagnosis that an informative arm was being crowded out by a scale mismatch, and it
+refutes it: giving every arm an equal share of the budget hands the same share to an arm that
+detects nothing. Use the detectors directly. The paper works through it.
+
+The union does earn its keep in one place. Let every arm keep its own top *B* and emit the
+deduplicated union, and it matches the best arm on **every attack type at once** -- 533
+labelled events against the best single arm's 384 -- for 4.5x the alerts. Worth buying only
+if a caught incident outweighs ~164 wasted investigations at 1000/day, or ~35 at 100/day.
 
 On a corpus with 856 planted attacks, the population `marginal` arm detects **120 of 120
-account takeovers** at 1000 alerts/day.
+account takeovers** at 1000 alerts/day, and it is the only method that does.
 
 ## How it works
 
@@ -55,8 +64,9 @@ Each detector asks one question and returns a p-value under a stated null, or **
 `noveltyrate` exists because `novelty`'s p-value for a first-ever value is roughly one over
 the size of the account's history, which makes it structurally unable to alert on a small
 account however anomalous it is. The rate question is scale-free instead. It is the broadest
-arm on planted attacks — the only one reaching four of six types — and it stays opt-in until
-a second corpus agrees.
+arm on planted attacks -- the only one reaching four of six types. Two corpora now agree that
+it works, which was the bar set for turning it on by default, so that is a decision waiting
+to be taken rather than evidence waiting to arrive.
 
 Nothing names a field. The registry infers each field's kind — categorical, boolean,
 discrete, continuous, identifier — from the values it sees, so a new log source is
@@ -72,10 +82,16 @@ real run, a 100/day budget can drop 68% of its queue and lose no detections.
   than on the full 42M-event corpus. The detectors have never been measured at full scale.
 - **Precision is 16% at best.** Good against a 0.013% base rate; not good enough to alert on
   unattended.
-- **The combination layer does not work.** Diagnosed, not mysterious — see the paper.
+- **No combination layer works at a fixed budget.** Three rules tried; each is beaten by
+  its own best component. The defect is how a budget is split across arms of very unequal
+  quality, and fixing it needs a calibrated per-alert probability that does not exist yet.
 - **Detection by attack type depends on the budget.** At 100 alerts/day one of six planted
   types is reached; at 1000/day five of six are. `low_and_slow` (288 planted events) is
-  reached by nothing at any budget.
+  reached by no arm of this framework at any budget -- though a local-outlier-factor baseline
+  reaches 12 of them, so it is a gap in this approach rather than in the corpus.
+- **Population scope is not useless, which an earlier version of this README implied.** The
+  population `marginal` owns account takeover outright and a population baseline reaches the
+  one type no arm here does. The scopes are complementary.
 
 ## Getting started
 

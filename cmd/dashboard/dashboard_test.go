@@ -648,3 +648,89 @@ func TestTheControlCategoryIsMarkedAsSuch(t *testing.T) {
 			"should show NO advantage, and unmarked it reads as a defeat", controlCategory)
 	}
 }
+
+// The union arm names the labelled events it caught rather than leaving them to be
+// recovered from a ranking, because a fused rank is not a p-value any labelled event
+// carries. The page must read those names instead of trying to re-rank.
+func TestUnionArmTalliesTheEventsItNamed(t *testing.T) {
+	events := []labelledEvent{
+		{key: "1|U500@DOM1", attackType: "account_takeover", categories: []string{"novel_value"}},
+		{key: "2|U66@DOM1", categories: []string{"novel_pair"}},
+	}
+	union := map[string]any{
+		"all_arms": map[string]any{
+			"at_equal_cost": map[string]any{
+				"budget_100_per_day": map[string]any{
+					"alerts": 700.0, "true_positives": 2.0, "red_team_total": 9.0,
+					"caught_red_team": []any{"1|U500@DOM1", "2|U66@DOM1"},
+				},
+			},
+		},
+	}
+
+	arms := unionArms(union, events, true)
+
+	if len(arms) != 1 {
+		t.Fatalf("built %d union arms, want 1", len(arms))
+	}
+	arm := arms[0]
+	if arm.Group != "combination" {
+		t.Errorf("group = %q, want combination", arm.Group)
+	}
+	if got := arm.PerType["100"]["account_takeover"]; got != 1 {
+		t.Errorf("per-type takeover = %d, want 1", got)
+	}
+	if got := arm.PerType["100"][realCampaign]; got != 1 {
+		t.Errorf("per-type real campaign = %d, want 1", got)
+	}
+	if got := arm.PerCategory["100"]["novel_pair"]; got != 1 {
+		t.Errorf("per-category novel_pair = %d, want 1", got)
+	}
+	if got := arm.PerType["100"][""]; got != 2 {
+		t.Errorf("arm total = %d, want 2", got)
+	}
+}
+
+// The two accountings are different measurements, not two renderings of one, so both must
+// reach the page and each must say which it is.
+func TestUnionArmReportsBothAccountings(t *testing.T) {
+	block := map[string]any{
+		"budget_10_per_day": map[string]any{
+			"alerts": 70.0, "true_positives": 1.0, "red_team_total": 9.0,
+			"caught_red_team": []any{"1|U500@DOM1"},
+		},
+	}
+	union := map[string]any{
+		"entity_scope_arms": map[string]any{
+			"at_equal_cost": block, "at_equal_depth": block,
+		},
+	}
+
+	arms := unionArms(union, []labelledEvent{{key: "1|U500@DOM1"}}, false)
+
+	if len(arms) != 2 {
+		t.Fatalf("built %d arms, want one per accounting", len(arms))
+	}
+	names := arms[0].Name + "|" + arms[1].Name
+	if !strings.Contains(names, "equal cost") || !strings.Contains(names, "equal depth") {
+		t.Errorf("arm names do not distinguish the accountings: %q", names)
+	}
+	for _, a := range arms {
+		if a.Note == "" {
+			t.Errorf("%q carries no note saying what it was charged", a.Name)
+		}
+		if a.PerType != nil {
+			t.Errorf("%q invented a per-type tally with no taxonomy", a.Name)
+		}
+	}
+}
+
+// A run with no union arm must produce none, not an empty row that reads as a zero.
+func TestNoUnionArmWithoutAUnionBlock(t *testing.T) {
+	if got := unionArms(nil, nil, false); got != nil {
+		t.Errorf("built %v from a run with no union arm", got)
+	}
+	if got := unionArms(map[string]any{}, nil, false); len(got) != 0 {
+		t.Errorf("built %d arms from an empty union block", len(got))
+	}
+}

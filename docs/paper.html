@@ -155,12 +155,12 @@ footer{margin-top:3.5rem;padding-top:1rem;border-top:1px solid var(--rule-2);
 <a class="h3" href="#25-the-requirements">2.5 The requirements</a>
 <a class="h3" href="#26-what-an-alert-is-worth">2.6 What an alert is worth</a>
 <a class="h2" href="#3-results">3. Results</a>
-<a class="h3" href="#31-the-per-entity-detectors-detect-the-composite-does-not">3.1 The per-entity detectors detect; the composite does not</a>
-<a class="h3" href="#32-the-combination-layer-destroys-the-signal">3.2 The combination layer destroys the signal</a>
-<a class="h3" href="#33-detection-by-attack-type">3.3 Detection by attack type</a>
-<a class="h3" href="#34-widening-the-budget-and-the-sixth-detector">3.4 Widening the budget, and the sixth detector</a>
-<a class="h3" href="#35-a-budget-is-a-ceiling-not-a-quota">3.5 A budget is a ceiling, not a quota</a>
-<a class="h3" href="#36-per-attack-type-detection-at-these-budgets">3.6 Per-attack-type detection at these budgets</a>
+<a class="h3" href="#31-what-each-method-detects">3.1 What each method detects</a>
+<a class="h3" href="#32-the-per-entity-detectors-detect-the-composite-does-not">3.2 The per-entity detectors detect; the composite does not</a>
+<a class="h3" href="#33-the-combination-layer-destroys-the-signal">3.3 The combination layer destroys the signal</a>
+<a class="h3" href="#34-alerting-when-any-detector-fires">3.4 Alerting when any detector fires</a>
+<a class="h3" href="#35-widening-the-budget-and-the-sixth-detector">3.5 Widening the budget, and the sixth detector</a>
+<a class="h3" href="#36-a-budget-is-a-ceiling-not-a-quota">3.6 A budget is a ceiling, not a quota</a>
 <a class="h3" href="#37-what-the-baselines-do">3.7 What the baselines do</a>
 <a class="h2" href="#4-threats-to-validity">4. Threats to validity</a>
 <a class="h2" href="#5-conclusion">5. Conclusion</a>
@@ -463,7 +463,80 @@ marginal alerts stop paying.</p>
 <hr>
 <h2 id="3-results">3. Results<a class="anchor" href="#3-results" aria-label="link to this section">#</a></h2>
 <p>All figures are at matched alert budgets, expressed per analyst-day.</p>
-<h3 id="31-the-per-entity-detectors-detect-the-composite-does-not">3.1 The per-entity detectors detect; the composite does not<a class="anchor" href="#31-the-per-entity-detectors-detect-the-composite-does-not" aria-label="link to this section">#</a></h3>
+<h3 id="31-what-each-method-detects">3.1 What each method detects<a class="anchor" href="#31-what-each-method-detects" aria-label="link to this section">#</a></h3>
+<p>Every method this project measures, against every kind of attack it has ground truth for, at
+<strong>1000 alerts a day</strong>. <code>lanl-inj-b1000-union-d7-14-002</code> and <code>baselines-injected-r7-d7-14</code>:
+856 planted attacks across six types plus the 549 real labelled events, 1,405 in all.
+Attribution is by victim account, which the taxonomy makes unambiguous -- victims are disjoint
+from every account the real labels name, so the account alone says which ground truth an event
+belongs to. A dash is a method no run measured at this budget, which is not the same statement
+as a zero and is never rendered as one.</p>
+<div class="tablewrap"><table>
+<thead><tr><th>Method</th><th>spray</th><th>lateral</th><th>off-hrs</th><th>priv-esc</th><th>low+slow</th><th>takeover</th><th>real</th><th>total</th><th>alerts</th></tr></thead>
+<tbody>
+<tr><td><em>per-entity detector</em></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+<tr><td><code>novelty</code></td><td>80</td><td>15</td><td>0</td><td>0</td><td>0</td><td>30</td><td>178</td><td>303</td><td>7000</td></tr>
+<tr><td><code>noveltyrate</code></td><td>117</td><td>26</td><td>0</td><td>4</td><td>0</td><td>64</td><td>173</td><td>384</td><td>7000</td></tr>
+<tr><td><code>pairing</code></td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>12</td><td>130</td><td>142</td><td>7000</td></tr>
+<tr><td><code>timing</code></td><td>0</td><td>0</td><td>2</td><td>0</td><td>0</td><td>4</td><td>6</td><td>12</td><td>7000</td></tr>
+<tr><td><code>volume</code></td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>7000</td></tr>
+<tr><td><em>population detector</em></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+<tr><td><code>marginal</code></td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td><strong>120/120</strong></td><td>0</td><td>120</td><td>7000</td></tr>
+<tr><td><em>combination</em></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+<tr><td>composite (Fisher + Brown)</td><td>0</td><td>4</td><td>0</td><td>0</td><td>0</td><td>116</td><td>108</td><td>228</td><td>7000</td></tr>
+<tr><td>corrected minimum (Å idÃ¡k)</td><td>40</td><td>10</td><td>0</td><td>0</td><td>0</td><td>30</td><td>155</td><td>235</td><td>7000</td></tr>
+<tr><td>union, per-entity arms (equal cost)</td><td>2</td><td>0</td><td>0</td><td>0</td><td>0</td><td>15</td><td>101</td><td>118</td><td>7000</td></tr>
+<tr><td>union, per-entity arms (equal depth)</td><td>117</td><td>26</td><td>2</td><td>4</td><td>0</td><td>64</td><td>264</td><td>477</td><td>25917 <strong>(Ã—3.7)</strong></td></tr>
+<tr><td>union, all arms (equal cost)</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td><strong>120/120</strong></td><td>94</td><td>214</td><td>7000</td></tr>
+<tr><td>union, all arms (equal depth)</td><td>117</td><td>26</td><td>2</td><td>4</td><td>0</td><td><strong>120/120</strong></td><td>264</td><td>533</td><td>31601 <strong>(Ã—4.5)</strong></td></tr>
+<tr><td><em>baseline (per-entity)</em></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+<tr><td><code>entity_ewma</code></td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>1</td><td>0</td><td>1 <em>(measured at 100/day, not 1000)</em></td><td>--</td></tr>
+<tr><td><em>baseline (population)</em></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+<tr><td><code>eif</code></td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0 <em>(measured at 100/day, not 1000)</em></td><td>--</td></tr>
+<tr><td><code>hst</code></td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0 <em>(measured at 100/day, not 1000)</em></td><td>--</td></tr>
+<tr><td><code>iforest</code></td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0 <em>(measured at 100/day, not 1000)</em></td><td>--</td></tr>
+<tr><td><code>lof</code></td><td>0</td><td>0</td><td>0</td><td>0</td><td>12</td><td>0</td><td>0</td><td>12 <em>(measured at 100/day, not 1000)</em></td><td>--</td></tr>
+<tr><td><code>ocsvm</code></td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>33</td><td>0</td><td>33 <em>(measured at 100/day, not 1000)</em></td><td>--</td></tr>
+<tr><td><code>pca</code></td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0 <em>(measured at 100/day, not 1000)</em></td><td>--</td></tr>
+</tbody></table></div>
+<p>Planted: spray 320, lateral 40, off-hrs 64, priv-esc 24, low+slow 288, takeover 120, real 549.</p>
+<p>Four readings, and the table is the argument rather than an illustration of it.</p>
+<p><strong>No single method is best at more than one thing.</strong> The population marginal takes every
+planted account takeover and nothing else at all. Detector V takes credential spray, lateral
+movement and privilege escalation and no takeovers the marginal does not already have.
+Detector I takes the real campaign. A reader looking for one row to deploy will not find one,
+and that is the finding: these detectors are answering different questions, and the questions
+are not redundant.</p>
+<p>Detector V&#39;s own package documentation claimed it took credential spray, lateral movement
+and account takeover &#34;from nothing to nearly everything&#34;. Measured, it takes them from
+nothing to between a third and two thirds. That is a real effect and a smaller one than was
+claimed, and the comment has been corrected to the numbers in this table.</p>
+<p><strong>The population marginal detects every planted account takeover: 120 of 120.</strong> A synthetic
+takeover moves an account onto population-rare values, which is exactly that detector&#39;s null,
+so the sweep is expected rather than surprising -- and it is the one place a population-scope
+model is the right instrument, in a paper that spends most of its length arguing the other
+way.</p>
+<p><strong>Low-and-slow is invisible to every arm of the framework: 0 of 288.</strong> It is the type the
+volume detector&#39;s dispersion widening was built to tolerate, so this is a confirmed prediction
+and not an unexplained gap. It is also the one type a baseline reaches and the framework does
+not -- local outlier factor finds 12 -- which is discussed in section 3.7.</p>
+<p><strong>Both p-value combinations are beaten by a component.</strong> The composite finds 116 of the
+marginal&#39;s 120 takeovers and loses the spray and lateral detections entirely; the corrected
+minimum keeps a third of the spray and a quarter of the takeovers. Neither reaches what the
+arms reach separately, and section 3.3 diagnoses why.</p>
+<p><strong>One method takes the maximum of every column at once, and it is the expensive one.</strong> The
+union at equal depth -- alert on anything any arm ranks highly -- matches the best arm on
+every attack type simultaneously and finds 264 events of the real campaign where no single
+arm exceeds 178. It spends 4.5 times the budget to do it, which is why the alerts column is
+in this table, and at equal cost the same rule is beaten by simply using the best arm.
+Section 3.4 is where that trade is priced.</p>
+<p>This table is read at one budget and moves a great deal with it. At 100 alerts a day the
+marginal reaches 76 of the same 120 takeovers and the composite 24 of them, and <strong>no method
+reaches any other planted type at all</strong> -- every remaining detection at that budget is an
+event of the real campaign. So &#34;these detectors cannot express this attack&#34; and &#34;this budget
+cannot afford this attack&#34; are different claims, and for four of the six types only the
+second one is true.</p>
+<h3 id="32-the-per-entity-detectors-detect-the-composite-does-not">3.2 The per-entity detectors detect; the composite does not<a class="anchor" href="#32-the-per-entity-detectors-detect-the-composite-does-not" aria-label="link to this section">#</a></h3>
 <p>Labelled LANL red-team events caught, days 7–14:</p>
 <div class="tablewrap"><table>
 <thead><tr><th>Arm</th><th>Scope</th><th>10/day</th><th>25/day</th><th>50/day</th><th>100/day</th></tr></thead>
@@ -484,7 +557,7 @@ precision against a base rate of 1.31 × 10⁻⁴, a lift of about 1,200×</stro
 as the budget tightens, which is the signature of a ranking that is working.</p>
 <p>The composite catches nothing at any budget on either corpus while its own best component
 catches 60. This is the paper&#39;s central negative finding and it is not a calibration detail.</p>
-<h3 id="32-the-combination-layer-destroys-the-signal">3.2 The combination layer destroys the signal<a class="anchor" href="#32-the-combination-layer-destroys-the-signal" aria-label="link to this section">#</a></h3>
+<h3 id="33-the-combination-layer-destroys-the-signal">3.3 The combination layer destroys the signal<a class="anchor" href="#33-the-combination-layer-destroys-the-signal" aria-label="link to this section">#</a></h3>
 <figure class="fig">
 <svg viewBox="0 0 740 300" role="img" class="figsvg"
  aria-label="For a labelled event, one detector places it deep in its tail and four place it where any event would sit. Summing all five contributions lets the four uninformative ones supply most of the total, so the combined statistic is unremarkable.">
@@ -556,9 +629,15 @@ non-signals. Fisher is powerful against diffuse alternatives and the minimum aga
 sparse ones, which is the distinction higher criticism [16] is built on; this signal is
 sparse.</p>
 <p><strong>The minimum compares raw p-values across detectors that share no scale.</strong> Under it the
-novelty detector carries 1,273 of the 1,400 retained alerts, so the population marginal&#39;s
-signal never becomes the minimum however extreme it is <em>within its own distribution</em>. That
-signal is not weak; it is unreachable.</p>
+novelty detector carries <strong>5,879 of the 7,000 retained alerts, 84%</strong>, so the population
+marginal&#39;s signal never becomes the minimum however extreme it is *within its own
+distribution*. That signal is not weak; it is unreachable. The other five detectors divide
+the remaining 16% between them, and the marginal -- the arm that detects every planted
+account takeover on its own -- is left with 214 alerts, 3%.</p>
+<p>This second diagnosis is the one §3.4 tests directly, by removing the shared scale
+altogether, and it survives only in part: the marginal&#39;s signal is recoverable and worth
+recovering, but Detector I holding most of the queue turns out to be closer to right than
+wrong.</p>
 <p>The second diagnosis predicts its own fix. Conformal calibration [17] replaces each detector&#39;s
 model tail with its rank in that detector&#39;s own burn-in distribution, which is exactly what
 puts several detectors on one scale. At entity scope it already moves recall from 15 of 46 to
@@ -570,29 +649,65 @@ be (R4).</p>
 the burn-in covariance implies <code>Var[X²] = −27.5</code>, which no joint distribution of the
 statistics can produce. The estimator is measuring the marginals&#39; misspecification rather
 than the detectors&#39; dependence.</p>
-<h3 id="33-detection-by-attack-type">3.3 Detection by attack type<a class="anchor" href="#33-detection-by-attack-type" aria-label="link to this section">#</a></h3>
-<p>Against 856 synthetic attacks planted with controlled ground truth across six types, at 700
-alerts over seven days and 1,405 labelled events:</p>
+<h3 id="34-alerting-when-any-detector-fires">3.4 Alerting when any detector fires<a class="anchor" href="#34-alerting-when-any-detector-fires" aria-label="link to this section">#</a></h3>
+<p>Both combinations in §3.3 ask the detectors to agree. A third rule does not: alert on any
+event that <em>any</em> detector ranks highly. It is the minimum&#39;s question with the scale removed
+-- each arm ranks the day on its own p-value, an event scores the best rank it reaches in any
+arm, and only the within-arm order is read. Alerts are deduplicated, since the arms&#39; sets are
+not disjoint. Ties break on the event identity and never on a p-value: rank collisions are
+structural, every arm has a rank 1, and breaking them on log p would hand each one back to
+the arm whose p-values are numerically smallest.</p>
+<p>It is charged two ways -- <strong>at equal cost</strong>, truncated to the same alerts a day every other
+arm gets, and <strong>at equal depth</strong>, every arm keeping its own top B with the union emitted
+whole. At 1000 alerts a day:</p>
 <div class="tablewrap"><table>
-<thead><tr><th>Arm</th><th>acct takeover</th><th>cred spray</th><th>lateral</th><th>low &amp; slow</th><th>off hours</th><th>priv esc</th><th>real campaign</th></tr></thead>
+<thead><tr><th>Method</th><th><code>lanl-r11</code> TP</th><th>alerts</th><th><code>lanl-inj</code> TP</th><th>alerts</th></tr></thead>
 <tbody>
-<tr><td>IV <code>marginal</code></td><td><strong>76/120</strong></td><td>0/320</td><td>0/40</td><td>0/288</td><td>0/64</td><td>0/24</td><td>0/549</td></tr>
-<tr><td>I <code>novelty</code></td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td><strong>60/549</strong></td></tr>
-<tr><td><code>pairing</code></td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td><strong>59/549</strong></td></tr>
-<tr><td>II(a) <code>timing</code></td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>1/549</td></tr>
-<tr><td>II(b) <code>volume</code></td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0/549</td></tr>
-<tr><td>composite</td><td>20/120</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0/549</td></tr>
+<tr><td>best single arm</td><td><strong>201</strong></td><td>7,000</td><td><strong>384</strong></td><td>7,000</td></tr>
+<tr><td>union, per-entity arms, equal cost</td><td>106</td><td>7,000</td><td>118</td><td>7,000</td></tr>
+<tr><td>union, all arms, equal cost</td><td>96</td><td>7,000</td><td>214</td><td>7,000</td></tr>
+<tr><td>union, per-entity arms, equal depth</td><td>278</td><td>25,930</td><td>477</td><td>25,917</td></tr>
+<tr><td>union, all arms, equal depth</td><td>278</td><td>32,134</td><td><strong>533</strong></td><td>31,601</td></tr>
 </tbody></table></div>
-<p>Two readings. The population marginal detects <strong>76 of 120 account-takeover events, 63%
-recall</strong>, and at this budget that is the only planted type any arm reaches. And the two useful
-arms are sensitive to <em>disjoint</em> things: the marginal to planted takeover, the novelty detector
-to the real campaign.</p>
-<p>Both readings are budget-dependent, and §3.6 shows how far. At ten times this budget five of
-the six types are reached rather than one, so &#34;the detectors cannot express this attack&#34; and
-&#34;this budget cannot afford this attack&#34; are different statements, and only the second is true
-of four of them.</p>
-<h3 id="34-widening-the-budget-and-the-sixth-detector">3.4 Widening the budget, and the sixth detector<a class="anchor" href="#34-widening-the-budget-and-the-sixth-detector" aria-label="link to this section">#</a></h3>
-<p><code>lanl-r11-b1000-conf-d7-14-001</code> is the first recorded run to include Detector V, and the
+<p><strong>At equal cost the union is strictly dominated on both corpora at every budget</strong> -- fewer
+labelled events <em>and</em> more false alarms than just using the best arm: 96 against 201, 214
+against 384. No exchange rate rescues a dominated option.</p>
+<p>Why is visible in the two corpora disagreeing about the population marginal. On the injected
+corpus, including it moves the union from 118 to 214, since its 120 account takeovers are
+detections the per-entity arms do not have. On the real campaign, including it moves the
+union from 106 <em>down</em> to 96: there it detects nothing and still consumes a sixth of the
+budget. Rank fusion gives every arm an equal share, and <code>volume</code>, which detects nothing
+anywhere, draws the same share as Detector I.</p>
+<p><strong>This refutes part of §3.3&#39;s diagnosis.</strong> That section reads the minimum&#39;s failure as the
+marginal&#39;s signal being unreachable behind a mismatched scale. Rank fusion makes it reachable
+and the result gets worse, so crowding-out was not the binding defect: Detector I holding 84%
+of the queue was mostly <em>correct</em>, because it is the better arm. What survives is that
+reaching the marginal recovers real detections, which the +96 shows. What fails is the
+implied remedy -- an equal allocation across arms of very unequal quality is worse than
+letting the best arm take everything.</p>
+<p><strong>At equal depth the union finds what no single arm finds.</strong> It takes the maximum of every
+column of §3.1&#39;s table at once, including all 120 takeovers and 264 real-campaign events
+where no arm exceeds 178. That is complementarity made concrete, and it costs 4.5 times the
+budget. Whether to buy it is what §2.6&#39;s objective decides. Against the best single arm, the
+union at equal depth is preferred only above these exchange rates:</p>
+<div class="tablewrap"><table>
+<thead><tr><th></th><th>100 alerts/day</th><th>1000 alerts/day</th></tr></thead>
+<tbody>
+<tr><td><code>lanl-r11</code>, all arms</td><td>v/c &gt; 190</td><td>v/c &gt; 325</td></tr>
+<tr><td><code>lanl-inj</code>, all arms</td><td><strong>v/c &gt; 35</strong></td><td>v/c &gt; 164</td></tr>
+</tbody></table></div>
+<p>Needing a catch to be worth 164 wasted investigations is a hard sell. Needing 35 is not, and
+at 100 a day on the injected corpus the union nearly doubles detections -- 151 against 76 --
+for 4.9 times the alerts. That is the one configuration where the rule is worth deploying.</p>
+<p>The rule also gives up what the rest of the framework is built on: a fused rank is not a
+p-value and no null distributes it, so this arm reports a selection rather than a calibrated
+tail probability, admissible only because R6 no longer ties volume to a stated error rate.
+Each alert still carries the p-value of the detector that raised it. What the experiment
+points at is an allocation that is neither a shared threshold nor an equal quota, but a share
+per arm proportional to what that arm has earned -- a calibrated per-alert probability, the
+same missing piece §3.6 reaches from the other direction.</p>
+<h3 id="35-widening-the-budget-and-the-sixth-detector">3.5 Widening the budget, and the sixth detector<a class="anchor" href="#35-widening-the-budget-and-the-sixth-detector" aria-label="link to this section">#</a></h3>
+<p><code>lanl-r11-b1000-union-d7-14-002</code> is the first recorded run to include Detector V, and the
 first at a budget of 1000 alerts a day. 549 labelled events among 4,190,603 scored:</p>
 <div class="tablewrap"><table>
 <thead><tr><th>Arm</th><th>10/day</th><th>100/day</th><th>1000/day</th></tr></thead>
@@ -606,24 +721,24 @@ first at a budget of 1000 alerts a day. 549 labelled events among 4,190,603 scor
 <tr><td>II(b) <code>volume</code>, IV <code>marginal</code></td><td>0</td><td>0</td><td>0</td></tr>
 </tbody></table></div>
 <p>Three findings.</p>
-<p><strong>Detector V detects, and this is the first time it has been measured.</strong> It reaches 185 of
-549 at the widest budget, second only to Detector I. Its per-entity novelty <em>rate</em> null was
-built because Detector I&#39;s p-value for a first-ever value is approximately one over the size
-of the account&#39;s history, which makes the detector structurally unable to alert on a small
-account however anomalous it is; the rate question is scale-free by construction. Nothing
-before this run substantiated that, and the arm remains off by default until a second corpus
-agrees.</p>
-<p><strong>Conformal calibration moves the composite off zero — and not far enough.</strong> The composite
-catches 6 at 100 alerts a day where the uncalibrated composite caught 0, which is the
-predicted direction: putting the detectors on a common scale is what lets an informative one
-reach the minimum. It is still an order of magnitude below its own best component&#39;s 60. Per-arm
-figures are unchanged by calibration, as they must be, since a rank transform applied within
-one detector is monotone and cannot reorder that detector&#39;s own alerts.</p>
+<p><strong>Detector V detects.</strong> It reaches 185 of 549 at the widest budget, second only to
+Detector I, and on the injected corpus it is the broadest arm in the paper (§3.1). It exists
+because Detector I&#39;s p-value for a first-ever value is roughly one over the size of the
+account&#39;s history, which leaves it structurally unable to alert on a small account however
+anomalous; the rate question is scale-free instead. Two corpora now agree that it works,
+which was the condition this paper set for flipping it on by default -- so that default is
+now a decision waiting to be taken rather than evidence waiting to arrive.</p>
+<p><strong>Conformal calibration moves the composite off zero, and not far enough.</strong> It catches 6 at
+100 alerts a day where the uncalibrated composite caught 0 -- the predicted direction, since
+putting the detectors on one scale is what lets an informative one reach the minimum -- and
+that is still an order of magnitude below its own best component&#39;s 60. Per-arm figures are
+unchanged by calibration, as they must be: a rank transform inside one detector is monotone
+and cannot reorder that detector&#39;s own alerts.</p>
 <p><strong>Widening the budget buys recall at a steep price in precision.</strong> Detector I&#39;s recall rises
-from 2.0% to 36.6% between 10 and 1000 alerts a day, while its precision falls from 15.7% to
-2.9%. A budget of 1000 a day is 7,000 alerts across the window against 549 labelled events, so
-most of what it permits cannot be anything but cost.</p>
-<h3 id="35-a-budget-is-a-ceiling-not-a-quota">3.5 A budget is a ceiling, not a quota<a class="anchor" href="#35-a-budget-is-a-ceiling-not-a-quota" aria-label="link to this section">#</a></h3>
+from 2.0% to 36.6% between 10 and 1000 alerts a day while its precision falls from 15.7% to
+2.9%. A budget of 1000 a day is 7,000 alerts against 549 labelled events, so most of what it
+permits cannot be anything but cost.</p>
+<h3 id="36-a-budget-is-a-ceiling-not-a-quota">3.6 A budget is a ceiling, not a quota<a class="anchor" href="#36-a-budget-is-a-ceiling-not-a-quota" aria-label="link to this section">#</a></h3>
 <p>Truncating each queue where <code>U</code> peaks, at an exchange rate of ten false positives to one true
 positive (<code>v/c = 10</code>), on the corrected-minimum arm:</p>
 <div class="tablewrap"><table>
@@ -633,62 +748,44 @@ positive (<code>v/c = 10</code>), on the corrected-minimum arm:</p>
 <tr><td>100/day</td><td>700</td><td>47</td><td><strong>221</strong></td><td>47</td><td>6.7% → <strong>21.3%</strong></td><td>479</td><td><strong>0</strong></td></tr>
 <tr><td>1000/day</td><td>7,000</td><td>161</td><td><strong>315</strong></td><td>74</td><td>2.3% → <strong>23.5%</strong></td><td>6,685</td><td>87</td></tr>
 </tbody></table></div>
-<p>At 10 and 100 a day the truncation is free: two thirds of the queue can be discarded for no
-loss of detection at all. At 1000 a day it stops being free and starts being a decision — the
-objective discards 6,685 alerts and 87 true positives with them, because at this exchange rate
-those 87 are not worth 6,685 wasted investigations. Precision rises tenfold, from 2.3% to
-23.5%.</p>
-<p>For the composite the optimum is to emit <strong>nothing at every budget</strong>, including the one where
-it finds 113 true positives: 113 detections do not pay for 6,887 false ones at <code>v/c = 10</code>. The
-objective declining to deploy a detector is a usable answer, and it is the one the framework&#39;s
-own headline arm receives.</p>
-<p>This is an oracle bound. The optimum is located using the labels, so it measures the headroom
-a cutoff has rather than being a rule that can be shipped; a deployable version needs a
-calibrated per-alert probability, which the combination work above is a prerequisite for.</p>
-<h3 id="36-per-attack-type-detection-at-these-budgets">3.6 Per-attack-type detection at these budgets<a class="anchor" href="#36-per-attack-type-detection-at-these-budgets" aria-label="link to this section">#</a></h3>
-<p><code>lanl-inj-b1000-conf-d7-14-001</code>, 856 planted attacks across six types plus the 549 real
-labelled events, 1,405 labelled in total. Attribution is by victim account, which the
-taxonomy fixes: victims are disjoint from every account the real labels name, so the account
-alone says which ground truth a labelled event belongs to. Detections at <strong>1000 alerts a
-day</strong>:</p>
-<div class="tablewrap"><table>
-<thead><tr><th>Arm</th><th>acct takeover</th><th>cred spray</th><th>lateral</th><th>low &amp; slow</th><th>off hours</th><th>priv esc</th><th>real campaign</th></tr></thead>
-<tbody>
-<tr><td>IV <code>marginal</code></td><td><strong>120/120</strong></td><td>0/320</td><td>0/40</td><td>0/288</td><td>0/64</td><td>0/24</td><td>0/549</td></tr>
-<tr><td>V <code>noveltyrate</code></td><td>64/120</td><td><strong>117/320</strong></td><td><strong>26/40</strong></td><td>0/288</td><td>0/64</td><td><strong>4/24</strong></td><td>173/549</td></tr>
-<tr><td>I <code>novelty</code></td><td>30/120</td><td>80/320</td><td>15/40</td><td>0/288</td><td>0/64</td><td>0/24</td><td><strong>178/549</strong></td></tr>
-<tr><td><code>pairing</code></td><td>12/120</td><td>0/320</td><td>0/40</td><td>0/288</td><td>0/64</td><td>0/24</td><td>130/549</td></tr>
-<tr><td>II(a) <code>timing</code></td><td>4/120</td><td>0/320</td><td>0/40</td><td>0/288</td><td>2/64</td><td>0/24</td><td>6/549</td></tr>
-<tr><td>II(b) <code>volume</code></td><td>0/120</td><td>0/320</td><td>0/40</td><td>0/288</td><td>0/64</td><td>0/24</td><td>0/549</td></tr>
-</tbody></table></div>
-<p><strong>The population marginal detects every planted account takeover: 120 of 120.</strong> A synthetic
-takeover moves an account onto values that are rare in the population, which is exactly the
-question that detector asks, so a clean sweep is the expected result rather than a surprising
-one — and it is worth stating as the one place a population-scope model is the right
-instrument.</p>
-<p><strong>Detector V is the broadest arm.</strong> It is the only one reaching four of the six types, and
-the only one reaching credential spray (117 of 320), lateral movement (26 of 40) and
-privilege escalation at all. Its documentation claimed it took credential spray, lateral
-movement and account takeover &#34;from nothing to nearly everything&#34;; measured, it takes them
-from nothing to between a third and two thirds, which is a real effect and a smaller one than
-the claim.</p>
-<p><strong>Low-and-slow is invisible to every arm at every budget: 0 of 288.</strong> This is the type the
-volume detector&#39;s dispersion widening was expected to miss, so it is a confirmed prediction
-rather than an unexplained gap. Off-hours is reached only by the timing detector and only
-twice in 64. Between them these two types are 352 of the 856 planted events, and they are
-where the remaining detection headroom is.</p>
+<p>At 10 and 100 a day the truncation is free: two thirds of the queue goes for no loss of
+detection at all. At 1000 it becomes a decision -- the objective discards 6,685 alerts and 87
+true positives with them, because at this rate those 87 are not worth 6,685 wasted
+investigations -- and precision rises tenfold.</p>
+<p>For the composite the optimum is to emit <strong>nothing at any budget</strong>, including the one where it
+finds 113 true positives, which do not pay for 6,887 false ones at <code>v/c = 10</code>. The objective
+declining to deploy a detector is a usable answer, and the framework&#39;s own headline arm is
+what receives it.</p>
+<p>This is an oracle bound: the optimum is located using the labels, so it measures the headroom
+a cutoff has rather than being a shippable rule. A deployable version needs the same
+calibrated per-alert probability §3.4 arrives at.</p>
 <h3 id="37-what-the-baselines-do">3.7 What the baselines do<a class="anchor" href="#37-what-the-baselines-do" aria-label="link to this section">#</a></h3>
-<p>Six population-scope baselines spanning four inductive biases — isolation forest [11], extended
-isolation forest [12], half-space trees [13], local outlier factor [14], one-class SVM [15]
-and PCA reconstruction error — detect <strong>0 of 262</strong> at every budget on the matched
-comparison. All six run from their reference scikit-learn implementations [18] rather than
-being reimplemented, so a difference in the comparison is a difference in method. One per-entity baseline, an uncalibrated
-EWMA z-score, detects <strong>1</strong>. Isolation, density, boundary and linear-subspace models fail
-together, and the category census says why: not one labelled event is a population-marginal
-outlier.</p>
-<p>The framework&#39;s novelty arm catches 21 where that per-entity baseline catches 1. The
-direction of the comparison — per-entity beats population — is the finding the evidence
-supports; the margin over the baseline rests on a single event and could reverse on another
+<p>Six population-scope baselines spanning four inductive biases — isolation forest [11],
+extended isolation forest [12], half-space trees [13], local outlier factor [14], one-class
+SVM [15] and PCA reconstruction error — all run from their reference scikit-learn
+implementations [18] rather than being reimplemented, so a difference in the comparison is a
+difference in method. They were measured on two corpora and the two answers differ.</p>
+<p><strong>On the matched comparison</strong> (<code>baselines-holdout-r7-d7-9</code>, the same 262 labelled events
+§3.2 replicates on) all six detect <strong>0 at every budget</strong>. One per-entity baseline, an
+uncalibrated EWMA z-score, detects 1. Isolation, density, boundary and linear-subspace models
+fail together, and the category census says why: not one labelled event of the real campaign
+is a population-marginal outlier.</p>
+<p><strong>On the injected corpus they are not all zero, and the exception is the interesting one.</strong>
+Against 1,405 labelled events at their widest measured budget, one-class SVM detects <strong>33 of
+120 account takeovers</strong> and local outlier factor detects <strong>12 of 288 low-and-slow events</strong> —
+the one attack type no arm of this framework reaches at any budget. A synthetic slow
+exfiltration is a small, sustained departure that the volume detector&#39;s dispersion widening
+is built to tolerate; a population density estimate has no such tolerance and picks some of it
+up. That is a real capability this framework does not have, and the honest reading is that
+the two scopes are complementary rather than that one dominates.</p>
+<p>Both baseline figures come from an easier problem than the framework&#39;s, in two ways that both
+favour the baselines. They read a 1-in-100 sampled feature table on which the labelled share
+is <strong>3.0% against the framework&#39;s 0.031%, a base rate 97 times easier</strong>, and their budget
+permitted them <strong>1.3% of their corpus against the framework&#39;s 0.16%, an 8.3 times larger
+share</strong>. Given both advantages they reached 33 and 12.</p>
+<p>So the direction of the comparison — per-entity beats population on this campaign — is
+what the evidence supports, and it is narrower than a table of zeros would suggest. The
+margin over the per-entity baseline rests on a single event and could reverse on another
 campaign.</p>
 <hr>
 <h2 id="4-threats-to-validity">4. Threats to validity<a class="anchor" href="#4-threats-to-validity" aria-label="link to this section">#</a></h2>
@@ -705,16 +802,30 @@ campaign.</p>
 <hr>
 <h2 id="5-conclusion">5. Conclusion<a class="anchor" href="#5-conclusion" aria-label="link to this section">#</a></h2>
 <p>The evidence points in one direction, and it is not the direction the design anticipated.</p>
-<p><strong>Per-entity conditioning works and population-scope conditioning does not.</strong> On this corpus
-the per-entity novelty detector finds labelled red-team activity at every budget tested,
-replicated across disjoint entity samples, while six published population-scope models and
-the framework&#39;s own population arms find none. The mechanism is visible in the category
-census: the labelled events are not population outliers, so no amount of technique applied at
-population scope reaches them.</p>
-<p><strong>Stop combining.</strong> One detector carries the signal, and combining it with four uninformative
-ones costs accuracy under every rule tried. Presenting each signal on its own terms is also
-more actionable: &#34;this account used a program it has never used&#34; is an instruction, and a
-blended score is not.</p>
+<p><strong>Per-entity conditioning is what reaches the real campaign; scope is not a ranking.</strong> On
+the real intrusion the per-entity novelty detector finds labelled activity at every budget
+tested, replicated across disjoint entity samples, while six published population-scope models
+and the framework&#39;s own population arms find none. The mechanism is visible in the category
+census: those events are not population outliers, so no technique applied at population scope
+reaches them.</p>
+<p>That is a claim about one campaign and not about scope in general, and the planted attacks say
+why the distinction matters. The population marginal detects <strong>every one of 120 account
+takeovers</strong> and a population density baseline reaches the low-and-slow exfiltration no arm of
+this framework touches. An earlier version of this paper concluded that population-scope
+conditioning does not work; measured against ground truth it owns two attack types outright.
+The scopes are complementary, and the useful statement is which question each answers rather
+than which is better.</p>
+<p><strong>No combination tried beats its own best component at equal cost.</strong> Three rules now: Fisher
+with Brown&#39;s correction, the corrected minimum, and a union that alerts when any arm ranks an
+event highly. The third was built to test the second&#39;s diagnosis -- that an informative arm
+was unreachable behind a mismatched p-value scale -- and it refutes it. Removing the scale
+makes the union <em>worse</em>, because an equal share of the budget for every arm hands the same
+share to an arm that detects nothing as to the arm carrying the signal.</p>
+<p>The defect is therefore not the combining but the allocation. What none of the three does is
+divide a budget across arms in proportion to what each has demonstrably earned, and doing that
+needs a calibrated per-alert probability -- the same prerequisite the cutoff work arrives at.
+Until then, presenting each signal on its own terms is also the more actionable choice: &#34;this
+account used a program it has never used&#34; is an instruction, and a blended score is not.</p>
 <p><strong>Move the unit of analysis to where the design already put it.</strong> The framework argues that
 the entity is the unit; the evaluation ranked events. Closing that gap produced the only
 non-zero composite detection, and the remaining work is to remove the activity confound
@@ -726,10 +837,13 @@ of a queue at no cost in detections — the headroom for a deployable cutoff rul
 building one needs a calibrated per-alert probability.</p>
 <p>What is not claimed: that this detects insider threat at deployable precision. Sixteen per
 cent of a queue being real is a thousand-fold improvement on chance and still not good enough
-to alert on unattended, and low-and-slow exfiltration — 288 planted events — is invisible to
-every arm at every budget. What is established is narrower and more useful — that the per-entity formulation
-carries signal where the population formulation carries none, and that the combination layer
-is the defect standing between the two.</p>
+to alert on unattended, and low-and-slow exfiltration — 288 planted events — is invisible
+to every arm of this framework at every budget while a population density baseline reaches 12
+of them, which is a capability the per-entity formulation simply does not have. What is
+established is narrower and more useful — that per-entity conditioning carries the real
+campaign where population conditioning carries none of it, that population conditioning owns
+attack types per-entity conditioning cannot see, and that what stands between them is not the
+combining rule but how a fixed budget is divided among arms of very unequal quality.</p>
 <hr>
 <h2 id="references">References<a class="anchor" href="#references" aria-label="link to this section">#</a></h2>
 <ol>

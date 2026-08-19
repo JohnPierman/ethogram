@@ -75,7 +75,22 @@ jobs:
       # ("the Go language version used to build golangci-lint is lower than the targeted
       # Go version"), which fails as a config error rather than as a lint finding.
       # Compiling from source keeps the linter and the module on the same Go version.
+      #
+      # GOSUMDB=off applies to installing this one pinned tool, and it is here because
+      # of a failure that had nothing to do with this repository. `go install pkg@v2.1.6`
+      # also resolves the module's latest version, to report whether it is deprecated.
+      # When that resolved to a v2.13.0 that the checksum database did not have, the
+      # lookup returned 404 and the install failed -- so a pinned, previously working
+      # linter broke on an upstream tag it was not asked to use. Turning the checksum
+      # database off for the install skips the lookup that fails.
+      #
+      # What this gives up: the tool's source is no longer verified against the public
+      # checksum log. It stays pinned to an exact version, it is a linter rather than
+      # anything that ships, and nothing it produces reaches an artefact. That is the
+      # whole of the trade.
       - uses: golangci/golangci-lint-action@v8
+        env:
+          GOSUMDB: "off"
         with:
           version: v2.1.6
           install-mode: goinstall
