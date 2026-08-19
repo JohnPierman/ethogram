@@ -193,6 +193,22 @@ paper:
 	@chrome=$$(command -v chrome || command -v google-chrome 	  || echo "/c/Program Files/Google/Chrome/Application/chrome.exe"); 	"$$chrome" --headless --disable-gpu --no-pdf-header-footer 	  --print-to-pdf="$(PAPER_PDF)" "file:///$(PAPER_HTML)" 2>/dev/null
 	@python -c "import sys;b=open(sys.argv[1],'rb').read();n=b.count(b'/Type /Page')-b.count(b'/Type /Pages');w=len(open(sys.argv[2],encoding='utf-8').read().split());print('wrote %s: %d pages, %d words'%(sys.argv[1],n,w));sys.exit(1 if n>15 else 0)" 	  "$(PAPER_PDF)" "$(PAPER_MD)" 	  || { echo "OVER BUDGET: the paper ceiling is 15 pages"; exit 1; }
 
+# The paper's headline comparison: one row per method, one column per attack type.
+#
+# Derived rather than typed. The table crosses fifteen methods with seven ground truths, and
+# keeping a hundred cells correct by hand across a re-run is not a reasonable expectation --
+# the numbers are read out of the recorded runs and pasted in.
+#
+# INJ_RUN is the injected-corpus replay, the only run with per-type ground truth.
+INJ_RUN ?= $(RESULTS)/lanl-inj-b1000-conf-d7-14.json
+INJ_BASELINES ?= $(RESULTS)/baselines-injected-r7-d7-14.json
+METHOD_BUDGET ?= 1000
+
+.PHONY: method-table
+method-table:
+	$(GO) run ./cmd/methodtable -run $(INJ_RUN) -baselines $(INJ_BASELINES) \
+	  -taxonomy $(INJECT_TAXONOMY) -budget $(METHOD_BUDGET)
+
 .PHONY: clean
 clean:
 	rm -f $(COVER_PROFILE)

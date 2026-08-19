@@ -11,6 +11,92 @@ Equation numbers `(1)`–`(20)`, requirements `R1`–`R6`, and evaluation hypoth
 
 ### Added
 
+- **a third combination rule: the union arm.** Alert on any event that *any* detector ranks
+  highly, by rank fusion -- each arm ranks the day on its own p-value, an event scores the
+  best rank it reaches in any arm, and only the within-arm order is ever read, so no p-value
+  is compared across detectors that share no scale. Alerts are deduplicated on
+  `(t, entity, src, dst)`, since the arms' sets are not disjoint and an event three arms rank
+  highly is one alert. Ties break on the event identity and never on a p-value: rank
+  collisions are structural, every arm has a rank 1, and breaking them on log p would hand
+  each collision straight back to the arm whose p-values are numerically smallest -- the
+  exact bias the rule exists to remove
+- the union is reported under **two accountings, because one would mislead either way**. At
+  equal cost it is truncated to the same alerts a day every other arm gets; at equal depth
+  every arm keeps its own top B and the deduplicated union is emitted whole, at several times
+  the budget. `budget_multiple` states how much more
+- the union **names the labelled events it caught** rather than leaving them to be
+  reconstructed. Every other arm's catch is recoverable by re-ranking the labelled events on
+  that arm's p-value; a fused rank is not a p-value and no labelled event carries one, so
+  without the recorded keys every per-attack-type row for this arm would be blank
+- **`cmd/methodtable` and `make method-table`**: the paper's headline table, one row per
+  method and one column per attack type, derived from the recorded runs rather than typed.
+  It crosses fifteen methods with seven ground truths and keeping a hundred cells correct by
+  hand across a re-run is not a reasonable expectation
+- the table carries an **alerts column**. It is the one number a reader could be actively
+  misled without: the union's equal-depth rows find the most and spend 4.5x the budget to do
+  it, and a recall figure without its cost invites exactly the wrong conclusion
+- the dashboard shows the four union arms, each stating which accounting it was charged under
+- **GitHub Pages is enabled and publishing**, at https://johnpierman.github.io/ethogram/
+
+### Fixed
+
+- **the paper's lead conclusion was contradicted by its own data.** It read "per-entity
+  conditioning works and population-scope conditioning does not". Measured against planted
+  ground truth, the population marginal detects **every one of 120 account takeovers** and a
+  population density baseline reaches the low-and-slow exfiltration no arm here touches. The
+  claim is now scoped to the real campaign, where it holds, and the scopes are described as
+  complementary because that is what the measurement shows
+- **the baselines are not all zero, and one of them finds what this framework cannot.** On
+  the injected corpus one-class SVM reaches 33 of 120 account takeovers and local outlier
+  factor reaches **12 of 288 low-and-slow events**, the one attack type no arm of this
+  framework reaches at any budget. The previous text generalised a zero from the matched
+  262-event comparison and asserted that isolation, density, boundary and linear-subspace
+  models "fail together", which the injected corpus contradicts. Both baseline figures now
+  carry the fairness caveat, and it favours the baselines: they read a 1-in-100 sampled
+  feature table whose labelled share is 3.0% against the framework's 0.031%, a base rate 97
+  times easier, and their budget permitted 1.3% of their corpus against 0.16%, an 8.3 times
+  larger share
+- **"low-and-slow is invisible to every arm at every budget"** is now "every arm of this
+  framework", with the baseline that reaches it named. The unqualified version reads as a
+  property of the corpus when it is a property of this approach
+- `noveltyrate` was documented as staying opt-in **"until a second corpus agrees"**. A second
+  corpus now agrees, so the condition the paper set has been met; the default is a decision
+  waiting to be taken rather than evidence waiting to arrive. Recorded in both the paper and
+  the README, and the flag default is deliberately left alone
+- **the overclaim in `domain/noveltyrate`'s own package documentation.** It said the detector
+  took credential spray, lateral movement and account takeover "from nothing to nearly
+  everything". Measured at 1000 alerts a day it takes them to 117 of 320, 26 of 40 and 64 of
+  120 -- a real effect on three of six types and a smaller one than claimed. Corrected where
+  it was written, not only in the paper
+- the crowding-out figures in the combination diagnosis were from the superseded 200-topk run.
+  On the current run they are starker: `novelty` carries **5,879 of 7,000 min-p alerts, 84%**,
+  while `marginal` -- the only arm that detects every planted takeover -- is left with 214, or
+  3%
+- a claim this changelog's own author introduced and then checked: that at 100 alerts a day no
+  method but the marginal reaches a planted type. The composite reaches 24 account takeovers
+- **the published site's primary link served raw Markdown.** The index linked `PAPER.md`,
+  which Pages returns as `text/markdown` rather than rendering, so "The paper -- start here"
+  handed the reader source text. It now links `paper.html` with the PDF beside it
+- the Pages workflow's own explanation of why it was switched off cited a private repository,
+  a proprietary licence, a thesis and an evaluation report. The repository is public, the
+  licence is Apache 2.0, and the other two were deleted
+
+### Changed
+
+- **both 1000-alert runs were re-recorded to add the union arm**, in place and under new run
+  ids (`lanl-r11-b1000-union-d7-14-002`, `lanl-inj-b1000-union-d7-14-002`). Every per-arm and
+  min-p figure reproduces **exactly**, which is worth stating as evidence rather than as
+  reassurance: it is a determinism check across a code change (R4), not a claim that nothing
+  moved
+- **the results section leads with the method-by-attack-type table.** The two separate
+  per-attack-type sections it replaces are gone, so the paper answers "which method should I
+  use against which attack" in one place instead of three
+- the paper is 15 pages and 6,410 words. The ceiling is 15, exceeded above 10 only for tables
+  and citations, and `make paper` still fails the build past it
+
+
+### Added
+
 - **detection broken out by attack type at 10, 100 and 1000 alerts a day** (paper section
   3.6), from `lanl-inj-b1000-conf-d7-14-001`: 856 planted attacks across six types plus the
   549 real labelled events. Attribution is by victim account, which the taxonomy makes

@@ -1,11 +1,11 @@
 name: pages
 
-# Publishes the paper, the dashboard and the evaluation report to GitHub Pages.
+# Publishes the paper and the results dashboard to GitHub Pages.
 #
 # The point is not convenience. This repository's central discipline is that no number
 # reaches a reader unless a recorded run produced it, and the checks that enforce it —
-# dashboard-check for the dashboard, paper-check for the paper — run BEFORE the
-# publish step and fail the job. A page that cannot be built without a backing run is the
+# dashboard-check for the dashboard, paper-check for the paper — run BEFORE the publish
+# step and fail the job. A page that cannot be built without a backing run is the
 # provenance rule made enforceable rather than merely stated.
 #
 # It runs only on main, so a pull request cannot publish, and only after ci has passed on
@@ -36,25 +36,18 @@ jobs:
   publish:
     # Two conditions, and the second is not a formality.
     #
-    # `vars.PUBLISH_PAGES` must be set to 'true' on the repository. Until it is, this job
-    # is SKIPPED rather than run, because publishing is not currently possible: this
-    # repository is private, and GitHub Pages for a private repository requires a paid
-    # plan. The alternative — making the repository public — would publish the thesis, the
-    # dashboard and corpus-derived figures, which LICENSE ("private and proprietary; all
-    # rights reserved") and DATA.md's corpus terms both bear on. That is a decision for the
-    # repository owner, not a default.
+    # `vars.PUBLISH_PAGES` must be 'true' on the repository. It is a deliberate switch
+    # rather than a default: publishing puts corpus-derived figures on the open web, and
+    # that stays a decision somebody made rather than something a merge did quietly. To
+    # stop publishing, set it to 'false' — the job then reports SKIPPED, which states what
+    # is true. It is a skip and not a `continue-on-error` because a job that ran and
+    # reported success without publishing would say the site is live when it is not, and a
+    # job that failed on every merge would teach everyone to ignore a red check, which is
+    # the same alert-fatigue failure the paper is about.
     #
-    # It is a skip and not a `continue-on-error`, deliberately. A job that runs and reports
-    # success without publishing would say the site is live when it is not, and a job that
-    # fails on every merge to main teaches everyone to ignore a red check — the same
-    # alert-fatigue failure the paper is about. Skipped states what is true: this
-    # is switched off, and here is the switch.
-    #
-    # To enable: Settings -> Pages -> Source: GitHub Actions, then set the repository
-    # variable PUBLISH_PAGES to 'true'.
-    #
-    # The provenance gates below are not lost while this is off: ci.yml runs
-    # dashboard-check and paper-check on every push to main independently.
+    # The provenance gates below are not the only copy: ci.yml runs dashboard-check and
+    # paper-check on every push to main independently, so a stale document fails the build
+    # whether or not publishing is switched on.
     #
     # Only when ci actually passed. workflow_run fires on failure too, and publishing a
     # dashboard built from a tree with failing tests is exactly what this gate prevents.
@@ -83,10 +76,16 @@ jobs:
       - name: paper page is current with its source
         run: make paper-check
 
-      # Markdown is rendered to nothing here on purpose: the site serves the committed
-      # HTML artefacts plus the Markdown sources, and GitHub renders the latter. Adding a
-      # static-site generator would put a build step between the results and the reader,
-      # which is the thing this project keeps removing.
+      # The site serves only rendered artefacts: paper.html, paper.pdf, dashboard.html.
+      #
+      # Markdown is deliberately NOT linked from the index. GitHub renders Markdown in the
+      # repository browser but Pages serves it as a file, so a link to PAPER.md hands the
+      # reader raw text where they expected a document. The Markdown sources are copied so
+      # existing links keep resolving, and the index points at the repository for anything
+      # that reads better rendered by GitHub.
+      #
+      # No static-site generator: adding one would put a build step between the results
+      # and the reader, which is the thing this project keeps removing.
       - name: assemble the site
         run: |
           mkdir -p _site
@@ -99,7 +98,7 @@ jobs:
           <head>
           <meta charset="utf-8">
           <meta name="viewport" content="width=device-width, initial-scale=1">
-          <title>Idiolect</title>
+          <title>ethogram</title>
           <style>
           :root{--ink:#17191B;--ink-3:#6B7379;--accent:#1C4657;--rule:#D9DEE0;
             --panel:#F1F4F5;--page:#FFFFFF}
@@ -123,20 +122,22 @@ jobs:
           </style>
           </head>
           <body>
-          <h1>Idiolect</h1>
-          <p class="sub">Calibrated behavioural anomaly detection over schema-evolving
-          security telemetry</p>
+          <h1>ethogram</h1>
+          <p class="sub">Per-entity anomaly detection in security telemetry</p>
           <p>An <i>ethogram</i> is ethology's catalogue of the behaviours of one
-          individual. An account has one too — and this reports when it departs from it.</p>
+          individual. An account has one too — and this reports when an account departs
+          from its own behaviour, rather than from the organisation's average.</p>
           <ul>
-            <li><a href="PAPER.md"><b>The paper</b></a>
-              <span>The problem, the models behind every detector, and the results,
-              including the ones that failed. Start here.</span></li>
+            <li><a href="paper.html"><b>The paper</b></a>
+              <span>The problem, the null hypothesis behind every detector, and the
+              results — including the ones that failed. Start here.
+              Also as a <a href="paper.pdf">PDF</a>.</span></li>
             <li><a href="dashboard.html"><b>Results dashboard</b></a>
-              <span>Interactive: every recorded run, by arm, budget and anomaly
-              category, against the industry baselines.</span></li>
-            <li><a href="DATA.md"><b>Corpora</b></a>
-              <span>Sources, checksums and licences.</span></li>
+              <span>Every recorded run, by arm, budget and attack type, against the
+              population-scope baselines.</span></li>
+            <li><a href="https://github.com/JohnPierman/ethogram"><b>The repository</b></a>
+              <span>The Go package, the recorded runs under <code>results/</code>, and
+              <code>DATA.md</code> for corpus sources and checksums.</span></li>
           </ul>
           <footer>Every number published here came out of a recorded run. This site is
           built only if <code>make dashboard-check</code> and <code>make paper-check</code>

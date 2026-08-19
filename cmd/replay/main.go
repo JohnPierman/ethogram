@@ -2071,6 +2071,7 @@ func (a *accumulator) results() map[string]any {
 		"detections_at_budget": detections,
 		"min_p_arm":            a.minPArmResults(budgets),
 		"detector_arms":        a.detectorArmResults(budgets),
+		"union_arm":            a.unionArmResults(budgets),
 		"entity_days":          a.entityDayResults(budgets),
 		"alerts_per_day":       perDay,
 		"scored_per_day":       scoredPerDay,
