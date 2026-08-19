@@ -80,6 +80,12 @@ Equation numbers `(1)`–`(20)`, requirements `R1`–`R6`, and evaluation hypoth
 - the Pages workflow's own explanation of why it was switched off cited a private repository,
   a proprietary licence, a thesis and an evaluation report. The repository is public, the
   licence is Apache 2.0, and the other two were deleted
+- **the lint gate broke on an upstream tag it was not asked to use.** `go install` of the
+  pinned golangci-lint v2.1.6 also resolves the module's latest version to report
+  deprecation; that resolved to a v2.13.0 the checksum database did not have, the lookup
+  404'd, and a previously green gate failed with no change to this repository. `GOSUMDB=off`
+  on that install step skips the lookup. The tool stays pinned to an exact version, and what
+  is given up is checksum verification of a linter that ships nothing
 
 ### Changed
 
