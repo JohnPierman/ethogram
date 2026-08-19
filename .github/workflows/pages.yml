@@ -4,7 +4,7 @@ name: pages
 #
 # The point is not convenience. This repository's central discipline is that no number
 # reaches a reader unless a recorded run produced it, and the checks that enforce it —
-# verify-provenance for the figures, dashboard-check for the dashboard — run BEFORE the
+# dashboard-check for the dashboard, paper-check for the paper — run BEFORE the
 # publish step and fail the job. A page that cannot be built without a backing run is the
 # provenance rule made enforceable rather than merely stated.
 #
@@ -54,7 +54,7 @@ jobs:
     # variable PUBLISH_PAGES to 'true'.
     #
     # The provenance gates below are not lost while this is off: ci.yml runs
-    # verify-provenance and dashboard-check on every push to main independently.
+    # dashboard-check and paper-check on every push to main independently.
     #
     # Only when ci actually passed. workflow_run fires on failure too, and publishing a
     # dashboard built from a tree with failing tests is exactly what this gate prevents.
@@ -74,14 +74,14 @@ jobs:
           go-version: ${{ env.GO_VERSION }}
           cache-dependency-path: go.mod
 
-      # The provenance gates, before anything is assembled. Both are the same checks ci
+      # The currency gates, before anything is assembled. Both are the same checks ci
       # runs; repeating them here means the publish path cannot be satisfied by a green
       # ci on a different commit.
-      - name: verify provenance of committed evidence
-        run: make verify-provenance
-
       - name: dashboard is current with results
         run: make dashboard-check
+
+      - name: paper page is current with its source
+        run: make paper-check
 
       # Markdown is rendered to nothing here on purpose: the site serves the committed
       # HTML artefacts plus the Markdown sources, and GitHub renders the latter. Adding a
@@ -126,8 +126,8 @@ jobs:
           <h1>Idiolect</h1>
           <p class="sub">Calibrated behavioural anomaly detection over schema-evolving
           security telemetry</p>
-          <p>An <i>idiolect</i> is the speech pattern peculiar to one individual. An
-          account has one too — and this reports when it stops speaking in its own.</p>
+          <p>An <i>ethogram</i> is ethology's catalogue of the behaviours of one
+          individual. An account has one too — and this reports when it departs from it.</p>
           <ul>
             <li><a href="PAPER.md"><b>The paper</b></a>
               <span>The problem, the models behind every detector, and the results,
@@ -135,17 +135,13 @@ jobs:
             <li><a href="dashboard.html"><b>Results dashboard</b></a>
               <span>Interactive: every recorded run, by arm, budget and anomaly
               category, against the industry baselines.</span></li>
-            <li><a href="report.html"><b>Evaluation report</b></a>
-              <span>The per-hypothesis scoreboard and figures.</span></li>
-            <li><a href="IMPLEMENTATION.md"><b>Specification versus code</b></a>
-              <span>Generated. Every deviation, recorded.</span></li>
             <li><a href="DATA.md"><b>Corpora</b></a>
               <span>Sources, checksums and licences.</span></li>
           </ul>
           <footer>Every number published here came out of a recorded run. This site is
-          built only if <code>make verify-provenance</code> and
-          <code>make dashboard-check</code> both pass, so a figure without a backing run
-          fails the build rather than reaching a reader.</footer>
+          built only if <code>make dashboard-check</code> and <code>make paper-check</code>
+          both pass, so a document that has drifted from its source fails the build rather
+          than reaching a reader.</footer>
           </body>
           </html>
           HTML

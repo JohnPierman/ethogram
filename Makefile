@@ -1,7 +1,6 @@
 # Build, test, and evidence-generation targets.
 #
 # The evidence targets are deliberately chained so that a figure cannot be produced
-# without a backing result file: `figures` depends on `verify-provenance`, which fails
 # the build if any figure or table lacks one. See the provenance rules in README.md.
 
 SHELL := /bin/sh
@@ -21,8 +20,6 @@ COVER_PROFILE := $(ROOT)/coverage.out
 COVER_PATTERN := /(domain|application)($$|/)
 
 RESULTS   := $(ROOT)/results
-FIGURES   := $(ROOT)/docs/figures
-REPORT    := $(ROOT)/docs/report.html
 DASHBOARD := $(ROOT)/docs/dashboard.html
 PAPER_MD   := $(ROOT)/docs/PAPER.md
 PAPER_HTML := $(ROOT)/docs/paper.html
@@ -138,30 +135,6 @@ db-reset:
 	docker compose down -v
 	docker compose up -d --wait postgres
 
-# ---------------------------------------------------------------------------
-# Evidence
-#
-# Never put a number in a dashboard, table, or report that did not come out of a real
-# run. These targets make that structurally hard rather than a matter of discipline.
-# ---------------------------------------------------------------------------
-
-# Fails if any figure or table lacks a backing results/*.json emitted by a real run,
-# or if any result file is missing its provenance block.
-.PHONY: verify-provenance
-verify-provenance:
-	$(GO) run ./cmd/report -verify-provenance -results $(RESULTS) -figures $(FIGURES)
-
-# Regenerates every SVG and the static report from the committed results. A
-# hypothesis with no result file renders as a literal NOT RUN card, never blank and
-# never zero.
-.PHONY: figures
-figures: verify-provenance
-	$(GO) run ./cmd/report -results $(RESULTS) -figures $(FIGURES) -out $(REPORT)
-	@echo "wrote $(REPORT) and $(FIGURES)/*.svg"
-
-.PHONY: report
-report: figures
-
 # The synthetic-attack corpus, for measuring detection per attack TYPE.
 #
 # The real campaign arrives as one uneven mix — on the matched d7-9 run, 194 of 262 labelled
@@ -186,25 +159,12 @@ inject:
 # The interactive dashboard. It reads the same results directory and embeds a distilled
 # index, so a new run appears on it without any edit here.
 #
-# Deliberately NOT dependent on verify-provenance: that target checks figures against
-# their backing runs, and the dashboard renders no figures. Its own guarantee is
-# structural instead — it can only display what a result file recorded, and it renders a
-# missing measurement as NOT RUN rather than as zero.
+# The dashboard's guarantee is structural: it can only display what a result file recorded,
+# and it renders a missing measurement as NOT RUN rather than as zero.
 .PHONY: dashboard
 dashboard:
 	$(GO) run ./cmd/dashboard -results $(RESULTS) -out $(DASHBOARD)
 	@echo "wrote $(DASHBOARD)"
-
-# The same currency guarantee for the figures and the static report, which had none.
-#
-# The gap was not theoretical: running the renderer as a diagnostic silently rewrote four
-# committed SVGs and produced two the repository had never held, which means the committed
-# figures had been stale against the committed results with nothing anywhere saying so. A
-# figure carries a run id in the manifest, so a reader takes it as evidence from that run;
-# a stale one is evidence from a run that no longer exists.
-.PHONY: figures-check
-figures-check:
-	$(GO) run ./cmd/report -check -results $(RESULTS) -figures $(FIGURES) -out $(REPORT)
 
 # Regenerating from unchanged results must produce an unchanged file, or a committed
 # dashboard churns on every build and a diff stops meaning "a measurement changed".
@@ -232,29 +192,6 @@ paper:
 	$(GO) run ./cmd/thesis -in $(PAPER_MD) -out $(PAPER_HTML)
 	@chrome=$$(command -v chrome || command -v google-chrome 	  || echo "/c/Program Files/Google/Chrome/Application/chrome.exe"); 	"$$chrome" --headless --disable-gpu --no-pdf-header-footer 	  --print-to-pdf="$(PAPER_PDF)" "file:///$(PAPER_HTML)" 2>/dev/null
 	@python -c "import sys;b=open(sys.argv[1],'rb').read();n=b.count(b'/Type /Page')-b.count(b'/Type /Pages');w=len(open(sys.argv[2],encoding='utf-8').read().split());print('wrote %s: %d pages, %d words'%(sys.argv[1],n,w));sys.exit(1 if n>15 else 0)" 	  "$(PAPER_PDF)" "$(PAPER_MD)" 	  || { echo "OVER BUDGET: the paper ceiling is 15 pages"; exit 1; }
-
-# The specification-versus-code document. Its §12 coverage table is MEASURED from a
-# coverage profile at generation time rather than maintained by hand: the hand-written
-# version drifted in both directions, overstating domain/calibration by 11.7 points and
-# understating application by 25. Without a profile the document prints NOT MEASURED
-# instead of a stale table, so this target produces one first.
-.PHONY: implementation
-implementation:
-	$(GO) test ./domain/... ./application/... -coverprofile=$(COVER_PROFILE) -covermode=atomic -count=1
-	$(GO) run ./cmd/partiii -coverage $(COVER_PROFILE) \
-	  -out $(ROOT)/docs/part-iii.html -out-md $(ROOT)/docs/IMPLEMENTATION.md
-
-# Chrome headless with absolute paths: a relative --screenshot path fails because the
-# working directory resets.
-.PHONY: screenshots
-screenshots: figures
-	@chrome=$$(command -v chrome || command -v google-chrome \
-	  || echo "/c/Program Files/Google/Chrome/Application/chrome.exe"); \
-	"$$chrome" --headless --disable-gpu --hide-scrollbars \
-	  --force-device-scale-factor=2 --window-size=1600,1000 \
-	  --screenshot="$(ROOT)/docs/figures/report.png" \
-	  "file:///$(ROOT)/docs/report.html"
-	@echo "wrote $(FIGURES)/report.png"
 
 .PHONY: clean
 clean:

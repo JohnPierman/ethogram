@@ -82,7 +82,7 @@ jobs:
           args: --timeout=5m
 
   provenance:
-    name: provenance of committed evidence
+    name: published documents are current
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -90,26 +90,11 @@ jobs:
         with:
           go-version: ${{ env.GO_VERSION }}
           cache-dependency-path: go.mod
-      # Fails if any committed figure or table lacks a backing results/*.json from a
-      # real run. This is the check that keeps invented numbers out of the report.
-      #
-      # Gated on cmd/report existing so that the job activates by itself when the
-      # renderer lands, rather than reporting a false failure until then. It must never
-      # be made unconditionally green: this is the check that keeps invented numbers out
-      # of the report, so a permanently passing version would be worse than none.
-      - name: check whether the report renderer exists yet
-        id: renderer
-        run: |
-          if [ -f cmd/report/main.go ]; then
-            echo "present=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "present=false" >> "$GITHUB_OUTPUT"
-            echo "::notice::cmd/report does not exist yet; provenance verification is pending Phase 6."
-          fi
-      - name: verify provenance
-        if: steps.renderer.outputs.present == 'true'
-        run: make verify-provenance
-
+      # The published documents must agree with the committed results. Both the dashboard
+      # and the paper are generated and carry no build timestamp, so regenerating them
+      # from unchanged inputs reproduces them byte for byte: a difference here means an
+      # input moved without its document following, and a reader would be shown stale
+      # numbers under a current run's footer.
       # The committed dashboard must agree with the committed results. Regenerating it
       # from unchanged results produces an unchanged file — it carries no build
       # timestamp for exactly this reason — so a difference here means a result changed
@@ -117,14 +102,6 @@ jobs:
       # numbers under a current run's provenance footer.
       - name: dashboard is current with results
         run: make dashboard-check
-
-      # The figures and the static report carry the same guarantee, and previously had
-      # none. Running the renderer as a diagnostic silently rewrote four committed SVGs
-      # and produced two more, so the committed figures had drifted from the committed
-      # results with nothing to say so. A figure names a run id in the manifest, which
-      # makes a stale one evidence for a run that no longer exists.
-      - name: figures and report are current with results
-        run: make figures-check
 
       # docs/PAPER.md is canonical and docs/paper.html is generated from it. The page
       # carries no timestamp, so unchanged prose reproduces it byte for byte and a

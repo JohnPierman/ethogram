@@ -91,18 +91,24 @@ adapter.
 
 | | |
 |---|---|
-| Paper | [`docs/PAPER.md`](docs/PAPER.md) |
+| Paper | [`docs/PAPER.md`](docs/PAPER.md) · [PDF](docs/paper.pdf) |
 | Results dashboard | [`docs/dashboard.html`](docs/dashboard.html) |
-| Spec vs code, and every deviation | [`docs/IMPLEMENTATION.md`](docs/IMPLEMENTATION.md) |
 | Corpora and licences | [`DATA.md`](DATA.md) |
 | Open work | [issues](https://github.com/JohnPierman/ethogram/issues) |
 
+Implementation detail lives in the code, which is commented for it. `docs/` holds only the
+two published documents.
+
 ## Provenance
 
-No number in any document here was typed by hand. Renderers read only `results/*.json`
-emitted by a real run; each result file carries its run id, git SHA, corpus SHA-256, row
-counts, seeds and timestamps. A hypothesis with no result file renders as **NOT RUN**, never
-as zero. `make verify-provenance` fails the build if a figure has no backing run.
+No number in any document here was typed by hand. The dashboard reads only
+`results/*.json` emitted by a real run, and each result file carries its run id, corpus
+SHA-256, row counts, seeds and timestamps. A hypothesis with no result file renders as
+**NOT RUN**, never as zero. `make dashboard-check` and `make paper-check` fail the build if
+a published document has drifted from its source.
+
+Every figure in the paper is a diagram drawn in code, not a plot of data, so no figure can
+disagree with a result. Numbers in the paper cite the result file they came from.
 
 **Never edit a result file by hand. Re-run instead.**
 

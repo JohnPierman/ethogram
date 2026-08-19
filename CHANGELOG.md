@@ -11,6 +11,29 @@ Equation numbers `(1)`–`(20)`, requirements `R1`–`R6`, and evaluation hypoth
 
 ### Removed
 
+- **`docs/` now holds only the two published documents**: the paper (`PAPER.md`, its rendered
+  `paper.html`, and `paper.pdf`) and the results dashboard. Gone: the static evaluation
+  report, the two Part II/III renderings, the generated specification-versus-code document,
+  and the eight committed figure SVGs
+- **the generators that produced them, 7,932 lines across `cmd/report`, `cmd/partii` and
+  `cmd/partiii`.** With their outputs removed they generated nothing that was kept, and dead
+  machinery in a repository meant for reading is worse than none. Implementation detail lives
+  in the code, which is commented for it
+- the gates that checked those outputs: `verify-provenance`, `figures`, `figures-check`,
+  `report`, `implementation` and `screenshots`, plus their CI steps and the orphaned
+  renderer-detection step that gated them
+
+### Changed
+
+- **the provenance guarantee is restated to match what now enforces it.** It rested on
+  `verify-provenance` failing the build for a figure without a backing run. There are no
+  data figures any more: every figure in the paper is a diagram drawn in code, so no figure
+  *can* disagree with a result, and numbers in the paper cite the result file they came from.
+  What still fails the build is drift -- `dashboard-check` and `paper-check` -- and the
+  README and the Pages footer now say that rather than the old claim
+
+### Removed
+
 - **`docs/THESIS.md`, replaced by `docs/PAPER.md`.** The thesis was 1,970 lines rendering to
   38 printed pages. The paper is its trimmed replacement at 385 lines and 9 pages, written
   from a full audit of every quantitative claim against the recorded results. Keeping both
