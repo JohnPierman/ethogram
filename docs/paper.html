@@ -770,10 +770,12 @@ general; section 5.3 shows the same property behaving differently on planted att
 out-of-hours activity are as common among background events as among labelled ones, so a test
 of either cannot rank labelled events highly however well it is specified. That bounds what
 work on those two detectors could recover on this campaign.</p>
-<p>It is not the whole explanation for their null results, and section 6.2 gives the other half
-for each of them. The timing detector&#39;s p-value is floored by its own construction at a value
-close to the alert cut, so it has under a decade of usable dynamic range here and cannot alert
-at all at the two tighter budgets. The volume detector&#39;s tail is misspecified: on <code>r11</code>, 27,464
+<p>It is not the whole explanation for their results, and section 6.2 gives the other half for
+each of them. The timing detector&#39;s p-value was floored by its own construction at a value at
+or above its own alert cut, so it could not alert at the two tighter budgets whatever it
+observed; section 6.2 reports the statistic that removes it, under which it reaches 1, 2 and 7
+rather than 0, 0 and 6.
+The volume detector&#39;s tail is misspecified: on <code>r11</code>, 27,464
 background events fall below 10⁻¹² where a calibrated null over this many events predicts
 4.2 × 10⁻⁶, and no labelled event goes below 1.96 × 10⁻⁷, so its queue is filled with
 background at every budget before a labelled event can compete. Section 6.2 shows a per-entity
@@ -781,7 +783,7 @@ abstention accounts for none of it. The limits are real and independent of the e
 result — a property that does not discriminate, and, separately, statistics that could not
 express discrimination if they had any.</p>
 <h3 id="52-detection-on-the-real-campaign">5.2 Detection on the real campaign<a class="anchor" href="#52-detection-on-the-real-campaign" aria-label="link to this section">#</a></h3>
-<p><code>lanl-r11-b1000-weighted-d7-14-004</code> and <code>analysis-r11-b1000-conf-002</code>, 549 labelled events among
+<p><code>lanl-r11-b1000-weighted-d7-14-005</code> and <code>analysis-r11-b1000-conf-003</code>, 549 labelled events among
 4,190,603 scored. Every proportion carries a 95% Wilson interval [7], and section 6.2 states why
 those intervals are optimistic.</p>
 <div class="tablewrap"><table>
@@ -790,10 +792,10 @@ those intervals are optimistic.</p>
 <tr><td>novelty</td><td>11</td><td>60</td><td>201</td><td>15.7% (9.0–26.0)</td><td>36.6% (32.7–40.7)</td></tr>
 <tr><td>pairing</td><td>4</td><td>59</td><td>127</td><td>5.7% (2.2–13.8)</td><td>23.1% (19.8–26.8)</td></tr>
 <tr><td>novelty rate</td><td>0</td><td>22</td><td>185</td><td>—</td><td>34.9% (31.0–39.1)</td></tr>
-<tr><td>timing</td><td>0</td><td>0</td><td>6</td><td>—</td><td>1.1% (0.5–2.4)</td></tr>
+<tr><td>timing</td><td>1</td><td>2</td><td>7</td><td>1.4% (0.3–7.7)</td><td>1.3% (0.6–2.7)</td></tr>
 <tr><td>volume</td><td>0</td><td>0</td><td>0</td><td>—</td><td>0.0% (0.0–0.7)</td></tr>
 <tr><td>marginal</td><td>0</td><td>0</td><td>0</td><td>—</td><td>0.0% (0.0–0.7)</td></tr>
-<tr><td>corrected minimum</td><td>4</td><td>47</td><td>161</td><td>5.7% (2.2–13.8)</td><td>29.3% (25.7–33.3)</td></tr>
+<tr><td>corrected minimum</td><td>4</td><td>47</td><td>162</td><td>5.7% (2.2–13.8)</td><td>29.5% (25.8–33.5)</td></tr>
 <tr><td>composite</td><td>0</td><td>6</td><td>113</td><td>—</td><td>20.6% (17.4–24.2)</td></tr>
 </tbody></table></div>
 <p>Four readings.</p>
@@ -810,7 +812,7 @@ detections overlap heavily.</p>
 <p>The volume and marginal arms detect nothing at any budget, and section 5.1 says why. Their
 zeros carry an upper bound rather than a point: 0 of 549 is a recall of 0.0% (0.0–0.7).</p>
 <p>Neither combination reaches its own best component at any budget. The corrected minimum
-reaches 4, 47 and 161 against the novelty detector&#39;s 11, 60 and 201; the composite reaches 0,
+reaches 4, 47 and 162 against the novelty detector&#39;s 11, 60 and 201; the composite reaches 0,
 6 and 113. The composite&#39;s zero at 10 and 100 alerts a day is not a calibration artefact that
 calibration removes — those figures are with conformal calibration applied, and without it the
 composite reaches 0 at 100 a day rather than 6. Section 5.4 diagnoses both failures.</p>
@@ -821,7 +823,7 @@ from sampling, that corpus shares its labelled events with this one; it is a che
 sensitivity to background, not an independent replication.</p>
 <h3 id="53-detection-by-attack-mechanism">5.3 Detection by attack mechanism<a class="anchor" href="#53-detection-by-attack-mechanism" aria-label="link to this section">#</a></h3>
 <p>The planted corpus separates &#34;this test cannot express this mechanism&#34; from &#34;this budget
-cannot afford it&#34;. <code>lanl-inj-b1000-weighted-d7-14-004</code>: 856 planted events across six mechanisms
+cannot afford it&#34;. <code>lanl-inj-b1000-weighted-d7-14-005</code>: 856 planted events across six mechanisms
 plus the 549 real labelled events. Attribution is by victim account, which the design makes
 unambiguous. Planted and real ground truth are reported side by side and never summed.</p>
 <p><strong>At 10 alerts a day.</strong></p>
@@ -832,7 +834,7 @@ unambiguous. Planted and real ground truth are reported side by side and never s
 <tr><td><code>novelty</code></td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>11</td><td>70</td></tr>
 <tr><td><code>noveltyrate</code></td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>70</td></tr>
 <tr><td><code>pairing</code></td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>4</td><td>70</td></tr>
-<tr><td><code>timing</code></td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>70</td></tr>
+<tr><td><code>timing</code></td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>2</td><td>70</td></tr>
 <tr><td><code>volume</code></td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>70</td></tr>
 <tr><td><em>population detector</em></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
 <tr><td><code>marginal</code></td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>70</td></tr>
@@ -840,9 +842,9 @@ unambiguous. Planted and real ground truth are reported side by side and never s
 <tr><td>composite (Fisher + Brown)</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>70</td></tr>
 <tr><td>corrected minimum (Šidák)</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>4</td><td>70</td></tr>
 <tr><td>union, per-entity arms (equal cost)</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>2</td><td>70</td></tr>
-<tr><td>union, per-entity arms (equal depth)</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>11</td><td>289 <strong>(×4.1)</strong></td></tr>
-<tr><td>union, all arms (equal cost)</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>1</td><td>70</td></tr>
-<tr><td>union, all arms (equal depth)</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>11</td><td>357 <strong>(×5.1)</strong></td></tr>
+<tr><td>union, per-entity arms (equal depth)</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>13</td><td>294 <strong>(×4.2)</strong></td></tr>
+<tr><td>union, all arms (equal cost)</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>2</td><td>70</td></tr>
+<tr><td>union, all arms (equal depth)</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>13</td><td>362 <strong>(×5.2)</strong></td></tr>
 </tbody></table></div>
 <p><strong>At 100 alerts a day.</strong></p>
 <div class="tablewrap"><table>
@@ -852,17 +854,17 @@ unambiguous. Planted and real ground truth are reported side by side and never s
 <tr><td><code>novelty</code></td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>60</td><td>700</td></tr>
 <tr><td><code>noveltyrate</code></td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>21</td><td>700</td></tr>
 <tr><td><code>pairing</code></td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>59</td><td>700</td></tr>
-<tr><td><code>timing</code></td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>1</td><td>700</td></tr>
+<tr><td><code>timing</code></td><td>0</td><td>0</td><td>1</td><td>0</td><td>0</td><td>5</td><td>3</td><td>700</td></tr>
 <tr><td><code>volume</code></td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>700</td></tr>
 <tr><td><em>population detector</em></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
 <tr><td><code>marginal</code></td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>76</td><td>0</td><td>700</td></tr>
 <tr><td><em>combination</em></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-<tr><td>composite (Fisher + Brown)</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>24</td><td>0</td><td>700</td></tr>
+<tr><td>composite (Fisher + Brown)</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>26</td><td>0</td><td>700</td></tr>
 <tr><td>corrected minimum (Šidák)</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>47</td><td>700</td></tr>
-<tr><td>union, per-entity arms (equal cost)</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>24</td><td>700</td></tr>
-<tr><td>union, per-entity arms (equal depth)</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>75</td><td>2734 <strong>(×3.9)</strong></td></tr>
-<tr><td>union, all arms (equal cost)</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>20</td><td>700</td></tr>
-<tr><td>union, all arms (equal depth)</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>76</td><td>75</td><td>3409 <strong>(×4.9)</strong></td></tr>
+<tr><td>union, per-entity arms (equal cost)</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>2</td><td>26</td><td>700</td></tr>
+<tr><td>union, per-entity arms (equal depth)</td><td>0</td><td>0</td><td>1</td><td>0</td><td>0</td><td>5</td><td>77</td><td>2731 <strong>(×3.9)</strong></td></tr>
+<tr><td>union, all arms (equal cost)</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>2</td><td>22</td><td>700</td></tr>
+<tr><td>union, all arms (equal depth)</td><td>0</td><td>0</td><td>1</td><td>0</td><td>0</td><td>76</td><td>77</td><td>3400 <strong>(×4.9)</strong></td></tr>
 </tbody></table></div>
 <p><strong>At 1000 alerts a day.</strong></p>
 <div class="tablewrap"><table>
@@ -872,17 +874,17 @@ unambiguous. Planted and real ground truth are reported side by side and never s
 <tr><td><code>novelty</code></td><td>80</td><td>15</td><td>0</td><td>0</td><td>0</td><td>30</td><td>178</td><td>7000</td></tr>
 <tr><td><code>noveltyrate</code></td><td>117</td><td>26</td><td>0</td><td>4</td><td>0</td><td>64</td><td>173</td><td>7000</td></tr>
 <tr><td><code>pairing</code></td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>12</td><td>130</td><td>7000</td></tr>
-<tr><td><code>timing</code></td><td>0</td><td>0</td><td>2</td><td>0</td><td>0</td><td>4</td><td>6</td><td>7000</td></tr>
+<tr><td><code>timing</code></td><td>0</td><td>0</td><td>3</td><td>0</td><td>0</td><td>11</td><td>7</td><td>7000</td></tr>
 <tr><td><code>volume</code></td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>7000</td></tr>
 <tr><td><em>population detector</em></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
 <tr><td><code>marginal</code></td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td><strong>120/120</strong></td><td>0</td><td>7000</td></tr>
 <tr><td><em>combination</em></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
-<tr><td>composite (Fisher + Brown)</td><td>0</td><td>4</td><td>0</td><td>0</td><td>0</td><td>116</td><td>108</td><td>7000</td></tr>
-<tr><td>corrected minimum (Šidák)</td><td>40</td><td>10</td><td>0</td><td>0</td><td>0</td><td>30</td><td>155</td><td>7000</td></tr>
-<tr><td>union, per-entity arms (equal cost)</td><td>2</td><td>0</td><td>0</td><td>0</td><td>0</td><td>15</td><td>101</td><td>7000</td></tr>
-<tr><td>union, per-entity arms (equal depth)</td><td>117</td><td>26</td><td>2</td><td>4</td><td>0</td><td>64</td><td>264</td><td>25917 <strong>(×3.7)</strong></td></tr>
-<tr><td>union, all arms (equal cost)</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td><strong>120/120</strong></td><td>94</td><td>7000</td></tr>
-<tr><td>union, all arms (equal depth)</td><td>117</td><td>26</td><td>2</td><td>4</td><td>0</td><td><strong>120/120</strong></td><td>264</td><td>31601 <strong>(×4.5)</strong></td></tr>
+<tr><td>composite (Fisher + Brown)</td><td>0</td><td>4</td><td>0</td><td>0</td><td>0</td><td>116</td><td>107</td><td>7000</td></tr>
+<tr><td>corrected minimum (Šidák)</td><td>40</td><td>10</td><td>0</td><td>0</td><td>0</td><td>28</td><td>156</td><td>7000</td></tr>
+<tr><td>union, per-entity arms (equal cost)</td><td>4</td><td>0</td><td>2</td><td>0</td><td>0</td><td>22</td><td>105</td><td>7000</td></tr>
+<tr><td>union, per-entity arms (equal depth)</td><td>117</td><td>26</td><td>3</td><td>4</td><td>0</td><td>71</td><td>265</td><td>25818 <strong>(×3.7)</strong></td></tr>
+<tr><td>union, all arms (equal cost)</td><td>0</td><td>0</td><td>2</td><td>0</td><td>0</td><td><strong>120/120</strong></td><td>99</td><td>7000</td></tr>
+<tr><td>union, all arms (equal depth)</td><td>117</td><td>26</td><td>3</td><td>4</td><td>0</td><td><strong>120/120</strong></td><td>265</td><td>31505 <strong>(×4.5)</strong></td></tr>
 </tbody></table></div>
 <p>Planted: spray 320, lateral 40, off-hrs 64, priv-esc 24, low+slow 288, takeover 120, real 549.</p>
 <p>Read a per-mechanism count as a coarse rate. Each mechanism has eight victims and a
@@ -927,8 +929,8 @@ of every other detector&#39;s. Summing −2 ln P over six tests dilutes one sign
 non-signals. Fisher&#39;s method is powerful against diffuse alternatives and the minimum against
 sparse ones; this alternative is sparse.</p>
 <p>The corrected minimum compares p-values across tests that share no scale. Under it the
-novelty detector supplies 5,879 of the 7,000 retained alerts, 84%. Four other detectors divide
-the remaining 16% — pairing 390, novelty rate 292, timing 225, marginal 214 — and two, volume
+novelty detector supplies 5,979 of the 7,000 retained alerts, 85%. Four other detectors divide
+the remaining 15% — pairing 396, novelty rate 289, marginal 217, timing 119 — and two, volume
 and co-occurrence, never supply the minimum at all. A detector&#39;s p-value is a statement under
 its own null, so the arm whose null produces numerically smaller values takes the queue
 whatever the others found.</p>
@@ -1043,10 +1045,11 @@ behaviour, and it is not enough.</p>
 <tr><td>weighted, oracle weights</td><td>61</td><td>174</td><td>61</td><td>309</td></tr>
 <tr><td>best two-arm split, oracle</td><td>60</td><td>201</td><td>77</td><td>395</td></tr>
 </tbody></table></div>
-<p><code>lanl-r11-b1000-weighted-d7-14-004</code> and <code>lanl-inj-b1000-weighted-d7-14-004</code>. The two oracle
+<p><code>lanl-r11-b1000-weighted-d7-14-005</code> and <code>lanl-inj-b1000-weighted-d7-14-004</code>. The two oracle
 rows read the labels they are evaluated against; neither is a deployable configuration, and
-both are here to bound what a fitted rule could reach. All four rows are computed by the same
-run from the same rankings.</p>
+both are here to bound what a fitted rule could reach. Three of the four rows are computed by
+these runs from the same rankings; the oracle-weights row is not recorded by the replay and was
+computed under the timing statistic section 6.2 replaces.</p>
 <p>The burn-in-weighted rule loses at every budget on both corpora. That alone would leave the
 diagnosis open, because 49 labelled events is a thin sample for ranking six detectors, and a
 rule may be sound while its estimator is starved. Refitting the same rule&#39;s weights on the
@@ -1094,11 +1097,11 @@ the log p-value, so nothing ties and nothing underflows at ln <em>P</em> = −40
 <tbody>
 <tr><td>10/day</td><td>70</td><td>4</td><td><strong>30</strong></td><td>4</td><td>5.7% → <strong>13.3%</strong></td><td>40 (57%)</td><td><strong>0</strong></td></tr>
 <tr><td>100/day</td><td>700</td><td>47</td><td><strong>221</strong></td><td>47</td><td>6.7% → <strong>21.3%</strong></td><td>479 (68%)</td><td><strong>0</strong></td></tr>
-<tr><td>1000/day</td><td>7,000</td><td>161</td><td><strong>315</strong></td><td>74</td><td>2.3% → <strong>23.5%</strong></td><td>6,685 (95%)</td><td>87</td></tr>
+<tr><td>1000/day</td><td>7,000</td><td>162</td><td><strong>315</strong></td><td>74</td><td>2.3% → <strong>23.5%</strong></td><td>6,685 (95%)</td><td>88</td></tr>
 </tbody></table></div>
 <p>At 10 and 100 alerts a day the truncation is free: 57% and 68% of the queue goes for no loss
-of detection. At 1000 it becomes a decision — the objective discards 6,685 alerts and 87 true
-positives with them, because at this rate those 87 do not pay for 6,685 wasted investigations
+of detection. At 1000 it becomes a decision — the objective discards 6,685 alerts and 88 true
+positives with them, because at this rate those 88 do not pay for 6,685 wasted investigations
 — and precision rises tenfold. For the composite the optimum is to emit nothing at any
 budget, including the budget at which it finds 113 true positives, which do not pay for 6,887
 false ones at v/c = 10. An objective declining to deploy a detector is a usable answer.</p>
@@ -1190,29 +1193,31 @@ one account, the reference distribution drifts toward the attacker&#39;s behavio
 untested alternative explanation for two of the paper&#39;s null results, the low-and-slow zero in
 particular, and it cannot be separated from the stated mechanism without a run that freezes
 per-entity state across the campaign window.</p>
-<p>The timing detector&#39;s p-value is floored by its own grid, and the floor sits at the alert
-cut. Its tail mass is read from a 512-point lookup over the entity&#39;s circular density, and the
-implementation reports no mass below one half-cell — 1/(2 × 512) = 9.77 × 10⁻⁴ — because a
-grid of that size cannot resolve less. The realised alert cut on the planted corpus is
-3.98 × 10⁻³ at 1000 alerts a day and 1.00 × 10⁻³ at 100 and at 10, so the detector&#39;s most
-extreme possible answer is a factor of four inside the widest cut and at or above the other
-two. It cannot alert at the tighter budgets whatever it observes.</p>
-<p>This is a separate failure from non-discrimination, and the detector is in fact responding to
-the mechanism it was built for: its median p-value on planted off-hours attacks is
-3.20 × 10⁻², against 0.59 to 0.83 on every other planted mechanism, a separation of more than
-an order of magnitude from its own baseline. What it cannot do is turn that separation into a
-number small enough to compete for an alert slot, because a tail mass over density levels
-saturates: for an account with an eight-hour working window, an event at the opposite side of
-the clock still sits in a low-density region covering much of the circle, and the mass of that
-region is not small. Raising the grid alone would not fix it — only 1 of 64 planted off-hours
-events and 5 of 549 real labelled events actually sit at the floor — so the statistic is the
-thing to change rather than its resolution. A rank of the density against the entity&#39;s own
-history, which is the construction section 5.5 applies across detectors, has no such ceiling.
-We report this as a limitation rather than a fix because changing it changes every timing
-figure in this paper, and no run here measures the alternative.</p>
+<p>The timing detector&#39;s tail mass was floored by its own grid, at its own alert cut. It is read
+from a 512-point lookup over the entity&#39;s circular density and reports nothing below one
+half-cell, 1/(2 × 512) = 9.77 × 10⁻⁴, while the realised cut on the planted corpus is
+3.98 × 10⁻³ at 1000 alerts a day and 1.00 × 10⁻³ at 100 and at 10. At the tighter two the most
+extreme possible answer was therefore at or above the cut: the detector could not alert
+whatever it observed, and its zeros were a property of the statistic rather than of the
+mechanism.</p>
+<p>It was meanwhile responding to the mechanism it was built for, so this was a ceiling and not
+blindness, and raising the grid would not have lifted it: only 1 of 64 planted off-hours events
+and 5 of 549 real labelled events sat at the floor. The rest were held up by the statistic
+itself, because a tail mass over density levels saturates — for an account with an eight-hour
+working window, an event on the opposite side of the clock still sits in a low-density region
+covering much of the circle.</p>
+<p>The statistic is therefore now the event&#39;s ln U standardised by the mean and spread of the
+ln U this entity&#39;s own events have received, which has no floor at all. It costs two numbers of state per entity, and the detector abstains where that history is too
+short to estimate the null or, for a perfectly regular account, carries no spread to
+standardise against: 4,847 events of 4,190,603. Detections at
+10, 100 and 1000 alerts a day rise from 0, 0 and 6 to 1, 2 and 7 on the real campaign, and
+from 0, 1 and 12 to 2, 9 and 21 on the planted corpus. The off-hours response is not traded
+away for that: the median p-value on planted off-hours attacks falls from 3.20 × 10⁻² to
+8.23 × 10⁻³, widening the separation from the nearest other planted mechanism from 5.7 to
+18.6. Every other arm is unchanged on both corpora.</p>
 <p>The volume detector now abstains where an entity has no completed period, as R3 requires:
 with none the rate posterior of equation (10) is the prior, and reporting that as P = 1 is an
-opinion. On <code>lanl-inj-b1000-weighted-d7-14-004</code> it abstains on 4,399 of 4,494,396 events.</p>
+opinion. On <code>lanl-inj-b1000-weighted-d7-14-005</code> it abstains on 4,399 of 4,494,396 events.</p>
 <p>It does not repair the queue. 13,618 events on the planted corpus and 27,464 on <code>r11</code> still
 fall below 10⁻¹², where a calibrated null predicts about 4 × 10⁻⁶; no labelled event falls
 below 1.96 × 10⁻⁷; and the realised cut stays on that floor on six of seven scored days at

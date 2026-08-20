@@ -147,7 +147,7 @@ func TestVolumeToleratesHabitualDayToDayVariation(t *testing.T) {
 	mv := &memVolume{states: map[string]*volume.State{}}
 	mt := &memTiming{states: map[string]*timing.State{}}
 	vd := volume.NewDetector(mv, mt, 1.5, novelty.HalfLife(7*event.Day), 0)
-	td := timing.NewDetector(mt, 1.5, novelty.HalfLife(7*event.Day))
+	td := timing.NewDetector(mt, 1.5, novelty.HalfLife(7*event.Day), false)
 
 	// The entity's habit: one session a day at 09:00, of a size that has always swung
 	// between 60 and 480 events. Twenty-one days of exactly that.
@@ -206,7 +206,7 @@ func TestVolumeUsesTimingDensityForRho(t *testing.T) {
 	mv := &memVolume{states: map[string]*volume.State{}}
 	mt := &memTiming{states: map[string]*timing.State{}}
 	vd := volume.NewDetector(mv, mt, 1.5, novelty.HalfLife(7*event.Day), 0)
-	td := timing.NewDetector(mt, 1.5, novelty.HalfLife(7*event.Day))
+	td := timing.NewDetector(mt, 1.5, novelty.HalfLife(7*event.Day), false)
 
 	// Build both states: 14 days, 5 events per day at 09:00-13:00.
 	offset := int64(0)

@@ -133,7 +133,13 @@ func TestCellGridExhibitsTheBinEdgeDefect(t *testing.T) {
 	ctx := context.Background()
 
 	cells := cellgrid.NewDetector(newMemoryCounts(hl), 1.0, hl)
-	circular := timing.NewDetector(&timingMemory{states: map[string]*timing.State{}}, 1.5, hl)
+	// The level-set mass explicitly, not the production default. This test compares two
+	// REPRESENTATIONS of the same clock -- a 168-cell grid against the circular density --
+	// so it needs the statistic that reads the density directly. The standardised form of
+	// #26 divides by the spread of the entity's own ln U, and this entity is perfectly
+	// regular by construction: four events a night inside one narrow window, so that spread
+	// is zero and the detector correctly declines to standardise against it.
+	circular := timing.NewDetector(&timingMemory{states: map[string]*timing.State{}}, 1.5, hl, false)
 
 	offset := int64(0)
 	for night := range 14 {

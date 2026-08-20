@@ -50,9 +50,13 @@ var migrations = []string{
 		c            float8[] NOT NULL,
 		s            float8[] NOT NULL,
 		w            float8   NOT NULL,
+		log_u_sum    float8   NOT NULL DEFAULT 0,
+		log_u_sumsq  float8   NOT NULL DEFAULT 0,
 		last_seen_us bigint   NOT NULL,
 		PRIMARY KEY (source, entity)
 	)`,
+	`ALTER TABLE timing_state ADD COLUMN IF NOT EXISTS log_u_sum float8 NOT NULL DEFAULT 0`,
+	`ALTER TABLE timing_state ADD COLUMN IF NOT EXISTS log_u_sumsq float8 NOT NULL DEFAULT 0`,
 	`CREATE TABLE IF NOT EXISTS volume_state (
 		source       text   NOT NULL,
 		entity       text   NOT NULL,
