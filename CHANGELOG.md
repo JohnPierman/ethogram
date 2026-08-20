@@ -11,6 +11,12 @@ Equation numbers `(1)`–`(20)`, requirements `R1`–`R6`, and evaluation hypoth
 
 ### Added
 
+- the **abstract and the contributions carry the allocation result**, which they did not. A
+  paper whose sharpest negative finding appears only in section 5.5 is a paper whose abstract
+  is out of date with it: the allocation bound is now one of four negative results stated up
+  front, and the statistic that decides whether dividing a budget pays -- the overlap between
+  two detectors' detections, 74.6% between the two strongest and 0% where a split does win --
+  is stated as a contribution rather than left as a remark in the results
 - **the allocation result is now a recorded run.** `lanl-r11-b1000-weighted-d7-14-003` and
   `lanl-inj-b1000-weighted-d7-14-003` carry the weighted arm and the oracle split search, so
   paper section 5.5 cites result files rather than a ledger. The Go implementation reproduces

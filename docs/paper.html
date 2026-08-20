@@ -193,12 +193,19 @@ events, while the category a population-rarity test expresses contains none of t
 categories that entity-scope tests also express — off-hours activity and volume bursts — are
 not enriched at all, which accounts for those detectors&#39; null results without appeal to
 misspecification.</p>
-<p>We report three negative results of independent interest. Combining the detectors&#39; p-values,
-by Fisher&#39;s method with Brown&#39;s correction or by the Šidák-corrected minimum, does not
-exceed the best single component at any budget. Alerting whenever any detector ranks an
-event highly is strictly dominated at equal cost and superior at equal depth, at 3.7 times
-the alert volume. And a population-scope model retains one capability the entity-scope
-framework lacks, so the two scopes are complementary rather than ordered.</p>
+<p>We report four negative results of independent interest. Combining the detectors&#39; p-values,
+by Fisher&#39;s method with Brown&#39;s correction or by the Šidák-corrected minimum, does not exceed
+the best single component at any budget. Alerting whenever any detector ranks an event highly
+is strictly dominated at equal cost and superior at equal depth, at 3.7 times the alert
+volume. Dividing the budget in proportion to each detector&#39;s demonstrated quality, by a
+per-alert likelihood ratio fitted on a disjoint window, does not help either — and here the
+failure is bounded rather than merely observed: an exhaustive search over budget splits,
+choosing with the evaluation labels in hand, finds the optimum on the real campaign at the
+corner, the whole budget to the best single detector. The quantity that decides whether
+dividing a budget can pay is the overlap between two detectors&#39; detections, which is 74.6%
+between the two strongest here and 0% in the one configuration where a split does win. And a
+population-scope model retains a capability the entity-scope framework lacks, so the two
+scopes are complementary rather than ordered.</p>
 <p><strong>Keywords:</strong> anomaly detection; multiple testing; conditional inference; false discovery
 rate; intrusion detection; decision theory.</p>
 <hr>
@@ -398,12 +405,15 @@ measurement of what per-entity conditioning is worth at matched analyst-day budg
 intervals (section 5.2); a structural census that identifies which properties of an event
 carry the discriminating information, and which do not (section 5.1); and per-mechanism
 sensitivity against a corpus of planted attacks designed to hold population rarity out
-(section 5.3).</p>
+(section 5.3); and a bound on what any allocation of a fixed alert budget across detectors
+can achieve, together with the statistic that decides whether dividing one pays at all
+(section 5.5).</p>
 <p>We do not claim state-of-the-art detection. Precision reaches 15.7% at the tightest budget
 studied, which is good against a base rate of 1.31 × 10⁻⁴ and not good enough to act on
-unattended. We do not claim that combining evidence across detectors helps: three
-combination rules are measured and none exceeds its own best component at equal cost
-(section 5.4). We do not claim that population-scope conditioning is useless; it retains one
+unattended. We do not claim that combining evidence across detectors helps: four
+combination and allocation rules are measured, none exceeds its own best component at equal
+cost, and on the real campaign no division of a fixed budget does either, including one
+chosen with the labels in hand (sections 5.4 and 5.5). We do not claim that population-scope conditioning is useless; it retains one
 capability this framework lacks (section 5.7). And we do not claim generalisation beyond
 authentication telemetry of this shape, nor to the full population: the figures below are
 measured on entity subsets, for reasons section 2.2 states.</p>
