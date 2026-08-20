@@ -1,0 +1,2238 @@
+{
+ "schema_version": "1",
+ "kind": "baselines",
+ "hypothesis": [
+  "E1",
+  "E2"
+ ],
+ "run": {
+  "run_id": "baselines-r11-d7-14-001"
+ },
+ "started": "2026-08-20T22:00:02.148963+00:00",
+ "finished": "2026-08-20T22:16:24.203712+00:00",
+ "seeds": {
+  "global": 42,
+  "iforest": 43,
+  "eif": 44,
+  "hst": 45,
+  "rrcf": 46,
+  "lof": 47,
+  "ocsvm": 48,
+  "pca": 49,
+  "entity_ewma": 50
+ },
+ "versions": {
+  "python": "3.14.7",
+  "numpy": "2.5.2",
+  "pandas": "3.0.5",
+  "scikit-learn": "1.9.0",
+  "rrcf": "0.4.4"
+ },
+ "input": {
+  "features_path": "data/lanl/features-r11-d7-14.csv.gz",
+  "features_sha256": "5a9d3aff1448218369fb53411125c27e3a61195f9e586109125e2766a585ff57",
+  "rows_total": 1046488,
+  "rows_sample": 1046071,
+  "rows_redteam": 549,
+  "entities": 1181,
+  "entity_history_intact": false,
+  "sampling": "uniform 1-in-4 by event-digest hash (Go exporter); rrcf additionally thinned 1-in-5"
+ },
+ "parameters": {
+  "budgets": [
+   10,
+   50,
+   100,
+   250,
+   500,
+   1000,
+   5000,
+   10000
+  ],
+  "days_from": 7,
+  "days_to": 14,
+  "scored_events": 4190603,
+  "sample_rate": 4,
+  "models_run": [
+   "iforest",
+   "eif",
+   "hst",
+   "rrcf",
+   "lof",
+   "ocsvm",
+   "pca",
+   "entity_ewma"
+  ],
+  "models_available": [
+   "iforest",
+   "eif",
+   "hst",
+   "rrcf",
+   "lof",
+   "ocsvm",
+   "pca",
+   "entity_ewma"
+  ],
+  "models": {
+   "iforest": {
+    "n_estimators": 100,
+    "max_samples": 256
+   },
+   "eif": {
+    "trees": 100,
+    "subsample": 256,
+    "extension_level": "full (d-1)"
+   },
+   "hst": {
+    "trees": 25,
+    "depth": 8,
+    "window": 250
+   },
+   "rrcf": {
+    "num_trees": 40,
+    "tree_size": 256,
+    "shingle": 1,
+    "thinning": 5
+   },
+   "lof": {
+    "n_neighbors": 20,
+    "fit_cap": 50000,
+    "novelty": true
+   },
+   "ocsvm": {
+    "fit_cap": 50000,
+    "nystroem_components": 200,
+    "nu": 0.05,
+    "approximation": "Nystroem kernel map + SGDOneClassSVM; the exact kernel SVM is O(n^2) in the fit set and cannot be run at this row count. Recorded as a deviation from the textbook formulation rather than presented as an exact one-class SVM"
+   },
+   "pca": {
+    "n_components": 5,
+    "score": "squared reconstruction residual"
+   },
+   "entity_ewma": {
+    "half_life_events": 32.0,
+    "min_observations": 8,
+    "score": "max standardised deviation over present features",
+    "cold_start": "scores 0 (never alerts) below min_observations; a naive baseline asserts normality where R3 requires a detector to abstain, and that is retained so the cost of the rule is visible"
+   }
+  }
+ },
+ "results": {
+  "iforest": {
+   "scope": "population",
+   "family": "isolation",
+   "detections_at_budget": {
+    "budget_10_per_day": {
+     "detections": 0,
+     "red_team_total": 549,
+     "per_day_detections": {
+      "7": 0,
+      "8": 0,
+      "9": 0,
+      "12": 0,
+      "13": 0
+     },
+     "detected_events": [],
+     "events_named": true
+    },
+    "budget_50_per_day": {
+     "detections": 0,
+     "red_team_total": 549,
+     "per_day_detections": {
+      "7": 0,
+      "8": 0,
+      "9": 0,
+      "12": 0,
+      "13": 0
+     },
+     "detected_events": [],
+     "events_named": true
+    },
+    "budget_100_per_day": {
+     "detections": 0,
+     "red_team_total": 549,
+     "per_day_detections": {
+      "7": 0,
+      "8": 0,
+      "9": 0,
+      "12": 0,
+      "13": 0
+     },
+     "detected_events": [],
+     "events_named": true
+    },
+    "budget_250_per_day": {
+     "detections": 0,
+     "red_team_total": 549,
+     "per_day_detections": {
+      "7": 0,
+      "8": 0,
+      "9": 0,
+      "12": 0,
+      "13": 0
+     },
+     "detected_events": [],
+     "events_named": true
+    },
+    "budget_500_per_day": {
+     "detections": 0,
+     "red_team_total": 549,
+     "per_day_detections": {
+      "7": 0,
+      "8": 0,
+      "9": 0,
+      "12": 0,
+      "13": 0
+     },
+     "detected_events": [],
+     "events_named": true
+    },
+    "budget_1000_per_day": {
+     "detections": 0,
+     "red_team_total": 549,
+     "per_day_detections": {
+      "7": 0,
+      "8": 0,
+      "9": 0,
+      "12": 0,
+      "13": 0
+     },
+     "detected_events": [],
+     "events_named": true
+    },
+    "budget_5000_per_day": {
+     "detections": 0,
+     "red_team_total": 549,
+     "per_day_detections": {
+      "7": 0,
+      "8": 0,
+      "9": 0,
+      "12": 0,
+      "13": 0
+     },
+     "detected_events": [],
+     "events_named": true
+    },
+    "budget_10000_per_day": {
+     "detections": 0,
+     "red_team_total": 549,
+     "per_day_detections": {
+      "7": 0,
+      "8": 0,
+      "9": 0,
+      "12": 0,
+      "13": 0
+     },
+     "detected_events": [],
+     "events_named": true
+    }
+   },
+   "red_score_percentiles": {
+    "median": 0.5330454718262335,
+    "p90": 0.5725204740467219,
+    "p99": 0.5915179227815158
+   },
+   "sample_score_percentiles": {
+    "median": 0.4852743875806233,
+    "p90": 0.5529346412751647,
+    "p99": 0.6180058630585326
+   },
+   "wall_seconds": 2.4546112500029267
+  },
+  "eif": {
+   "scope": "population",
+   "family": "isolation",
+   "detections_at_budget": {
+    "budget_10_per_day": {
+     "detections": 0,
+     "red_team_total": 549,
+     "per_day_detections": {
+      "7": 0,
+      "8": 0,
+      "9": 0,
+      "12": 0,
+      "13": 0
+     },
+     "detected_events": [],
+     "events_named": true
+    },
+    "budget_50_per_day": {
+     "detections": 0,
+     "red_team_total": 549,
+     "per_day_detections": {
+      "7": 0,
+      "8": 0,
+      "9": 0,
+      "12": 0,
+      "13": 0
+     },
+     "detected_events": [],
+     "events_named": true
+    },
+    "budget_100_per_day": {
+     "detections": 0,
+     "red_team_total": 549,
+     "per_day_detections": {
+      "7": 0,
+      "8": 0,
+      "9": 0,
+      "12": 0,
+      "13": 0
+     },
+     "detected_events": [],
+     "events_named": true
+    },
+    "budget_250_per_day": {
+     "detections": 0,
+     "red_team_total": 549,
+     "per_day_detections": {
+      "7": 0,
+      "8": 0,
+      "9": 0,
+      "12": 0,
+      "13": 0
+     },
+     "detected_events": [],
+     "events_named": true
+    },
+    "budget_500_per_day": {
+     "detections": 0,
+     "red_team_total": 549,
+     "per_day_detections": {
+      "7": 0,
+      "8": 0,
+      "9": 0,
+      "12": 0,
+      "13": 0
+     },
+     "detected_events": [],
+     "events_named": true
+    },
+    "budget_1000_per_day": {
+     "detections": 0,
+     "red_team_total": 549,
+     "per_day_detections": {
+      "7": 0,
+      "8": 0,
+      "9": 0,
+      "12": 0,
+      "13": 0
+     },
+     "detected_events": [],
+     "events_named": true
+    },
+    "budget_5000_per_day": {
+     "detections": 0,
+     "red_team_total": 549,
+     "per_day_detections": {
+      "7": 0,
+      "8": 0,
+      "9": 0,
+      "12": 0,
+      "13": 0
+     },
+     "detected_events": [],
+     "events_named": true
+    },
+    "budget_10000_per_day": {
+     "detections": 1,
+     "red_team_total": 549,
+     "per_day_detections": {
+      "7": 0,
+      "8": 0,
+      "9": 0,
+      "12": 1,
+      "13": 0
+     },
+     "detected_events": [
+      {
+       "t": 1078024,
+       "entity": "U415@DOM1"
+      }
+     ],
+     "events_named": true
+    }
+   },
+   "red_score_percentiles": {
+    "median": 0.47280599063123296,
+    "p90": 0.5130208243917921,
+    "p99": 0.5346829345838731
+   },
+   "sample_score_percentiles": {
+    "median": 0.4523284355832933,
+    "p90": 0.5083158029909224,
+    "p99": 0.5654836348683481
+   },
+   "wall_seconds": 10.109922874999029
+  },
+  "hst": {
+   "scope": "population",
+   "family": "isolation",
+   "detections_at_budget": {
+    "budget_10_per_day": {
+     "detections": 0,
+     "red_team_total": 549,
+     "per_day_detections": {
+      "7": 0,
+      "8": 0,
+      "9": 0,
+      "12": 0,
+      "13": 0
+     },
+     "detected_events": [],
+     "events_named": true
+    },
+    "budget_50_per_day": {
+     "detections": 0,
+     "red_team_total": 549,
+     "per_day_detections": {
+      "7": 0,
+      "8": 0,
+      "9": 0,
+      "12": 0,
+      "13": 0
+     },
+     "detected_events": [],
+     "events_named": true
+    },
+    "budget_100_per_day": {
+     "detections": 0,
+     "red_team_total": 549,
+     "per_day_detections": {
+      "7": 0,
+      "8": 0,
+      "9": 0,
+      "12": 0,
+      "13": 0
+     },
+     "detected_events": [],
+     "events_named": true
+    },
+    "budget_250_per_day": {
+     "detections": 0,
+     "red_team_total": 549,
+     "per_day_detections": {
+      "7": 0,
+      "8": 0,
+      "9": 0,
+      "12": 0,
+      "13": 0
+     },
+     "detected_events": [],
+     "events_named": true
+    },
+    "budget_500_per_day": {
+     "detections": 0,
+     "red_team_total": 549,
+     "per_day_detections": {
+      "7": 0,
+      "8": 0,
+      "9": 0,
+      "12": 0,
+      "13": 0
+     },
+     "detected_events": [],
+     "events_named": true
+    },
+    "budget_1000_per_day": {
+     "detections": 0,
+     "red_team_total": 549,
+     "per_day_detections": {
+      "7": 0,
+      "8": 0,
+      "9": 0,
+      "12": 0,
+      "13": 0
+     },
+     "detected_events": [],
+     "events_named": true
+    },
+    "budget_5000_per_day": {
+     "detections": 0,
+     "red_team_total": 549,
+     "per_day_detections": {
+      "7": 0,
+      "8": 0,
+      "9": 0,
+      "12": 0,
+      "13": 0
+     },
+     "detected_events": [],
+     "events_named": true
+    },
+    "budget_10000_per_day": {
+     "detections": 0,
+     "red_team_total": 549,
+     "per_day_detections": {
+      "7": 0,
+      "8": 0,
+      "9": 0,
+      "12": 0,
+      "13": 0
+     },
+     "detected_events": [],
+     "events_named": true
+    }
+   },
+   "red_score_percentiles": {
+    "median": -493056.0,
+    "p90": -332185.60000000003,
+    "p99": -250603.52000000002
+   },
+   "sample_score_percentiles": {
+    "median": -530176.0,
+    "p90": -324096.0,
+    "p99": -192000.0
+   },
+   "wall_seconds": 1.2576175409994903
+  },
+  "lof": {
+   "scope": "population",
+   "family": "density",
+   "detections_at_budget": {
+    "budget_10_per_day": {
+     "detections": 0,
+     "red_team_total": 549,
+     "per_day_detections": {
+      "7": 0,
+      "8": 0,
+      "9": 0,
+      "12": 0,
+      "13": 0
+     },
+     "detected_events": [],
+     "events_named": true
+    },
+    "budget_50_per_day": {
+     "detections": 0,
+     "red_team_total": 549,
+     "per_day_detections": {
+      "7": 0,
+      "8": 0,
+      "9": 0,
+      "12": 0,
+      "13": 0
+     },
+     "detected_events": [],
+     "events_named": true
+    },
+    "budget_100_per_day": {
+     "detections": 0,
+     "red_team_total": 549,
+     "per_day_detections": {
+      "7": 0,
+      "8": 0,
+      "9": 0,
+      "12": 0,
+      "13": 0
+     },
+     "detected_events": [],
+     "events_named": true
+    },
+    "budget_250_per_day": {
+     "detections": 0,
+     "red_team_total": 549,
+     "per_day_detections": {
+      "7": 0,
+      "8": 0,
+      "9": 0,
+      "12": 0,
+      "13": 0
+     },
+     "detected_events": [],
+     "events_named": true
+    },
+    "budget_500_per_day": {
+     "detections": 1,
+     "red_team_total": 549,
+     "per_day_detections": {
+      "7": 0,
+      "8": 1,
+      "9": 0,
+      "12": 0,
+      "13": 0
+     },
+     "detected_events": [
+      {
+       "t": 768832,
+       "entity": "U995@DOM1"
+      }
+     ],
+     "events_named": true
+    },
+    "budget_1000_per_day": {
+     "detections": 4,
+     "red_team_total": 549,
+     "per_day_detections": {
+      "7": 0,
+      "8": 4,
+      "9": 0,
+      "12": 0,
+      "13": 0
+     },
+     "detected_events": [
+      {
+       "t": 743030,
+       "entity": "U5087@DOM1"
+      },
+      {
+       "t": 768832,
+       "entity": "U995@DOM1"
+      },
+      {
+       "t": 769751,
+       "entity": "U66@DOM1"
+      },
+      {
+       "t": 772715,
+       "entity": "U66@DOM1"
+      }
+     ],
+     "events_named": true
+    },
+    "budget_5000_per_day": {
+     "detections": 69,
+     "red_team_total": 549,
+     "per_day_detections": {
+      "7": 0,
+      "8": 45,
+      "9": 0,
+      "12": 14,
+      "13": 10
+     },
+     "detected_events": [
+      {
+       "t": 728106,
+       "entity": "U4978@DOM1"
+      },
+      {
+       "t": 743030,
+       "entity": "U5087@DOM1"
+      },
+      {
+       "t": 743134,
+       "entity": "U5087@DOM1"
+      },
+      {
+       "t": 743232,
+       "entity": "U5087@DOM1"
+      },
+      {
+       "t": 743509,
+       "entity": "U5087@DOM1"
+      },
+      {
+       "t": 743733,
+       "entity": "U9763@DOM1"
+      },
+      {
+       "t": 744255,
+       "entity": "U5087@DOM1"
+      },
+      {
+       "t": 746387,
+       "entity": "U8777@C583"
+      },
+      {
+       "t": 747229,
+       "entity": "U8777@C583"
+      },
+      {
+       "t": 747939,
+       "entity": "U374@DOM1"
+      },
+      {
+       "t": 748397,
+       "entity": "U374@DOM1"
+      },
+      {
+       "t": 749816,
+       "entity": "U3718@DOM1"
+      },
+      {
+       "t": 752892,
+       "entity": "U2575@DOM1"
+      },
+      {
+       "t": 754601,
+       "entity": "U2575@DOM1"
+      },
+      {
+       "t": 754921,
+       "entity": "U314@DOM1"
+      },
+      {
+       "t": 760132,
+       "entity": "U1653@DOM1"
+      },
+      {
+       "t": 760148,
+       "entity": "U1653@DOM1"
+      },
+      {
+       "t": 760168,
+       "entity": "U1653@DOM1"
+      },
+      {
+       "t": 760175,
+       "entity": "U1653@DOM1"
+      },
+      {
+       "t": 760807,
+       "entity": "U3635@DOM1"
+      },
+      {
+       "t": 761134,
+       "entity": "U3635@DOM1"
+      },
+      {
+       "t": 762834,
+       "entity": "U3635@DOM1"
+      },
+      {
+       "t": 765934,
+       "entity": "U314@DOM1"
+      },
+      {
+       "t": 766788,
+       "entity": "U66@DOM1"
+      },
+      {
+       "t": 767289,
+       "entity": "U7394@DOM1"
+      },
+      {
+       "t": 767300,
+       "entity": "U7394@DOM1"
+      },
+      {
+       "t": 767320,
+       "entity": "U7394@DOM1"
+      },
+      {
+       "t": 767813,
+       "entity": "U66@DOM1"
+      },
+      {
+       "t": 768742,
+       "entity": "U66@DOM1"
+      },
+      {
+       "t": 768832,
+       "entity": "U995@DOM1"
+      },
+      {
+       "t": 769507,
+       "entity": "U66@DOM1"
+      },
+      {
+       "t": 769751,
+       "entity": "U66@DOM1"
+      },
+      {
+       "t": 769933,
+       "entity": "U66@DOM1"
+      },
+      {
+       "t": 770222,
+       "entity": "U9763@DOM1"
+      },
+      {
+       "t": 770387,
+       "entity": "U7375@DOM1"
+      },
+      {
+       "t": 770726,
+       "entity": "U7375@DOM1"
+      },
+      {
+       "t": 770870,
+       "entity": "U7375@DOM1"
+      },
+      {
+       "t": 771340,
+       "entity": "U9763@DOM1"
+      },
+      {
+       "t": 771393,
+       "entity": "U9763@DOM1"
+      },
+      {
+       "t": 771401,
+       "entity": "U9763@DOM1"
+      },
+      {
+       "t": 772253,
+       "entity": "U66@DOM1"
+      },
+      {
+       "t": 772715,
+       "entity": "U66@DOM1"
+      },
+      {
+       "t": 773270,
+       "entity": "U4978@DOM1"
+      },
+      {
+       "t": 773387,
+       "entity": "U4978@DOM1"
+      },
+      {
+       "t": 774214,
+       "entity": "U66@DOM1"
+      },
+      {
+       "t": 1066734,
+       "entity": "U66@DOM1"
+      },
+      {
+       "t": 1070100,
+       "entity": "U5254@DOM1"
+      },
+      {
+       "t": 1070146,
+       "entity": "U3635@DOM1"
+      },
+      {
+       "t": 1070182,
+       "entity": "U2575@DOM1"
+      },
+      {
+       "t": 1074146,
+       "entity": "U66@DOM1"
+      },
+      {
+       "t": 1074754,
+       "entity": "U66@DOM1"
+      },
+      {
+       "t": 1076286,
+       "entity": "U66@DOM1"
+      },
+      {
+       "t": 1077516,
+       "entity": "U1145@DOM1"
+      },
+      {
+       "t": 1078024,
+       "entity": "U415@DOM1"
+      },
+      {
+       "t": 1079852,
+       "entity": "U66@DOM1"
+      },
+      {
+       "t": 1079916,
+       "entity": "U66@DOM1"
+      },
+      {
+       "t": 1081550,
+       "entity": "U6691@DOM1"
+      },
+      {
+       "t": 1100031,
+       "entity": "U7507@DOM1"
+      },
+      {
+       "t": 1101313,
+       "entity": "U7507@DOM1"
+      },
+      {
+       "t": 1168077,
+       "entity": "U66@DOM1"
+      },
+      {
+       "t": 1174646,
+       "entity": "U2575@DOM1"
+      },
+      {
+       "t": 1178234,
+       "entity": "U3635@DOM1"
+      },
+      {
+       "t": 1178267,
+       "entity": "U66@DOM1"
+      },
+      {
+       "t": 1179589,
+       "entity": "U655@DOM1"
+      },
+      {
+       "t": 1179969,
+       "entity": "U86@DOM1"
+      },
+      {
+       "t": 1180104,
+       "entity": "U86@DOM1"
+      },
+      {
+       "t": 1184027,
+       "entity": "U86@DOM1"
+      },
+      {
+       "t": 1184507,
+       "entity": "U86@DOM1"
+      },
+      {
+       "t": 1184879,
+       "entity": "U86@DOM1"
+      }
+     ],
+     "events_named": true
+    },
+    "budget_10000_per_day": {
+     "detections": 140,
+     "red_team_total": 549,
+     "per_day_detections": {
+      "7": 0,
+      "8": 77,
+      "9": 0,
+      "12": 48,
+      "13": 15
+     },
+     "detected_events": [
+      {
+       "t": 725488,
+       "entity": "U1653@DOM1"
+      },
+      {
+       "t": 725589,
+       "entity": "U1653@DOM1"
+      },
+      {
+       "t": 728106,
+       "entity": "U4978@DOM1"
+      },
+      {
+       "t": 731492,
+       "entity": "U288@DOM1"
+      },
+      {
+       "t": 743030,
+       "entity": "U5087@DOM1"
+      },
+      {
+       "t": 743134,
+       "entity": "U5087@DOM1"
+      },
+      {
+       "t": 743223,
+       "entity": "U5087@DOM1"
+      },
+      {
+       "t": 743232,
+       "entity": "U5087@DOM1"
+      },
+      {
+       "t": 743403,
+       "entity": "U5087@DOM1"
+      },
+      {
+       "t": 743411,
+       "entity": "U5087@DOM1"
+      },
+      {
+       "t": 743509,
+       "entity": "U5087@DOM1"
+      },
+      {
+       "t": 743733,
+       "entity": "U9763@DOM1"
+      },
+      {
+       "t": 744255,
+       "entity": "U5087@DOM1"
+      },
+      {
+       "t": 746387,
+       "entity": "U8777@C583"
+      },
+      {
+       "t": 746860,
+       "entity": "U9947@DOM1"
+      },
+      {
+       "t": 747145,
+       "entity": "U9947@DOM1"
+      },
+      {
+       "t": 747229,
+       "entity": "U8777@C583"
+      },
+      {
+       "t": 747939,
+       "entity": "U374@DOM1"
+      },
+      {
+       "t": 748397,
+       "entity": "U374@DOM1"
+      },
+      {
+       "t": 748806,
+       "entity": "U9947@DOM1"
+      },
+      {
+       "t": 749000,
+       "entity": "U9947@DOM1"
+      },
+      {
+       "t": 749054,
+       "entity": "U9947@DOM1"
+      },
+      {
+       "t": 749816,
+       "entity": "U3718@DOM1"
+      },
+      {
+       "t": 752892,
+       "entity": "U2575@DOM1"
+      },
+      {
+       "t": 754601,
+       "entity": "U2575@DOM1"
+      },
+      {
+       "t": 754921,
+       "entity": "U314@DOM1"
+      },
+      {
+       "t": 760075,
+       "entity": "U1653@DOM1"
+      },
+      {
+       "t": 760132,
+       "entity": "U1653@DOM1"
+      },
+      {
+       "t": 760148,
+       "entity": "U1653@DOM1"
+      },
+      {
+       "t": 760168,
+       "entity": "U1653@DOM1"
+      },
+      {
+       "t": 760175,
+       "entity": "U1653@DOM1"
+      },
+      {
+       "t": 760807,
+       "entity": "U3635@DOM1"
+      },
+      {
+       "t": 761134,
+       "entity": "U3635@DOM1"
+      },
+      {
+       "t": 761524,
+       "entity": "U3635@DOM1"
+      },
+      {
+       "t": 762009,
+       "entity": "U3635@DOM1"
+      },
+      {
+       "t": 762157,
+       "entity": "U3635@DOM1"
+      },
+      {
+       "t": 762536,
+       "entity": "U3635@DOM1"
+      },
+      {
+       "t": 762568,
+       "entity": "U3635@DOM1"
+      },
+      {
+       "t": 762834,
+       "entity": "U3635@DOM1"
+      },
+      {
+       "t": 763783,
+       "entity": "U3635@DOM1"
+      },
+      {
+       "t": 764310,
+       "entity": "U1480@DOM1"
+      },
+      {
+       "t": 765934,
+       "entity": "U314@DOM1"
+      },
+      {
+       "t": 766788,
+       "entity": "U66@DOM1"
+      },
+      {
+       "t": 767289,
+       "entity": "U7394@DOM1"
+      },
+      {
+       "t": 767300,
+       "entity": "U7394@DOM1"
+      },
+      {
+       "t": 767320,
+       "entity": "U7394@DOM1"
+      },
+      {
+       "t": 767445,
+       "entity": "U4353@DOM1"
+      },
+      {
+       "t": 767813,
+       "entity": "U66@DOM1"
+      },
+      {
+       "t": 768742,
+       "entity": "U66@DOM1"
+      },
+      {
+       "t": 768832,
+       "entity": "U995@DOM1"
+      },
+      {
+       "t": 768847,
+       "entity": "U995@DOM1"
+      },
+      {
+       "t": 769094,
+       "entity": "U66@DOM1"
+      },
+      {
+       "t": 769507,
+       "entity": "U66@DOM1"
+      },
+      {
+       "t": 769638,
+       "entity": "U66@DOM1"
+      },
+      {
+       "t": 769751,
+       "entity": "U66@DOM1"
+      },
+      {
+       "t": 769933,
+       "entity": "U66@DOM1"
+      },
+      {
+       "t": 770222,
+       "entity": "U9763@DOM1"
+      },
+      {
+       "t": 770387,
+       "entity": "U7375@DOM1"
+      },
+      {
+       "t": 770601,
+       "entity": "U7375@DOM1"
+      },
+      {
+       "t": 770651,
+       "entity": "U66@DOM1"
+      },
+      {
+       "t": 770726,
+       "entity": "U7375@DOM1"
+      },
+      {
+       "t": 770870,
+       "entity": "U7375@DOM1"
+      },
+      {
+       "t": 770950,
+       "entity": "U66@DOM1"
+      },
+      {
+       "t": 771133,
+       "entity": "U7375@DOM1"
+      },
+      {
+       "t": 771340,
+       "entity": "U9763@DOM1"
+      },
+      {
+       "t": 771393,
+       "entity": "U9763@DOM1"
+      },
+      {
+       "t": 771401,
+       "entity": "U9763@DOM1"
+      },
+      {
+       "t": 772253,
+       "entity": "U66@DOM1"
+      },
+      {
+       "t": 772715,
+       "entity": "U66@DOM1"
+      },
+      {
+       "t": 772934,
+       "entity": "U218@DOM1"
+      },
+      {
+       "t": 772964,
+       "entity": "U218@DOM1"
+      },
+      {
+       "t": 773270,
+       "entity": "U4978@DOM1"
+      },
+      {
+       "t": 773387,
+       "entity": "U4978@DOM1"
+      },
+      {
+       "t": 773961,
+       "entity": "U66@DOM1"
+      },
+      {
+       "t": 774180,
+       "entity": "U66@DOM1"
+      },
+      {
+       "t": 774214,
+       "entity": "U66@DOM1"
+      },
+      {
+       "t": 774514,
+       "entity": "U218@DOM1"
+      },
+      {
+       "t": 1066734,
+       "entity": "U66@DOM1"
+      },
+      {
+       "t": 1068390,
+       "entity": "U66@DOM1"
+      },
+      {
+       "t": 1068507,
+       "entity": "U66@DOM1"
+      },
+      {
+       "t": 1070100,
+       "entity": "U5254@DOM1"
+      },
+      {
+       "t": 1070146,
+       "entity": "U3635@DOM1"
+      },
+      {
+       "t": 1070182,
+       "entity": "U2575@DOM1"
+      },
+      {
+       "t": 1072230,
+       "entity": "U13@DOM1"
+      },
+      {
+       "t": 1072432,
+       "entity": "U2575@DOM1"
+      },
+      {
+       "t": 1072660,
+       "entity": "U3277@C2519"
+      },
+      {
+       "t": 1072662,
+       "entity": "U66@DOM1"
+      },
+      {
+       "t": 1072952,
+       "entity": "U1519@DOM1"
+      },
+      {
+       "t": 1072980,
+       "entity": "U66@DOM1"
+      },
+      {
+       "t": 1072989,
+       "entity": "U66@DOM1"
+      },
+      {
+       "t": 1072998,
+       "entity": "U66@DOM1"
+      },
+      {
+       "t": 1074146,
+       "entity": "U66@DOM1"
+      },
+      {
+       "t": 1074158,
+       "entity": "U66@DOM1"
+      },
+      {
+       "t": 1074754,
+       "entity": "U66@DOM1"
+      },
+      {
+       "t": 1075096,
+       "entity": "U1145@DOM1"
+      },
+      {
+       "t": 1075114,
+       "entity": "U453@DOM1"
+      },
+      {
+       "t": 1075935,
+       "entity": "U66@DOM1"
+      },
+      {
+       "t": 1076286,
+       "entity": "U66@DOM1"
+      },
+      {
+       "t": 1076311,
+       "entity": "U66@DOM1"
+      },
+      {
+       "t": 1076742,
+       "entity": "U453@DOM1"
+      },
+      {
+       "t": 1076812,
+       "entity": "U207@DOM1"
+      },
+      {
+       "t": 1077048,
+       "entity": "U7507@DOM1"
+      },
+      {
+       "t": 1077516,
+       "entity": "U1145@DOM1"
+      },
+      {
+       "t": 1077530,
+       "entity": "U1145@DOM1"
+      },
+      {
+       "t": 1077589,
+       "entity": "U1145@DOM1"
+      },
+      {
+       "t": 1077746,
+       "entity": "U1145@DOM1"
+      },
+      {
+       "t": 1077864,
+       "entity": "U1145@DOM1"
+      },
+      {
+       "t": 1078024,
+       "entity": "U415@DOM1"
+      },
+      {
+       "t": 1078108,
+       "entity": "U415@DOM1"
+      },
+      {
+       "t": 1079852,
+       "entity": "U66@DOM1"
+      },
+      {
+       "t": 1079871,
+       "entity": "U66@DOM1"
+      },
+      {
+       "t": 1079916,
+       "entity": "U66@DOM1"
+      },
+      {
+       "t": 1079926,
+       "entity": "U66@DOM1"
+      },
+      {
+       "t": 1081550,
+       "entity": "U6691@DOM1"
+      },
+      {
+       "t": 1090503,
+       "entity": "U8601@DOM1"
+      },
+      {
+       "t": 1094497,
+       "entity": "U2231@DOM1"
+      },
+      {
+       "t": 1095235,
+       "entity": "U2231@DOM1"
+      },
+      {
+       "t": 1095678,
+       "entity": "U3005@DOM1"
+      },
+      {
+       "t": 1095686,
+       "entity": "U3005@DOM1"
+      },
+      {
+       "t": 1096005,
+       "entity": "U3005@DOM1"
+      },
+      {
+       "t": 1096446,
+       "entity": "U2575@DOM1"
+      },
+      {
+       "t": 1096474,
+       "entity": "U2231@DOM1"
+      },
+      {
+       "t": 1096483,
+       "entity": "U2231@DOM1"
+      },
+      {
+       "t": 1100031,
+       "entity": "U7507@DOM1"
+      },
+      {
+       "t": 1101313,
+       "entity": "U7507@DOM1"
+      },
+      {
+       "t": 1166301,
+       "entity": "U66@DOM1"
+      },
+      {
+       "t": 1167547,
+       "entity": "U66@DOM1"
+      },
+      {
+       "t": 1167670,
+       "entity": "U66@DOM1"
+      },
+      {
+       "t": 1167688,
+       "entity": "U1133@DOM1"
+      },
+      {
+       "t": 1167720,
+       "entity": "U1133@DOM1"
+      },
+      {
+       "t": 1168077,
+       "entity": "U66@DOM1"
+      },
+      {
+       "t": 1174646,
+       "entity": "U2575@DOM1"
+      },
+      {
+       "t": 1178234,
+       "entity": "U3635@DOM1"
+      },
+      {
+       "t": 1178267,
+       "entity": "U66@DOM1"
+      },
+      {
+       "t": 1179589,
+       "entity": "U655@DOM1"
+      },
+      {
+       "t": 1179969,
+       "entity": "U86@DOM1"
+      },
+      {
+       "t": 1180104,
+       "entity": "U86@DOM1"
+      },
+      {
+       "t": 1184027,
+       "entity": "U86@DOM1"
+      },
+      {
+       "t": 1184507,
+       "entity": "U86@DOM1"
+      },
+      {
+       "t": 1184879,
+       "entity": "U86@DOM1"
+      }
+     ],
+     "events_named": true
+    }
+   },
+   "red_score_percentiles": {
+    "median": 1.3884000181516676,
+    "p90": 2.183685190773659,
+    "p99": 3.1944367453670837
+   },
+   "sample_score_percentiles": {
+    "median": 1.0271466511169258,
+    "p90": 1.195951796088106,
+    "p99": 1.856118543307604
+   },
+   "wall_seconds": 22.30114629200034
+  },
+  "ocsvm": {
+   "scope": "population",
+   "family": "boundary",
+   "detections_at_budget": {
+    "budget_10_per_day": {
+     "detections": 0,
+     "red_team_total": 549,
+     "per_day_detections": {
+      "7": 0,
+      "8": 0,
+      "9": 0,
+      "12": 0,
+      "13": 0
+     },
+     "detected_events": [],
+     "events_named": true
+    },
+    "budget_50_per_day": {
+     "detections": 0,
+     "red_team_total": 549,
+     "per_day_detections": {
+      "7": 0,
+      "8": 0,
+      "9": 0,
+      "12": 0,
+      "13": 0
+     },
+     "detected_events": [],
+     "events_named": true
+    },
+    "budget_100_per_day": {
+     "detections": 0,
+     "red_team_total": 549,
+     "per_day_detections": {
+      "7": 0,
+      "8": 0,
+      "9": 0,
+      "12": 0,
+      "13": 0
+     },
+     "detected_events": [],
+     "events_named": true
+    },
+    "budget_250_per_day": {
+     "detections": 0,
+     "red_team_total": 549,
+     "per_day_detections": {
+      "7": 0,
+      "8": 0,
+      "9": 0,
+      "12": 0,
+      "13": 0
+     },
+     "detected_events": [],
+     "events_named": true
+    },
+    "budget_500_per_day": {
+     "detections": 0,
+     "red_team_total": 549,
+     "per_day_detections": {
+      "7": 0,
+      "8": 0,
+      "9": 0,
+      "12": 0,
+      "13": 0
+     },
+     "detected_events": [],
+     "events_named": true
+    },
+    "budget_1000_per_day": {
+     "detections": 0,
+     "red_team_total": 549,
+     "per_day_detections": {
+      "7": 0,
+      "8": 0,
+      "9": 0,
+      "12": 0,
+      "13": 0
+     },
+     "detected_events": [],
+     "events_named": true
+    },
+    "budget_5000_per_day": {
+     "detections": 1,
+     "red_team_total": 549,
+     "per_day_detections": {
+      "7": 0,
+      "8": 0,
+      "9": 0,
+      "12": 1,
+      "13": 0
+     },
+     "detected_events": [
+      {
+       "t": 1078024,
+       "entity": "U415@DOM1"
+      }
+     ],
+     "events_named": true
+    },
+    "budget_10000_per_day": {
+     "detections": 4,
+     "red_team_total": 549,
+     "per_day_detections": {
+      "7": 0,
+      "8": 0,
+      "9": 0,
+      "12": 4,
+      "13": 0
+     },
+     "detected_events": [
+      {
+       "t": 1078024,
+       "entity": "U415@DOM1"
+      },
+      {
+       "t": 1090581,
+       "entity": "U8601@DOM1"
+      },
+      {
+       "t": 1090599,
+       "entity": "U8601@DOM1"
+      },
+      {
+       "t": 1090929,
+       "entity": "U8601@DOM1"
+      }
+     ],
+     "events_named": true
+    }
+   },
+   "red_score_percentiles": {
+    "median": -0.0104627027257429,
+    "p90": 0.004982791746041835,
+    "p99": 0.016158604682358534
+   },
+   "sample_score_percentiles": {
+    "median": -0.026884091945789224,
+    "p90": -0.006392834025683358,
+    "p99": 0.01583107589770982
+   },
+   "wall_seconds": 0.9786718750001455
+  },
+  "pca": {
+   "scope": "population",
+   "family": "linear subspace",
+   "detections_at_budget": {
+    "budget_10_per_day": {
+     "detections": 0,
+     "red_team_total": 549,
+     "per_day_detections": {
+      "7": 0,
+      "8": 0,
+      "9": 0,
+      "12": 0,
+      "13": 0
+     },
+     "detected_events": [],
+     "events_named": true
+    },
+    "budget_50_per_day": {
+     "detections": 0,
+     "red_team_total": 549,
+     "per_day_detections": {
+      "7": 0,
+      "8": 0,
+      "9": 0,
+      "12": 0,
+      "13": 0
+     },
+     "detected_events": [],
+     "events_named": true
+    },
+    "budget_100_per_day": {
+     "detections": 0,
+     "red_team_total": 549,
+     "per_day_detections": {
+      "7": 0,
+      "8": 0,
+      "9": 0,
+      "12": 0,
+      "13": 0
+     },
+     "detected_events": [],
+     "events_named": true
+    },
+    "budget_250_per_day": {
+     "detections": 0,
+     "red_team_total": 549,
+     "per_day_detections": {
+      "7": 0,
+      "8": 0,
+      "9": 0,
+      "12": 0,
+      "13": 0
+     },
+     "detected_events": [],
+     "events_named": true
+    },
+    "budget_500_per_day": {
+     "detections": 0,
+     "red_team_total": 549,
+     "per_day_detections": {
+      "7": 0,
+      "8": 0,
+      "9": 0,
+      "12": 0,
+      "13": 0
+     },
+     "detected_events": [],
+     "events_named": true
+    },
+    "budget_1000_per_day": {
+     "detections": 0,
+     "red_team_total": 549,
+     "per_day_detections": {
+      "7": 0,
+      "8": 0,
+      "9": 0,
+      "12": 0,
+      "13": 0
+     },
+     "detected_events": [],
+     "events_named": true
+    },
+    "budget_5000_per_day": {
+     "detections": 0,
+     "red_team_total": 549,
+     "per_day_detections": {
+      "7": 0,
+      "8": 0,
+      "9": 0,
+      "12": 0,
+      "13": 0
+     },
+     "detected_events": [],
+     "events_named": true
+    },
+    "budget_10000_per_day": {
+     "detections": 0,
+     "red_team_total": 549,
+     "per_day_detections": {
+      "7": 0,
+      "8": 0,
+      "9": 0,
+      "12": 0,
+      "13": 0
+     },
+     "detected_events": [],
+     "events_named": true
+    }
+   },
+   "red_score_percentiles": {
+    "median": 0.08186343251186834,
+    "p90": 0.2021060893769112,
+    "p99": 0.29241775796991204
+   },
+   "sample_score_percentiles": {
+    "median": 0.06295603364318124,
+    "p90": 0.21881614043416497,
+    "p99": 0.4838891291816361
+   },
+   "wall_seconds": 0.12594933299988043
+  },
+  "entity_ewma": {
+   "scope": "per-entity",
+   "family": "per-entity moment",
+   "detections_at_budget": {
+    "budget_10_per_day": {
+     "detections": 0,
+     "red_team_total": 549,
+     "per_day_detections": {
+      "7": 0,
+      "8": 0,
+      "9": 0,
+      "12": 0,
+      "13": 0
+     },
+     "detected_events": [],
+     "events_named": true
+    },
+    "budget_50_per_day": {
+     "detections": 0,
+     "red_team_total": 549,
+     "per_day_detections": {
+      "7": 0,
+      "8": 0,
+      "9": 0,
+      "12": 0,
+      "13": 0
+     },
+     "detected_events": [],
+     "events_named": true
+    },
+    "budget_100_per_day": {
+     "detections": 0,
+     "red_team_total": 549,
+     "per_day_detections": {
+      "7": 0,
+      "8": 0,
+      "9": 0,
+      "12": 0,
+      "13": 0
+     },
+     "detected_events": [],
+     "events_named": true
+    },
+    "budget_250_per_day": {
+     "detections": 0,
+     "red_team_total": 549,
+     "per_day_detections": {
+      "7": 0,
+      "8": 0,
+      "9": 0,
+      "12": 0,
+      "13": 0
+     },
+     "detected_events": [],
+     "events_named": true
+    },
+    "budget_500_per_day": {
+     "detections": 0,
+     "red_team_total": 549,
+     "per_day_detections": {
+      "7": 0,
+      "8": 0,
+      "9": 0,
+      "12": 0,
+      "13": 0
+     },
+     "detected_events": [],
+     "events_named": true
+    },
+    "budget_1000_per_day": {
+     "detections": 0,
+     "red_team_total": 549,
+     "per_day_detections": {
+      "7": 0,
+      "8": 0,
+      "9": 0,
+      "12": 0,
+      "13": 0
+     },
+     "detected_events": [],
+     "events_named": true
+    },
+    "budget_5000_per_day": {
+     "detections": 16,
+     "red_team_total": 549,
+     "per_day_detections": {
+      "7": 0,
+      "8": 8,
+      "9": 0,
+      "12": 8,
+      "13": 0
+     },
+     "detected_events": [
+      {
+       "t": 727131,
+       "entity": "U212@DOM1"
+      },
+      {
+       "t": 738916,
+       "entity": "U250@DOM1"
+      },
+      {
+       "t": 741971,
+       "entity": "U4856@DOM1"
+      },
+      {
+       "t": 747001,
+       "entity": "U1450@DOM1"
+      },
+      {
+       "t": 750307,
+       "entity": "U342@DOM1"
+      },
+      {
+       "t": 757625,
+       "entity": "U642@DOM1"
+      },
+      {
+       "t": 760388,
+       "entity": "U342@DOM1"
+      },
+      {
+       "t": 768636,
+       "entity": "U5254@DOM1"
+      },
+      {
+       "t": 1070066,
+       "entity": "U4448@DOM1"
+      },
+      {
+       "t": 1070100,
+       "entity": "U5254@DOM1"
+      },
+      {
+       "t": 1070182,
+       "entity": "U2575@DOM1"
+      },
+      {
+       "t": 1072594,
+       "entity": "U218@DOM1"
+      },
+      {
+       "t": 1072660,
+       "entity": "U3277@C2519"
+      },
+      {
+       "t": 1075158,
+       "entity": "U1480@DOM1"
+      },
+      {
+       "t": 1075526,
+       "entity": "U9263@DOM1"
+      },
+      {
+       "t": 1075884,
+       "entity": "U20@DOM1"
+      }
+     ],
+     "events_named": true
+    },
+    "budget_10000_per_day": {
+     "detections": 41,
+     "red_team_total": 549,
+     "per_day_detections": {
+      "7": 0,
+      "8": 16,
+      "9": 0,
+      "12": 22,
+      "13": 3
+     },
+     "detected_events": [
+      {
+       "t": 727131,
+       "entity": "U212@DOM1"
+      },
+      {
+       "t": 727419,
+       "entity": "U212@DOM1"
+      },
+      {
+       "t": 738916,
+       "entity": "U250@DOM1"
+      },
+      {
+       "t": 741971,
+       "entity": "U4856@DOM1"
+      },
+      {
+       "t": 744215,
+       "entity": "U795@DOM1"
+      },
+      {
+       "t": 744902,
+       "entity": "U9947@DOM1"
+      },
+      {
+       "t": 746151,
+       "entity": "U882@DOM1"
+      },
+      {
+       "t": 747001,
+       "entity": "U1450@DOM1"
+      },
+      {
+       "t": 747163,
+       "entity": "U1450@DOM1"
+      },
+      {
+       "t": 750307,
+       "entity": "U342@DOM1"
+      },
+      {
+       "t": 757625,
+       "entity": "U642@DOM1"
+      },
+      {
+       "t": 757755,
+       "entity": "U642@DOM1"
+      },
+      {
+       "t": 760388,
+       "entity": "U342@DOM1"
+      },
+      {
+       "t": 766879,
+       "entity": "U1164@DOM1"
+      },
+      {
+       "t": 768636,
+       "entity": "U5254@DOM1"
+      },
+      {
+       "t": 769069,
+       "entity": "U5254@DOM1"
+      },
+      {
+       "t": 1070066,
+       "entity": "U4448@DOM1"
+      },
+      {
+       "t": 1070076,
+       "entity": "U4448@DOM1"
+      },
+      {
+       "t": 1070100,
+       "entity": "U5254@DOM1"
+      },
+      {
+       "t": 1070182,
+       "entity": "U2575@DOM1"
+      },
+      {
+       "t": 1070442,
+       "entity": "U342@DOM1"
+      },
+      {
+       "t": 1072316,
+       "entity": "U1289@DOM1"
+      },
+      {
+       "t": 1072432,
+       "entity": "U2575@DOM1"
+      },
+      {
+       "t": 1072594,
+       "entity": "U218@DOM1"
+      },
+      {
+       "t": 1072660,
+       "entity": "U3277@C2519"
+      },
+      {
+       "t": 1074519,
+       "entity": "U218@DOM1"
+      },
+      {
+       "t": 1075076,
+       "entity": "U162@DOM1"
+      },
+      {
+       "t": 1075114,
+       "entity": "U453@DOM1"
+      },
+      {
+       "t": 1075158,
+       "entity": "U1480@DOM1"
+      },
+      {
+       "t": 1075526,
+       "entity": "U9263@DOM1"
+      },
+      {
+       "t": 1075884,
+       "entity": "U20@DOM1"
+      },
+      {
+       "t": 1076662,
+       "entity": "U1480@DOM1"
+      },
+      {
+       "t": 1076742,
+       "entity": "U453@DOM1"
+      },
+      {
+       "t": 1080926,
+       "entity": "U66@DOM1"
+      },
+      {
+       "t": 1086678,
+       "entity": "U78@DOM1"
+      },
+      {
+       "t": 1087158,
+       "entity": "U3005@DOM1"
+      },
+      {
+       "t": 1089603,
+       "entity": "U9263@DOM1"
+      },
+      {
+       "t": 1096446,
+       "entity": "U2575@DOM1"
+      },
+      {
+       "t": 1163160,
+       "entity": "U66@DOM1"
+      },
+      {
+       "t": 1178955,
+       "entity": "U9263@DOM1"
+      },
+      {
+       "t": 1179675,
+       "entity": "U4448@DOM1"
+      }
+     ],
+     "events_named": true
+    }
+   },
+   "red_score_percentiles": {
+    "median": 2.864238308387377,
+    "p90": 4.785459253286321,
+    "p99": 15.355265054799718
+   },
+   "sample_score_percentiles": {
+    "median": 1.2009613444004297,
+    "p90": 2.17460548574935,
+    "p99": 5.661746491941044
+   },
+   "wall_seconds": 5.526755582999613
+  },
+  "rrcf": {
+   "scope": "population",
+   "family": "isolation",
+   "detections_at_budget": {
+    "budget_10_per_day": {
+     "detections": 0,
+     "red_team_total": 549,
+     "per_day_detections": {
+      "7": 0,
+      "8": 0,
+      "9": 0,
+      "12": 0,
+      "13": 0
+     },
+     "detected_events": [],
+     "events_named": true
+    },
+    "budget_50_per_day": {
+     "detections": 0,
+     "red_team_total": 549,
+     "per_day_detections": {
+      "7": 0,
+      "8": 0,
+      "9": 0,
+      "12": 0,
+      "13": 0
+     },
+     "detected_events": [],
+     "events_named": true
+    },
+    "budget_100_per_day": {
+     "detections": 0,
+     "red_team_total": 549,
+     "per_day_detections": {
+      "7": 0,
+      "8": 0,
+      "9": 0,
+      "12": 0,
+      "13": 0
+     },
+     "detected_events": [],
+     "events_named": true
+    },
+    "budget_250_per_day": {
+     "detections": 0,
+     "red_team_total": 549,
+     "per_day_detections": {
+      "7": 0,
+      "8": 0,
+      "9": 0,
+      "12": 0,
+      "13": 0
+     },
+     "detected_events": [],
+     "events_named": true
+    },
+    "budget_500_per_day": {
+     "detections": 0,
+     "red_team_total": 549,
+     "per_day_detections": {
+      "7": 0,
+      "8": 0,
+      "9": 0,
+      "12": 0,
+      "13": 0
+     },
+     "detected_events": [],
+     "events_named": true
+    },
+    "budget_1000_per_day": {
+     "detections": 0,
+     "red_team_total": 549,
+     "per_day_detections": {
+      "7": 0,
+      "8": 0,
+      "9": 0,
+      "12": 0,
+      "13": 0
+     },
+     "detected_events": [],
+     "events_named": true
+    },
+    "budget_5000_per_day": {
+     "detections": 1,
+     "red_team_total": 549,
+     "per_day_detections": {
+      "7": 0,
+      "8": 0,
+      "9": 0,
+      "12": 0,
+      "13": 1
+     },
+     "detected_events": [
+      {
+       "t": 1166320,
+       "entity": "U66@DOM1"
+      }
+     ],
+     "events_named": true
+    },
+    "budget_10000_per_day": {
+     "detections": 5,
+     "red_team_total": 549,
+     "per_day_detections": {
+      "7": 0,
+      "8": 4,
+      "9": 0,
+      "12": 0,
+      "13": 1
+     },
+     "detected_events": [
+      {
+       "t": 725983,
+       "entity": "U293@DOM1"
+      },
+      {
+       "t": 739214,
+       "entity": "U293@DOM1"
+      },
+      {
+       "t": 746860,
+       "entity": "U9947@DOM1"
+      },
+      {
+       "t": 748806,
+       "entity": "U9947@DOM1"
+      },
+      {
+       "t": 1166320,
+       "entity": "U66@DOM1"
+      }
+     ],
+     "events_named": true
+    }
+   },
+   "red_score_percentiles": {
+    "median": 5.706538643927756,
+    "p90": 9.513112355080978,
+    "p99": 16.460903251153304
+   },
+   "sample_score_percentiles": {
+    "median": 4.707111766563839,
+    "p90": 9.226649383100874,
+    "p99": 22.040798114018287
+   },
+   "wall_seconds": 938.917503292003
+  }
+ },
+ "caveats": [
+  "the export is a uniform sample over EVENTS, so every entity's history is decimated at the same rate. The population models are unaffected \u2014 they hold no per-entity state \u2014 but entity_ewma is handicapped by it, and a poor showing here is not evidence against the per-entity framing. Re-run against an entity-sampled export (cmd/subset -entity-sample, then cmd/features -sample-mod 1) before reading its number"
+ ],
+ "provenance_complete": true,
+ "note": "baselines are not part of the framework and are not held to R2/R4 (\u00a712.4). Detector IV is a population-marginal estimator, NOT an isolation forest: the \u00a712.4 comparison is between independent models, not framework-against-its-own-component. The category census is the sharper statement of why they differ \u2014 no labelled event is a population-marginal outlier, which is a property of the attacks rather than of any model. Seven of the eight models here are population-scope and share that blind spot by construction; entity_ewma is the one that does not, and it is the baseline the framework has to beat to show that its calibration machinery earns its place above the per-entity framing alone"
+}

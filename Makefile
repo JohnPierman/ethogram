@@ -237,6 +237,30 @@ replay-inj:
 analyse-r11:
 	$(GO) run ./cmd/analyse -run $(RESULTS)/lanl-r11-b1000-conf-d7-14.json -out $(RESULTS)/analysis-r11-b1000-conf.json -run-id analysis-r11-b1000-conf-003 -budgets 10,100,1000 -value-ratio 10
 
+# Section 1.1's figure: one line per detector through its own operating points, across the
+# whole budget range.
+#
+# The framework run it reads is deliberately NOT in results/. Answering a budget of 10,000
+# needs -topk 10000, and a result file that retains ten thousand alerts a day for every arm
+# is about 46 MB -- an intermediate on the scale of the alert ledger, which this repository
+# already keeps out of results/ for the same reason. What IS committed is the compact curve
+# file this target derives, which carries every plotted point with its provenance, and the
+# SVG the paper embeds.
+#
+# Regenerating the SVG changes docs/paper.html, so `make paper` must follow. `paper-check`
+# is what catches forgetting.
+CURVE_RUN       ?= /tmp/r11-curve-b10000.json
+CURVE_BASELINES ?= $(RESULTS)/baselines-r11-d7-14-full.json
+CURVE_ARMS      ?= novelty,composite
+CURVE_SVG       ?= $(ROOT)/cmd/thesis/figures/budget-curve.svg
+
+.PHONY: figure-budget-curve
+figure-budget-curve:
+	$(GO) run ./cmd/budgetcurve -run $(CURVE_RUN) -baselines $(CURVE_BASELINES) \
+	  -out $(RESULTS)/budget-curve-r11-d7-14.json -svg $(CURVE_SVG) \
+	  -run-id budget-curve-r11-d7-14-001 -arms $(CURVE_ARMS)
+	@echo "regenerated $(CURVE_SVG); run 'make paper' so the rendered page follows"
+
 # The interactive dashboard. It reads the same results directory and embeds a distilled
 # index, so a new run appears on it without any edit here.
 #

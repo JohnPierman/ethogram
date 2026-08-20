@@ -231,79 +231,98 @@ approximately 6,000 false alerts a day against 78 real ones. This is Axelsson&#3
 argument [1] applied to our own data, and its usual consequence is that the binding constraint
 is the suppression of false alarms rather than the recognition of intrusions.</p>
 <figure class="fig">
-<svg viewBox="0 0 720 300" role="img" class="figsvg"
- aria-label="To make half of alerts real at this corpus's base rate of 1.3 in 100000, a detector needs a false-alarm rate near 1e-5. Published detectors operate between 1e-2 and 1e-3, two to three orders of magnitude away. This framework operates at 1.4e-5 at ten alerts a day, below the rate the arithmetic requires, and at 1.6e-3 at a thousand alerts a day, inside the published band.">
+<svg viewBox="0 0 720 380" role="img" class="figsvg"
+ aria-label="this framework, novelty arm reaches at most 387 of the labelled events; this framework, composite reaches at most 416 of the labelled events; entity_ewma reaches at most 82 of the labelled events; hst reaches at most 1 of the labelled events; lof reaches at most 140 of the labelled events; ocsvm reaches at most 4 of the labelled events.">
 <g font-size="12" fill="currentColor">
-
-<text x="0" y="14" font-size="11">false-alarm rate needed for a given share of alerts to be real, at this corpus's base rate</text>
-
-<line x1="70" y1="240" x2="690" y2="240" stroke="currentColor" opacity="0.45"/>
-<line x1="70" y1="40" x2="70" y2="240" stroke="currentColor" opacity="0.45"/>
-
-<g font-size="9" opacity="0.65" text-anchor="end">
-<text x="64" y="64">10&#8315;&#178;</text>
-<text x="64" y="112">10&#8315;&#179;</text>
-<text x="64" y="160">10&#8315;&#8308;</text>
-<text x="64" y="208">10&#8315;&#8309;</text>
+<text x="0" y="14" font-size="11">share of alerts that are real against false-alarm rate, one line per detector, across alert budgets of 10 to 10000 alerts a day</text>
+<line x1="96" y1="288" x2="604" y2="288" stroke="currentColor" opacity="0.45"/>
+<line x1="96" y1="44" x2="96" y2="288" stroke="currentColor" opacity="0.45"/>
+<line x1="74" y1="288" x2="74" y2="44" stroke="currentColor" opacity="0.45" stroke-dasharray="2 2"/>
+<text x="74" y="304" font-size="9" opacity="0.7" text-anchor="middle">0</text>
+<text x="74" y="316" font-size="8.5" opacity="0.55" text-anchor="middle">no detections</text>
+<g font-size="9" opacity="0.65">
+<line x1="96.0" y1="44" x2="96.0" y2="288" stroke="currentColor" opacity="0.18"/>
+<text x="96.0" y="304" text-anchor="middle">10&#8315;&#8309;</text>
+<line x1="197.6" y1="44" x2="197.6" y2="288" stroke="currentColor" opacity="0.18"/>
+<text x="197.6" y="304" text-anchor="middle">10&#8315;&#8308;</text>
+<line x1="299.2" y1="44" x2="299.2" y2="288" stroke="currentColor" opacity="0.18"/>
+<text x="299.2" y="304" text-anchor="middle">10&#8315;&#179;</text>
+<line x1="400.8" y1="44" x2="400.8" y2="288" stroke="currentColor" opacity="0.18"/>
+<text x="400.8" y="304" text-anchor="middle">10&#8315;&#178;</text>
+<line x1="502.4" y1="44" x2="502.4" y2="288" stroke="currentColor" opacity="0.18"/>
+<text x="502.4" y="304" text-anchor="middle">10&#8315;&#185;</text>
+<line x1="604.0" y1="44" x2="604.0" y2="288" stroke="currentColor" opacity="0.18"/>
+<text x="604.0" y="304" text-anchor="middle">1</text>
+<line x1="96" y1="288.0" x2="604" y2="288.0" stroke="currentColor" opacity="0.18"/>
+<text x="88" y="291.0" text-anchor="end">10&#8315;&#8309;</text>
+<line x1="96" y1="227.0" x2="604" y2="227.0" stroke="currentColor" opacity="0.18"/>
+<text x="88" y="230.0" text-anchor="end">10&#8315;&#8308;</text>
+<line x1="96" y1="166.0" x2="604" y2="166.0" stroke="currentColor" opacity="0.18"/>
+<text x="88" y="169.0" text-anchor="end">10&#8315;&#179;</text>
+<line x1="96" y1="105.0" x2="604" y2="105.0" stroke="currentColor" opacity="0.18"/>
+<text x="88" y="108.0" text-anchor="end">10&#8315;&#178;</text>
+<line x1="96" y1="44.0" x2="604" y2="44.0" stroke="currentColor" opacity="0.18"/>
+<text x="88" y="47.0" text-anchor="end">10&#8315;&#185;</text>
 </g>
-<text x="20" y="150" font-size="10" opacity="0.7" transform="rotate(-90 20 150)" text-anchor="middle">false-alarm rate</text>
-
-<rect x="70" y="56" width="620" height="56" fill="var(--fig-b)" opacity="0.16"/>
-<text x="80" y="80" font-size="11" fill="var(--fig-b)">where published detectors actually operate</text>
-<text x="80" y="98" font-size="10" fill="var(--fig-b)">at 10&#8315;&#179; this corpus yields ~6,000 false alerts a day against 78 real ones</text>
-
-<polyline points="140,232 260,208 380,190 500,166 620,140" fill="none" stroke="var(--fig-a)" stroke-width="2"/>
-<g fill="var(--fig-a)">
-<circle cx="140" cy="232" r="4.5"/><circle cx="260" cy="208" r="4.5"/><circle cx="380" cy="190" r="4.5"/>
-<circle cx="500" cy="166" r="4.5"/><circle cx="620" cy="140" r="4.5"/>
+<text x="350" y="332" font-size="10" opacity="0.7" text-anchor="middle">share of alerts that are real</text>
+<text x="24" y="166" font-size="10" opacity="0.7" transform="rotate(-90 24 166)" text-anchor="middle">false-alarm rate</text>
+<polyline points="74.0,274.4 345.5,231.8 345.5,213.5 305.1,189.2 274.5,170.8 319.1,152.4 302.8,109.8 306.2,91.4" fill="none" stroke="currentColor" stroke-width="1.4" stroke-dasharray="1 0" opacity="0.7"/>
+<g fill="currentColor" opacity="0.7">
+<circle cx="74.0" cy="274.4" r="2.6"/><circle cx="345.5" cy="231.8" r="2.6"/><circle cx="345.5" cy="213.5" r="2.6"/><circle cx="305.1" cy="189.2" r="2.6"/><circle cx="274.5" cy="170.8" r="2.6"/><circle cx="319.1" cy="152.4" r="2.6"/><circle cx="302.8" cy="109.8" r="2.6"/><circle cx="306.2" cy="91.4" r="2.6"/>
 </g>
-<g font-size="9" opacity="0.75" text-anchor="middle">
-<text x="140" y="258">90%</text><text x="260" y="258">50%</text><text x="380" y="258">25%</text><text x="500" y="258">10%</text><text x="620" y="258">5%</text>
+<text x="314.2" y="94.4" font-size="10" fill="currentColor" font-weight="400" opacity="0.7">entity_ewma</text>
+<polyline points="74.0,274.4 74.0,231.8 74.0,213.4 74.0,189.1 74.0,170.8 74.0,152.4 74.0,109.8 111.7,91.4" fill="none" stroke="currentColor" stroke-width="1.4" stroke-dasharray="5 3" opacity="0.7"/>
+<g fill="currentColor" opacity="0.7">
+<circle cx="74.0" cy="274.4" r="2.6"/><circle cx="74.0" cy="231.8" r="2.6"/><circle cx="74.0" cy="213.4" r="2.6"/><circle cx="74.0" cy="189.1" r="2.6"/><circle cx="74.0" cy="170.8" r="2.6"/><circle cx="74.0" cy="152.4" r="2.6"/><circle cx="74.0" cy="109.8" r="2.6"/><circle cx="111.7" cy="91.4" r="2.6"/>
 </g>
-<text x="380" y="278" font-size="10" opacity="0.7" text-anchor="middle">share of alerts that are real</text>
-
-<line x1="260" y1="112" x2="260" y2="208" stroke="var(--fig-a)" stroke-width="1.5" stroke-dasharray="4 3"/>
-<text x="272" y="130" font-size="11" fill="var(--fig-a)">half the queue real needs 1.3&#215;10&#8315;&#8309;</text>
-<text x="272" y="148" font-size="10" fill="var(--fig-a)">— about two orders of magnitude below the shaded band</text>
-
-<rect x="70" y="102" width="620" height="99" fill="currentColor" opacity="0.07"/>
-<line x1="70" y1="201" x2="690" y2="201" stroke="currentColor" stroke-width="2"/>
-<text x="686" y="196" font-size="10.5" text-anchor="end">this framework at 10 alerts/day: &#945; = 1.4&#215;10&#8315;&#8309;</text>
-<line x1="70" y1="102" x2="690" y2="102" stroke="currentColor" stroke-width="1.5" stroke-dasharray="5 4"/>
-<text x="686" y="118" font-size="10.5" text-anchor="end">and at 1000 alerts/day: &#945; = 1.6&#215;10&#8315;&#179;</text>
-<text x="76" y="216" font-size="9.5" opacity="0.75">the band its budgets span</text>
-
+<text x="119.7" y="94.4" font-size="10" fill="currentColor" font-weight="400" opacity="0.7">hst</text>
+<polyline points="74.0,274.4 74.0,231.8 74.0,213.4 74.0,189.1 243.9,170.8 314.9,152.4 339.9,109.8 329.8,91.5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-dasharray="2 3" opacity="0.7"/>
+<g fill="currentColor" opacity="0.7">
+<circle cx="74.0" cy="274.4" r="2.6"/><circle cx="74.0" cy="231.8" r="2.6"/><circle cx="74.0" cy="213.4" r="2.6"/><circle cx="74.0" cy="189.1" r="2.6"/><circle cx="243.9" cy="170.8" r="2.6"/><circle cx="314.9" cy="152.4" r="2.6"/><circle cx="339.9" cy="109.8" r="2.6"/><circle cx="329.8" cy="91.5" r="2.6"/>
+</g>
+<text x="337.8" y="94.5" font-size="10" fill="currentColor" font-weight="400" opacity="0.7">lof</text>
+<polyline points="74.0,274.4 74.0,231.8 74.0,213.4 74.0,189.1 74.0,170.8 74.0,152.4 142.3,109.8 172.9,91.4" fill="none" stroke="currentColor" stroke-width="1.4" stroke-dasharray="8 3 2 3" opacity="0.7"/>
+<g fill="currentColor" opacity="0.7">
+<circle cx="74.0" cy="274.4" r="2.6"/><circle cx="74.0" cy="231.8" r="2.6"/><circle cx="74.0" cy="213.4" r="2.6"/><circle cx="74.0" cy="189.1" r="2.6"/><circle cx="74.0" cy="170.8" r="2.6"/><circle cx="74.0" cy="152.4" r="2.6"/><circle cx="142.3" cy="109.8" r="2.6"/><circle cx="172.9" cy="91.4" r="2.6"/>
+</g>
+<text x="180.9" y="94.4" font-size="10" fill="currentColor" font-weight="400" opacity="0.7">ocsvm</text>
+<polyline points="522.3,278.9 506.0,234.8 495.6,215.8 476.4,190.6 453.3,171.7 447.3,153.2 399.8,110.0 374.6,91.6" fill="none" stroke="var(--fig-a)" stroke-width="2.6" stroke-dasharray="1 0" opacity="1"/>
+<g fill="var(--fig-a)" opacity="1">
+<circle cx="522.3" cy="278.9" r="3.6"/><circle cx="506.0" cy="234.8" r="3.6"/><circle cx="495.6" cy="215.8" r="3.6"/><circle cx="476.4" cy="190.6" r="3.6"/><circle cx="453.3" cy="171.7" r="3.6"/><circle cx="447.3" cy="153.2" r="3.6"/><circle cx="399.8" cy="110.0" r="3.6"/><circle cx="374.6" cy="91.6" r="3.6"/>
+</g>
+<text x="382.6" y="94.6" font-size="10" fill="var(--fig-a)" font-weight="600" opacity="1">this framework, novelty arm</text>
+<polyline points="74.0,274.4 74.0,231.8 394.0,213.6 414.7,189.5 430.7,171.3 421.9,152.8 400.0,110.0 377.8,91.6" fill="none" stroke="var(--fig-a)" stroke-width="2.6" stroke-dasharray="1 0" opacity="1"/>
+<g fill="var(--fig-a)" opacity="1">
+<circle cx="74.0" cy="274.4" r="3.6"/><circle cx="74.0" cy="231.8" r="3.6"/><circle cx="394.0" cy="213.6" r="3.6"/><circle cx="414.7" cy="189.5" r="3.6"/><circle cx="430.7" cy="171.3" r="3.6"/><circle cx="421.9" cy="152.8" r="3.6"/><circle cx="400.0" cy="110.0" r="3.6"/><circle cx="377.8" cy="91.6" r="3.6"/>
+</g>
+<text x="385.8" y="94.6" font-size="10" fill="var(--fig-a)" font-weight="600" opacity="1">this framework, composite</text>
+<text x="522.3" y="270.9" font-size="8.5" fill="var(--fig-a)" opacity="0.85" text-anchor="middle">10/day</text>
+<text x="447.3" y="145.2" font-size="8.5" fill="var(--fig-a)" opacity="0.85" text-anchor="middle">1000/day</text>
+<text x="374.6" y="83.6" font-size="8.5" fill="var(--fig-a)" opacity="0.85" text-anchor="middle">10000/day</text>
+<text x="74.0" y="266.4" font-size="8.5" fill="var(--fig-a)" opacity="0.85" text-anchor="middle">10/day</text>
+<text x="421.9" y="144.8" font-size="8.5" fill="var(--fig-a)" opacity="0.85" text-anchor="middle">1000/day</text>
+<text x="377.8" y="83.6" font-size="8.5" fill="var(--fig-a)" opacity="0.85" text-anchor="middle">10000/day</text>
 </g>
 </svg>
-<figcaption><strong>The base rate, not the model, sets the ceiling.</strong> Over the scored
-window this corpus carries 549 labelled events among 42,218,530 — one in 76,901. Inverting
-the arithmetic for a desired precision gives the false-alarm rate a detector would have to
-achieve, and it lands two to three orders of magnitude below where published detectors
-operate. Two consequences follow: "everything suspicious and nothing else" is not
-attainable here by any known method, and even a perfect detector still yields 87 alerts a
-day, because 78 genuinely suspicious events happen daily. What an operator can choose is the
-error rate; the volume follows from it.
+<figcaption><strong>The comparison is a function of the budget, not a point.</strong> Every line is measured on the same slice: 4,190,603 scored events over 7 days, of which 549 are labelled, a base rate of one in 7,633. Each point is one detector at one alert budget: the share of its own queue that is real on the horizontal axis, and the rate at which it alarms on a background event on the vertical. A detector that found nothing at a budget is drawn in the column marked 0 rather than omitted, so a flat line at zero reads as measured rather than as missing.
 <br><br>
-The two horizontal rules mark where this framework actually operates, measured on the
-<code>r11</code> subset, and the band between them is what its alert budget spans. At 10 alerts a day
-its false-alarm rate is &#945;&nbsp;=&nbsp;1.4&#215;10&#8315;&#8309; &#8212; the order the
-arithmetic asks for, and two orders of magnitude below where published detectors sit. At
-1000 a day it is 1.6&#215;10&#8315;&#179;, inside the shaded band.
+At 10 alerts a day this framework's queue is 0.0% real at a false-alarm rate of 1.7&#215;10&#8315;&#8309;; at 10000 a day it is 0.59% real at 1.7&#215;10&#8315;&#178;. The baselines are the strongest available comparators rather than a representative sample: they are the four of eight measured reference implementations with the most detections summed over the budget range, so the comparison is not flattered by the choice. The four not drawn were run on the same events and reached too little to plot: eif (none at any budget), iforest (none at any budget), pca (none at any budget) and rrcf (one, at the widest budget).
 <br><br>
-<em>The rules are deliberately not points on the curve.</em> The curve inverts the identity
-for a detector that misses nothing; this one misses most, with recall of 2.0% at the tighter
-operating point, and its queue is 15.7% real rather than the large majority that perfect
-recall at that rate would give. The reading is therefore the opposite of the usual one:
-suppressing false alarms to the rate the base rate demands is not this framework's binding
-constraint, because it already achieves it. Recall is.</figcaption>
+<em>Both axes are upper bounds on the framework's disadvantage and lower bounds on its precision.</em> The corpus has no true negative class, so an unlabelled alert on genuine but unrecorded malicious activity counts as a false alarm (§12.5). The baselines read a fixed-length numeric vector per event with no per-entity state, which is the standard formulation this work argues against, and they are not held to R2 or R4 (§12.4).</figcaption>
 </figure>
-<p>The figure inverts that identity for a detector which misses nothing, and marks where this
-framework&#39;s own operating points fall. Both lie well below where published detectors operate
-— one of them by two orders of magnitude — and both lie far from the curve, because the
-framework&#39;s recall is 2.0% to 36.6% rather than 1. The consequence is worth stating at the
-outset, because it inverts the usual reading: suppressing false alarms to the rate the base
-rate demands is not this framework&#39;s binding constraint, since it already achieves that rate.
-Recall is.</p>
+<p>The figure measures that trade-off across the operating range rather than asserting it at one
+point. Each line is one detector as the budget rises from 10 to 10,000 alerts a day: the share
+of its queue that is real against the rate at which it alarms on a background event. The
+comparators are the strongest four of eight reference implementations run on the same events.</p>
+<p>Two readings, and the second is not in this framework&#39;s favour. Its per-entity novelty arm
+reaches labelled events at every budget, 11 at 10 alerts a day where every comparator reaches
+none; its own combined verdict does not: at 50 alerts a day it reaches none where a per-entity
+moving average reaches one, which is section 5.4&#39;s finding arrived at from the other
+direction. The subset
+measured here carries a base rate of one in 7,633, ten times the full corpus&#39;s, so every
+precision on the figure is easier than the arithmetic above demands. The conclusion is
+unchanged: suppressing false alarms to the rate the base rate demands is not this framework&#39;s
+binding constraint, because it already achieves it. Recall is.</p>
 <p>The second is that the consumer of the output is a person with a fixed working day. A
 security operations centre triages a bounded number of alerts per shift because each costs a
 human minutes to hours. That bound is a staffing constant, not a tuning parameter, which is

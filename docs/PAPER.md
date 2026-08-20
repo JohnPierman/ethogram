@@ -69,15 +69,22 @@ approximately 6,000 false alerts a day against 78 real ones. This is Axelsson's 
 argument [1] applied to our own data, and its usual consequence is that the binding constraint
 is the suppression of false alarms rather than the recognition of intrusions.
 
-<!-- figure: base-rate -->
+<!-- figure: budget-curve -->
 
-The figure inverts that identity for a detector which misses nothing, and marks where this
-framework's own operating points fall. Both lie well below where published detectors operate
-— one of them by two orders of magnitude — and both lie far from the curve, because the
-framework's recall is 2.0% to 36.6% rather than 1. The consequence is worth stating at the
-outset, because it inverts the usual reading: suppressing false alarms to the rate the base
-rate demands is not this framework's binding constraint, since it already achieves that rate.
-Recall is.
+The figure measures that trade-off across the operating range rather than asserting it at one
+point. Each line is one detector as the budget rises from 10 to 10,000 alerts a day: the share
+of its queue that is real against the rate at which it alarms on a background event. The
+comparators are the strongest four of eight reference implementations run on the same events.
+
+Two readings, and the second is not in this framework's favour. Its per-entity novelty arm
+reaches labelled events at every budget, 11 at 10 alerts a day where every comparator reaches
+none; its own combined verdict does not: at 50 alerts a day it reaches none where a per-entity
+moving average reaches one, which is section 5.4's finding arrived at from the other
+direction. The subset
+measured here carries a base rate of one in 7,633, ten times the full corpus's, so every
+precision on the figure is easier than the arithmetic above demands. The conclusion is
+unchanged: suppressing false alarms to the rate the base rate demands is not this framework's
+binding constraint, because it already achieves it. Recall is.
 
 The second is that the consumer of the output is a person with a fixed working day. A
 security operations centre triages a bounded number of alerts per shift because each costs a
