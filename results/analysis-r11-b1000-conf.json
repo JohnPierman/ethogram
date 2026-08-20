@@ -20,7 +20,7 @@
     "sha256": "77d2897145ce4fd1d66e2534ae4a8e52310ea4f915edc6c6750d8d826131961f"
    },
    {
-    "path": "/Users/john/Documents/GitHub/ethogram/data/lanl/redteam.txt.gz",
+    "path": "data/lanl/redteam.txt.gz",
     "sha256": "606635837c684ad11e464075ecf97bc5df325ff7d7f64614d2d8c8af18051669"
    }
   ],
@@ -407,81 +407,81 @@
     "group": "per-entity detector",
     "budget_per_day": 10,
     "alerts": 70,
-    "true_positives": 0,
-    "false_positives": 70,
-    "red_team_scored": 549,
+    "true_positives": 1,
+    "false_positives": 69,
+    "red_team_scored": 532,
     "scored_events": 4190603,
     "recall_wilson": {
-     "point": 0,
-     "low": 1.3981187101771616e-19,
-     "high": 0.0069485722523209776,
-     "n": 549,
+     "point": 0.0018796992481203006,
+     "low": 0.0003318901709330435,
+     "high": 0.010569578396934568,
+     "n": 532,
      "level": 0.95,
      "kind": "wilson"
     },
     "precision_wilson": {
-     "point": 0,
-     "low": 0,
-     "high": 0.05202306241026692,
+     "point": 0.014285714285714285,
+     "low": 0.002526246457890307,
+     "high": 0.07658187131208327,
      "n": 70,
      "level": 0.95,
      "kind": "wilson"
     },
-    "false_alarm_rate": 0.000016704039967517802
+    "false_alarm_rate": 0.000016465410825124688
    },
    {
     "arm": "timing",
     "group": "per-entity detector",
     "budget_per_day": 100,
     "alerts": 700,
-    "true_positives": 0,
-    "false_positives": 700,
-    "red_team_scored": 549,
+    "true_positives": 2,
+    "false_positives": 698,
+    "red_team_scored": 532,
     "scored_events": 4190603,
     "recall_wilson": {
-     "point": 0,
-     "low": 1.3981187101771616e-19,
-     "high": 0.0069485722523209776,
-     "n": 549,
+     "point": 0.0037593984962406013,
+     "low": 0.001031568791516347,
+     "high": 0.013602347064774407,
+     "n": 532,
      "level": 0.95,
      "kind": "wilson"
     },
     "precision_wilson": {
-     "point": 0,
-     "low": 0,
-     "high": 0.005457846753060832,
+     "point": 0.002857142857142857,
+     "low": 0.0007838816213942033,
+     "high": 0.010357063150220568,
      "n": 700,
      "level": 0.95,
      "kind": "wilson"
     },
-    "false_alarm_rate": 0.00016704039967517802
+    "false_alarm_rate": 0.0001665631413903918
    },
    {
     "arm": "timing",
     "group": "per-entity detector",
     "budget_per_day": 1000,
     "alerts": 7000,
-    "true_positives": 6,
-    "false_positives": 6994,
-    "red_team_scored": 549,
+    "true_positives": 7,
+    "false_positives": 6993,
+    "red_team_scored": 532,
     "scored_events": 4190603,
     "recall_wilson": {
-     "point": 0.01092896174863388,
-     "low": 0.00501819986175193,
-     "high": 0.02363641452713034,
-     "n": 549,
+     "point": 0.013157894736842105,
+     "low": 0.006387987474728852,
+     "high": 0.02690816482367761,
+     "n": 532,
      "level": 0.95,
      "kind": "wilson"
     },
     "precision_wilson": {
-     "point": 0.0008571428571428571,
-     "low": 0.0003928936011843515,
-     "high": 0.0018689307010695585,
+     "point": 0.001,
+     "low": 0.0004844906553167263,
+     "high": 0.0020628912244122113,
      "n": 7000,
      "level": 0.95,
      "kind": "wilson"
     },
-    "false_alarm_rate": 0.0016689722218974213
+    "false_alarm_rate": 0.0016687335927550284
    },
    {
     "arm": "volume",
@@ -623,27 +623,27 @@
     "group": "combination",
     "budget_per_day": 1000,
     "alerts": 7000,
-    "true_positives": 161,
-    "false_positives": 6839,
+    "true_positives": 162,
+    "false_positives": 6838,
     "red_team_scored": 549,
     "scored_events": 4190603,
     "recall_wilson": {
-     "point": 0.29326047358834245,
-     "low": 0.2567204966136588,
-     "high": 0.3326735396363902,
+     "point": 0.29508196721311475,
+     "low": 0.25846127268228003,
+     "high": 0.33455043725719585,
      "n": 549,
      "level": 0.95,
      "kind": "wilson"
     },
     "precision_wilson": {
-     "point": 0.023,
-     "low": 0.01974121032683915,
-     "high": 0.02678203848404402,
+     "point": 0.023142857142857142,
+     "low": 0.019873395840895598,
+     "high": 0.026935410547462603,
      "n": 7000,
      "level": 0.95,
      "kind": "wilson"
     },
-    "false_alarm_rate": 0.0016319847048264892
+    "false_alarm_rate": 0.001631746075684096
    },
    {
     "arm": "composite",
@@ -704,216 +704,216 @@
     "group": "combination",
     "budget_per_day": 1000,
     "alerts": 7000,
-    "true_positives": 112,
-    "false_positives": 6888,
+    "true_positives": 113,
+    "false_positives": 6887,
     "red_team_scored": 549,
     "scored_events": 4190603,
     "recall_wilson": {
-     "point": 0.2040072859744991,
-     "low": 0.17240993344981392,
-     "high": 0.23971809201831787,
+     "point": 0.2058287795992714,
+     "low": 0.17410874549315256,
+     "high": 0.2416369536644061,
      "n": 549,
      "level": 0.95,
      "kind": "wilson"
     },
     "precision_wilson": {
-     "point": 0.016,
-     "low": 0.013314917736220839,
-     "high": 0.019216009778385987,
+     "point": 0.016142857142857143,
+     "low": 0.01344488029638887,
+     "high": 0.01937160479569298,
      "n": 7000,
      "level": 0.95,
      "kind": "wilson"
     },
-    "false_alarm_rate": 0.0016436775328037517
+    "false_alarm_rate": 0.0016434389036613585
    },
    {
     "arm": "union, per-entity arms (equal cost)",
     "group": "combination",
     "budget_per_day": 10,
     "alerts": 70,
-    "true_positives": 2,
-    "false_positives": 68,
+    "true_positives": 3,
+    "false_positives": 67,
     "red_team_scored": 549,
     "scored_events": 4190603,
     "recall_wilson": {
-     "point": 0.0036429872495446266,
-     "low": 0.0009996076505930603,
-     "high": 0.01318431198058168,
+     "point": 0.00546448087431694,
+     "low": 0.0018601206870768718,
+     "high": 0.01594147263352475,
      "n": 549,
      "level": 0.95,
      "kind": "wilson"
     },
     "precision_wilson": {
-     "point": 0.02857142857142857,
-     "low": 0.007870611945441227,
-     "high": 0.09832256118423902,
+     "point": 0.04285714285714286,
+     "low": 0.014681541004111398,
+     "high": 0.1185966874852755,
      "n": 70,
      "level": 0.95,
      "kind": "wilson"
     },
-    "false_alarm_rate": 0.000016226781682731578
+    "false_alarm_rate": 0.000015988152540338467
    },
    {
     "arm": "union, per-entity arms (equal cost)",
     "group": "combination",
     "budget_per_day": 100,
     "alerts": 700,
-    "true_positives": 27,
-    "false_positives": 673,
+    "true_positives": 28,
+    "false_positives": 672,
     "red_team_scored": 549,
     "scored_events": 4190603,
     "recall_wilson": {
-     "point": 0.04918032786885246,
-     "low": 0.034016995978622545,
-     "high": 0.07060876588822425,
+     "point": 0.051001821493624776,
+     "low": 0.03551932365717397,
+     "high": 0.0727241118990997,
      "n": 549,
      "level": 0.95,
      "kind": "wilson"
     },
     "precision_wilson": {
-     "point": 0.03857142857142857,
-     "low": 0.026642019326559328,
-     "high": 0.05553765067697967,
+     "point": 0.04,
+     "low": 0.02781760180167979,
+     "high": 0.05720361721113618,
      "n": 700,
      "level": 0.95,
      "kind": "wilson"
     },
-    "false_alarm_rate": 0.000160597412830564
+    "false_alarm_rate": 0.0001603587836881709
    },
    {
     "arm": "union, per-entity arms (equal cost)",
     "group": "combination",
     "budget_per_day": 1000,
     "alerts": 7000,
-    "true_positives": 106,
-    "false_positives": 6894,
+    "true_positives": 107,
+    "false_positives": 6893,
     "red_team_scored": 549,
     "scored_events": 4190603,
     "recall_wilson": {
-     "point": 0.1930783242258652,
-     "low": 0.16223934522584602,
-     "high": 0.22818263810572445,
+     "point": 0.19489981785063754,
+     "low": 0.16393173594238672,
+     "high": 0.23010792107861067,
      "n": 549,
      "level": 0.95,
      "kind": "wilson"
     },
     "precision_wilson": {
-     "point": 0.015142857142857144,
-     "low": 0.012536424760830207,
-     "high": 0.018281157288926455,
+     "point": 0.015285714285714286,
+     "low": 0.012666016798567605,
+     "high": 0.018437122828664082,
      "n": 7000,
      "level": 0.95,
      "kind": "wilson"
     },
-    "false_alarm_rate": 0.0016451093076581102
+    "false_alarm_rate": 0.0016448706785157172
    },
    {
     "arm": "union, per-entity arms (equal depth)",
     "group": "combination",
     "budget_per_day": 10,
     "alerts": 307,
-    "true_positives": 11,
-    "false_positives": 296,
+    "true_positives": 12,
+    "false_positives": 295,
     "red_team_scored": 549,
     "scored_events": 4190603,
     "recall_wilson": {
-     "point": 0.020036429872495445,
-     "low": 0.011224160327876539,
-     "high": 0.03551882250814014,
+     "point": 0.02185792349726776,
+     "low": 0.012547041953570148,
+     "high": 0.03781361457187341,
      "n": 549,
      "level": 0.95,
      "kind": "wilson"
     },
     "precision_wilson": {
-     "point": 0.035830618892508145,
-     "low": 0.020122981861902218,
-     "high": 0.06301090548611889,
+     "point": 0.03908794788273615,
+     "low": 0.022498992317083636,
+     "high": 0.0670690431898987,
      "n": 307,
      "level": 0.95,
      "kind": "wilson"
     },
-    "false_alarm_rate": 0.00007063422614836099
+    "false_alarm_rate": 0.00007039559700596787
    },
    {
     "arm": "union, per-entity arms (equal depth)",
     "group": "combination",
     "budget_per_day": 100,
-    "alerts": 2739,
-    "true_positives": 74,
-    "false_positives": 2665,
+    "alerts": 2740,
+    "true_positives": 76,
+    "false_positives": 2664,
     "red_team_scored": 549,
     "scored_events": 4190603,
     "recall_wilson": {
-     "point": 0.13479052823315119,
-     "low": 0.10874856033984105,
-     "high": 0.1659078649300692,
+     "point": 0.1384335154826958,
+     "low": 0.11204837817412541,
+     "high": 0.1698433944746386,
      "n": 549,
      "level": 0.95,
      "kind": "wilson"
     },
     "precision_wilson": {
-     "point": 0.02701715954728003,
-     "low": 0.021575892597029404,
-     "high": 0.033783289149472095,
-     "n": 2739,
+     "point": 0.027737226277372264,
+     "low": 0.02221836139228982,
+     "high": 0.0345784547355906,
+     "n": 2740,
      "level": 0.95,
      "kind": "wilson"
     },
-    "false_alarm_rate": 0.000635946664477642
+    "false_alarm_rate": 0.0006357080353352489
    },
    {
     "arm": "union, per-entity arms (equal depth)",
     "group": "combination",
     "budget_per_day": 1000,
-    "alerts": 25930,
-    "true_positives": 278,
-    "false_positives": 25652,
+    "alerts": 25816,
+    "true_positives": 279,
+    "false_positives": 25537,
     "red_team_scored": 549,
     "scored_events": 4190603,
     "recall_wilson": {
-     "point": 0.5063752276867031,
-     "low": 0.46465524526724666,
-     "high": 0.5480066126457473,
+     "point": 0.5081967213114754,
+     "low": 0.46646627952317515,
+     "high": 0.5498132520792458,
      "n": 549,
      "level": 0.95,
      "kind": "wilson"
     },
     "precision_wilson": {
-     "point": 0.010721172387196297,
-     "low": 0.009538137630940163,
-     "high": 0.012049156318922368,
-     "n": 25930,
+     "point": 0.010807251317012705,
+     "low": 0.009616777014245133,
+     "high": 0.012143289162642842,
+     "n": 25816,
      "level": 0.95,
      "kind": "wilson"
     },
-    "false_alarm_rate": 0.006121314760668095
+    "false_alarm_rate": 0.006093872409292887
    },
    {
     "arm": "union, all arms (equal cost)",
     "group": "combination",
     "budget_per_day": 10,
     "alerts": 70,
-    "true_positives": 2,
-    "false_positives": 68,
+    "true_positives": 3,
+    "false_positives": 67,
     "red_team_scored": 549,
     "scored_events": 4190603,
     "recall_wilson": {
-     "point": 0.0036429872495446266,
-     "low": 0.0009996076505930603,
-     "high": 0.01318431198058168,
+     "point": 0.00546448087431694,
+     "low": 0.0018601206870768718,
+     "high": 0.01594147263352475,
      "n": 549,
      "level": 0.95,
      "kind": "wilson"
     },
     "precision_wilson": {
-     "point": 0.02857142857142857,
-     "low": 0.007870611945441227,
-     "high": 0.09832256118423902,
+     "point": 0.04285714285714286,
+     "low": 0.014681541004111398,
+     "high": 0.1185966874852755,
      "n": 70,
      "level": 0.95,
      "kind": "wilson"
     },
-    "false_alarm_rate": 0.000016226781682731578
+    "false_alarm_rate": 0.000015988152540338467
    },
    {
     "arm": "union, all arms (equal cost)",
@@ -947,108 +947,108 @@
     "group": "combination",
     "budget_per_day": 1000,
     "alerts": 7000,
-    "true_positives": 96,
-    "false_positives": 6904,
+    "true_positives": 98,
+    "false_positives": 6902,
     "red_team_scored": 549,
     "scored_events": 4190603,
     "recall_wilson": {
-     "point": 0.17486338797814208,
-     "low": 0.14537853534243672,
-     "high": 0.20886671109486493,
+     "point": 0.1785063752276867,
+     "low": 0.14874120487927148,
+     "high": 0.21273938893688393,
      "n": 549,
      "level": 0.95,
      "kind": "wilson"
     },
     "precision_wilson": {
-     "point": 0.013714285714285714,
-     "low": 0.011244221291424217,
-     "high": 0.016717784983582167,
+     "point": 0.014,
+     "low": 0.011502097568851833,
+     "high": 0.017031023861104607,
      "n": 7000,
      "level": 0.95,
      "kind": "wilson"
     },
-    "false_alarm_rate": 0.0016474955990820415
+    "false_alarm_rate": 0.001647018340797255
    },
    {
     "arm": "union, all arms (equal depth)",
     "group": "combination",
     "budget_per_day": 10,
     "alerts": 376,
-    "true_positives": 11,
-    "false_positives": 365,
+    "true_positives": 12,
+    "false_positives": 364,
     "red_team_scored": 549,
     "scored_events": 4190603,
     "recall_wilson": {
-     "point": 0.020036429872495445,
-     "low": 0.011224160327876539,
-     "high": 0.03551882250814014,
+     "point": 0.02185792349726776,
+     "low": 0.012547041953570148,
+     "high": 0.03781361457187341,
      "n": 549,
      "level": 0.95,
      "kind": "wilson"
     },
     "precision_wilson": {
-     "point": 0.02925531914893617,
-     "low": 0.016412763279731214,
-     "high": 0.051619459692781915,
+     "point": 0.031914893617021274,
+     "low": 0.01834921733054956,
+     "high": 0.054948360314435236,
      "n": 376,
      "level": 0.95,
      "kind": "wilson"
     },
-    "false_alarm_rate": 0.00008709963697348568
+    "false_alarm_rate": 0.00008686100783109257
    },
    {
     "arm": "union, all arms (equal depth)",
     "group": "combination",
     "budget_per_day": 100,
-    "alerts": 3372,
-    "true_positives": 74,
-    "false_positives": 3298,
+    "alerts": 3373,
+    "true_positives": 76,
+    "false_positives": 3297,
     "red_team_scored": 549,
     "scored_events": 4190603,
     "recall_wilson": {
-     "point": 0.13479052823315119,
-     "low": 0.10874856033984105,
-     "high": 0.1659078649300692,
+     "point": 0.1384335154826958,
+     "low": 0.11204837817412541,
+     "high": 0.1698433944746386,
      "n": 549,
      "level": 0.95,
      "kind": "wilson"
     },
     "precision_wilson": {
-     "point": 0.021945432977461446,
-     "low": 0.017517484180284607,
-     "high": 0.027461363515287548,
-     "n": 3372,
+     "point": 0.022531870738215238,
+     "low": 0.018040204276459644,
+     "high": 0.02810986250077045,
+     "n": 3373,
      "level": 0.95,
      "kind": "wilson"
     },
-    "false_alarm_rate": 0.0007869989116124816
+    "false_alarm_rate": 0.0007867602824700884
    },
    {
     "arm": "union, all arms (equal depth)",
     "group": "combination",
     "budget_per_day": 1000,
-    "alerts": 32134,
-    "true_positives": 278,
-    "false_positives": 31856,
+    "alerts": 32024,
+    "true_positives": 279,
+    "false_positives": 31745,
     "red_team_scored": 549,
     "scored_events": 4190603,
     "recall_wilson": {
-     "point": 0.5063752276867031,
-     "low": 0.46465524526724666,
-     "high": 0.5480066126457473,
+     "point": 0.5081967213114754,
+     "low": 0.46646627952317515,
+     "high": 0.5498132520792458,
      "n": 549,
      "level": 0.95,
      "kind": "wilson"
     },
     "precision_wilson": {
-     "point": 0.008651272795170225,
-     "low": 0.007695806898224505,
-     "high": 0.009724201210846476,
-     "n": 32134,
+     "point": 0.00871221583812141,
+     "low": 0.007751669928920352,
+     "high": 0.009790613073294242,
+     "n": 32024,
      "level": 0.95,
      "kind": "wilson"
     },
-    "false_alarm_rate": 0.007601769960074958
+    "false_alarm_rate": 0.007575282125269323
    }
   ],
   "baseline_source": null,
@@ -1056,97 +1056,97 @@
    {
     "nominal_q": 0.001,
     "procedure": "benjamini-hochberg",
-    "discoveries": 3796,
-    "true_positives": 80,
+    "discoveries": 3861,
+    "true_positives": 81,
     "realised_fdr": {
-     "point": 0.9789251844046365,
-     "low": 0.9738485151673946,
-     "high": 0.9830335125181651,
-     "n": 3796,
+     "point": 0.9790209790209791,
+     "low": 0.974001582844812,
+     "high": 0.9830881294790416,
+     "n": 3861,
      "level": 0.95,
      "kind": "wilson"
     },
-    "conservatism_ratio": 978.9251844046365,
+    "conservatism_ratio": 979.0209790209791,
     "saturated_days": 2
    },
    {
     "nominal_q": 0.005,
     "procedure": "benjamini-hochberg",
-    "discoveries": 4735,
-    "true_positives": 108,
+    "discoveries": 4747,
+    "true_positives": 110,
     "realised_fdr": {
-     "point": 0.9771911298838437,
-     "low": 0.9725361047181441,
-     "high": 0.9810725017880959,
-     "n": 4735,
+     "point": 0.9768274699810406,
+     "low": 0.9721464018221864,
+     "high": 0.980737427124558,
+     "n": 4747,
      "level": 0.95,
      "kind": "wilson"
     },
-    "conservatism_ratio": 195.43822597676873,
+    "conservatism_ratio": 195.36549399620813,
     "saturated_days": 3
    },
    {
     "nominal_q": 0.01,
     "procedure": "benjamini-hochberg",
-    "discoveries": 5122,
-    "true_positives": 112,
+    "discoveries": 5125,
+    "true_positives": 113,
     "realised_fdr": {
-     "point": 0.9781335415853183,
-     "low": 0.9737555819002347,
-     "high": 0.9817948461317096,
-     "n": 5122,
+     "point": 0.9779512195121951,
+     "low": 0.9735585907396629,
+     "high": 0.9816278854526539,
+     "n": 5125,
      "level": 0.95,
      "kind": "wilson"
     },
-    "conservatism_ratio": 97.81335415853182,
+    "conservatism_ratio": 97.79512195121951,
     "saturated_days": 4
    },
    {
     "nominal_q": 0.05,
     "procedure": "benjamini-hochberg",
-    "discoveries": 5347,
-    "true_positives": 112,
+    "discoveries": 5348,
+    "true_positives": 113,
     "realised_fdr": {
-     "point": 0.9790536749579203,
-     "low": 0.974857350556817,
-     "high": 0.9825621580243792,
-     "n": 5347,
+     "point": 0.9788706058339566,
+     "low": 0.9746585473491486,
+     "high": 0.9823952143160295,
+     "n": 5348,
      "level": 0.95,
      "kind": "wilson"
     },
-    "conservatism_ratio": 19.581073499158403,
+    "conservatism_ratio": 19.57741211667913,
     "saturated_days": 5
    },
    {
     "nominal_q": 0.1,
     "procedure": "benjamini-hochberg",
-    "discoveries": 5467,
-    "true_positives": 112,
+    "discoveries": 5533,
+    "true_positives": 113,
     "realised_fdr": {
-     "point": 0.9795134443021767,
-     "low": 0.9754079642791451,
-     "high": 0.9829455247525387,
-     "n": 5467,
+     "point": 0.9795770829568047,
+     "low": 0.9755039324944472,
+     "high": 0.9829847725677983,
+     "n": 5533,
      "level": 0.95,
      "kind": "wilson"
     },
-    "conservatism_ratio": 9.795134443021766,
+    "conservatism_ratio": 9.795770829568045,
     "saturated_days": 5
    },
    {
     "nominal_q": 0.25,
     "procedure": "benjamini-hochberg",
-    "discoveries": 6014,
-    "true_positives": 112,
+    "discoveries": 6027,
+    "true_positives": 113,
     "realised_fdr": {
-     "point": 0.981376787495843,
-     "low": 0.9776400622216923,
-     "high": 0.9844989438688165,
-     "n": 6014,
+     "point": 0.9812510370001659,
+     "low": 0.9775075536773353,
+     "high": 0.984381436376527,
+     "n": 6027,
      "level": 0.95,
      "kind": "wilson"
     },
-    "conservatism_ratio": 3.925507149983372,
+    "conservatism_ratio": 3.9250041480006637,
     "saturated_days": 5
    }
   ],
@@ -1154,17 +1154,17 @@
    {
     "nominal_q": 0.001,
     "procedure": "benjamini-yekutieli",
-    "discoveries": 2895,
+    "discoveries": 2896,
     "true_positives": 65,
     "realised_fdr": {
-     "point": 0.9775474956822107,
-     "low": 0.9714845781223032,
-     "high": 0.9823447496550276,
-     "n": 2895,
+     "point": 0.9775552486187845,
+     "low": 0.9714943903589264,
+     "high": 0.982350859210295,
+     "n": 2896,
      "level": 0.95,
      "kind": "wilson"
     },
-    "conservatism_ratio": 977.5474956822106,
+    "conservatism_ratio": 977.5552486187845,
     "saturated_days": 2
    },
    {
@@ -1186,65 +1186,65 @@
    {
     "nominal_q": 0.01,
     "procedure": "benjamini-yekutieli",
-    "discoveries": 3639,
-    "true_positives": 76,
+    "discoveries": 3650,
+    "true_positives": 77,
     "realised_fdr": {
-     "point": 0.9791151415223963,
-     "low": 0.9739388372162605,
-     "high": 0.9832809702932475,
-     "n": 3639,
+     "point": 0.9789041095890411,
+     "low": 0.9737139591525207,
+     "high": 0.9830872702933682,
+     "n": 3650,
      "level": 0.95,
      "kind": "wilson"
     },
-    "conservatism_ratio": 97.91151415223963,
+    "conservatism_ratio": 97.8904109589041,
     "saturated_days": 2
    },
    {
     "nominal_q": 0.05,
     "procedure": "benjamini-yekutieli",
-    "discoveries": 4533,
-    "true_positives": 105,
+    "discoveries": 4570,
+    "true_positives": 107,
     "realised_fdr": {
-     "point": 0.9768365320979484,
-     "low": 0.9720371252554825,
-     "high": 0.980828439750115,
-     "n": 4533,
+     "point": 0.9765864332603938,
+     "low": 0.971785672205688,
+     "high": 0.9805866474774558,
+     "n": 4570,
      "level": 0.95,
      "kind": "wilson"
     },
-    "conservatism_ratio": 19.536730641958968,
+    "conservatism_ratio": 19.531728665207876,
     "saturated_days": 2
    },
    {
     "nominal_q": 0.1,
     "procedure": "benjamini-yekutieli",
-    "discoveries": 4909,
-    "true_positives": 108,
+    "discoveries": 4948,
+    "true_positives": 111,
     "realised_fdr": {
-     "point": 0.9779995925850479,
-     "low": 0.9735071167113436,
-     "high": 0.9817445516635879,
-     "n": 4909,
+     "point": 0.9775666936135813,
+     "low": 0.9730549837769168,
+     "high": 0.9813374456457977,
+     "n": 4948,
      "level": 0.95,
      "kind": "wilson"
     },
-    "conservatism_ratio": 9.779995925850478,
+    "conservatism_ratio": 9.775666936135812,
     "saturated_days": 3
    },
    {
     "nominal_q": 0.25,
     "procedure": "benjamini-yekutieli",
-    "discoveries": 5216,
-    "true_positives": 112,
+    "discoveries": 5221,
+    "true_positives": 113,
     "realised_fdr": {
-     "point": 0.9785276073619632,
-     "low": 0.9742274087515771,
-     "high": 0.9821234764969244,
-     "n": 5216,
+     "point": 0.9783566366596438,
+     "low": 0.9740436051588476,
+     "high": 0.9819662641104543,
+     "n": 5221,
      "level": 0.95,
      "kind": "wilson"
     },
-    "conservatism_ratio": 3.914110429447853,
+    "conservatism_ratio": 3.913426546638575,
     "saturated_days": 5
    }
   ],
@@ -1282,8 +1282,8 @@
     },
     "labelled_total": 549,
     "labelled_uncategorised": 92,
-    "red_team_events": 181,
-    "share_of_labelled": 0.3296903460837887
+    "red_team_events": 180,
+    "share_of_labelled": 0.32786885245901637
    },
    {
     "category": {
@@ -1387,37 +1387,37 @@
    {
     "budget_per_day": 1000,
     "alerts": 7000,
-    "true_positives": 112,
-    "false_negatives": 437,
+    "true_positives": 113,
+    "false_negatives": 436,
     "red_team_scored": 549,
     "recall_wilson": {
-     "point": 0.2040072859744991,
-     "low": 0.17240993344981392,
-     "high": 0.23971809201831787,
+     "point": 0.2058287795992714,
+     "low": 0.17410874549315256,
+     "high": 0.2416369536644061,
      "n": 549,
      "level": 0.95,
      "kind": "wilson"
     },
     "recall_clopper_pearson": {
-     "point": 0.2040072859744991,
-     "low": 0.17105690905462878,
-     "high": 0.2401801758427063,
+     "point": 0.2058287795992714,
+     "low": 0.1727575003356112,
+     "high": 0.24210238857792382,
      "n": 549,
      "level": 0.95,
      "kind": "clopper-pearson"
     },
     "precision_wilson": {
-     "point": 0.016,
-     "low": 0.013314917736220839,
-     "high": 0.019216009778385987,
+     "point": 0.016142857142857143,
+     "low": 0.01344488029638887,
+     "high": 0.01937160479569298,
      "n": 7000,
      "level": 0.95,
      "kind": "wilson"
     },
-    "false_positives": 6888,
-    "true_false_ratio": 0.016260162601626018,
-    "break_even_value_ratio": 61.5,
-    "objective_utility": -5768,
+    "false_positives": 6887,
+    "true_false_ratio": 0.016407724698707712,
+    "break_even_value_ratio": 60.94690265486726,
+    "objective_utility": -5757,
     "is_worthwhile": false
    }
   ],
@@ -1432,8 +1432,8 @@
      "cuts": [
       {
        "budget_per_day": 10,
-       "cut_log_p": -28.56524847713623,
-       "gap_log_units": 27.952912708837648
+       "cut_log_p": -28.529842607582125,
+       "gap_log_units": 27.917506839283543
       },
       {
        "budget_per_day": 100,
@@ -1442,8 +1442,8 @@
       },
       {
        "budget_per_day": 1000,
-       "cut_log_p": -10.97931055175549,
-       "gap_log_units": 10.366974783456905
+       "cut_log_p": -11.02593713525804,
+       "gap_log_units": 10.413601366959456
       }
      ]
     },
@@ -1451,22 +1451,22 @@
      "day": 8,
      "labelled_scored": 261,
      "alerts_retained": 1000,
-     "best_labelled_log_p": -25.271069725447155,
+     "best_labelled_log_p": -25.477311016642652,
      "cuts": [
       {
        "budget_per_day": 10,
-       "cut_log_p": -35.13810789402523,
-       "gap_log_units": 9.867038168578077
+       "cut_log_p": -35.27284680231738,
+       "gap_log_units": 9.79553578567473
       },
       {
        "budget_per_day": 100,
-       "cut_log_p": -24.175703206444453,
-       "gap_log_units": -1.0953665190027024
+       "cut_log_p": -24.203522706867084,
+       "gap_log_units": -1.2737883097755685
       },
       {
        "budget_per_day": 1000,
-       "cut_log_p": -11.974981024055289,
-       "gap_log_units": -13.296088701391866
+       "cut_log_p": -12.011498604582172,
+       "gap_log_units": -13.46581241206048
       }
      ]
     },
@@ -1474,22 +1474,22 @@
      "day": 9,
      "labelled_scored": 5,
      "alerts_retained": 1000,
-     "best_labelled_log_p": -10.568486060426551,
+     "best_labelled_log_p": -11.472369602713982,
      "cuts": [
       {
        "budget_per_day": 10,
-       "cut_log_p": -28.189905312116387,
-       "gap_log_units": 17.621419251689836
+       "cut_log_p": -28.3030967755357,
+       "gap_log_units": 16.830727172821717
       },
       {
        "budget_per_day": 100,
-       "cut_log_p": -22.31902061226419,
-       "gap_log_units": 11.750534551837639
+       "cut_log_p": -22.849539435839993,
+       "gap_log_units": 11.377169833126011
       },
       {
        "budget_per_day": 1000,
-       "cut_log_p": -19.60512986655109,
-       "gap_log_units": 9.036643806124538
+       "cut_log_p": -19.84867077079688,
+       "gap_log_units": 8.376301168082897
       }
      ]
     },
@@ -1501,17 +1501,17 @@
      "cuts": [
       {
        "budget_per_day": 10,
-       "cut_log_p": -24.665102974132104,
+       "cut_log_p": -24.63112789204822,
        "gap_log_units": null
       },
       {
        "budget_per_day": 100,
-       "cut_log_p": -12.257874530365662,
+       "cut_log_p": -12.308371696161664,
        "gap_log_units": null
       },
       {
        "budget_per_day": 1000,
-       "cut_log_p": -5.5576545205142835,
+       "cut_log_p": -5.577092395110125,
        "gap_log_units": null
       }
      ]
@@ -1524,17 +1524,17 @@
      "cuts": [
       {
        "budget_per_day": 10,
-       "cut_log_p": -23.009665386415612,
+       "cut_log_p": -23.725427739451888,
        "gap_log_units": null
       },
       {
        "budget_per_day": 100,
-       "cut_log_p": -12.491888621531857,
+       "cut_log_p": -12.490643047887318,
        "gap_log_units": null
       },
       {
        "budget_per_day": 1000,
-       "cut_log_p": -5.813243029778199,
+       "cut_log_p": -5.859122900803133,
        "gap_log_units": null
       }
      ]
@@ -1543,22 +1543,22 @@
      "day": 12,
      "labelled_scored": 207,
      "alerts_retained": 1000,
-     "best_labelled_log_p": -24.276343345474324,
+     "best_labelled_log_p": -24.1580027160389,
      "cuts": [
       {
        "budget_per_day": 10,
-       "cut_log_p": -36.42924452245325,
-       "gap_log_units": 12.15290117697893
+       "cut_log_p": -36.29669194523766,
+       "gap_log_units": 12.13868922919876
       },
       {
        "budget_per_day": 100,
-       "cut_log_p": -26.103101488472703,
-       "gap_log_units": 1.8267581429983792
+       "cut_log_p": -26.108965708580065,
+       "gap_log_units": 1.9509629925411645
       },
       {
        "budget_per_day": 1000,
-       "cut_log_p": -16.58305112381997,
-       "gap_log_units": -7.693292221654353
+       "cut_log_p": -16.773930844394258,
+       "gap_log_units": -7.384071871644643
       }
      ]
     },
@@ -1566,22 +1566,22 @@
      "day": 13,
      "labelled_scored": 75,
      "alerts_retained": 1000,
-     "best_labelled_log_p": -22.74351682770819,
+     "best_labelled_log_p": -22.62665398973394,
      "cuts": [
       {
        "budget_per_day": 10,
        "cut_log_p": -34.29031484860456,
-       "gap_log_units": 11.546798020896368
+       "gap_log_units": 11.663660858870621
       },
       {
        "budget_per_day": 100,
-       "cut_log_p": -23.312554027754437,
-       "gap_log_units": 0.569037200046246
+       "cut_log_p": -23.670330402333654,
+       "gap_log_units": 1.0436764125997158
       },
       {
        "budget_per_day": 1000,
-       "cut_log_p": -11.229687154114082,
-       "gap_log_units": -11.51382967359411
+       "cut_log_p": -11.311742271509573,
+       "gap_log_units": -11.314911718224366
       }
      ]
     }
@@ -1590,8 +1590,8 @@
     {
      "budget_per_day": 10,
      "inside_the_cut": 0,
-     "within_10_log_units": 1,
-     "within_50_log_units": 548,
+     "within_10_log_units": 2,
+     "within_50_log_units": 547,
      "within_200_log_units": 0,
      "beyond_200_log_units": 0,
      "unmeasurable": 0
@@ -1599,17 +1599,17 @@
     {
      "budget_per_day": 100,
      "inside_the_cut": 7,
-     "within_10_log_units": 71,
-     "within_50_log_units": 471,
+     "within_10_log_units": 73,
+     "within_50_log_units": 469,
      "within_200_log_units": 0,
      "beyond_200_log_units": 0,
      "unmeasurable": 0
     },
     {
      "budget_per_day": 1000,
-     "inside_the_cut": 112,
-     "within_10_log_units": 318,
-     "within_50_log_units": 119,
+     "inside_the_cut": 113,
+     "within_10_log_units": 313,
+     "within_50_log_units": 123,
      "within_200_log_units": 0,
      "beyond_200_log_units": 0,
      "unmeasurable": 0
@@ -1657,15 +1657,15 @@
      {
       "budget_per_day": 1000,
       "alerts_at_budget": 7000,
-      "true_positives_at_budget": 112,
+      "true_positives_at_budget": 113,
       "optimal_alerts": 0,
       "true_positives_at_optimal": 0,
-      "objective_at_budget": -5768,
+      "objective_at_budget": -5757,
       "objective_at_optimal": 0,
       "precision_at_optimal": 0,
       "is_worthwhile_at_optimal": false,
       "alerts_suppressed": 7000,
-      "true_positives_forgone": 112
+      "true_positives_forgone": 113
      }
     ]
    },
@@ -1702,27 +1702,27 @@
      {
       "budget_per_day": 1000,
       "alerts_at_budget": 7000,
-      "true_positives_at_budget": 161,
+      "true_positives_at_budget": 162,
       "optimal_alerts": 315,
       "true_positives_at_optimal": 74,
-      "objective_at_budget": -5229,
+      "objective_at_budget": -5218,
       "objective_at_optimal": 499,
       "precision_at_optimal": 0.23492063492063492,
       "is_worthwhile_at_optimal": true,
       "alerts_suppressed": 6685,
-      "true_positives_forgone": 87
+      "true_positives_forgone": 88
      }
     ]
    }
   ]
  },
  "run": {
-  "finished_at": "2026-08-20T21:35:44Z",
+  "finished_at": "2026-08-20T22:43:20Z",
   "go_version": "go1.26.0",
   "parent_file": "/Users/john/Documents/GitHub/ethogram/results/lanl-r11-b1000-conf-d7-14.json",
-  "parent_run": "lanl-r11-b1000-weighted-d7-14-004",
-  "run_id": "analysis-r11-b1000-conf-002",
-  "started_at": "2026-08-20T21:35:44Z"
+  "parent_run": "lanl-r11-b1000-weighted-d7-14-005",
+  "run_id": "analysis-r11-b1000-conf-003",
+  "started_at": "2026-08-20T22:43:20Z"
  },
  "schema_version": "1"
 }

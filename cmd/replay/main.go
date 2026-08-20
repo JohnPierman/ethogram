@@ -81,6 +81,7 @@ func main() {
 		leidenPy      = flag.String("leiden", "", "python interpreter for sidecar/partition.py; set to run the offline partition at the burn-in boundary and score the (14) arm as a shadow (E4)")
 		leidenSeed    = flag.Int64("leiden-seed", 42, "seed for the offline Leiden batch, recorded")
 		weightedOn    = flag.Bool("weighted", false, "add the weighted arm: score each alert by the log-likelihood ratio its own detector's fitted weight implies over that detector's frozen burn-in null, and give the day's budget to the highest scores. It divides a fixed budget by demonstrated quality where the union arm divides it by quota. Needs the burn-in mirror, so it costs what -ledger costs. Off by default until a recorded run justifies the flip; recorded in the result either way")
+		timStandard   = flag.Bool("timing-standardise", timing.DefaultStandardise, "score the timing arm by U standardised against the entity's own realised ln U, rather than by the level-set mass of equation (9). The mass is floored at 1/(2G) = 9.77e-04, which is at or above its own realised alert cut at the tighter budgets, so it cannot express a departure it has detected; the standardised form is unbounded below. Needs enough per-entity history to estimate the null, and abstains below it rather than mixing two statistics in one arm. Off by default until a recorded run justifies the flip; recorded in the result either way")
 		volMinPeriods = flag.Int64("volume-min-periods", volume.DefaultMinPeriods, "the fewest completed periods the volume arm will form an opinion on; below it the arm abstains under R3 rather than reporting the prior's tail as the entity's. Zero disables the gate, which is the pre-#25 behaviour and what the volume_gate_probe diagnostic needs in order to measure every candidate threshold from one pass. Recorded in the result")
 		ledgerPath    = flag.String("ledger", "", "write the alert ledger here: every per-detector arm's ranked queue per day, for both the burn-in and the scoring window, so budget-allocation rules can be screened offline instead of at eighty minutes a candidate. Also mirrors the per-arm ranking across burn-in, which roughly doubles burn-in cost. An intermediate artefact: never write it into results/, which holds measurements with provenance")
 	)
@@ -133,8 +134,8 @@ func main() {
 		authPath: *authPath, redteamPath: *redteamPath, outPath: *outPath, runID: *runID,
 		burnInSec: *burnInSec, maxRows: *maxRows, skipHash: *skipHash,
 		halfLifeDays: *halfLifeDay, bandwidthHours: *bandwidth, alpha: *alphaFlag,
-		volMinPeriods: *volMinPeriods,
-		topK:          *topK, budgets: budgets, entitySample: *entitySample, allowResampling: *allowResample,
+		volMinPeriods: *volMinPeriods, timStandardise: *timStandard,
+		topK: *topK, budgets: budgets, entitySample: *entitySample, allowResampling: *allowResample,
 		exportGraph: *exportGraph, partitionIn: *partitionIn,
 		maxSeconds: *maxSeconds, shadowCells: *shadowCells, conformal: *conformalOn,
 		openVocabulary: *openVocab,
@@ -156,6 +157,7 @@ type runConfig struct {
 	skipHash                              bool
 	halfLifeDays, bandwidthHours, alpha   float64
 	volMinPeriods                         int64
+	timStandardise                        bool
 	topK                                  int
 	budgets                               objective.Budgets
 	entitySample                          int
@@ -299,7 +301,7 @@ func run(cfg runConfig) error {
 
 	registered := []detector.Detector{
 		noveltyDetector,
-		timing.NewDetector(timStore, bandwidthHours, halfLife),
+		timing.NewDetector(timStore, bandwidthHours, halfLife, cfg.timStandardise),
 		volume.NewDetector(volStore, timStore, bandwidthHours, halfLife, cfg.volMinPeriods),
 		relationalDetector,
 		marginal.NewDetector(margStore, fieldRegistry, alpha,

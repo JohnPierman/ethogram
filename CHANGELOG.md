@@ -11,6 +11,22 @@ Equation numbers `(1)`–`(20)`, requirements `R1`–`R6`, and evaluation hypoth
 
 ### Added
 
+- **`timing` scores by a per-entity standardised statistic, and `cmd/replay
+  -timing-standardise` selects it (#26).** The level-set mass of equation (9) is read from a
+  512-point grid and reports nothing below one half-cell, 9.77e-04, which sat AT the arm's own
+  realised alert cut at 10 and 100 alerts a day: the detector could not alert there whatever it
+  observed, so its zeros were a property of the statistic rather than a measurement. The
+  reported quantity is now the event's ln U standardised by the mean and spread of the ln U
+  this entity's own events have received, which has no floor
+- `timing.State.LogUSum` and `LogUSumSq`, discounted under the same rule as the moments, carry
+  that null in two numbers so the state stays fixed size (§13.3). #26 proposed reusing
+  `allocation.Tail`, which is a frozen PER-DETECTOR null fitted from a retained sample; a
+  per-entity form of it would have to retain each entity's own density history and the state
+  would grow without bound
+- `MinStandardiseWeight` gates the statistic on the entity's discounted observation weight, and
+  the detector abstains below it rather than falling back to the mass, which would put two
+  different nulls in one ranked queue
+
 - **`cmd/replay -volume-min-periods`, and the `volume_gate_probe` diagnostic that chose its
   value.** #25 asks for a threshold picked from a measurement rather than from taste, and the
   four candidates it nominates would have cost a two-hour replay each. The probe answers all
@@ -49,6 +65,22 @@ Equation numbers `(1)`–`(20)`, requirements `R1`–`R6`, and evaluation hypoth
   a moved per-arm count would have meant it was perturbing what it measures
 
 ### Fixed
+
+- **`timing` can now express a departure it has detected (#26).** Detections at 10, 100 and
+  1000 alerts a day go from 0, 0 and 6 to **1, 2 and 7** on the real campaign and from 0, 1 and
+  12 to **2, 9 and 21** on the planted corpus. The response to the mechanism the arm was built
+  for is not traded for that: the median p-value on planted off-hours attacks falls from
+  3.20e-02 to 8.23e-03, widening the separation from the nearest other planted mechanism from
+  5.7x to 18.6x. Every other arm is unchanged on both corpora -- `novelty` 11/60/201,
+  `noveltyrate` 384 at 1000/day, `marginal` 0/76/120
+- **the in-memory timing store dropped any field added to `timing.State`.** It rebuilt the
+  struct field by field, so the two new accumulators never came back out of it, the variance
+  read as zero and the detector abstained on ALL 4,190,603 events -- a defect that presented as
+  a result. It now copies the struct and deep-copies only the moments, and
+  `infrastructure/state/memory` has the round-trip tests it previously had none of, written
+  with reflection so they fail when a field is ADDED and not copied
+- `timing.State`'s two accumulators are persisted by the postgres store, which would otherwise
+  reopen the abstention for every entity on each process restart
 
 - **`volume` abstains where an entity has no completed period (#25, R3).** With none, the
   Gamma posterior of equation (10) is the prior, and the detector reported that absence of any

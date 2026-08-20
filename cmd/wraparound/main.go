@@ -112,7 +112,7 @@ func run(outPath, runID string) error {
 		nights         = 14
 	)
 
-	circular := timing.NewDetector(&memoryTiming{}, bandwidthHours, halfLife)
+	circular := timing.NewDetector(&memoryTiming{}, bandwidthHours, halfLife, timing.DefaultStandardise)
 	cells := cellgrid.NewDetector(&memoryCounts{halfLife: halfLife, rows: map[string]*cell{}}, alpha, halfLife)
 
 	// The prescribed schedule: activity exclusively between 23:00 and 01:00, spread

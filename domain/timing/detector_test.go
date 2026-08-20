@@ -2,6 +2,7 @@ package timing_test
 
 import (
 	"context"
+	"math"
 	"testing"
 
 	"github.com/JohnPierman/ethogram/domain/detector"
@@ -26,11 +27,12 @@ func (m *memoryStates) FindByEntity(_ context.Context, s event.SourceID, e event
 	}
 	// Return a copy so a caller cannot mutate stored state outside Commit, which is
 	// the same guarantee a database round-trip gives.
-	c := &timing.State{Moments: timing.NewMoments(st.Moments.H()), LastSeen: st.LastSeen}
+	c := *st
+	c.Moments = timing.NewMoments(st.Moments.H())
 	copy(c.Moments.C, st.Moments.C)
 	copy(c.Moments.S, st.Moments.S)
 	c.Moments.W = st.Moments.W
-	return c, true, nil
+	return &c, true, nil
 }
 
 func (m *memoryStates) SaveState(_ context.Context, s event.SourceID, e event.EntityID, st *timing.State) error {
@@ -51,7 +53,7 @@ func tEvent(at event.Timestamp) *event.Event {
 }
 
 func TestTimingDetectorColdStartEvaluatesAtOne(t *testing.T) {
-	d := timing.NewDetector(newMemoryStates(), 1.5, novelty.HalfLife(7*event.Day))
+	d := timing.NewDetector(newMemoryStates(), 1.5, novelty.HalfLife(7*event.Day), false)
 	verdicts, obs, err := d.Score(context.Background(), tEvent(3*event.Hour))
 	if err != nil {
 		t.Fatal(err)
@@ -73,7 +75,7 @@ func TestTimingDetectorColdStartEvaluatesAtOne(t *testing.T) {
 func TestTimingDetectorLearnsHabit(t *testing.T) {
 	ctx := context.Background()
 	repo := newMemoryStates()
-	d := timing.NewDetector(repo, 1.5, novelty.HalfLife(7*event.Day))
+	d := timing.NewDetector(repo, 1.5, novelty.HalfLife(7*event.Day), false)
 
 	// Score-then-commit thirty daily events at 09:00.
 	for i := range 30 {
@@ -117,7 +119,7 @@ func TestTimingDetectorLearnsHabit(t *testing.T) {
 func TestGridTailMassAgreesWithLevelIndex(t *testing.T) {
 	ctx := context.Background()
 	repo := newMemoryStates()
-	d := timing.NewDetector(repo, 1.5, novelty.HalfLife(7*event.Day))
+	d := timing.NewDetector(repo, 1.5, novelty.HalfLife(7*event.Day), false)
 
 	for i := range 10 {
 		e := tEvent(event.Timestamp(i)*event.Day + 9*event.Hour)
@@ -157,7 +159,7 @@ func TestGridTailMassAgreesWithLevelIndex(t *testing.T) {
 func TestTimingScoreBeforeObserve(t *testing.T) {
 	ctx := context.Background()
 	repo := newMemoryStates()
-	d := timing.NewDetector(repo, 1.5, novelty.HalfLife(7*event.Day))
+	d := timing.NewDetector(repo, 1.5, novelty.HalfLife(7*event.Day), false)
 
 	e := tEvent(9 * event.Hour)
 	verdicts, obs, err := d.Score(ctx, e)
@@ -192,7 +194,7 @@ func TestTimingScoreBeforeObserve(t *testing.T) {
 func TestTimingEvidenceCarriesMoments(t *testing.T) {
 	ctx := context.Background()
 	repo := newMemoryStates()
-	d := timing.NewDetector(repo, 1.5, novelty.HalfLife(7*event.Day))
+	d := timing.NewDetector(repo, 1.5, novelty.HalfLife(7*event.Day), false)
 	_, obs, _ := d.Score(ctx, tEvent(9*event.Hour))
 	if err := obs.Commit(ctx); err != nil {
 		t.Fatal(err)
@@ -214,5 +216,184 @@ func TestTimingEvidenceCarriesMoments(t *testing.T) {
 	}
 	if verdicts[0].Status() != detector.StatusEvaluated {
 		t.Errorf("status = %s", verdicts[0].Status())
+	}
+}
+
+// ---------------------------------------------------------------------------
+// #26: the level-set mass is floored at its own alert cut
+// ---------------------------------------------------------------------------
+
+const gridFloor = 1.0 / (2 * float64(timing.GridSize))
+
+// warmClock drives an entity through `days` days of events inside a working window, so
+// that its per-entity ln U null rests on real weight, and returns the detector.
+func warmClock(t *testing.T, standardise bool, days int) *timing.Detector {
+	t.Helper()
+	d := timing.NewDetector(newMemoryStates(), 1.5, novelty.HalfLife(7*event.Day), standardise)
+	ctx := context.Background()
+	for day := range days {
+		for h := 9; h < 17; h++ {
+			at := event.Timestamp(day)*event.Day + event.Timestamp(h)*event.Hour
+			_, obs, err := d.Score(ctx, tEvent(at))
+			if err != nil {
+				t.Fatal(err)
+			}
+			if err := obs.Commit(ctx); err != nil {
+				t.Fatal(err)
+			}
+		}
+	}
+	return d
+}
+
+// TestLevelSetMassIsFlooredAtItsOwnCut states the defect. The mass cannot report below
+// 1/(2G) = 9.77e-04, which is at or above the arm's realised cut at 10 and 100 alerts a
+// day, so at those budgets the detector cannot alert whatever it observes.
+func TestLevelSetMassIsFlooredAtItsOwnCut(t *testing.T) {
+	d := warmClock(t, false, 6)
+	// 03:00 for an account that has only ever worked 09:00-17:00.
+	verdicts, _, err := d.Score(context.Background(), tEvent(6*event.Day+3*event.Hour))
+	if err != nil {
+		t.Fatal(err)
+	}
+	p, ok := verdicts[0].PValue()
+	if !ok {
+		t.Fatal("want an evaluated verdict")
+	}
+	if p < gridFloor {
+		t.Fatalf("mass %v fell below the grid floor %v; the floor is the defect under test", p, gridFloor)
+	}
+	t.Logf("level-set mass at 03:00 against a 09:00-17:00 clock: %.4e (floor %.4e)", p, gridFloor)
+}
+
+// TestStandardisedStatisticGoesBelowTheGridFloor is the fix: the same event, scored
+// against the entity's own realised ln U, is not bounded by the grid's resolution.
+func TestStandardisedStatisticGoesBelowTheGridFloor(t *testing.T) {
+	d := warmClock(t, true, 6)
+	verdicts, _, err := d.Score(context.Background(), tEvent(6*event.Day+3*event.Hour))
+	if err != nil {
+		t.Fatal(err)
+	}
+	v := verdicts[0]
+	if v.Status() != detector.StatusEvaluated {
+		t.Fatalf("want an evaluated verdict after six days, got %s: %s", v.Status(), v.Reason())
+	}
+	p, _ := v.PValue()
+	if p >= gridFloor {
+		t.Fatalf("standardised p = %v, not below the grid floor %v; #26 is not addressed", p, gridFloor)
+	}
+	st := v.Evidence().Stats
+	if st["log_u_null_ok"] != 1 {
+		t.Fatal("the per-entity null should be estimable after six days")
+	}
+	t.Logf("standardised p = %.4e at z = %.3f (mean ln U %.3f, sd %.3f)",
+		p, st["log_u_z"], st["log_u_mean"], st["log_u_sd"])
+}
+
+// TestStandardisedAbstainsBelowMinWeight: with too little of the entity's own history the
+// null is noise, so the detector abstains rather than standardising against it, and
+// still returns the observation so the entity can cross the threshold later.
+func TestStandardisedAbstainsBelowMinWeight(t *testing.T) {
+	d := timing.NewDetector(newMemoryStates(), 1.5, novelty.HalfLife(7*event.Day), true)
+	verdicts, obs, err := d.Score(context.Background(), tEvent(9*event.Hour))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if verdicts[0].Status() != detector.StatusAbstainedUnusable {
+		t.Fatalf("want abstained_unusable on a cold start, got %s", verdicts[0].Status())
+	}
+	if _, ok := verdicts[0].PValue(); ok {
+		t.Fatal("an abstained verdict carries no p-value (R3)")
+	}
+	if obs == nil {
+		t.Fatal("abstaining must still return an observation")
+	}
+}
+
+// TestUnstandardisedPathIsUnchanged guards every other figure in the paper: with the flag
+// off the reported statistic is exactly the level-set mass, so a run that does not ask for
+// #26's statistic measures precisely what it measured before.
+func TestUnstandardisedPathIsUnchanged(t *testing.T) {
+	d := warmClock(t, false, 6)
+	verdicts, _, err := d.Score(context.Background(), tEvent(6*event.Day+3*event.Hour))
+	if err != nil {
+		t.Fatal(err)
+	}
+	p, _ := verdicts[0].PValue()
+	if got := verdicts[0].Evidence().Stats["tail_mass"]; got != p {
+		t.Fatalf("reported %v but tail_mass %v; the default path must report the mass exactly", p, got)
+	}
+	if verdicts[0].Evidence().Stats["standardised"] != 0 {
+		t.Fatal("the default path must record that it did not standardise")
+	}
+}
+
+// TestStandardisedIsMonotoneWithinAnEntity: the standardised form must not reorder an
+// entity's own events, or it would be a different question rather than the same question
+// on a scale that can express it.
+func TestStandardisedIsMonotoneWithinAnEntity(t *testing.T) {
+	ctx := context.Background()
+	d := warmClock(t, true, 6)
+	type row struct{ mass, reported float64 }
+	var rows []row
+	for h := 0; h < 24; h++ {
+		verdicts, _, err := d.Score(ctx, tEvent(6*event.Day+event.Timestamp(h)*event.Hour))
+		if err != nil {
+			t.Fatal(err)
+		}
+		if verdicts[0].Status() != detector.StatusEvaluated {
+			continue
+		}
+		st := verdicts[0].Evidence().Stats
+		p, _ := verdicts[0].PValue()
+		rows = append(rows, row{st["tail_mass"], p})
+	}
+	if len(rows) < 12 {
+		t.Fatalf("only %d evaluated hours; expected the whole clock", len(rows))
+	}
+	for i := range rows {
+		for j := range rows {
+			if rows[i].mass < rows[j].mass && rows[i].reported > rows[j].reported {
+				t.Fatalf("mass %v < %v but reported %v > %v: ordering inverted",
+					rows[i].mass, rows[j].mass, rows[i].reported, rows[j].reported)
+			}
+		}
+	}
+}
+
+// TestStandardisedVerdictSatisfiesR5 is #26's second caution discharged: the reported
+// statistic is no longer a density-based tail mass, so the verdict must still carry
+// everything needed to rebuild it. An analyst holding only the evidence card recomputes the
+// p-value here, from the ln U the event received and the entity's own mean and spread.
+func TestStandardisedVerdictSatisfiesR5(t *testing.T) {
+	d := warmClock(t, true, 6)
+	verdicts, _, err := d.Score(context.Background(), tEvent(6*event.Day+3*event.Hour))
+	if err != nil {
+		t.Fatal(err)
+	}
+	v := verdicts[0]
+	reported, ok := v.PValue()
+	if !ok {
+		t.Fatal("want an evaluated verdict")
+	}
+	st := v.Evidence().Stats
+
+	// Rebuild the statistic from the card alone.
+	logU, mean, sd := st["log_u"], st["log_u_mean"], st["log_u_sd"]
+	if sd <= 0 {
+		t.Fatal("evidence must carry a usable spread")
+	}
+	z := (logU - mean) / sd
+	rebuilt := 0.5 * math.Erfc(-z/math.Sqrt2)
+
+	if math.Abs(rebuilt-reported)/reported > 1e-12 {
+		t.Fatalf("rebuilt %.6e from the evidence but the verdict reports %.6e", rebuilt, reported)
+	}
+	// And ln U must itself be reconstructible from the mass the card also carries.
+	if got := math.Log(st["tail_mass"]); math.Abs(got-logU) > 1e-12 {
+		t.Fatalf("ln(tail_mass) = %v but log_u = %v", got, logU)
+	}
+	if st["log_u_z"] != z {
+		t.Fatalf("card reports z = %v, recomputed %v", st["log_u_z"], z)
 	}
 }

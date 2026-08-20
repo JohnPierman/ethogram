@@ -146,7 +146,7 @@ func wire() (*detector.Registry, *registry.Registry) {
 	detectors := detector.NewRegistry()
 	for _, d := range []detector.Detector{
 		novelty.NewDetector(memory.NewNoveltyStore(halfLife), fieldRegistry, 1.0, halfLife),
-		timing.NewDetector(timStore, 1.5, halfLife),
+		timing.NewDetector(timStore, 1.5, halfLife, timing.DefaultStandardise),
 		volume.NewDetector(memory.NewVolumeStore(), timStore, 1.5, halfLife, volume.DefaultMinPeriods),
 		cooccurrence.NewDetector(cooccurrence.NewMemoryGraph(halfLife), fieldRegistry, nil, halfLife),
 		marginal.NewDetector(memory.NewMarginalStore(halfLife), fieldRegistry, 1.0,

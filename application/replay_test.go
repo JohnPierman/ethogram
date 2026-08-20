@@ -61,7 +61,7 @@ func wireFramework(t *testing.T) (*detector.Registry, *registry.Registry) {
 	detectors := detector.NewRegistry()
 	for _, d := range []detector.Detector{
 		novelty.NewDetector(novStore, fieldRegistry, 1.0, halfLife),
-		timing.NewDetector(timStore, 1.5, halfLife),
+		timing.NewDetector(timStore, 1.5, halfLife, timing.DefaultStandardise),
 		volume.NewDetector(volStore, timStore, 1.5, halfLife, volume.DefaultMinPeriods),
 	} {
 		if err := detectors.Register(d); err != nil {

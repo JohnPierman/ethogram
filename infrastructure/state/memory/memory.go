@@ -141,11 +141,16 @@ func (s *TimingStore) FindByEntity(_ context.Context, src event.SourceID, en eve
 	if !ok {
 		return nil, false, nil
 	}
-	c := &timing.State{Moments: timing.NewMoments(st.Moments.H()), LastSeen: st.LastSeen}
+	// Whole-struct copy first, so a field added to timing.State later is carried rather
+	// than silently dropped: naming each field here once cost a run in which the timing
+	// detector abstained on every event because two new accumulators never came back out
+	// of the store. Only the moments need a deep copy, because they hold slices.
+	c := *st
+	c.Moments = timing.NewMoments(st.Moments.H())
 	copy(c.Moments.C, st.Moments.C)
 	copy(c.Moments.S, st.Moments.S)
 	c.Moments.W = st.Moments.W
-	return c, true, nil
+	return &c, true, nil
 }
 
 // SaveState implements timing.StateRepository.

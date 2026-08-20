@@ -20,6 +20,66 @@ const DetectorID = detector.ID("timing")
 type State struct {
 	Moments  *Moments
 	LastSeen event.Timestamp
+
+	// LogUSum and LogUSumSq accumulate ln U over the entity's own scored events, under
+	// the same discount as the moments, so that U can be standardised against what this
+	// entity's clock actually produces rather than against what an order-H density says
+	// it should.
+	//
+	// Two numbers, so the state stays fixed size (§13.3). The mean and variance they
+	// give are the whole per-entity null: #26 asks for a rank against the entity's own
+	// historical density values, and retaining those values would make the state grow
+	// without bound.
+	//
+	// Why this is not a no-op. U = P(f(Φ) ≤ f(φ)) is exactly uniform under a CORRECTLY
+	// specified f, and a monotone transform of a uniform adds nothing. f here is a
+	// truncated order-H Fourier density with a zero clamp and a decayed kernel, so the
+	// realised U is not uniform, and the departure is per entity: an account that
+	// habitually works odd hours has its oddness smoothed away by the truncation and
+	// scores low U routinely. Standardising separates that account from one for which the
+	// same U is genuinely a first.
+	LogUSum   float64
+	LogUSumSq float64
+}
+
+// DefaultStandardise selects the production timing statistic. False keeps the level-set
+// mass of equation (9); true selects the per-entity standardised form of #26. Flipped only
+// by a recorded run, and reported in every run's parameters block.
+//
+// True, on the measurement. The mass is floored at 1/(2G) = 9.77e-04, which sat at or above
+// the arm's own realised alert cut at 10 and 100 alerts a day, so the detector could not
+// alert there whatever it observed. Standardising ln U against the entity's own realised
+// spread removes the floor and turns that artefact into a measurement: detections go from
+// 0/0/6 to 1/2/7 on the real campaign and from 0/1/12 to 2/9/21 on the planted corpus, at
+// 10/100/1000 alerts a day. The off-hours separation the arm was built for is not traded
+// away for it -- it improves, from 5.7x to 18.6x against the nearest other planted
+// mechanism. Every other arm is unchanged on both corpora.
+const DefaultStandardise = true
+
+// MinStandardiseWeight is the least discounted observation weight at which the
+// standardised statistic is formed. Below it the entity has too few of its own U values
+// for a mean and a spread to mean anything, and the detector abstains rather than
+// standardising against noise -- the abstention question #26 anticipates.
+const MinStandardiseWeight = 20
+
+// standardise reports the per-entity mean and standard deviation of ln U, and whether
+// they rest on enough weight to use.
+func (s *State) standardise() (mean, sd float64, ok bool) {
+	w := s.Moments.W
+	if w < MinStandardiseWeight {
+		return 0, 0, false
+	}
+	mean = s.LogUSum / w
+	variance := s.LogUSumSq/w - mean*mean
+	if variance <= 0 {
+		// A perfectly regular account -- every event inside one narrow window -- receives
+		// essentially the same ln U every time, so there is no spread to standardise
+		// against and no opinion to be had on this scale. Reported as an abstention rather
+		// than fixed up with an arbitrary floor on the spread, which would manufacture
+		// extreme scores out of a rounding difference.
+		return mean, 0, false
+	}
+	return mean, math.Sqrt(variance), true
 }
 
 // StateRepository persists per-entity circular state.
@@ -45,11 +105,15 @@ type Detector struct {
 	order        int
 	halfLife     novelty.HalfLife
 	grid         *gridTables
+	// standardise selects the statistic of #26: U standardised against the entity's own
+	// realised ln U rather than reported as a raw level-set mass. Off by default until a
+	// recorded run justifies the flip, and recorded in the result either way.
+	standardise bool
 }
 
 // NewDetector wires the timing detector. bandwidthHours is the operator-facing
 // smoothing parameter of equation (8); κ and H are derived from it.
-func NewDetector(repo StateRepository, bandwidthHours float64, halfLife novelty.HalfLife) *Detector {
+func NewDetector(repo StateRepository, bandwidthHours float64, halfLife novelty.HalfLife, standardise bool) *Detector {
 	kappa := KappaForBandwidthHours(bandwidthHours)
 	order := HarmonicOrder(kappa)
 	return &Detector{
@@ -60,6 +124,7 @@ func NewDetector(repo StateRepository, bandwidthHours float64, halfLife novelty.
 		order:        order,
 		halfLife:     halfLife,
 		grid:         newGridTables(order, GridSize),
+		standardise:  standardise,
 	}
 }
 
@@ -96,6 +161,33 @@ func (d *Detector) Score(ctx context.Context, e *event.Event) (detector.Verdicts
 	level := density.Evaluate(phi)
 	tail, modes := d.grid.TailMass(density, level)
 
+	// ln U is what the per-entity null is kept over. U is bounded below by the grid, so
+	// this is bounded too; the standardised form below is not, which is the point of #26.
+	logU := math.Log(tail)
+	mean, sd, haveNull := state.standardise()
+
+	// Computed whenever the null exists, so that a run measures the statistic it did not
+	// select. REPORTED only when selected: gating the report on haveNull alone would
+	// change every timing figure in every run that never asked for #26's statistic.
+	var z, standardisedP float64
+	if haveNull {
+		z = (logU - mean) / sd
+		// Lower tail of the standard normal. Small U sits far below the entity's own mean
+		// ln U, so z is very negative and this is unbounded below, where a level-set mass
+		// on a G-point grid floors at 1/(2G).
+		standardisedP = 0.5 * math.Erfc(-z/math.Sqrt2)
+		if standardisedP <= 0 {
+			standardisedP = math.SmallestNonzeroFloat64
+		}
+		if standardisedP > 1 {
+			standardisedP = 1
+		}
+	}
+	reported := tail
+	if d.standardise && haveNull {
+		reported = standardisedP
+	}
+
 	stats := map[string]float64{
 		"phi":             phi,
 		"density_at_phi":  level,
@@ -106,6 +198,18 @@ func (d *Detector) Score(ctx context.Context, e *event.Event) (detector.Verdicts
 		"grid":            float64(GridSize),
 		"grid_floor":      1 / (2 * float64(GridSize)),
 		"half_life_us":    float64(d.halfLife),
+		// Both statistics on every verdict, whichever is reported: it is what lets one
+		// pass measure the alternative instead of costing a second run (#26).
+		"tail_mass":     tail,
+		"log_u":         logU,
+		"standardised":  boolAsFloat(d.standardise),
+		"log_u_null_ok": boolAsFloat(haveNull),
+	}
+	if haveNull {
+		stats["log_u_mean"] = mean
+		stats["log_u_sd"] = sd
+		stats["log_u_z"] = z
+		stats["standardised_p"] = standardisedP
 	}
 	// The moments themselves are the sufficient statistics (R5): an analyst holding
 	// them and κ can recompute (7) and (9) by hand.
@@ -119,11 +223,6 @@ func (d *Detector) Score(ctx context.Context, e *event.Event) (detector.Verdicts
 	}
 
 	target := detector.Target{Event: e.ID(), Entity: e.Entity()}
-	verdict, err := detector.NewEvaluated(DetectorID, target, tail,
-		detector.NewEvidence([]int{6, 7, 8, 9}, stats, labels))
-	if err != nil {
-		return nil, nil, fmt.Errorf("timing: verdict: %w", err)
-	}
 
 	obs := &observation{
 		repository: d.repository,
@@ -134,6 +233,31 @@ func (d *Detector) Score(ctx context.Context, e *event.Event) (detector.Verdicts
 		eventID:    e.ID(),
 		halfLife:   d.halfLife,
 		order:      d.order,
+		logU:       logU,
+	}
+
+	// Mixing the two statistics inside one arm would put two different nulls in one
+	// ranked queue, so where the standardised form is selected and not yet estimable the
+	// detector abstains instead of falling back. The observation is still returned: the
+	// entity must keep accruing ln U or it never crosses the threshold.
+	if d.standardise && !haveNull {
+		v, abstainErr := detector.NewAbstained(DetectorID, target,
+			detector.StatusAbstainedUnusable,
+			"too little of this entity's own timing history to standardise against",
+			detector.NewEvidence([]int{6, 7, 8, 9}, map[string]float64{
+				"W":       state.Moments.W,
+				"minimum": MinStandardiseWeight,
+			}, labels))
+		if abstainErr != nil {
+			return nil, nil, fmt.Errorf("timing: abstain: %w", abstainErr)
+		}
+		return detector.Verdicts{v}, obs, nil
+	}
+
+	verdict, err := detector.NewEvaluated(DetectorID, target, reported,
+		detector.NewEvidence([]int{6, 7, 8, 9}, stats, labels))
+	if err != nil {
+		return nil, nil, fmt.Errorf("timing: verdict: %w", err)
 	}
 	return detector.Verdicts{verdict}, obs, nil
 }
@@ -171,7 +295,10 @@ type observation struct {
 	eventID    event.ID
 	halfLife   novelty.HalfLife
 	order      int
-	committed  bool
+	// logU is the ln U this event was scored at, folded into the per-entity null on
+	// commit so that the null describes what this entity's clock actually produces.
+	logU      float64
+	committed bool
 }
 
 func (o *observation) EventID() event.ID       { return o.eventID }
@@ -195,6 +322,8 @@ func (o *observation) Commit(ctx context.Context) error {
 		delta = novelty.DecayFactor(state.LastSeen, o.at, o.halfLife)
 	}
 	state.Moments.Observe(o.phi, delta)
+	state.LogUSum = delta*state.LogUSum + o.logU
+	state.LogUSumSq = delta*state.LogUSumSq + o.logU*o.logU
 	if o.at > state.LastSeen {
 		state.LastSeen = o.at
 	}
@@ -316,4 +445,13 @@ func (t *gridTables) TailMass(d *Density, level float64) (mass float64, modes []
 		return 1, modes
 	}
 	return mass, modes
+}
+
+// boolAsFloat renders a flag into the numeric evidence map, so a reader can tell from a
+// result file which statistic produced it.
+func boolAsFloat(b bool) float64 {
+	if b {
+		return 1
+	}
+	return 0
 }

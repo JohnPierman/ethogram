@@ -111,7 +111,7 @@ func run(authPath, outPath, runID string, maxEvents int64, sampleMod uint64) err
 	detectors := detector.NewRegistry()
 	for _, d := range []detector.Detector{
 		novelty.NewDetector(memory.NewNoveltyStore(halfLife), fieldRegistry, 1.0, halfLife),
-		timing.NewDetector(timStore, 1.5, halfLife),
+		timing.NewDetector(timStore, 1.5, halfLife, timing.DefaultStandardise),
 		volume.NewDetector(memory.NewVolumeStore(), timStore, 1.5, halfLife, volume.DefaultMinPeriods),
 		cooccurrence.NewDetector(graph, fieldRegistry, nil, halfLife),
 	} {
