@@ -80,6 +80,7 @@ func main() {
 		schemaPath    = flag.String("schema", "", "schema configuration JSON (config/schemas/*.json); empty uses the built-in LANL auth schema")
 		leidenPy      = flag.String("leiden", "", "python interpreter for sidecar/partition.py; set to run the offline partition at the burn-in boundary and score the (14) arm as a shadow (E4)")
 		leidenSeed    = flag.Int64("leiden-seed", 42, "seed for the offline Leiden batch, recorded")
+		ledgerPath    = flag.String("ledger", "", "write the alert ledger here: every per-detector arm's ranked queue per day, for both the burn-in and the scoring window, so budget-allocation rules can be screened offline instead of at eighty minutes a candidate. Also mirrors the per-arm ranking across burn-in, which roughly doubles burn-in cost. An intermediate artefact: never write it into results/, which holds measurements with provenance")
 	)
 	flag.Parse()
 
@@ -139,6 +140,7 @@ func main() {
 		derive:         *deriveOn,
 		schemaPath:     *schemaPath,
 		leidenPy:       *leidenPy, leidenSeed: *leidenSeed,
+		ledgerPath: *ledgerPath,
 	}); err != nil {
 		log.Fatal(err)
 	}
@@ -164,6 +166,7 @@ type runConfig struct {
 	schemaPath                            string
 	leidenPy                              string
 	leidenSeed                            int64
+	ledgerPath                            string
 }
 
 func run(cfg runConfig) error {
@@ -363,6 +366,14 @@ func run(cfg runConfig) error {
 	if cfg.derive {
 		cmd.Deriver = derive.NewInferrer(derive.DefaultPolicy())
 	}
+	if cfg.ledgerPath != "" {
+		acc.burnInFitDays = labels.days
+		// Mirroring the per-arm ranking across burn-in is what makes a weight fittable
+		// on data the scoring window has not seen. It is off unless a ledger is asked
+		// for, because it costs a second ranking over tens of millions of events and
+		// buys nothing for a run that is not screening an allocation rule.
+		cmd.BurnInSink = acc.observeBurnIn
+	}
 	if cfg.exportGraph != "" || cfg.leidenPy != "" {
 		graphPath := cfg.exportGraph
 		if graphPath == "" {
@@ -552,6 +563,15 @@ func run(cfg runConfig) error {
 	}
 	log.Printf("wrote %s: rows=%d scored=%d redteam-scored=%d",
 		outPath, report.RowsRead, report.EventsScored, len(acc.redTeamScored))
+
+	if cfg.ledgerPath != "" {
+		if err := writeJSON(cfg.ledgerPath,
+			acc.ledger(runID, cfg.budgets.Max(), burnInSec)); err != nil {
+			return err
+		}
+		log.Printf("wrote ledger %s: %d labelled on burn-in, %d on the scoring window",
+			cfg.ledgerPath, len(acc.burnInLabelled), len(acc.redTeamScored))
+	}
 	return nil
 }
 
@@ -944,7 +964,10 @@ type redTeamLabels struct {
 	// users is the set of entities named by at least one label. Entity sampling keeps
 	// them all, so that reducing the corpus does not also reduce the thing being
 	// measured.
-	users  map[string]struct{}
+	users map[string]struct{}
+	// days is every corpus day a label falls on. The alert ledger's burn-in mirror uses
+	// it to skip days that carry no labelled event, which cannot inform a fitted weight.
+	days   map[int64]bool
 	rows   int
 	sha256 string
 }
@@ -969,6 +992,7 @@ func loadRedTeam(path string) (*redTeamLabels, error) {
 	labels := &redTeamLabels{
 		keys:   make(map[string]struct{}),
 		users:  make(map[string]struct{}),
+		days:   make(map[int64]bool),
 		sha256: hex.EncodeToString(sum[:]),
 	}
 	sc := bufio.NewScanner(zr)
@@ -988,6 +1012,7 @@ func loadRedTeam(path string) (*redTeamLabels, error) {
 		}
 		labels.keys[redKey(t, parts[1], parts[2], parts[3])] = struct{}{}
 		labels.users[parts[1]] = struct{}{}
+		labels.days[t/86400] = true
 	}
 	return labels, sc.Err()
 }
@@ -1318,6 +1343,20 @@ type accumulator struct {
 	// realised-FDR figure it produces.
 	scoredPerDay map[int64]int64
 
+	// The alert ledger's accumulators, populated only when a ledger is asked for. See
+	// ledger.go for why the ledger exists and why it is not a result.
+	//
+	// armScored is populated always, being one integer increment per arm per event, and
+	// it is the denominator a within-arm rank needs to mean anything.
+	armScored      map[detector.ID]map[int64]int64
+	burnInPerDay   map[detector.ID]map[int64]*dayAlerts
+	burnInScored   map[detector.ID]map[int64]int64
+	burnInLabelled []ledgerLabelled
+	// burnInFitDays is the burn-in days the mirror retains: those carrying at least one
+	// labelled event. Empty mirrors nothing, which is the correct behaviour for a corpus
+	// whose labels all fall after the boundary -- there is nothing to fit a weight on.
+	burnInFitDays map[int64]bool
+
 	// entityDays accumulates one record per (entity, corpus day).
 	//
 	// The framework's premise is that the unit of analysis is the individual Ã¢â‚¬â€ a verdict
@@ -1383,6 +1422,9 @@ func newAccumulator(labels *redTeamLabels, topK int, budgets objective.Budgets, 
 		minPPerDay:            make(map[int64]*dayAlerts),
 		detectorPerDay:        make(map[detector.ID]map[int64]*dayAlerts),
 		detectorRedTeamScored: make(map[detector.ID][]redTeamScore),
+		armScored:             make(map[detector.ID]map[int64]int64),
+		burnInPerDay:          make(map[detector.ID]map[int64]*dayAlerts),
+		burnInScored:          make(map[detector.ID]map[int64]int64),
 	}
 }
 
@@ -1414,6 +1456,11 @@ func (a *accumulator) observeDetectorArms(se application.ScoredEvent, day int64,
 
 	for _, id := range ids {
 		logP := best[id]
+		// One evaluation by this arm on this day. It is the denominator of a within-arm
+		// rank, which is the only cross-arm quantity §3.4's diagnosis leaves admissible:
+		// rank 100 of 600,000 and rank 100 of 900 are not the same evidence, and an
+		// allocation rule that reads position without scale cannot tell them apart.
+		a.bumpScored(a.armScored, id, day)
 		byDay, ok := a.detectorPerDay[id]
 		if !ok {
 			byDay = make(map[int64]*dayAlerts)

@@ -11,6 +11,54 @@ Equation numbers `(1)`–`(20)`, requirements `R1`–`R6`, and evaluation hypoth
 
 ### Added
 
+- **`domain/allocation`: how much of a budget each detector has earned.** Two frozen
+  quantities per detector and a per-alert score built from them. `Tail` is the detector's own
+  null over its log p-value, so alerts from detectors that share no p-value scale become
+  comparable; `Weight` is the single parameter of a Beta(a, 1) density over those null
+  quantiles, fitted on labelled events from a window disjoint from the one being scored. An
+  alert's score is the log-likelihood ratio of its being labelled against its being
+  background, so the budget divides itself and there is no share parameter to choose
+- the tail is **extended below the empirical floor rather than floored at it**. A rank in a
+  sample of n cannot fall below 1/(n+1), and on this corpus the alerts worth having are past
+  that floor -- the fitting window is meant to be quiet -- so flooring ties the head of the
+  queue and orders it by arrival time. Past a high threshold an exponential fit to the
+  excesses takes over, which is strictly decreasing everywhere and linear in log p, so no two
+  alerts of different extremity tie and nothing underflows at ln p = -4000
+- the weight is **tested for significance before it is used**. Two hundred labelled events
+  drawn from exactly the uniform null fit a ~ 1 +/- 0.07, and the likelihood ratio at
+  a = 0.93 scores an alert at ln q = -4000 some 248 log units above zero -- so a weight that
+  is pure sampling noise would buy a detector that found nothing a large share of the queue.
+  A fit is kept only when twice its log-likelihood ratio against a = 1 exceeds 2.706, the 5%
+  one-sided point for a parameter tested at the boundary of its range
+- the fit **counts the labelled events a detector missed**, as right-censored observations
+  rather than as absences. Without that term the likelihood treats a detector that surfaced
+  two of forty-nine labelled events, at its two most extreme ranks, as the sharpest detector
+  in the set: measured on such a sample, a = 0.38 with censoring against a = 0.07 without. A
+  detector that abstained contributes neither an observation nor a censoring point, because
+  abstention is the absence of an opinion rather than a weak one (R3)
+- **the score is per-alert by construction, not by accident.** Every quantity it reads is
+  either a property of the single alert or of state frozen before the scoring window began,
+  so the same score that ranks a batch thresholds a stream. A score reading an alert's rank
+  among the day's events evaluates just as well and cannot be deployed at all: an operator at
+  14:00 does not know what arrives by 23:59
+- **`application.ReplayCorpusCommand.BurnInSink`**: the burn-in window's events, with their
+  verdicts, offered to a caller instead of discarded. It is what makes a weight fittable on
+  data the scoring window has not seen, and a test asserts the two sinks partition the stream
+  rather than trusting that they do -- if one event reached both, every weight fitted on the
+  first would be an oracle
+- **`cmd/replay -ledger`**: every per-detector arm's ranked queue, per day, for both windows,
+  written whole. A replay of one corpus is eighty minutes and the allocation question has a
+  large candidate space with no theory that picks one, so the candidates are screened against
+  the recorded order offline and only the winner is run. The cheap substitute was tried first
+  and does not work: reconstructing each arm's queue from the committed p-histograms read
+  Detector I at 43 where the run recorded 11, because the histogram is twenty bins to the
+  decade and the real arms take their top B per day where a reconstruction pools the run
+- `make method-table` emits **one table per budget** rather than one table at the widest
+  budget. The comparison moves further with the budget than it does with the method -- at
+  1000 alerts a day five of six planted types are reached, at 100 exactly one is, at 10 none
+  at all -- and a single table at 1000 credits the framework with a reach that is mostly a
+  fact about what was affordable. The set is emitted in one pass so three tables cannot come
+  from three different files
 - **a third combination rule: the union arm.** Alert on any event that *any* detector ranks
   highly, by rank fusion -- each arm ranks the day on its own p-value, an event scores the
   best rank it reaches in any arm, and only the within-arm order is ever read, so no p-value
