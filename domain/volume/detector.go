@@ -14,6 +14,26 @@ import (
 // DetectorID names the volume half of Detector II.
 const DetectorID = detector.ID("volume")
 
+// DefaultMinPeriods is the production abstention threshold: the fewest completed periods
+// this detector will form an opinion on. Zero disables the gate. The value is chosen by
+// the measurement recorded in results/volume-abstention-gate.json, not by taste, and is
+// reported in every run's parameters block.
+//
+// One, and it is the R3 line rather than the best-detecting value, because the measurement
+// found no value that detects. With zero completed periods the posterior IS the prior and
+// there is no basis for an opinion; the detector currently expresses that as P = 1, which
+// is an opinion, and R3 requires an abstention instead.
+//
+// Two, three and five were measured and rejected. None moves the realised cut off the
+// 1e-12 floor on either corpus, because the sub-1e-12 pile is not a cold-start artefact:
+// a first period scores P = 1 exactly, so the gate at one removes NONE of it, and even at
+// five only 10.6% of it goes. The rest belongs to entities with established history whose
+// habitual day-to-day variation the predictive of equation (11) is too narrow to tolerate.
+// Adopting five to collect the four detections it happens to reach on the planted corpus
+// alone, at 4.9% of events abstained and 132 labelled events withheld, would be a
+// threshold chosen after seeing the result.
+const DefaultMinPeriods = 1
+
 // State is an entity's volume state: the Gamma posterior of equation (10) over
 // completed periods, and the running counters for the current period and window.
 // Fixed size regardless of event count.
@@ -26,6 +46,13 @@ type State struct {
 	PeriodIndex int64
 	// PeriodCount is the running event count within PeriodIndex.
 	PeriodCount int64
+	// CompletedPeriods is the undiscounted number of periods that have closed and been
+	// folded into Rate. It is the sample size the posterior rests on, and the quantity
+	// the abstention of R3 gates on: Rate.B is the same count under the per-period
+	// discount and saturates at 1/(1-delta), so it cannot express "how many periods"
+	// once an entity is established, and a partial first period is the degenerate case
+	// the gate exists to exclude.
+	CompletedPeriods int64
 
 	// WindowIndex is the calendar hour of the running window count.
 	WindowIndex int64
@@ -70,11 +97,15 @@ type Detector struct {
 	coefficients []float64
 	order        int
 	halfLife     novelty.HalfLife // over event time, for the per-period discount
+	// minPeriods is the fewest completed periods this detector will form an opinion
+	// on. Zero disables the gate, which is the pre-#25 behaviour and is retained so
+	// that the diagnostic run measuring candidate thresholds can see every p-value.
+	minPeriods int64
 }
 
 // NewDetector wires the volume detector. bandwidthHours must match the timing
 // detector's, so that ρ is integrated under the same kernel.
-func NewDetector(repo StateRepository, timingState timing.StateRepository, bandwidthHours float64, halfLife novelty.HalfLife) *Detector {
+func NewDetector(repo StateRepository, timingState timing.StateRepository, bandwidthHours float64, halfLife novelty.HalfLife, minPeriods int64) *Detector {
 	kappa := timing.KappaForBandwidthHours(bandwidthHours)
 	order := timing.HarmonicOrder(kappa)
 	return &Detector{
@@ -83,6 +114,7 @@ func NewDetector(repo StateRepository, timingState timing.StateRepository, bandw
 		coefficients: timing.KernelCoefficients(kappa, order),
 		order:        order,
 		halfLife:     halfLife,
+		minPeriods:   minPeriods,
 	}
 }
 
@@ -115,6 +147,7 @@ func (d *Detector) Score(ctx context.Context, e *event.Event) (detector.Verdicts
 	// event's day, computed functionally: scoring must not mutate state (§5.2), so
 	// the same fold is applied again, persistently, on commit.
 	a, b := effectivePosterior(state, day, d.periodDelta())
+	completed := effectiveCompletedPeriods(state, day)
 
 	kObs := int64(1)
 	if state.WindowIndex == hour {
@@ -144,6 +177,8 @@ func (d *Detector) Score(ctx context.Context, e *event.Event) (detector.Verdicts
 		"variance":           variance,
 		"dispersion":         phi,
 		"dispersion_windows": state.DispersionWindows,
+		"completed_periods":  float64(completed),
+		"min_periods":        float64(d.minPeriods),
 		"half_life_us":       float64(d.halfLife),
 	}
 	labels := map[string]string{
@@ -151,12 +186,11 @@ func (d *Detector) Score(ctx context.Context, e *event.Event) (detector.Verdicts
 	}
 
 	target := detector.Target{Event: e.ID(), Entity: e.Entity()}
-	verdict, err := detector.NewEvaluated(DetectorID, target, p,
-		detector.NewEvidence([]int{10, 11}, stats, labels))
-	if err != nil {
-		return nil, nil, fmt.Errorf("volume: verdict: %w", err)
-	}
 
+	// Built before the gate, and returned by both paths: abstaining is a statement about
+	// this event, not a decision to stop learning. An entity that never accrues state
+	// never leaves the gate, so withholding the observation here would make the
+	// abstention permanent instead of provisional.
 	obs := &observation{
 		repository:  d.repository,
 		source:      e.Source(),
@@ -168,6 +202,29 @@ func (d *Detector) Score(ctx context.Context, e *event.Event) (detector.Verdicts
 		periodDelta: d.periodDelta(),
 		expected:    mean,
 		halfLife:    d.halfLife,
+	}
+
+	// R3: with fewer completed periods than the posterior needs, there is no basis for
+	// an opinion and the detector says so, rather than reporting the prior's tail as if
+	// it were the entity's. Equation (11) on a partial first period is exactly that.
+	if d.minPeriods > 0 && completed < d.minPeriods {
+		v, abstainErr := detector.NewAbstained(DetectorID, target,
+			detector.StatusAbstainedUnusable,
+			"too few completed periods to estimate this entity's rate",
+			detector.NewEvidence([]int{10, 11}, map[string]float64{
+				"completed_periods": float64(completed),
+				"minimum":           float64(d.minPeriods),
+			}, labels))
+		if abstainErr != nil {
+			return nil, nil, fmt.Errorf("volume: abstain: %w", abstainErr)
+		}
+		return detector.Verdicts{v}, obs, nil
+	}
+
+	verdict, err := detector.NewEvaluated(DetectorID, target, p,
+		detector.NewEvidence([]int{10, 11}, stats, labels))
+	if err != nil {
+		return nil, nil, fmt.Errorf("volume: verdict: %w", err)
 	}
 	return detector.Verdicts{verdict}, obs, nil
 }
@@ -245,6 +302,20 @@ func effectivePosterior(s *State, day int64, delta float64) (a, b float64) {
 	return a, b
 }
 
+// effectiveCompletedPeriods reports how many periods have closed as of day. It mirrors
+// effectivePosterior's fold exactly — one period for the stored running period, then one
+// for each empty period between — and like it does not mutate state, because scoring must
+// not (§5.2). The same increment is applied persistently on commit.
+func effectiveCompletedPeriods(s *State, day int64) int64 {
+	if s.LastSeen == 0 && s.PeriodCount == 0 && s.Rate.A == 0 && s.Rate.B == 0 {
+		return 0 // never observed
+	}
+	if day <= s.PeriodIndex {
+		return s.CompletedPeriods
+	}
+	return s.CompletedPeriods + (day - s.PeriodIndex)
+}
+
 // observation applies the counter and posterior updates, strictly after scoring.
 type observation struct {
 	repository  StateRepository
@@ -291,6 +362,7 @@ func (o *observation) Commit(ctx context.Context) error {
 	if o.day > state.PeriodIndex {
 		a, b := effectivePosterior(state, o.day, o.periodDelta)
 		state.Rate = GammaPosterior{A: a, B: b}
+		state.CompletedPeriods += o.day - state.PeriodIndex
 		state.PeriodIndex = o.day
 		state.PeriodCount = 0
 	}

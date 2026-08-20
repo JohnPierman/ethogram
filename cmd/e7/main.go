@@ -112,7 +112,7 @@ func run(authPath, outPath, runID string, maxEvents int64, sampleMod uint64) err
 	for _, d := range []detector.Detector{
 		novelty.NewDetector(memory.NewNoveltyStore(halfLife), fieldRegistry, 1.0, halfLife),
 		timing.NewDetector(timStore, 1.5, halfLife),
-		volume.NewDetector(memory.NewVolumeStore(), timStore, 1.5, halfLife),
+		volume.NewDetector(memory.NewVolumeStore(), timStore, 1.5, halfLife, volume.DefaultMinPeriods),
 		cooccurrence.NewDetector(graph, fieldRegistry, nil, halfLife),
 	} {
 		if regErr := detectors.Register(d); regErr != nil {

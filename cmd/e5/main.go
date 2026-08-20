@@ -293,7 +293,7 @@ func run(authPath, redteamPath, outPath, runID string, burnInSec, introduceSec, 
 	for _, d := range []detector.Detector{
 		novelty.NewDetector(memory.NewNoveltyStore(halfLife), fieldRegistry, 1.0, halfLife),
 		timing.NewDetector(timStore, 1.5, halfLife),
-		volume.NewDetector(memory.NewVolumeStore(), timStore, 1.5, halfLife),
+		volume.NewDetector(memory.NewVolumeStore(), timStore, 1.5, halfLife, volume.DefaultMinPeriods),
 		cooccurrence.NewDetector(cooccurrence.NewMemoryGraph(halfLife), fieldRegistry, nil, halfLife),
 	} {
 		if regErr := detectors.Register(d); regErr != nil {

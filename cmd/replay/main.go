@@ -81,6 +81,7 @@ func main() {
 		leidenPy      = flag.String("leiden", "", "python interpreter for sidecar/partition.py; set to run the offline partition at the burn-in boundary and score the (14) arm as a shadow (E4)")
 		leidenSeed    = flag.Int64("leiden-seed", 42, "seed for the offline Leiden batch, recorded")
 		weightedOn    = flag.Bool("weighted", false, "add the weighted arm: score each alert by the log-likelihood ratio its own detector's fitted weight implies over that detector's frozen burn-in null, and give the day's budget to the highest scores. It divides a fixed budget by demonstrated quality where the union arm divides it by quota. Needs the burn-in mirror, so it costs what -ledger costs. Off by default until a recorded run justifies the flip; recorded in the result either way")
+		volMinPeriods = flag.Int64("volume-min-periods", volume.DefaultMinPeriods, "the fewest completed periods the volume arm will form an opinion on; below it the arm abstains under R3 rather than reporting the prior's tail as the entity's. Zero disables the gate, which is the pre-#25 behaviour and what the volume_gate_probe diagnostic needs in order to measure every candidate threshold from one pass. Recorded in the result")
 		ledgerPath    = flag.String("ledger", "", "write the alert ledger here: every per-detector arm's ranked queue per day, for both the burn-in and the scoring window, so budget-allocation rules can be screened offline instead of at eighty minutes a candidate. Also mirrors the per-arm ranking across burn-in, which roughly doubles burn-in cost. An intermediate artefact: never write it into results/, which holds measurements with provenance")
 	)
 	flag.Parse()
@@ -132,7 +133,8 @@ func main() {
 		authPath: *authPath, redteamPath: *redteamPath, outPath: *outPath, runID: *runID,
 		burnInSec: *burnInSec, maxRows: *maxRows, skipHash: *skipHash,
 		halfLifeDays: *halfLifeDay, bandwidthHours: *bandwidth, alpha: *alphaFlag,
-		topK: *topK, budgets: budgets, entitySample: *entitySample, allowResampling: *allowResample,
+		volMinPeriods: *volMinPeriods,
+		topK:          *topK, budgets: budgets, entitySample: *entitySample, allowResampling: *allowResample,
 		exportGraph: *exportGraph, partitionIn: *partitionIn,
 		maxSeconds: *maxSeconds, shadowCells: *shadowCells, conformal: *conformalOn,
 		openVocabulary: *openVocab,
@@ -153,6 +155,7 @@ type runConfig struct {
 	burnInSec, maxRows                    int64
 	skipHash                              bool
 	halfLifeDays, bandwidthHours, alpha   float64
+	volMinPeriods                         int64
 	topK                                  int
 	budgets                               objective.Budgets
 	entitySample                          int
@@ -297,7 +300,7 @@ func run(cfg runConfig) error {
 	registered := []detector.Detector{
 		noveltyDetector,
 		timing.NewDetector(timStore, bandwidthHours, halfLife),
-		volume.NewDetector(volStore, timStore, bandwidthHours, halfLife),
+		volume.NewDetector(volStore, timStore, bandwidthHours, halfLife, cfg.volMinPeriods),
 		relationalDetector,
 		marginal.NewDetector(margStore, fieldRegistry, alpha,
 			minMarginalObservations, halfLife),
@@ -336,6 +339,7 @@ func run(cfg runConfig) error {
 	}
 
 	acc := newAccumulator(labels, topK, cfg.budgets, cfg.pairing)
+	acc.volGate = newVolumeGateProbe(topK, cfg.volMinPeriods)
 	var rowsSeen int64
 	src := &cappedSource{reader: reader, max: maxRows, seen: &rowsSeen,
 		maxAt: event.Timestamp(cfg.maxSeconds) * event.Second}
@@ -523,6 +527,10 @@ func run(cfg runConfig) error {
 			// Whether Detector V ran. It adds an arm rather than replacing one, so a run
 			// with it on is comparable to one without on every other arm.
 			"novelty_rate": noveltyRateRecord(cfg),
+			// The volume arm's R3 abstention. Two runs differing only in this are not
+			// comparable on the volume arm's figures, so it is recorded rather than
+			// inferred from the command line.
+			"volume": volumeRecord(cfg),
 			// Whether coarse fields were derived from inferred value structure. A run
 			// with derivation on scores strictly more fields than one without, so the two
 			// are not comparable on any per-field figure.
@@ -1278,8 +1286,11 @@ type accumulator struct {
 	combinedHist  *histogram
 	detectorHist  map[detector.ID]*histogram
 	statusCounts  map[detector.ID]map[string]int64
-	scored        int64
-	tracked       int64
+	// volGate measures what a completed-period abstention would do to the volume arm,
+	// for every candidate threshold of #25, from this one pass.
+	volGate *volumeGateProbe
+	scored  int64
+	tracked int64
 
 	// The E9 arm: the same combination with the circular timing p-value replaced by
 	// the 168-cell shadow's, per-day alert sets and red-team records kept in
@@ -1643,6 +1654,9 @@ func (a *accumulator) observe(se application.ScoredEvent) error {
 	a.observeEntityDay(string(se.Event.Entity()), day, se.Combined.LogP, isRed)
 	a.observeDetectorArms(se, day, tSeconds, string(se.Event.Entity()),
 		srcComp, dstComp, key, isRed, catNames)
+	if a.volGate != nil {
+		a.volGate.observe(se, day, isRed)
+	}
 
 	// The min-p arm, over the same event and the same verdicts.
 	minPDay, ok := a.minPPerDay[day]
@@ -2131,6 +2145,7 @@ func (a *accumulator) results() map[string]any {
 		"red_team_scored":      a.redTeamScored,
 		"p_histograms":         hists,
 		"status_counts":        a.statusCounts,
+		"volume_gate_probe":    a.volumeGateResults(budgets),
 	}
 
 	if len(a.coocPerDay) > 0 {

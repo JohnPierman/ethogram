@@ -1,0 +1,327 @@
+{
+ "corpus": {
+  "burn_in": {
+   "end_seconds": 604800,
+   "fixed_at_commit": "24c5a53"
+  },
+  "coverage": {
+   "entity_population": "source users matching U*@ (human accounts); see DATA.md burn-in section",
+   "kind": "full",
+   "max_rows": 0,
+   "max_seconds": 0,
+   "statement": "full corpus scored from day 7.00"
+  },
+  "events_scored": 4494396,
+  "events_skipped": 0,
+  "events_warmed": 4524534,
+  "files": [
+   {
+    "path": "data/lanl/auth-injected-r7-d0-14.txt.gz",
+    "sha256": "98eab9bbcd54ee93ce6d3dc5fb420aaa918903aebed98be5b7fa19ecad664c29"
+   },
+   {
+    "path": "data/lanl/labels-combined-r7.txt.gz",
+    "sha256": "c2b08e8d5d4c9c0d50960c350c07bee80dbcaa2edfce1f738fa4451853331d89"
+   }
+  ],
+  "no_opinion": 0,
+  "row_errors": 0,
+  "rows_prefiltered": 8735071,
+  "rows_read": 17754001
+ },
+ "hypothesis": [
+  "R3: a detector with no basis for an opinion abstains rather than reporting its prior's tail as the entity's"
+ ],
+ "kind": "volume-abstention-gate",
+ "paper_refs": {
+  "equations": [
+   10,
+   11
+  ],
+  "issues": [
+   "#24",
+   "#25"
+  ],
+  "sections": [
+   "§5.1",
+   "§5.3",
+   "§6.2",
+   "§7.4"
+  ]
+ },
+ "parameters": {
+  "definition": "one ungated pass, every candidate derived from the retained joint distribution of (completed periods, p). A candidate's realised cut is exact, not binned: each day contributes its most extreme `budget` admitted alerts and the cut is the least extreme p-value in that pooled queue. abstained_share counts events the candidate would withhold plus any the run's own gate already withheld, over all events volume saw. off_the_1e-12_floor is true only where EVERY scored day's cut clears the floor, because the budget is per day. At min_periods 0, labelled_clearing_cut must equal the volume arm's own true_positives at the same budget: it is the same selection computed a second way, and a disagreement means this instrument is wrong rather than the arm.",
+  "max_abstain_share": 0.1,
+  "miscalibrated_below": 1e-12,
+  "threshold_unit": "completed periods, not events: the Gamma posterior of equation (10) is over completed periods and a partial first period is the degenerate case the gate exists to exclude"
+ },
+ "provenance_complete": true,
+ "results": {
+  "candidates": [
+   {
+    "abstained_share": 0,
+    "admissible": false,
+    "budgets_off_the_floor": [],
+    "clears_floor_at_every_budget": false,
+    "measurement": {
+     "abstained_events": 0,
+     "abstained_share": 0,
+     "at_budget": {
+      "budget_1000_per_day": {
+       "alerts": 7000,
+       "days_off_the_1e-12_floor": 6,
+       "labelled_clearing_cut": 0,
+       "off_the_1e-12_floor": false,
+       "realised_cut_median_day": 9.58218052607355e-7,
+       "realised_cut_worst_day": 0.0012630623797877938,
+       "scored_days": 7
+      },
+      "budget_100_per_day": {
+       "alerts": 700,
+       "days_off_the_1e-12_floor": 1,
+       "labelled_clearing_cut": 0,
+       "off_the_1e-12_floor": false,
+       "realised_cut_median_day": 5.852154192294852e-43,
+       "realised_cut_worst_day": 0.000055847836965883246,
+       "scored_days": 7
+      },
+      "budget_10_per_day": {
+       "alerts": 70,
+       "days_off_the_1e-12_floor": 1,
+       "labelled_clearing_cut": 0,
+       "off_the_1e-12_floor": false,
+       "realised_cut_median_day": 1.1828757826082295e-69,
+       "realised_cut_worst_day": 1.464966929735407e-9,
+       "scored_days": 7
+      }
+     },
+     "labelled_remaining": 1405,
+     "labelled_removed": 0,
+     "measurable": true,
+     "min_periods": 0,
+     "sub_1e-12_remaining": 13618,
+     "sub_1e-12_removed": 0
+    },
+    "min_periods": 0,
+    "within_share_limit": true
+   },
+   {
+    "abstained_share": 0.000978774456011442,
+    "admissible": false,
+    "budgets_off_the_floor": [],
+    "clears_floor_at_every_budget": false,
+    "measurement": {
+     "abstained_events": 4399,
+     "abstained_share": 0.000978774456011442,
+     "at_budget": {
+      "budget_1000_per_day": {
+       "alerts": 7000,
+       "days_off_the_1e-12_floor": 6,
+       "labelled_clearing_cut": 0,
+       "off_the_1e-12_floor": false,
+       "realised_cut_median_day": 9.58218052607355e-7,
+       "realised_cut_worst_day": 0.0012630623797877938,
+       "scored_days": 7
+      },
+      "budget_100_per_day": {
+       "alerts": 700,
+       "days_off_the_1e-12_floor": 1,
+       "labelled_clearing_cut": 0,
+       "off_the_1e-12_floor": false,
+       "realised_cut_median_day": 5.852154192294852e-43,
+       "realised_cut_worst_day": 0.000055847836965883246,
+       "scored_days": 7
+      },
+      "budget_10_per_day": {
+       "alerts": 70,
+       "days_off_the_1e-12_floor": 1,
+       "labelled_clearing_cut": 0,
+       "off_the_1e-12_floor": false,
+       "realised_cut_median_day": 1.1828757826082295e-69,
+       "realised_cut_worst_day": 1.464966929735407e-9,
+       "scored_days": 7
+      }
+     },
+     "labelled_remaining": 1394,
+     "labelled_removed": 11,
+     "measurable": true,
+     "min_periods": 1,
+     "sub_1e-12_remaining": 13618,
+     "sub_1e-12_removed": 0
+    },
+    "min_periods": 1,
+    "within_share_limit": true
+   },
+   {
+    "abstained_share": 0.0027896963240444323,
+    "admissible": false,
+    "budgets_off_the_floor": [],
+    "clears_floor_at_every_budget": false,
+    "measurement": {
+     "abstained_events": 12538,
+     "abstained_share": 0.0027896963240444323,
+     "at_budget": {
+      "budget_1000_per_day": {
+       "alerts": 7000,
+       "days_off_the_1e-12_floor": 6,
+       "labelled_clearing_cut": 0,
+       "off_the_1e-12_floor": false,
+       "realised_cut_median_day": 0.0000017347563205958517,
+       "realised_cut_worst_day": 0.0013570839778270782,
+       "scored_days": 7
+      },
+      "budget_100_per_day": {
+       "alerts": 700,
+       "days_off_the_1e-12_floor": 1,
+       "labelled_clearing_cut": 0,
+       "off_the_1e-12_floor": false,
+       "realised_cut_median_day": 5.852154192294852e-43,
+       "realised_cut_worst_day": 0.00007052441684662902,
+       "scored_days": 7
+      },
+      "budget_10_per_day": {
+       "alerts": 70,
+       "days_off_the_1e-12_floor": 1,
+       "labelled_clearing_cut": 0,
+       "off_the_1e-12_floor": false,
+       "realised_cut_median_day": 1.1828757826082295e-69,
+       "realised_cut_worst_day": 0.0000019139270667847317,
+       "scored_days": 7
+      }
+     },
+     "labelled_remaining": 1394,
+     "labelled_removed": 11,
+     "measurable": true,
+     "min_periods": 2,
+     "sub_1e-12_remaining": 13550,
+     "sub_1e-12_removed": 68
+    },
+    "min_periods": 2,
+    "within_share_limit": true
+   },
+   {
+    "abstained_share": 0.012675563078998824,
+    "admissible": false,
+    "budgets_off_the_floor": [],
+    "clears_floor_at_every_budget": false,
+    "measurement": {
+     "abstained_events": 56969,
+     "abstained_share": 0.012675563078998824,
+     "at_budget": {
+      "budget_1000_per_day": {
+       "alerts": 7000,
+       "days_off_the_1e-12_floor": 6,
+       "labelled_clearing_cut": 0,
+       "off_the_1e-12_floor": false,
+       "realised_cut_median_day": 0.000005378767389482528,
+       "realised_cut_worst_day": 0.0013581221034719704,
+       "scored_days": 7
+      },
+      "budget_100_per_day": {
+       "alerts": 700,
+       "days_off_the_1e-12_floor": 1,
+       "labelled_clearing_cut": 0,
+       "off_the_1e-12_floor": false,
+       "realised_cut_median_day": 5.852154192294852e-43,
+       "realised_cut_worst_day": 0.00007052441684662902,
+       "scored_days": 7
+      },
+      "budget_10_per_day": {
+       "alerts": 70,
+       "days_off_the_1e-12_floor": 1,
+       "labelled_clearing_cut": 0,
+       "off_the_1e-12_floor": false,
+       "realised_cut_median_day": 1.1828757826082295e-69,
+       "realised_cut_worst_day": 0.0000019139270667847317,
+       "scored_days": 7
+      }
+     },
+     "labelled_remaining": 1371,
+     "labelled_removed": 34,
+     "measurable": true,
+     "min_periods": 3,
+     "sub_1e-12_remaining": 13307,
+     "sub_1e-12_removed": 311
+    },
+    "min_periods": 3,
+    "within_share_limit": true
+   },
+   {
+    "abstained_share": 0.04914164216949285,
+    "admissible": false,
+    "budgets_off_the_floor": [],
+    "clears_floor_at_every_budget": false,
+    "measurement": {
+     "abstained_events": 220862,
+     "abstained_share": 0.04914164216949285,
+     "at_budget": {
+      "budget_1000_per_day": {
+       "alerts": 7000,
+       "days_off_the_1e-12_floor": 6,
+       "labelled_clearing_cut": 4,
+       "off_the_1e-12_floor": false,
+       "realised_cut_median_day": 0.000008087375609474439,
+       "realised_cut_worst_day": 0.0013581221034719704,
+       "scored_days": 7
+      },
+      "budget_100_per_day": {
+       "alerts": 700,
+       "days_off_the_1e-12_floor": 1,
+       "labelled_clearing_cut": 0,
+       "off_the_1e-12_floor": false,
+       "realised_cut_median_day": 2.15322045326509e-40,
+       "realised_cut_worst_day": 0.00007052441684662902,
+       "scored_days": 7
+      },
+      "budget_10_per_day": {
+       "alerts": 70,
+       "days_off_the_1e-12_floor": 1,
+       "labelled_clearing_cut": 0,
+       "off_the_1e-12_floor": false,
+       "realised_cut_median_day": 1.1828757826082295e-69,
+       "realised_cut_worst_day": 0.0000019139270667847317,
+       "scored_days": 7
+      }
+     },
+     "labelled_remaining": 1273,
+     "labelled_removed": 132,
+     "measurable": true,
+     "min_periods": 5,
+     "sub_1e-12_remaining": 12176,
+     "sub_1e-12_removed": 1442
+    },
+    "min_periods": 5,
+    "within_share_limit": true
+   }
+  ],
+  "decision": {
+   "agrees_with_recommendation": false,
+   "candidates_considered": [
+    0,
+    1,
+    2,
+    3,
+    5
+   ],
+   "chosen": 1,
+   "divergence_note": "the adopted threshold is not the rule's recommendation; the reason belongs in the CHANGELOG and the paper, not here",
+   "max_abstain_share": 0.1,
+   "recommendation_note": "no candidate satisfied the rule; the measurement is the result and the arm's zeros are not explained by the abstention alone",
+   "recommended": null,
+   "rule": "smallest candidate that moves the realised cut off the 1e-12 floor at every budget, subject to abstaining on no more than max_abstain_share of events. A gate that does not clear the floor has not fixed the queue; one that abstains on most events has made the arm silent rather than correct"
+  },
+  "evaluated": 4494396,
+  "labelled_evaluated": 1405,
+  "sub_1e-12_ungated": 13618,
+  "volume_events": 4494396
+ },
+ "run": {
+  "finished_at": "2026-08-20T21:19:18Z",
+  "go_version": "go1.26.0",
+  "parent_file": "/tmp/inj-ungated.json",
+  "parent_run": "lanl-inj-b1000-ungated-probe-002",
+  "run_id": "volume-abstention-gate-001",
+  "started_at": "2026-08-20T21:19:18Z"
+ },
+ "schema_version": "1"
+}

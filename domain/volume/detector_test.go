@@ -56,10 +56,17 @@ func vEvent(at event.Timestamp, offset int64) *event.Event {
 func wire() (*volume.Detector, *memVolume, *memTiming) {
 	mv := &memVolume{states: map[string]*volume.State{}}
 	mt := &memTiming{states: map[string]*timing.State{}}
-	return volume.NewDetector(mv, mt, 1.5, novelty.HalfLife(7*event.Day)), mv, mt
+	return volume.NewDetector(mv, mt, 1.5, novelty.HalfLife(7*event.Day), 0), mv, mt
 }
 
-func TestVolumeColdStartEvaluatesAtOne(t *testing.T) {
+// wireGated is wire with the R3 abstention of #25 armed at minPeriods.
+func wireGated(minPeriods int64) (*volume.Detector, *memVolume, *memTiming) {
+	mv := &memVolume{states: map[string]*volume.State{}}
+	mt := &memTiming{states: map[string]*timing.State{}}
+	return volume.NewDetector(mv, mt, 1.5, novelty.HalfLife(7*event.Day), minPeriods), mv, mt
+}
+
+func TestVolumeColdStartEvaluatesAtOneWhenUngated(t *testing.T) {
 	d, _, _ := wire()
 	verdicts, obs, err := d.Score(context.Background(), vEvent(9*event.Hour, 1))
 	if err != nil {
@@ -139,7 +146,7 @@ func TestVolumeToleratesHabitualDayToDayVariation(t *testing.T) {
 	ctx := context.Background()
 	mv := &memVolume{states: map[string]*volume.State{}}
 	mt := &memTiming{states: map[string]*timing.State{}}
-	vd := volume.NewDetector(mv, mt, 1.5, novelty.HalfLife(7*event.Day))
+	vd := volume.NewDetector(mv, mt, 1.5, novelty.HalfLife(7*event.Day), 0)
 	td := timing.NewDetector(mt, 1.5, novelty.HalfLife(7*event.Day))
 
 	// The entity's habit: one session a day at 09:00, of a size that has always swung
@@ -198,7 +205,7 @@ func TestVolumeUsesTimingDensityForRho(t *testing.T) {
 	ctx := context.Background()
 	mv := &memVolume{states: map[string]*volume.State{}}
 	mt := &memTiming{states: map[string]*timing.State{}}
-	vd := volume.NewDetector(mv, mt, 1.5, novelty.HalfLife(7*event.Day))
+	vd := volume.NewDetector(mv, mt, 1.5, novelty.HalfLife(7*event.Day), 0)
 	td := timing.NewDetector(mt, 1.5, novelty.HalfLife(7*event.Day))
 
 	// Build both states: 14 days, 5 events per day at 09:00-13:00.
@@ -315,5 +322,117 @@ func TestVolumePeriodFolding(t *testing.T) {
 	st, _, _ := mv.FindByEntity(ctx, vSrc, vEntity)
 	if st.PeriodIndex != 3 || st.PeriodCount != 1 {
 		t.Fatalf("commit did not advance the period: %+v", st)
+	}
+}
+
+// ---------------------------------------------------------------------------
+// #25: volume must abstain where the posterior has no completed period to rest on
+// ---------------------------------------------------------------------------
+
+// TestVolumeAbstainsBelowMinPeriods is the defect of #25 stated as a test. Scoring an
+// entity's first period reports the PRIOR's tail as though it were the entity's, which is
+// what put 13,618 events below 1e-12 where a calibrated null predicts 4.5e-06 and pinned
+// the realised cut at 1.12e-12 at every budget.
+func TestVolumeAbstainsBelowMinPeriods(t *testing.T) {
+	d, _, _ := wireGated(1)
+	verdicts, obs, err := d.Score(context.Background(), vEvent(9*event.Hour, 1))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(verdicts) != 1 {
+		t.Fatalf("want one verdict, got %d", len(verdicts))
+	}
+	v := verdicts[0]
+	if v.Status() != detector.StatusAbstainedUnusable {
+		t.Fatalf("want %s, got %s", detector.StatusAbstainedUnusable, v.Status())
+	}
+	if _, ok := v.PValue(); ok {
+		t.Fatal("an abstained verdict must carry no p-value (R3)")
+	}
+	if v.Reason() == "" {
+		t.Fatal("an abstention must say why")
+	}
+	if got := v.Evidence().Stats["completed_periods"]; got != 0 {
+		t.Fatalf("completed_periods = %v, want 0 on a first period", got)
+	}
+	if got := v.Evidence().Stats["minimum"]; got != 1 {
+		t.Fatalf("minimum = %v, want 1", got)
+	}
+	if obs == nil {
+		t.Fatal("abstaining must still return an observation, or the gate never opens")
+	}
+}
+
+// TestVolumeAbstentionIsProvisionalNotPermanent is the property that makes the gate safe:
+// an abstained event still advances state, so the entity crosses the threshold on schedule.
+// Withholding the observation would strand every entity below the gate forever and turn a
+// calibration fix into a silent arm.
+func TestVolumeAbstentionIsProvisionalNotPermanent(t *testing.T) {
+	ctx := context.Background()
+	d, _, _ := wireGated(3)
+
+	var abstained, evaluated int
+	offset := int64(0)
+	for day := range 8 {
+		for i := range 4 {
+			offset++
+			at := event.Timestamp(day)*event.Day + event.Timestamp(9+i)*event.Hour
+			verdicts, obs, err := d.Score(ctx, vEvent(at, offset))
+			if err != nil {
+				t.Fatal(err)
+			}
+			if _, ok := verdicts[0].PValue(); ok {
+				evaluated++
+			} else {
+				abstained++
+			}
+			if err := obs.Commit(ctx); err != nil {
+				t.Fatal(err)
+			}
+		}
+	}
+	// Days 0, 1 and 2 close 0, 1 and 2 periods respectively, so the first three days
+	// abstain at a threshold of 3 and every later day evaluates.
+	if abstained != 12 {
+		t.Errorf("abstained on %d events, want 12 (days 0-2 at 4 events each)", abstained)
+	}
+	if evaluated != 20 {
+		t.Errorf("evaluated %d events, want 20 (days 3-7)", evaluated)
+	}
+}
+
+// TestVolumeCompletedPeriodsIsUndiscounted separates the new counter from the posterior's
+// b. With T½ = 7 days the discounted count settles near 10.6 and cannot express "how many
+// periods" for an established entity, which is why the gate needs its own counter.
+func TestVolumeCompletedPeriodsIsUndiscounted(t *testing.T) {
+	ctx := context.Background()
+	d, mv, _ := wireGated(0)
+
+	offset := int64(0)
+	const days = 30
+	for day := range days {
+		offset++
+		at := event.Timestamp(day)*event.Day + 9*event.Hour
+		verdicts, obs, err := d.Score(ctx, vEvent(at, offset))
+		if err != nil {
+			t.Fatal(err)
+		}
+		if got, want := verdicts[0].Evidence().Stats["completed_periods"], float64(day); got != want {
+			t.Fatalf("day %d: completed_periods = %v, want %v", day, got, want)
+		}
+		if err := obs.Commit(ctx); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	st, ok, err := mv.FindByEntity(ctx, vSrc, vEntity)
+	if err != nil || !ok {
+		t.Fatalf("state missing: ok=%v err=%v", ok, err)
+	}
+	if st.CompletedPeriods != days-1 {
+		t.Errorf("CompletedPeriods = %d, want %d", st.CompletedPeriods, days-1)
+	}
+	if st.Rate.B > 11 {
+		t.Errorf("Rate.B = %v; the discounted count is expected to saturate near 10.6", st.Rate.B)
 	}
 }
