@@ -1717,12 +1717,12 @@
   ]
  },
  "run": {
-  "finished_at": "2026-08-20T15:37:08Z",
+  "finished_at": "2026-08-20T19:22:17Z",
   "go_version": "go1.26.3",
-  "parent_file": "results/lanl-r11-b1000-conf-d7-14.json",
-  "parent_run": "lanl-r11-b1000-union-d7-14-002",
+  "parent_file": "C:/Users/JohnPierman/Documents/calibrated-anomaly-detection/results/lanl-r11-b1000-conf-d7-14.json",
+  "parent_run": "lanl-r11-b1000-weighted-d7-14-003",
   "run_id": "analysis-r11-b1000-conf-001",
-  "started_at": "2026-08-20T15:37:08Z"
+  "started_at": "2026-08-20T19:22:17Z"
  },
  "schema_version": "1"
 }

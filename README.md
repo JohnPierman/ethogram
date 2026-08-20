@@ -25,7 +25,7 @@ On LANL days 7–14, labelled red-team events caught per alert budget:
 | composite (Fisher) | 0 | 6 | 113 |
 | union of all arms, same budget | 2 | 21 | 96 |
 
-549 labelled events, `lanl-r11-b1000-union-d7-14-002`. `novelty` replicated on a second
+549 labelled events, `lanl-r11-b1000-weighted-d7-14-003`. `novelty` replicated on a second
 subset at 21 of 262.
 
 At 10 alerts/day that is 11 hits in 70 alerts — **16% precision against a 0.013% base rate,

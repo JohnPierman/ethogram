@@ -763,7 +763,7 @@ the explanation for the null results the timing and volume detectors return thro
 separate labelled events from background cannot rank labelled events highly however well it is
 specified. It also bounds what any amount of work on those two detectors could recover here.</p>
 <h3 id="52-detection-on-the-real-campaign">5.2 Detection on the real campaign<a class="anchor" href="#52-detection-on-the-real-campaign" aria-label="link to this section">#</a></h3>
-<p><code>lanl-r11-b1000-union-d7-14-002</code> and <code>analysis-r11-b1000-conf-001</code>, 549 labelled events among
+<p><code>lanl-r11-b1000-weighted-d7-14-003</code> and <code>analysis-r11-b1000-conf-001</code>, 549 labelled events among
 4,190,603 scored. Every proportion carries a 95% Wilson interval [7], and section 6.2 states why
 those intervals are optimistic.</p>
 <div class="tablewrap"><table>
@@ -803,7 +803,7 @@ from sampling, that corpus shares its labelled events with this one; it is a che
 sensitivity to background, not an independent replication.</p>
 <h3 id="53-detection-by-attack-mechanism">5.3 Detection by attack mechanism<a class="anchor" href="#53-detection-by-attack-mechanism" aria-label="link to this section">#</a></h3>
 <p>The planted corpus separates &#34;this test cannot express this mechanism&#34; from &#34;this budget
-cannot afford it&#34;. <code>lanl-inj-b1000-union-d7-14-002</code>: 856 planted events across six mechanisms
+cannot afford it&#34;. <code>lanl-inj-b1000-weighted-d7-14-003</code>: 856 planted events across six mechanisms
 plus the 549 real labelled events. Attribution is by victim account, which the design makes
 unambiguous. Planted and real ground truth are reported side by side and never summed.</p>
 <p><strong>At 10 alerts a day.</strong></p>
@@ -1025,15 +1025,10 @@ behaviour, and it is not enough.</p>
 <tr><td>weighted, oracle weights</td><td>61</td><td>174</td><td>61</td><td>309</td></tr>
 <tr><td>best two-arm split, oracle</td><td>60</td><td>201</td><td>77</td><td>395</td></tr>
 </tbody></table></div>
-<p>Two of those rows read the labels they are evaluated against and are marked oracles; neither
-is a deployable configuration, and both are here to bound what a fitted rule could reach.</p>
-<p><strong>Provenance of this table, stated because it differs from every other in this paper.</strong> These
-four rows are computed from the per-detector ranked queues of <code>lanl-r11-ledger-d7-14-001</code> and
-<code>lanl-inj-ledger-d7-14-001</code>, which reproduce the recorded runs of sections 5.2 to 5.4 exactly
-— all thirty-six per-arm, per-budget cells agree on both corpora — but which record the
-rankings rather than this arm&#39;s own detections. The arm is implemented in the replay and its
-recorded run is pending. Until that run is committed, read this table as the measurement it
-is: exact on the rankings it reads, and not yet carrying a result file of its own.</p>
+<p><code>lanl-r11-b1000-weighted-d7-14-003</code> and <code>lanl-inj-b1000-weighted-d7-14-003</code>. The two oracle
+rows read the labels they are evaluated against; neither is a deployable configuration, and
+both are here to bound what a fitted rule could reach. All four rows are computed by the same
+run from the same rankings.</p>
 <p>The burn-in-weighted rule loses at every budget on both corpora. That alone would leave the
 diagnosis open, because 49 labelled events is a thin sample for ranking six detectors, and a
 rule may be sound while its estimator is starved. Refitting the same rule&#39;s weights on the
@@ -1056,9 +1051,11 @@ by spending the same alerts differently.</p>
 <p>Where the arms are genuine complements the same search finds the headroom, which is the
 control this argument needs. On the planted corpus at 100 alerts a day the population marginal
 detector&#39;s 76 detections overlap the per-entity arms&#39; by <strong>zero</strong> — the two scopes answer
-different questions and, there, catch disjoint events — and the best split is 95% to the
-marginal plus 5% to the novelty detector, for 77 against 76. At 1000 a day the best split is
-150 to the marginal and 850 to the novelty-rate detector, for 395 against 384. Both gains are
+different questions and, there, catch disjoint events — and the best split gives the marginal 75
+of the 100 daily alerts and the novelty detector 25, for 77 against 76. At 1000 a day it gives
+the marginal 150 and the novelty-rate detector 850, for 395 against 384. Both optima sit on a
+plateau — several splits reach the same count — which is itself a sign of how little is at
+stake. Both gains are
 inside the sampling error of the counts, and both are on the corpus of planted attacks rather
 than the real campaign.</p>
 <p>So the overlap between two arms&#39; detections is what decides whether dividing a budget can pay,

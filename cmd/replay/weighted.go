@@ -455,10 +455,7 @@ func (a *accumulator) optimalSplit(ids []detector.ID, budget int) map[string]any
 		"best_single_arm_tp":    bestSingle,
 		"best_split_tp":         best.tp,
 		"gain_over_best_single": best.tp - bestSingle,
-		"best_split": map[string]any{
-			string(best.first):  best.firstDepth,
-			string(best.second): best.secondepth,
-		},
+		"best_split":            splitRecord(best.first, best.firstDepth, best.second, best.secondepth),
 	}
 }
 
@@ -547,4 +544,22 @@ func (a *accumulator) splitDetections(depths map[detector.ID]int, budget int,
 		}
 	}
 	return tp
+}
+
+// splitRecord renders the winning depths, naming only arms actually given depth.
+//
+// The corner case is the common one and needs saying rather than encoding. Where the optimum
+// is the whole budget to one arm there is no second arm, and a map carrying an empty-string
+// key at depth zero reads as "an arm called nothing got nothing" rather than "no second arm
+// was worth a share". The absence is the finding, so it is rendered as an absence.
+func splitRecord(first detector.ID, firstDepth int, second detector.ID,
+	secondDepth int) map[string]any {
+	out := make(map[string]any, 2)
+	if first != "" && firstDepth > 0 {
+		out[string(first)] = firstDepth
+	}
+	if second != "" && secondDepth > 0 {
+		out[string(second)] = secondDepth
+	}
+	return out
 }

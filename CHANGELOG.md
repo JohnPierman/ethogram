@@ -11,6 +11,23 @@ Equation numbers `(1)`–`(20)`, requirements `R1`–`R6`, and evaluation hypoth
 
 ### Added
 
+- **the allocation result is now a recorded run.** `lanl-r11-b1000-weighted-d7-14-003` and
+  `lanl-inj-b1000-weighted-d7-14-003` carry the weighted arm and the oracle split search, so
+  paper section 5.5 cites result files rather than a ledger. The Go implementation reproduces
+  the offline screen the finding was developed against to four decimal places on every fitted
+  weight -- 0.3760, 0.4135, 0.4908 on the real campaign -- and to the detection on every cell
+- the per-detector arms are **unchanged** across the two runs that added the arm: `novelty`
+  11/60/201 on the real campaign, `noveltyrate` 384 at 1000/day on the planted corpus, every
+  other arm identical. `-weighted` mirrors the burn-in ranking and observes the scoring window;
+  a moved per-arm count would have meant it was perturbing what it measures
+
+### Fixed
+
+- `weighted_arm.optimal_split.best_split` named an arm called nothing at depth zero where the
+  optimum was the whole budget to one arm. The absence of a second arm is the finding, so it is
+  rendered as an absence. The two `-003` runs predate the fix and carry the empty key; no
+  published figure reads that field, and re-running two hours to change a map key that no
+  number depends on is not a trade worth making
 - **`make corpus`, `make corpus-check`, and one target per recorded run.** Every result file
   cites its inputs by SHA-256, which proves which file was read and says nothing about how to
   make it. For one release the derivations lived only in a shell history: two `cmd/subset`

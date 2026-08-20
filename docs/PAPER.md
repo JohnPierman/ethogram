@@ -453,7 +453,7 @@ specified. It also bounds what any amount of work on those two detectors could r
 
 ### 5.2 Detection on the real campaign
 
-`lanl-r11-b1000-union-d7-14-002` and `analysis-r11-b1000-conf-001`, 549 labelled events among
+`lanl-r11-b1000-weighted-d7-14-003` and `analysis-r11-b1000-conf-001`, 549 labelled events among
 4,190,603 scored. Every proportion carries a 95% Wilson interval [7], and section 6.2 states why
 those intervals are optimistic.
 
@@ -500,7 +500,7 @@ sensitivity to background, not an independent replication.
 ### 5.3 Detection by attack mechanism
 
 The planted corpus separates "this test cannot express this mechanism" from "this budget
-cannot afford it". `lanl-inj-b1000-union-d7-14-002`: 856 planted events across six mechanisms
+cannot afford it". `lanl-inj-b1000-weighted-d7-14-003`: 856 planted events across six mechanisms
 plus the 549 real labelled events. Attribution is by victim account, which the design makes
 unambiguous. Planted and real ground truth are reported side by side and never summed.
 
@@ -692,16 +692,10 @@ behaviour, and it is not enough.
 | weighted, oracle weights | 61 | 174 | 61 | 309 |
 | best two-arm split, oracle | 60 | 201 | 77 | 395 |
 
-Two of those rows read the labels they are evaluated against and are marked oracles; neither
-is a deployable configuration, and both are here to bound what a fitted rule could reach.
-
-**Provenance of this table, stated because it differs from every other in this paper.** These
-four rows are computed from the per-detector ranked queues of `lanl-r11-ledger-d7-14-001` and
-`lanl-inj-ledger-d7-14-001`, which reproduce the recorded runs of sections 5.2 to 5.4 exactly
-— all thirty-six per-arm, per-budget cells agree on both corpora — but which record the
-rankings rather than this arm's own detections. The arm is implemented in the replay and its
-recorded run is pending. Until that run is committed, read this table as the measurement it
-is: exact on the rankings it reads, and not yet carrying a result file of its own.
+`lanl-r11-b1000-weighted-d7-14-003` and `lanl-inj-b1000-weighted-d7-14-003`. The two oracle
+rows read the labels they are evaluated against; neither is a deployable configuration, and
+both are here to bound what a fitted rule could reach. All four rows are computed by the same
+run from the same rankings.
 
 The burn-in-weighted rule loses at every budget on both corpora. That alone would leave the
 diagnosis open, because 49 labelled events is a thin sample for ranking six detectors, and a
@@ -728,9 +722,11 @@ by spending the same alerts differently.
 Where the arms are genuine complements the same search finds the headroom, which is the
 control this argument needs. On the planted corpus at 100 alerts a day the population marginal
 detector's 76 detections overlap the per-entity arms' by **zero** — the two scopes answer
-different questions and, there, catch disjoint events — and the best split is 95% to the
-marginal plus 5% to the novelty detector, for 77 against 76. At 1000 a day the best split is
-150 to the marginal and 850 to the novelty-rate detector, for 395 against 384. Both gains are
+different questions and, there, catch disjoint events — and the best split gives the marginal 75
+of the 100 daily alerts and the novelty detector 25, for 77 against 76. At 1000 a day it gives
+the marginal 150 and the novelty-rate detector 850, for 395 against 384. Both optima sit on a
+plateau — several splits reach the same count — which is itself a sign of how little is at
+stake. Both gains are
 inside the sampling error of the counts, and both are on the corpus of planted attacks rather
 than the real campaign.
 
