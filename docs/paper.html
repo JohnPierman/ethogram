@@ -767,11 +767,14 @@ something the campaign does not exhibit. This is the strongest form the paper&#3
 takes, and it is a statement about this campaign rather than about population-scope methods in
 general; section 5.3 shows the same property behaving differently on planted attacks.</p>
 <p>The remaining two properties are <strong>not enriched at all</strong>: 1.3 and 0.9. Volume bursts and
-out-of-hours activity are as common among background events as among labelled ones. This is
-the explanation for the null results the timing and volume detectors return throughout section
-5.2, and it is a better explanation than misspecification: a test of a property that does not
-separate labelled events from background cannot rank labelled events highly however well it is
-specified. It also bounds what any amount of work on those two detectors could recover here.</p>
+out-of-hours activity are as common among background events as among labelled ones, so a test
+of either cannot rank labelled events highly however well it is specified. That bounds what
+work on those two detectors could recover on this campaign.</p>
+<p>It is not the whole explanation for their null results, and section 6.2 gives the other half:
+the timing detector&#39;s p-value is floored by its own construction at a value close to the alert
+cut, so it has under a decade of usable dynamic range here and at the two tighter budgets
+cannot alert at all. The two limits are real and independent — a property that does not
+discriminate, and a statistic that could not express discrimination if it had any.</p>
 <h3 id="52-detection-on-the-real-campaign">5.2 Detection on the real campaign<a class="anchor" href="#52-detection-on-the-real-campaign" aria-label="link to this section">#</a></h3>
 <p><code>lanl-r11-b1000-weighted-d7-14-003</code> and <code>analysis-r11-b1000-conf-001</code>, 549 labelled events among
 4,190,603 scored. Every proportion carries a 95% Wilson interval [7], and section 6.2 states why
@@ -1182,6 +1185,26 @@ one account, the reference distribution drifts toward the attacker&#39;s behavio
 untested alternative explanation for two of the paper&#39;s null results, the low-and-slow zero in
 particular, and it cannot be separated from the stated mechanism without a run that freezes
 per-entity state across the campaign window.</p>
+<p>The timing detector&#39;s p-value is floored by its own grid, and the floor sits at the alert
+cut. Its tail mass is read from a 512-point lookup over the entity&#39;s circular density, and the
+implementation reports no mass below one half-cell — 1/(2 × 512) = 9.77 × 10⁻⁴ — because a
+grid of that size cannot resolve less. The realised alert cut on the planted corpus is
+3.98 × 10⁻³ at 1000 alerts a day and 1.00 × 10⁻³ at 100 and at 10, so the detector&#39;s most
+extreme possible answer is a factor of four inside the widest cut and at or above the other
+two. It cannot alert at the tighter budgets whatever it observes.</p>
+<p>This is a separate failure from non-discrimination, and the detector is in fact responding to
+the mechanism it was built for: its median p-value on planted off-hours attacks is
+3.20 × 10⁻², against 0.59 to 0.83 on every other planted mechanism, a separation of more than
+an order of magnitude from its own baseline. What it cannot do is turn that separation into a
+number small enough to compete for an alert slot, because a tail mass over density levels
+saturates: for an account with an eight-hour working window, an event at the opposite side of
+the clock still sits in a low-density region covering much of the circle, and the mass of that
+region is not small. Raising the grid alone would not fix it — only 1 of 64 planted off-hours
+events and 5 of 549 real labelled events actually sit at the floor — so the statistic is the
+thing to change rather than its resolution. A rank of the density against the entity&#39;s own
+history, which is the construction section 5.5 applies across detectors, has no such ceiling.
+We report this as a limitation rather than a fix because changing it changes every timing
+figure in this paper, and no run here measures the alternative.</p>
 <p>Effective sample size is far below nominal, so every interval here is optimistic. The 549
 labelled events fall on 104 accounts, 93.6% of label rows share one source computer, and two of
 seven days carry most of them; the unit of independence is nearer the account or the
