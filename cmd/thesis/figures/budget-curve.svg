@@ -1,0 +1,80 @@
+<figure class="fig">
+<svg viewBox="0 0 720 380" role="img" class="figsvg"
+ aria-label="this framework, novelty arm reaches at most 387 of the labelled events; this framework, composite reaches at most 416 of the labelled events; entity_ewma reaches at most 82 of the labelled events; hst reaches at most 1 of the labelled events; lof reaches at most 140 of the labelled events; ocsvm reaches at most 4 of the labelled events.">
+<g font-size="12" fill="currentColor">
+<text x="0" y="14" font-size="11">share of alerts that are real against false-alarm rate, one line per detector, across alert budgets of 10 to 10000 alerts a day</text>
+<line x1="96" y1="288" x2="604" y2="288" stroke="currentColor" opacity="0.45"/>
+<line x1="96" y1="44" x2="96" y2="288" stroke="currentColor" opacity="0.45"/>
+<line x1="74" y1="288" x2="74" y2="44" stroke="currentColor" opacity="0.45" stroke-dasharray="2 2"/>
+<text x="74" y="304" font-size="9" opacity="0.7" text-anchor="middle">0</text>
+<text x="74" y="316" font-size="8.5" opacity="0.55" text-anchor="middle">no detections</text>
+<g font-size="9" opacity="0.65">
+<line x1="96.0" y1="44" x2="96.0" y2="288" stroke="currentColor" opacity="0.18"/>
+<text x="96.0" y="304" text-anchor="middle">10&#8315;&#8309;</text>
+<line x1="197.6" y1="44" x2="197.6" y2="288" stroke="currentColor" opacity="0.18"/>
+<text x="197.6" y="304" text-anchor="middle">10&#8315;&#8308;</text>
+<line x1="299.2" y1="44" x2="299.2" y2="288" stroke="currentColor" opacity="0.18"/>
+<text x="299.2" y="304" text-anchor="middle">10&#8315;&#179;</text>
+<line x1="400.8" y1="44" x2="400.8" y2="288" stroke="currentColor" opacity="0.18"/>
+<text x="400.8" y="304" text-anchor="middle">10&#8315;&#178;</text>
+<line x1="502.4" y1="44" x2="502.4" y2="288" stroke="currentColor" opacity="0.18"/>
+<text x="502.4" y="304" text-anchor="middle">10&#8315;&#185;</text>
+<line x1="604.0" y1="44" x2="604.0" y2="288" stroke="currentColor" opacity="0.18"/>
+<text x="604.0" y="304" text-anchor="middle">1</text>
+<line x1="96" y1="288.0" x2="604" y2="288.0" stroke="currentColor" opacity="0.18"/>
+<text x="88" y="291.0" text-anchor="end">10&#8315;&#8309;</text>
+<line x1="96" y1="227.0" x2="604" y2="227.0" stroke="currentColor" opacity="0.18"/>
+<text x="88" y="230.0" text-anchor="end">10&#8315;&#8308;</text>
+<line x1="96" y1="166.0" x2="604" y2="166.0" stroke="currentColor" opacity="0.18"/>
+<text x="88" y="169.0" text-anchor="end">10&#8315;&#179;</text>
+<line x1="96" y1="105.0" x2="604" y2="105.0" stroke="currentColor" opacity="0.18"/>
+<text x="88" y="108.0" text-anchor="end">10&#8315;&#178;</text>
+<line x1="96" y1="44.0" x2="604" y2="44.0" stroke="currentColor" opacity="0.18"/>
+<text x="88" y="47.0" text-anchor="end">10&#8315;&#185;</text>
+</g>
+<text x="350" y="332" font-size="10" opacity="0.7" text-anchor="middle">share of alerts that are real</text>
+<text x="24" y="166" font-size="10" opacity="0.7" transform="rotate(-90 24 166)" text-anchor="middle">false-alarm rate</text>
+<polyline points="74.0,274.4 345.5,231.8 345.5,213.5 305.1,189.2 274.5,170.8 319.1,152.4 302.8,109.8 306.2,91.4" fill="none" stroke="currentColor" stroke-width="1.4" stroke-dasharray="1 0" opacity="0.7"/>
+<g fill="currentColor" opacity="0.7">
+<circle cx="74.0" cy="274.4" r="2.6"/><circle cx="345.5" cy="231.8" r="2.6"/><circle cx="345.5" cy="213.5" r="2.6"/><circle cx="305.1" cy="189.2" r="2.6"/><circle cx="274.5" cy="170.8" r="2.6"/><circle cx="319.1" cy="152.4" r="2.6"/><circle cx="302.8" cy="109.8" r="2.6"/><circle cx="306.2" cy="91.4" r="2.6"/>
+</g>
+<text x="314.2" y="94.4" font-size="10" fill="currentColor" font-weight="400" opacity="0.7">entity_ewma</text>
+<polyline points="74.0,274.4 74.0,231.8 74.0,213.4 74.0,189.1 74.0,170.8 74.0,152.4 74.0,109.8 111.7,91.4" fill="none" stroke="currentColor" stroke-width="1.4" stroke-dasharray="5 3" opacity="0.7"/>
+<g fill="currentColor" opacity="0.7">
+<circle cx="74.0" cy="274.4" r="2.6"/><circle cx="74.0" cy="231.8" r="2.6"/><circle cx="74.0" cy="213.4" r="2.6"/><circle cx="74.0" cy="189.1" r="2.6"/><circle cx="74.0" cy="170.8" r="2.6"/><circle cx="74.0" cy="152.4" r="2.6"/><circle cx="74.0" cy="109.8" r="2.6"/><circle cx="111.7" cy="91.4" r="2.6"/>
+</g>
+<text x="119.7" y="94.4" font-size="10" fill="currentColor" font-weight="400" opacity="0.7">hst</text>
+<polyline points="74.0,274.4 74.0,231.8 74.0,213.4 74.0,189.1 243.9,170.8 314.9,152.4 339.9,109.8 329.8,91.5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-dasharray="2 3" opacity="0.7"/>
+<g fill="currentColor" opacity="0.7">
+<circle cx="74.0" cy="274.4" r="2.6"/><circle cx="74.0" cy="231.8" r="2.6"/><circle cx="74.0" cy="213.4" r="2.6"/><circle cx="74.0" cy="189.1" r="2.6"/><circle cx="243.9" cy="170.8" r="2.6"/><circle cx="314.9" cy="152.4" r="2.6"/><circle cx="339.9" cy="109.8" r="2.6"/><circle cx="329.8" cy="91.5" r="2.6"/>
+</g>
+<text x="337.8" y="94.5" font-size="10" fill="currentColor" font-weight="400" opacity="0.7">lof</text>
+<polyline points="74.0,274.4 74.0,231.8 74.0,213.4 74.0,189.1 74.0,170.8 74.0,152.4 142.3,109.8 172.9,91.4" fill="none" stroke="currentColor" stroke-width="1.4" stroke-dasharray="8 3 2 3" opacity="0.7"/>
+<g fill="currentColor" opacity="0.7">
+<circle cx="74.0" cy="274.4" r="2.6"/><circle cx="74.0" cy="231.8" r="2.6"/><circle cx="74.0" cy="213.4" r="2.6"/><circle cx="74.0" cy="189.1" r="2.6"/><circle cx="74.0" cy="170.8" r="2.6"/><circle cx="74.0" cy="152.4" r="2.6"/><circle cx="142.3" cy="109.8" r="2.6"/><circle cx="172.9" cy="91.4" r="2.6"/>
+</g>
+<text x="180.9" y="94.4" font-size="10" fill="currentColor" font-weight="400" opacity="0.7">ocsvm</text>
+<polyline points="522.3,278.9 506.0,234.8 495.6,215.8 476.4,190.6 453.3,171.7 447.3,153.2 399.8,110.0 374.6,91.6" fill="none" stroke="var(--fig-a)" stroke-width="2.6" stroke-dasharray="1 0" opacity="1"/>
+<g fill="var(--fig-a)" opacity="1">
+<circle cx="522.3" cy="278.9" r="3.6"/><circle cx="506.0" cy="234.8" r="3.6"/><circle cx="495.6" cy="215.8" r="3.6"/><circle cx="476.4" cy="190.6" r="3.6"/><circle cx="453.3" cy="171.7" r="3.6"/><circle cx="447.3" cy="153.2" r="3.6"/><circle cx="399.8" cy="110.0" r="3.6"/><circle cx="374.6" cy="91.6" r="3.6"/>
+</g>
+<text x="382.6" y="94.6" font-size="10" fill="var(--fig-a)" font-weight="600" opacity="1">this framework, novelty arm</text>
+<polyline points="74.0,274.4 74.0,231.8 394.0,213.6 414.7,189.5 430.7,171.3 421.9,152.8 400.0,110.0 377.8,91.6" fill="none" stroke="var(--fig-a)" stroke-width="2.6" stroke-dasharray="1 0" opacity="1"/>
+<g fill="var(--fig-a)" opacity="1">
+<circle cx="74.0" cy="274.4" r="3.6"/><circle cx="74.0" cy="231.8" r="3.6"/><circle cx="394.0" cy="213.6" r="3.6"/><circle cx="414.7" cy="189.5" r="3.6"/><circle cx="430.7" cy="171.3" r="3.6"/><circle cx="421.9" cy="152.8" r="3.6"/><circle cx="400.0" cy="110.0" r="3.6"/><circle cx="377.8" cy="91.6" r="3.6"/>
+</g>
+<text x="385.8" y="94.6" font-size="10" fill="var(--fig-a)" font-weight="600" opacity="1">this framework, composite</text>
+<text x="522.3" y="270.9" font-size="8.5" fill="var(--fig-a)" opacity="0.85" text-anchor="middle">10/day</text>
+<text x="447.3" y="145.2" font-size="8.5" fill="var(--fig-a)" opacity="0.85" text-anchor="middle">1000/day</text>
+<text x="374.6" y="83.6" font-size="8.5" fill="var(--fig-a)" opacity="0.85" text-anchor="middle">10000/day</text>
+<text x="74.0" y="266.4" font-size="8.5" fill="var(--fig-a)" opacity="0.85" text-anchor="middle">10/day</text>
+<text x="421.9" y="144.8" font-size="8.5" fill="var(--fig-a)" opacity="0.85" text-anchor="middle">1000/day</text>
+<text x="377.8" y="83.6" font-size="8.5" fill="var(--fig-a)" opacity="0.85" text-anchor="middle">10000/day</text>
+</g>
+</svg>
+<figcaption><strong>The comparison is a function of the budget, not a point.</strong> Every line is measured on the same slice: 4,190,603 scored events over 7 days, of which 549 are labelled, a base rate of one in 7,633. Each point is one detector at one alert budget: the share of its own queue that is real on the horizontal axis, and the rate at which it alarms on a background event on the vertical. A detector that found nothing at a budget is drawn in the column marked 0 rather than omitted, so a flat line at zero reads as measured rather than as missing.
+<br><br>
+At 10 alerts a day this framework's queue is 0.0% real at a false-alarm rate of 1.7&#215;10&#8315;&#8309;; at 10000 a day it is 0.59% real at 1.7&#215;10&#8315;&#178;. The baselines are the strongest available comparators rather than a representative sample: they are the four of eight measured reference implementations with the most detections summed over the budget range, so the comparison is not flattered by the choice. The four not drawn were run on the same events and reached too little to plot: eif (none at any budget), iforest (none at any budget), pca (none at any budget) and rrcf (one, at the widest budget).
+<br><br>
+<em>Both axes are upper bounds on the framework's disadvantage and lower bounds on its precision.</em> The corpus has no true negative class, so an unlabelled alert on genuine but unrecorded malicious activity counts as a false alarm (§12.5). The baselines read a fixed-length numeric vector per event with no per-entity state, which is the standard formulation this work argues against, and they are not held to R2 or R4 (§12.4).</figcaption>
+</figure>

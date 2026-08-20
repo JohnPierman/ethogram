@@ -1,0 +1,1217 @@
+{
+ "corpus": {
+  "burn_in": {
+   "end_seconds": 604800,
+   "fixed_at_commit": "24c5a53"
+  },
+  "coverage": {
+   "entity_population": "source users matching U*@ (human accounts); see DATA.md burn-in section",
+   "kind": "full",
+   "max_rows": 0,
+   "max_seconds": 0,
+   "statement": "full corpus scored from day 7.00"
+  },
+  "events_scored": 4190603,
+  "events_skipped": 0,
+  "events_warmed": 3808702,
+  "files": [
+   {
+    "path": "data/lanl/auth-r11-d0-14.txt.gz",
+    "sha256": "77d2897145ce4fd1d66e2534ae4a8e52310ea4f915edc6c6750d8d826131961f"
+   },
+   {
+    "path": "data/lanl/redteam.txt.gz",
+    "sha256": "606635837c684ad11e464075ecf97bc5df325ff7d7f64614d2d8c8af18051669"
+   }
+  ],
+  "no_opinion": 0,
+  "row_errors": 0,
+  "rows_prefiltered": 8031091,
+  "rows_read": 16030396
+ },
+ "hypothesis": [
+  "the framework's advantage over published detectors is a function of the alert budget, and is reported across the range rather than at one operating point"
+ ],
+ "kind": "budget-curve",
+ "paper_refs": {
+  "issues": [
+   "#29"
+  ],
+  "sections": [
+   "§1.1",
+   "§5.7",
+   "§12.4"
+  ]
+ },
+ "parameters": {
+  "alpha": "false alerts over background events; the corpus has no true negative class (§12.5), so every unlabelled alert counts as false and alpha is an upper bound",
+  "arm_selection": "a single arm held fixed across every budget. Selecting the best arm at each budget would be selecting with the evaluation labels in hand, which bounds what an oracle could reach and is not a configuration anyone can deploy",
+  "background_events": 4190054,
+  "base_rate": 0.00013100739917381817,
+  "baselines_estimated_population": 4190603,
+  "framework_arms": [
+   "novelty",
+   "composite"
+  ],
+  "labelled_events": 549,
+  "population_relative_difference": 0,
+  "population_tolerance": 0.01,
+  "precision": "true positives over alerts emitted, both from the method's own top-budget-per-day queue",
+  "scored_days": 7,
+  "scored_events": 4190603,
+  "selection": "the four baselines with the most detections summed over the budget range, so the comparison is against the strongest available comparators rather than the weakest"
+ },
+ "results": {
+  "drawn": [
+   {
+    "name": "ethogram/novelty",
+    "label": "this framework, novelty arm",
+    "ours": true,
+    "points": [
+     {
+      "budget": 10,
+      "alerts": 70,
+      "true_positives": 11,
+      "precision": 0.15714285714285714,
+      "false_alarm_rate": 0.000014080964111679706
+     },
+     {
+      "budget": 50,
+      "alerts": 350,
+      "true_positives": 38,
+      "precision": 0.10857142857142857,
+      "false_alarm_rate": 0.00007446204750583167
+     },
+     {
+      "budget": 100,
+      "alerts": 700,
+      "true_positives": 60,
+      "precision": 0.08571428571428572,
+      "false_alarm_rate": 0.00015274266155042393
+     },
+     {
+      "budget": 250,
+      "alerts": 1750,
+      "true_positives": 97,
+      "precision": 0.05542857142857143,
+      "false_alarm_rate": 0.0003945056555357043
+     },
+     {
+      "budget": 500,
+      "alerts": 3500,
+      "true_positives": 115,
+      "precision": 0.032857142857142856,
+      "false_alarm_rate": 0.0008078654833565391
+     },
+     {
+      "budget": 1000,
+      "alerts": 7000,
+      "true_positives": 201,
+      "precision": 0.028714285714285713,
+      "false_alarm_rate": 0.0016226521185645818
+     },
+     {
+      "budget": 5000,
+      "alerts": 35000,
+      "true_positives": 342,
+      "precision": 0.009771428571428572,
+      "false_alarm_rate": 0.008271492443772802
+     },
+     {
+      "budget": 10000,
+      "alerts": 70000,
+      "true_positives": 387,
+      "precision": 0.005528571428571429,
+      "false_alarm_rate": 0.016613867028921345
+     }
+    ]
+   },
+   {
+    "name": "ethogram/composite",
+    "label": "this framework, composite",
+    "ours": true,
+    "points": [
+     {
+      "budget": 10,
+      "alerts": 70,
+      "true_positives": 0,
+      "precision": 0,
+      "false_alarm_rate": 0.000016706228607077617
+     },
+     {
+      "budget": 50,
+      "alerts": 350,
+      "true_positives": 0,
+      "precision": 0,
+      "false_alarm_rate": 0.00008353114303538808
+     },
+     {
+      "budget": 100,
+      "alerts": 700,
+      "true_positives": 6,
+      "precision": 0.008571428571428572,
+      "false_alarm_rate": 0.00016563032361874096
+     },
+     {
+      "budget": 250,
+      "alerts": 1750,
+      "true_positives": 24,
+      "precision": 0.013714285714285714,
+      "false_alarm_rate": 0.00041192786536879954
+     },
+     {
+      "budget": 500,
+      "alerts": 3500,
+      "true_positives": 69,
+      "precision": 0.019714285714285715,
+      "false_alarm_rate": 0.0008188438621554758
+     },
+     {
+      "budget": 1000,
+      "alerts": 7000,
+      "true_positives": 113,
+      "precision": 0.016142857142857143,
+      "false_alarm_rate": 0.001643654234527765
+     },
+     {
+      "budget": 5000,
+      "alerts": 35000,
+      "true_positives": 344,
+      "precision": 0.009828571428571428,
+      "false_alarm_rate": 0.008271015122955456
+     },
+     {
+      "budget": 10000,
+      "alerts": 70000,
+      "true_positives": 416,
+      "precision": 0.005942857142857143,
+      "false_alarm_rate": 0.016606945877069842
+     }
+    ]
+   },
+   {
+    "name": "entity_ewma",
+    "label": "entity_ewma",
+    "ours": false,
+    "points": [
+     {
+      "budget": 10,
+      "alerts": 70,
+      "true_positives": 0,
+      "precision": 0,
+      "false_alarm_rate": 0.000016706228607077617
+     },
+     {
+      "budget": 50,
+      "alerts": 350,
+      "true_positives": 1,
+      "precision": 0.002857142857142857,
+      "false_alarm_rate": 0.00008329248262671554
+     },
+     {
+      "budget": 100,
+      "alerts": 700,
+      "true_positives": 2,
+      "precision": 0.002857142857142857,
+      "false_alarm_rate": 0.0001665849652534311
+     },
+     {
+      "budget": 250,
+      "alerts": 1750,
+      "true_positives": 2,
+      "precision": 0.001142857142857143,
+      "false_alarm_rate": 0.00041717839435959536
+     },
+     {
+      "budget": 500,
+      "alerts": 3500,
+      "true_positives": 2,
+      "precision": 0.0005714285714285715,
+      "false_alarm_rate": 0.0008348341095365358
+     },
+     {
+      "budget": 1000,
+      "alerts": 7000,
+      "true_positives": 11,
+      "precision": 0.0015714285714285715,
+      "false_alarm_rate": 0.0016679975962123638
+     },
+     {
+      "budget": 5000,
+      "alerts": 35000,
+      "true_positives": 38,
+      "precision": 0.0010857142857142858,
+      "false_alarm_rate": 0.008344045208009252
+     },
+     {
+      "budget": 10000,
+      "alerts": 70000,
+      "true_positives": 82,
+      "precision": 0.0011714285714285715,
+      "false_alarm_rate": 0.01668665845356647
+     }
+    ]
+   },
+   {
+    "name": "hst",
+    "label": "hst",
+    "ours": false,
+    "points": [
+     {
+      "budget": 10,
+      "alerts": 70,
+      "true_positives": 0,
+      "precision": 0,
+      "false_alarm_rate": 0.000016706228607077617
+     },
+     {
+      "budget": 50,
+      "alerts": 350,
+      "true_positives": 0,
+      "precision": 0,
+      "false_alarm_rate": 0.00008353114303538808
+     },
+     {
+      "budget": 100,
+      "alerts": 700,
+      "true_positives": 0,
+      "precision": 0,
+      "false_alarm_rate": 0.00016706228607077617
+     },
+     {
+      "budget": 250,
+      "alerts": 1750,
+      "true_positives": 0,
+      "precision": 0,
+      "false_alarm_rate": 0.00041765571517694047
+     },
+     {
+      "budget": 500,
+      "alerts": 3500,
+      "true_positives": 0,
+      "precision": 0,
+      "false_alarm_rate": 0.0008353114303538809
+     },
+     {
+      "budget": 1000,
+      "alerts": 7000,
+      "true_positives": 0,
+      "precision": 0,
+      "false_alarm_rate": 0.0016706228607077619
+     },
+     {
+      "budget": 5000,
+      "alerts": 35000,
+      "true_positives": 0,
+      "precision": 0,
+      "false_alarm_rate": 0.008353114303538809
+     },
+     {
+      "budget": 10000,
+      "alerts": 70000,
+      "true_positives": 1,
+      "precision": 0.000014285714285714285,
+      "false_alarm_rate": 0.016705989946668946
+     }
+    ]
+   },
+   {
+    "name": "lof",
+    "label": "lof",
+    "ours": false,
+    "points": [
+     {
+      "budget": 10,
+      "alerts": 70,
+      "true_positives": 0,
+      "precision": 0,
+      "false_alarm_rate": 0.000016706228607077617
+     },
+     {
+      "budget": 50,
+      "alerts": 350,
+      "true_positives": 0,
+      "precision": 0,
+      "false_alarm_rate": 0.00008353114303538808
+     },
+     {
+      "budget": 100,
+      "alerts": 700,
+      "true_positives": 0,
+      "precision": 0,
+      "false_alarm_rate": 0.00016706228607077617
+     },
+     {
+      "budget": 250,
+      "alerts": 1750,
+      "true_positives": 0,
+      "precision": 0,
+      "false_alarm_rate": 0.00041765571517694047
+     },
+     {
+      "budget": 500,
+      "alerts": 3500,
+      "true_positives": 1,
+      "precision": 0.00028571428571428574,
+      "false_alarm_rate": 0.0008350727699452084
+     },
+     {
+      "budget": 1000,
+      "alerts": 7000,
+      "true_positives": 10,
+      "precision": 0.0014285714285714286,
+      "false_alarm_rate": 0.0016682362566210363
+     },
+     {
+      "budget": 5000,
+      "alerts": 35000,
+      "true_positives": 88,
+      "precision": 0.002514285714285714,
+      "false_alarm_rate": 0.008332112187575626
+     },
+     {
+      "budget": 10000,
+      "alerts": 70000,
+      "true_positives": 140,
+      "precision": 0.002,
+      "false_alarm_rate": 0.016672816149863462
+     }
+    ]
+   },
+   {
+    "name": "ocsvm",
+    "label": "ocsvm",
+    "ours": false,
+    "points": [
+     {
+      "budget": 10,
+      "alerts": 70,
+      "true_positives": 0,
+      "precision": 0,
+      "false_alarm_rate": 0.000016706228607077617
+     },
+     {
+      "budget": 50,
+      "alerts": 350,
+      "true_positives": 0,
+      "precision": 0,
+      "false_alarm_rate": 0.00008353114303538808
+     },
+     {
+      "budget": 100,
+      "alerts": 700,
+      "true_positives": 0,
+      "precision": 0,
+      "false_alarm_rate": 0.00016706228607077617
+     },
+     {
+      "budget": 250,
+      "alerts": 1750,
+      "true_positives": 0,
+      "precision": 0,
+      "false_alarm_rate": 0.00041765571517694047
+     },
+     {
+      "budget": 500,
+      "alerts": 3500,
+      "true_positives": 0,
+      "precision": 0,
+      "false_alarm_rate": 0.0008353114303538809
+     },
+     {
+      "budget": 1000,
+      "alerts": 7000,
+      "true_positives": 0,
+      "precision": 0,
+      "false_alarm_rate": 0.0016706228607077619
+     },
+     {
+      "budget": 5000,
+      "alerts": 35000,
+      "true_positives": 1,
+      "precision": 0.00002857142857142857,
+      "false_alarm_rate": 0.008352875643130137
+     },
+     {
+      "budget": 10000,
+      "alerts": 70000,
+      "true_positives": 4,
+      "precision": 0.00005714285714285714,
+      "false_alarm_rate": 0.016705273965442927
+     }
+    ]
+   }
+  ],
+  "measured": [
+   {
+    "name": "eif",
+    "label": "eif",
+    "ours": false,
+    "points": [
+     {
+      "budget": 10,
+      "alerts": 70,
+      "true_positives": 0,
+      "precision": 0,
+      "false_alarm_rate": 0.000016706228607077617
+     },
+     {
+      "budget": 50,
+      "alerts": 350,
+      "true_positives": 0,
+      "precision": 0,
+      "false_alarm_rate": 0.00008353114303538808
+     },
+     {
+      "budget": 100,
+      "alerts": 700,
+      "true_positives": 0,
+      "precision": 0,
+      "false_alarm_rate": 0.00016706228607077617
+     },
+     {
+      "budget": 250,
+      "alerts": 1750,
+      "true_positives": 0,
+      "precision": 0,
+      "false_alarm_rate": 0.00041765571517694047
+     },
+     {
+      "budget": 500,
+      "alerts": 3500,
+      "true_positives": 0,
+      "precision": 0,
+      "false_alarm_rate": 0.0008353114303538809
+     },
+     {
+      "budget": 1000,
+      "alerts": 7000,
+      "true_positives": 0,
+      "precision": 0,
+      "false_alarm_rate": 0.0016706228607077619
+     },
+     {
+      "budget": 5000,
+      "alerts": 35000,
+      "true_positives": 0,
+      "precision": 0,
+      "false_alarm_rate": 0.008353114303538809
+     },
+     {
+      "budget": 10000,
+      "alerts": 70000,
+      "true_positives": 0,
+      "precision": 0,
+      "false_alarm_rate": 0.016706228607077617
+     }
+    ]
+   },
+   {
+    "name": "entity_ewma",
+    "label": "entity_ewma",
+    "ours": false,
+    "points": [
+     {
+      "budget": 10,
+      "alerts": 70,
+      "true_positives": 0,
+      "precision": 0,
+      "false_alarm_rate": 0.000016706228607077617
+     },
+     {
+      "budget": 50,
+      "alerts": 350,
+      "true_positives": 1,
+      "precision": 0.002857142857142857,
+      "false_alarm_rate": 0.00008329248262671554
+     },
+     {
+      "budget": 100,
+      "alerts": 700,
+      "true_positives": 2,
+      "precision": 0.002857142857142857,
+      "false_alarm_rate": 0.0001665849652534311
+     },
+     {
+      "budget": 250,
+      "alerts": 1750,
+      "true_positives": 2,
+      "precision": 0.001142857142857143,
+      "false_alarm_rate": 0.00041717839435959536
+     },
+     {
+      "budget": 500,
+      "alerts": 3500,
+      "true_positives": 2,
+      "precision": 0.0005714285714285715,
+      "false_alarm_rate": 0.0008348341095365358
+     },
+     {
+      "budget": 1000,
+      "alerts": 7000,
+      "true_positives": 11,
+      "precision": 0.0015714285714285715,
+      "false_alarm_rate": 0.0016679975962123638
+     },
+     {
+      "budget": 5000,
+      "alerts": 35000,
+      "true_positives": 38,
+      "precision": 0.0010857142857142858,
+      "false_alarm_rate": 0.008344045208009252
+     },
+     {
+      "budget": 10000,
+      "alerts": 70000,
+      "true_positives": 82,
+      "precision": 0.0011714285714285715,
+      "false_alarm_rate": 0.01668665845356647
+     }
+    ]
+   },
+   {
+    "name": "hst",
+    "label": "hst",
+    "ours": false,
+    "points": [
+     {
+      "budget": 10,
+      "alerts": 70,
+      "true_positives": 0,
+      "precision": 0,
+      "false_alarm_rate": 0.000016706228607077617
+     },
+     {
+      "budget": 50,
+      "alerts": 350,
+      "true_positives": 0,
+      "precision": 0,
+      "false_alarm_rate": 0.00008353114303538808
+     },
+     {
+      "budget": 100,
+      "alerts": 700,
+      "true_positives": 0,
+      "precision": 0,
+      "false_alarm_rate": 0.00016706228607077617
+     },
+     {
+      "budget": 250,
+      "alerts": 1750,
+      "true_positives": 0,
+      "precision": 0,
+      "false_alarm_rate": 0.00041765571517694047
+     },
+     {
+      "budget": 500,
+      "alerts": 3500,
+      "true_positives": 0,
+      "precision": 0,
+      "false_alarm_rate": 0.0008353114303538809
+     },
+     {
+      "budget": 1000,
+      "alerts": 7000,
+      "true_positives": 0,
+      "precision": 0,
+      "false_alarm_rate": 0.0016706228607077619
+     },
+     {
+      "budget": 5000,
+      "alerts": 35000,
+      "true_positives": 0,
+      "precision": 0,
+      "false_alarm_rate": 0.008353114303538809
+     },
+     {
+      "budget": 10000,
+      "alerts": 70000,
+      "true_positives": 1,
+      "precision": 0.000014285714285714285,
+      "false_alarm_rate": 0.016705989946668946
+     }
+    ]
+   },
+   {
+    "name": "iforest",
+    "label": "iforest",
+    "ours": false,
+    "points": [
+     {
+      "budget": 10,
+      "alerts": 70,
+      "true_positives": 0,
+      "precision": 0,
+      "false_alarm_rate": 0.000016706228607077617
+     },
+     {
+      "budget": 50,
+      "alerts": 350,
+      "true_positives": 0,
+      "precision": 0,
+      "false_alarm_rate": 0.00008353114303538808
+     },
+     {
+      "budget": 100,
+      "alerts": 700,
+      "true_positives": 0,
+      "precision": 0,
+      "false_alarm_rate": 0.00016706228607077617
+     },
+     {
+      "budget": 250,
+      "alerts": 1750,
+      "true_positives": 0,
+      "precision": 0,
+      "false_alarm_rate": 0.00041765571517694047
+     },
+     {
+      "budget": 500,
+      "alerts": 3500,
+      "true_positives": 0,
+      "precision": 0,
+      "false_alarm_rate": 0.0008353114303538809
+     },
+     {
+      "budget": 1000,
+      "alerts": 7000,
+      "true_positives": 0,
+      "precision": 0,
+      "false_alarm_rate": 0.0016706228607077619
+     },
+     {
+      "budget": 5000,
+      "alerts": 35000,
+      "true_positives": 0,
+      "precision": 0,
+      "false_alarm_rate": 0.008353114303538809
+     },
+     {
+      "budget": 10000,
+      "alerts": 70000,
+      "true_positives": 0,
+      "precision": 0,
+      "false_alarm_rate": 0.016706228607077617
+     }
+    ]
+   },
+   {
+    "name": "lof",
+    "label": "lof",
+    "ours": false,
+    "points": [
+     {
+      "budget": 10,
+      "alerts": 70,
+      "true_positives": 0,
+      "precision": 0,
+      "false_alarm_rate": 0.000016706228607077617
+     },
+     {
+      "budget": 50,
+      "alerts": 350,
+      "true_positives": 0,
+      "precision": 0,
+      "false_alarm_rate": 0.00008353114303538808
+     },
+     {
+      "budget": 100,
+      "alerts": 700,
+      "true_positives": 0,
+      "precision": 0,
+      "false_alarm_rate": 0.00016706228607077617
+     },
+     {
+      "budget": 250,
+      "alerts": 1750,
+      "true_positives": 0,
+      "precision": 0,
+      "false_alarm_rate": 0.00041765571517694047
+     },
+     {
+      "budget": 500,
+      "alerts": 3500,
+      "true_positives": 1,
+      "precision": 0.00028571428571428574,
+      "false_alarm_rate": 0.0008350727699452084
+     },
+     {
+      "budget": 1000,
+      "alerts": 7000,
+      "true_positives": 10,
+      "precision": 0.0014285714285714286,
+      "false_alarm_rate": 0.0016682362566210363
+     },
+     {
+      "budget": 5000,
+      "alerts": 35000,
+      "true_positives": 88,
+      "precision": 0.002514285714285714,
+      "false_alarm_rate": 0.008332112187575626
+     },
+     {
+      "budget": 10000,
+      "alerts": 70000,
+      "true_positives": 140,
+      "precision": 0.002,
+      "false_alarm_rate": 0.016672816149863462
+     }
+    ]
+   },
+   {
+    "name": "ocsvm",
+    "label": "ocsvm",
+    "ours": false,
+    "points": [
+     {
+      "budget": 10,
+      "alerts": 70,
+      "true_positives": 0,
+      "precision": 0,
+      "false_alarm_rate": 0.000016706228607077617
+     },
+     {
+      "budget": 50,
+      "alerts": 350,
+      "true_positives": 0,
+      "precision": 0,
+      "false_alarm_rate": 0.00008353114303538808
+     },
+     {
+      "budget": 100,
+      "alerts": 700,
+      "true_positives": 0,
+      "precision": 0,
+      "false_alarm_rate": 0.00016706228607077617
+     },
+     {
+      "budget": 250,
+      "alerts": 1750,
+      "true_positives": 0,
+      "precision": 0,
+      "false_alarm_rate": 0.00041765571517694047
+     },
+     {
+      "budget": 500,
+      "alerts": 3500,
+      "true_positives": 0,
+      "precision": 0,
+      "false_alarm_rate": 0.0008353114303538809
+     },
+     {
+      "budget": 1000,
+      "alerts": 7000,
+      "true_positives": 0,
+      "precision": 0,
+      "false_alarm_rate": 0.0016706228607077619
+     },
+     {
+      "budget": 5000,
+      "alerts": 35000,
+      "true_positives": 1,
+      "precision": 0.00002857142857142857,
+      "false_alarm_rate": 0.008352875643130137
+     },
+     {
+      "budget": 10000,
+      "alerts": 70000,
+      "true_positives": 4,
+      "precision": 0.00005714285714285714,
+      "false_alarm_rate": 0.016705273965442927
+     }
+    ]
+   },
+   {
+    "name": "pca",
+    "label": "pca",
+    "ours": false,
+    "points": [
+     {
+      "budget": 10,
+      "alerts": 70,
+      "true_positives": 0,
+      "precision": 0,
+      "false_alarm_rate": 0.000016706228607077617
+     },
+     {
+      "budget": 50,
+      "alerts": 350,
+      "true_positives": 0,
+      "precision": 0,
+      "false_alarm_rate": 0.00008353114303538808
+     },
+     {
+      "budget": 100,
+      "alerts": 700,
+      "true_positives": 0,
+      "precision": 0,
+      "false_alarm_rate": 0.00016706228607077617
+     },
+     {
+      "budget": 250,
+      "alerts": 1750,
+      "true_positives": 0,
+      "precision": 0,
+      "false_alarm_rate": 0.00041765571517694047
+     },
+     {
+      "budget": 500,
+      "alerts": 3500,
+      "true_positives": 0,
+      "precision": 0,
+      "false_alarm_rate": 0.0008353114303538809
+     },
+     {
+      "budget": 1000,
+      "alerts": 7000,
+      "true_positives": 0,
+      "precision": 0,
+      "false_alarm_rate": 0.0016706228607077619
+     },
+     {
+      "budget": 5000,
+      "alerts": 35000,
+      "true_positives": 0,
+      "precision": 0,
+      "false_alarm_rate": 0.008353114303538809
+     },
+     {
+      "budget": 10000,
+      "alerts": 70000,
+      "true_positives": 0,
+      "precision": 0,
+      "false_alarm_rate": 0.016706228607077617
+     }
+    ]
+   },
+   {
+    "name": "rrcf",
+    "label": "rrcf",
+    "ours": false,
+    "points": [
+     {
+      "budget": 10,
+      "alerts": 70,
+      "true_positives": 0,
+      "precision": 0,
+      "false_alarm_rate": 0.000016706228607077617
+     },
+     {
+      "budget": 50,
+      "alerts": 350,
+      "true_positives": 0,
+      "precision": 0,
+      "false_alarm_rate": 0.00008353114303538808
+     },
+     {
+      "budget": 100,
+      "alerts": 700,
+      "true_positives": 0,
+      "precision": 0,
+      "false_alarm_rate": 0.00016706228607077617
+     },
+     {
+      "budget": 250,
+      "alerts": 1750,
+      "true_positives": 0,
+      "precision": 0,
+      "false_alarm_rate": 0.00041765571517694047
+     },
+     {
+      "budget": 500,
+      "alerts": 3500,
+      "true_positives": 0,
+      "precision": 0,
+      "false_alarm_rate": 0.0008353114303538809
+     },
+     {
+      "budget": 1000,
+      "alerts": 7000,
+      "true_positives": 0,
+      "precision": 0,
+      "false_alarm_rate": 0.0016706228607077619
+     },
+     {
+      "budget": 5000,
+      "alerts": 35000,
+      "true_positives": 0,
+      "precision": 0,
+      "false_alarm_rate": 0.008353114303538809
+     },
+     {
+      "budget": 10000,
+      "alerts": 70000,
+      "true_positives": 1,
+      "precision": 0.000014285714285714285,
+      "false_alarm_rate": 0.016705989946668946
+     }
+    ]
+   }
+  ],
+  "rejected": [
+   {
+    "name": "eif",
+    "label": "eif",
+    "ours": false,
+    "points": [
+     {
+      "budget": 10,
+      "alerts": 70,
+      "true_positives": 0,
+      "precision": 0,
+      "false_alarm_rate": 0.000016706228607077617
+     },
+     {
+      "budget": 50,
+      "alerts": 350,
+      "true_positives": 0,
+      "precision": 0,
+      "false_alarm_rate": 0.00008353114303538808
+     },
+     {
+      "budget": 100,
+      "alerts": 700,
+      "true_positives": 0,
+      "precision": 0,
+      "false_alarm_rate": 0.00016706228607077617
+     },
+     {
+      "budget": 250,
+      "alerts": 1750,
+      "true_positives": 0,
+      "precision": 0,
+      "false_alarm_rate": 0.00041765571517694047
+     },
+     {
+      "budget": 500,
+      "alerts": 3500,
+      "true_positives": 0,
+      "precision": 0,
+      "false_alarm_rate": 0.0008353114303538809
+     },
+     {
+      "budget": 1000,
+      "alerts": 7000,
+      "true_positives": 0,
+      "precision": 0,
+      "false_alarm_rate": 0.0016706228607077619
+     },
+     {
+      "budget": 5000,
+      "alerts": 35000,
+      "true_positives": 0,
+      "precision": 0,
+      "false_alarm_rate": 0.008353114303538809
+     },
+     {
+      "budget": 10000,
+      "alerts": 70000,
+      "true_positives": 0,
+      "precision": 0,
+      "false_alarm_rate": 0.016706228607077617
+     }
+    ]
+   },
+   {
+    "name": "iforest",
+    "label": "iforest",
+    "ours": false,
+    "points": [
+     {
+      "budget": 10,
+      "alerts": 70,
+      "true_positives": 0,
+      "precision": 0,
+      "false_alarm_rate": 0.000016706228607077617
+     },
+     {
+      "budget": 50,
+      "alerts": 350,
+      "true_positives": 0,
+      "precision": 0,
+      "false_alarm_rate": 0.00008353114303538808
+     },
+     {
+      "budget": 100,
+      "alerts": 700,
+      "true_positives": 0,
+      "precision": 0,
+      "false_alarm_rate": 0.00016706228607077617
+     },
+     {
+      "budget": 250,
+      "alerts": 1750,
+      "true_positives": 0,
+      "precision": 0,
+      "false_alarm_rate": 0.00041765571517694047
+     },
+     {
+      "budget": 500,
+      "alerts": 3500,
+      "true_positives": 0,
+      "precision": 0,
+      "false_alarm_rate": 0.0008353114303538809
+     },
+     {
+      "budget": 1000,
+      "alerts": 7000,
+      "true_positives": 0,
+      "precision": 0,
+      "false_alarm_rate": 0.0016706228607077619
+     },
+     {
+      "budget": 5000,
+      "alerts": 35000,
+      "true_positives": 0,
+      "precision": 0,
+      "false_alarm_rate": 0.008353114303538809
+     },
+     {
+      "budget": 10000,
+      "alerts": 70000,
+      "true_positives": 0,
+      "precision": 0,
+      "false_alarm_rate": 0.016706228607077617
+     }
+    ]
+   },
+   {
+    "name": "pca",
+    "label": "pca",
+    "ours": false,
+    "points": [
+     {
+      "budget": 10,
+      "alerts": 70,
+      "true_positives": 0,
+      "precision": 0,
+      "false_alarm_rate": 0.000016706228607077617
+     },
+     {
+      "budget": 50,
+      "alerts": 350,
+      "true_positives": 0,
+      "precision": 0,
+      "false_alarm_rate": 0.00008353114303538808
+     },
+     {
+      "budget": 100,
+      "alerts": 700,
+      "true_positives": 0,
+      "precision": 0,
+      "false_alarm_rate": 0.00016706228607077617
+     },
+     {
+      "budget": 250,
+      "alerts": 1750,
+      "true_positives": 0,
+      "precision": 0,
+      "false_alarm_rate": 0.00041765571517694047
+     },
+     {
+      "budget": 500,
+      "alerts": 3500,
+      "true_positives": 0,
+      "precision": 0,
+      "false_alarm_rate": 0.0008353114303538809
+     },
+     {
+      "budget": 1000,
+      "alerts": 7000,
+      "true_positives": 0,
+      "precision": 0,
+      "false_alarm_rate": 0.0016706228607077619
+     },
+     {
+      "budget": 5000,
+      "alerts": 35000,
+      "true_positives": 0,
+      "precision": 0,
+      "false_alarm_rate": 0.008353114303538809
+     },
+     {
+      "budget": 10000,
+      "alerts": 70000,
+      "true_positives": 0,
+      "precision": 0,
+      "false_alarm_rate": 0.016706228607077617
+     }
+    ]
+   },
+   {
+    "name": "rrcf",
+    "label": "rrcf",
+    "ours": false,
+    "points": [
+     {
+      "budget": 10,
+      "alerts": 70,
+      "true_positives": 0,
+      "precision": 0,
+      "false_alarm_rate": 0.000016706228607077617
+     },
+     {
+      "budget": 50,
+      "alerts": 350,
+      "true_positives": 0,
+      "precision": 0,
+      "false_alarm_rate": 0.00008353114303538808
+     },
+     {
+      "budget": 100,
+      "alerts": 700,
+      "true_positives": 0,
+      "precision": 0,
+      "false_alarm_rate": 0.00016706228607077617
+     },
+     {
+      "budget": 250,
+      "alerts": 1750,
+      "true_positives": 0,
+      "precision": 0,
+      "false_alarm_rate": 0.00041765571517694047
+     },
+     {
+      "budget": 500,
+      "alerts": 3500,
+      "true_positives": 0,
+      "precision": 0,
+      "false_alarm_rate": 0.0008353114303538809
+     },
+     {
+      "budget": 1000,
+      "alerts": 7000,
+      "true_positives": 0,
+      "precision": 0,
+      "false_alarm_rate": 0.0016706228607077619
+     },
+     {
+      "budget": 5000,
+      "alerts": 35000,
+      "true_positives": 0,
+      "precision": 0,
+      "false_alarm_rate": 0.008353114303538809
+     },
+     {
+      "budget": 10000,
+      "alerts": 70000,
+      "true_positives": 1,
+      "precision": 0.000014285714285714285,
+      "false_alarm_rate": 0.016705989946668946
+     }
+    ]
+   }
+  ]
+ },
+ "run": {
+  "baselines_file": "/Users/john/Documents/GitHub/ethogram/results/baselines-r11-d7-14-full.json",
+  "baselines_run": "baselines-r11-d7-14-full-001",
+  "finished_at": "2026-08-20T23:24:53Z",
+  "framework_file": "/tmp/r11-curve-b10000.json",
+  "framework_run": "lanl-r11-b10000-curve-d7-14-002",
+  "go_version": "go1.26.0",
+  "run_id": "budget-curve-r11-d7-14-001",
+  "started_at": "2026-08-20T23:24:53Z"
+ },
+ "schema_version": "1"
+}
