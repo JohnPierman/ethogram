@@ -29,6 +29,8 @@ Equation numbers `(1)`–`(20)`, requirements `R1`–`R6`, and evaluation hypoth
 
 ### Fixed
 
+- a variable in `cmd/inject` shadowed the predeclared identifier `real`, which `golangci-lint`
+  refuses and which the local linter would have caught before the push
 - `weighted_arm.optimal_split.best_split` named an arm called nothing at depth zero where the
   optimum was the whole budget to one arm. The absence of a second arm is the finding, so it is
   rendered as an absence. The two `-003` runs predate the fix and carry the empty key; no

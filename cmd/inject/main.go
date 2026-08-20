@@ -1017,12 +1017,12 @@ func fileDigest(path string) (string, error) {
 func writeCombinedLabels(path, realPath string, plants []injected) error {
 	rows := make([]string, 0, len(plants)*2)
 
-	real, closeFn, err := openRows(realPath)
+	campaign, closeFn, err := openRows(realPath)
 	if err != nil {
 		return fmt.Errorf("combined labels: open real labels: %w", err)
 	}
-	for real.Scan() {
-		line := strings.TrimSpace(real.Text())
+	for campaign.Scan() {
+		line := strings.TrimSpace(campaign.Text())
 		if line == "" {
 			continue
 		}
@@ -1035,7 +1035,7 @@ func writeCombinedLabels(path, realPath string, plants []injected) error {
 		}
 		rows = append(rows, line)
 	}
-	err = real.Err()
+	err = campaign.Err()
 	closeFn()
 	if err != nil {
 		return fmt.Errorf("combined labels: read real labels: %w", err)
