@@ -372,6 +372,12 @@ func analyse(cfg analysisConfig) error {
 			"calibration_bh": calibrationBH,
 			"calibration_by": calibrationBY,
 			"detection":      detection,
+			// Every arm the run recorded, with an interval on each proportion. The
+			// primary detection table above covers one arm; a paper comparing arms
+			// needs the interval on each of them, and a bare integer invites a
+			// comparison the sample size does not support.
+			"arm_detection": armIntervals(results, budgets,
+				intFromCorpus(run, "events_scored")),
 			"utility_cutoff": cutoffs,
 			"gap":            gapTable(primary, pop, budgets),
 			"red_team_population": map[string]any{

@@ -1,0 +1,24 @@
+# Expected SHA-256 of every derived corpus input, against the files the committed runs in
+# results/ record having read. `make corpus-check` verifies these and fails closed.
+#
+# Format: sha256[,sha256]  filename  [# note]
+#
+# Two digests on one line means either is admissible, and the note says why. That is only
+# ever legitimate where the difference cannot reach a result.
+#
+# Not listed: auth.txt.gz and redteam.txt.gz are what the archive ships rather than what this
+# repository derives; DATA.md says how to obtain them. redteam.txt.gz is listed anyway,
+# because a replay reads it directly and a wrong copy would change every labelled figure.
+
+77d2897145ce4fd1d66e2534ae4a8e52310ea4f915edc6c6750d8d826131961f  auth-r11-d0-14.txt.gz
+98eab9bbcd54ee93ce6d3dc5fb420aaa918903aebed98be5b7fa19ecad664c29  auth-injected-r7-d0-14.txt.gz
+606635837c684ad11e464075ecf97bc5df325ff7d7f64614d2d8c8af18051669  redteam.txt.gz
+
+# The combined labels: real plus planted, ordered by timestamp. The first digest is the file
+# the committed runs read, produced by hand before `cmd/inject -combined-labels` existed; the
+# second is what that flag now writes. The two hold the same 1,605 rows in the same order and
+# differ only in gzip encoding, which nothing downstream can observe -- the replay's label
+# loader builds sets and a count, so line order and compression level do not reach a score,
+# and the digest is provenance of the file that was read.
+# cmd/inject's TestWriteCombinedLabelsReproducesTheShippedFile pins the row-for-row equality.
+da8da4423a0788d0035fd3c1459cca07c3b53ae9af2bf31f7ccbd2d279425f76,c2b08e8d5d4c9c0d50960c350c07bee80dbcaa2edfce1f738fa4451853331d89  labels-combined-r7.txt.gz  # second is the rebuilt encoding

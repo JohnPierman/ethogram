@@ -200,6 +200,22 @@ type ReplayCorpusCommand struct {
 	// documented on [calibration.Conformal] and handled by CombinedScore.ModelLogP.
 	Conformal *calibration.Conformal
 
+	// BurnInSink, when set, receives every burn-in event with its verdicts, exactly as
+	// Sink receives every scored one. Combined is always nil: the combination needs the
+	// covariance and the conformal estimate, and neither is frozen until the boundary
+	// this event precedes.
+	//
+	// It exists so that a quantity may be FITTED on burn-in through the same code path
+	// that will later apply it. Â§8.2's rule for the partition -- a quantity used to score
+	// an event must not have been fitted on it -- read from the other side: the burn-in
+	// window is the only labelled data a deployable rule may learn from, because a weight
+	// fitted on the scoring window is an oracle wearing a weight's clothes.
+	//
+	// Nil costs nothing. Burn-in events are scored either way, since state has to warm
+	// under the same path scoring uses; this only decides whether the result is shown to
+	// anybody.
+	BurnInSink func(ScoredEvent) error
+
 	burnInDone bool
 	covariance *calibration.CovarianceModel
 	conformal  *calibration.ConformalModel
@@ -314,9 +330,9 @@ func (c *ReplayCorpusCommand) processEvent(ctx context.Context, e *event.Event, 
 		}
 	}
 
-	if !scored && (c.Correlations != nil || c.Conformal != nil) {
+	if !scored && (c.Correlations != nil || c.Conformal != nil || c.BurnInSink != nil) {
 		// Burn-in scores every event without emitting it, which is exactly the sample
-		// both estimates need and the only one they may use.
+		// these estimates need and the only one they may use.
 		all.SortCanonical()
 		if c.Correlations != nil {
 			observeDependence(c.Correlations, all)
@@ -326,6 +342,14 @@ func (c *ReplayCorpusCommand) processEvent(ctx context.Context, e *event.Event, 
 				if logP, ok := v.LogPValue(); ok {
 					c.Conformal.Observe(string(v.DetectorID()), logP)
 				}
+			}
+		}
+		if c.BurnInSink != nil {
+			shadow.SortCanonical()
+			if err := c.BurnInSink(ScoredEvent{
+				Event: e, Verdicts: all, ShadowVerdicts: shadow,
+			}); err != nil {
+				return fmt.Errorf("application: burn-in sink: %w", err)
 			}
 		}
 	}

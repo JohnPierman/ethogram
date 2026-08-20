@@ -181,12 +181,23 @@ func TestRenderStatesThePlantedCounts(t *testing.T) {
 			caught: map[string]int{}}},
 	}
 
-	md := tb.render()
+	md := tb.render(true)
 
 	if !strings.Contains(md, "low+slow 288") || !strings.Contains(md, "real 549") {
 		t.Errorf("rendered table omits the planted counts:\n%s", md)
 	}
 	if !strings.Contains(md, "*per-entity detector*") {
 		t.Errorf("rendered table omits the group header:\n%s", md)
+	}
+
+	// The planted census is a fact about the corpus, so a run of tables states it once.
+	// Suppressing it must drop only that line and leave the table itself identical.
+	quiet := tb.render(false)
+	if strings.Contains(quiet, "Planted:") {
+		t.Errorf("suppressed render still carries the planted census:\n%s", quiet)
+	}
+	if !strings.HasPrefix(md, quiet) {
+		t.Errorf("suppressing the census changed the table:\nwith:\n%s\nwithout:\n%s",
+			md, quiet)
 	}
 }

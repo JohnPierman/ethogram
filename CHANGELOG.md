@@ -11,6 +11,133 @@ Equation numbers `(1)`–`(20)`, requirements `R1`–`R6`, and evaluation hypoth
 
 ### Added
 
+- the **abstract and the contributions carry the allocation result**, which they did not. A
+  paper whose sharpest negative finding appears only in section 5.5 is a paper whose abstract
+  is out of date with it: the allocation bound is now one of four negative results stated up
+  front, and the statistic that decides whether dividing a budget pays -- the overlap between
+  two detectors' detections, 74.6% between the two strongest and 0% where a split does win --
+  is stated as a contribution rather than left as a remark in the results
+- **the allocation result is now a recorded run.** `lanl-r11-b1000-weighted-d7-14-003` and
+  `lanl-inj-b1000-weighted-d7-14-003` carry the weighted arm and the oracle split search, so
+  paper section 5.5 cites result files rather than a ledger. The Go implementation reproduces
+  the offline screen the finding was developed against to four decimal places on every fitted
+  weight -- 0.3760, 0.4135, 0.4908 on the real campaign -- and to the detection on every cell
+- the per-detector arms are **unchanged** across the two runs that added the arm: `novelty`
+  11/60/201 on the real campaign, `noveltyrate` 384 at 1000/day on the planted corpus, every
+  other arm identical. `-weighted` mirrors the burn-in ranking and observes the scoring window;
+  a moved per-arm count would have meant it was perturbing what it measures
+
+### Fixed
+
+- `weighted_arm.optimal_split.best_split` named an arm called nothing at depth zero where the
+  optimum was the whole budget to one arm. The absence of a second arm is the finding, so it is
+  rendered as an absence. The two `-003` runs predate the fix and carry the empty key; no
+  published figure reads that field, and re-running two hours to change a map key that no
+  number depends on is not a trade worth making
+- **`make corpus`, `make corpus-check`, and one target per recorded run.** Every result file
+  cites its inputs by SHA-256, which proves which file was read and says nothing about how to
+  make it. For one release the derivations lived only in a shell history: two `cmd/subset`
+  invocations whose parameters survived solely inside the manifests of files that are not in
+  the repository, and a combined label file no target, command or document knew how to build.
+  Reproducing a result on a second machine meant reading bytes off the first one. Two files in
+  -- `auth.txt.gz` and `redteam.txt.gz` -- and everything else is derived and verified
+- **`cmd/inject -combined-labels`** writes the real and planted labels as one file, ordered by
+  timestamp, which is what a replay over the injected corpus needs since it takes one
+  `-redteam` argument. It was previously produced by hand. A test pins that the tool rebuilds
+  the shipped file row for row, and skips where the corpus is absent
+- **`cmd/corpuscheck`** verifies each derived input against the digests the recorded runs cite
+  and fails closed, with a message naming the fix. The cheapest place to learn that a corpus is
+  wrong is before a two-hour replay rather than from its numbers afterwards
+- `config/corpus-digests.txt` allows one file two digests, on one line, with the reason on that
+  line: the combined labels hold the same 1,605 rows in the same order under two gzip
+  encodings, and nothing downstream can observe the difference -- the label loader builds sets
+  and a count, so line order and compression level do not reach a score. Where a mismatch
+  *would* change a result, the auth corpora whose contents are scored, exactly one digest is
+  accepted
+- `DATA.md` documents the derivation chain, why the injected corpus must not be regenerated
+  during a reproduction, and which fields of the taxonomy to diff if it is
+- **the oracle bound that makes the allocation result conclusive.** The weighted arm losing
+  does not by itself distinguish a bad estimator from a wrong construction, so the replay also
+  searches two-arm budget splits exhaustively and picks the best one WITH the evaluation labels
+  in hand. On the real campaign the optimum is the corner -- the whole budget to the best
+  single arm, at both budgets -- and diverting 5% of it costs 13 detections at 1000/day, so the
+  derivative is negative at the corner and no allocation over any number of arms improves on
+  it. Recorded as an oracle and never quotable as achievable
+- `cmd/replay -weighted` gates the arm, and either it or `-ledger` turns on the burn-in mirror
+  the fit needs. Off by default, on the standing rule that a default changing what every result
+  means is not changed on an argument
+- `cmd/analyse` records each arm's **false-alarm rate**, false positives over events scored.
+  It is the only quantity on which this framework is comparable to a published detector at all:
+  precision and recall are properties of a corpus and a budget, and the per-event rate is a
+  property of the method. It feeds the base-rate figure's operating-point rules
+- **a fourth combination rule: the weighted arm.** Each alert is scored by the
+  log-likelihood ratio its own detector's fitted weight implies, over that detector's frozen
+  burn-in null, and the day's budget goes to the highest scores. There is no share parameter:
+  a common scale plus a fitted weight already implies a share, so the allocation falls out of
+  the scoring rather than being chosen. A detector whose labelled burn-in events sat where any
+  event sits scores every alert it holds at exactly zero and enters the queue only if the
+  informative detectors fail to fill it -- which is what stops `volume`, detecting nothing
+  anywhere, from drawing a sixth of the budget as it does under rank fusion
+- the weighted arm **reports itself unmeasured when no labelled event falls before the
+  boundary**, rather than reporting an arm whose every weight is uninformative. A weight fitted
+  on nothing is an equal quota under another name, and the two must not render alike
+- the arm's fit **records its own evidence**: per detector, the fitted `a`, how many labelled
+  burn-in events it surfaced, how many it evaluated and missed, the deviance against
+  uninformative and whether that cleared the threshold. A weight in a result can be read back
+  to what earned it
+- `cmd/replay -ledger` records each labelled burn-in event's **log** p-value per detector, not
+  its p-value. A detector's tail reaches ln P = -4000 on this corpus, which is zero as a
+  float64, and a weight fitted from a sample of zeros is fitted from nothing. Burn-in labelled
+  events happen to sit well short of that, histories being short early in the corpus, but
+  "happens to be representable here" is not a property to rely on
+- **`domain/allocation`: how much of a budget each detector has earned.** Two frozen
+  quantities per detector and a per-alert score built from them. `Tail` is the detector's own
+  null over its log p-value, so alerts from detectors that share no p-value scale become
+  comparable; `Weight` is the single parameter of a Beta(a, 1) density over those null
+  quantiles, fitted on labelled events from a window disjoint from the one being scored. An
+  alert's score is the log-likelihood ratio of its being labelled against its being
+  background, so the budget divides itself and there is no share parameter to choose
+- the tail is **extended below the empirical floor rather than floored at it**. A rank in a
+  sample of n cannot fall below 1/(n+1), and on this corpus the alerts worth having are past
+  that floor -- the fitting window is meant to be quiet -- so flooring ties the head of the
+  queue and orders it by arrival time. Past a high threshold an exponential fit to the
+  excesses takes over, which is strictly decreasing everywhere and linear in log p, so no two
+  alerts of different extremity tie and nothing underflows at ln p = -4000
+- the weight is **tested for significance before it is used**. Two hundred labelled events
+  drawn from exactly the uniform null fit a ~ 1 +/- 0.07, and the likelihood ratio at
+  a = 0.93 scores an alert at ln q = -4000 some 248 log units above zero -- so a weight that
+  is pure sampling noise would buy a detector that found nothing a large share of the queue.
+  A fit is kept only when twice its log-likelihood ratio against a = 1 exceeds 2.706, the 5%
+  one-sided point for a parameter tested at the boundary of its range
+- the fit **counts the labelled events a detector missed**, as right-censored observations
+  rather than as absences. Without that term the likelihood treats a detector that surfaced
+  two of forty-nine labelled events, at its two most extreme ranks, as the sharpest detector
+  in the set: measured on such a sample, a = 0.38 with censoring against a = 0.07 without. A
+  detector that abstained contributes neither an observation nor a censoring point, because
+  abstention is the absence of an opinion rather than a weak one (R3)
+- **the score is per-alert by construction, not by accident.** Every quantity it reads is
+  either a property of the single alert or of state frozen before the scoring window began,
+  so the same score that ranks a batch thresholds a stream. A score reading an alert's rank
+  among the day's events evaluates just as well and cannot be deployed at all: an operator at
+  14:00 does not know what arrives by 23:59
+- **`application.ReplayCorpusCommand.BurnInSink`**: the burn-in window's events, with their
+  verdicts, offered to a caller instead of discarded. It is what makes a weight fittable on
+  data the scoring window has not seen, and a test asserts the two sinks partition the stream
+  rather than trusting that they do -- if one event reached both, every weight fitted on the
+  first would be an oracle
+- **`cmd/replay -ledger`**: every per-detector arm's ranked queue, per day, for both windows,
+  written whole. A replay of one corpus is eighty minutes and the allocation question has a
+  large candidate space with no theory that picks one, so the candidates are screened against
+  the recorded order offline and only the winner is run. The cheap substitute was tried first
+  and does not work: reconstructing each arm's queue from the committed p-histograms read
+  Detector I at 43 where the run recorded 11, because the histogram is twenty bins to the
+  decade and the real arms take their top B per day where a reconstruction pools the run
+- `make method-table` emits **one table per budget** rather than one table at the widest
+  budget. The comparison moves further with the budget than it does with the method -- at
+  1000 alerts a day five of six planted types are reached, at 100 exactly one is, at 10 none
+  at all -- and a single table at 1000 credits the framework with a reach that is mostly a
+  fact about what was affordable. The set is emitted in one pass so three tables cannot come
+  from three different files
 - **a third combination rule: the union arm.** Alert on any event that *any* detector ranks
   highly, by rank fusion -- each arm ranks the day on its own p-value, an event scores the
   best rank it reaches in any arm, and only the within-arm order is ever read, so no p-value
@@ -38,8 +165,96 @@ Equation numbers `(1)`–`(20)`, requirements `R1`–`R6`, and evaluation hypoth
 - the dashboard shows the four union arms, each stating which accounting it was charged under
 - **GitHub Pages is enabled and publishing**, at https://johnpierman.github.io/ethogram/
 
+### Changed
+
+- **the paper is rewritten as a research paper rather than a record of how it was found.** It
+  stated a claim and corrected it later in six places -- "this refutes part of §3.3's
+  diagnosis", "an earlier version of this paper concluded", a paragraph correcting a source-code
+  comment the reader never sees -- and each is now said once, correctly, where it belongs. The
+  combination rules and the calibration are defined in the method section instead of being
+  introduced inside three separate results subsections, so no subsection has to re-explain the
+  machinery of the one before it
+- the audience is stated: statisticians rather than engineers. The build-assurance section, the
+  requirement table's "Enforced by" column, and the changelog of a withdrawn requirement are
+  gone; the developer-diary rhetoric with them. Twenty-six bolded pseudo-headings are plain
+  topic sentences, and the four argumentative section titles are descriptive
+- **a data and evaluation-design section, which the paper did not have.** What an
+  authentication event contains, what a red-team exercise is and why its labels are a partial
+  record, what each of the four sampling designs is and what base rate it carries, and what the
+  six planted mechanisms isolate. A reader previously could not tell what population any figure
+  generalised to
+- **every proportion now carries a 95% Wilson interval.** They were already computed for one
+  arm and reported for none; `cmd/analyse` now emits them for every arm, combination and union
+  accounting, and the paper reads them. Two conclusions change: the novelty and pairing
+  detectors at 100 alerts a day are 10.9% (8.6-13.8) and 10.7% (8.4-13.6) recall, which is one
+  measurement and not a ranking, and the union's domination at equal cost is confirmed as
+  separated rather than asserted from point counts
+
 ### Fixed
 
+- **the stated mechanism for the population marginal taking 120 of 120 planted takeovers was
+  the one the corpus was built to exclude.** The paper said a takeover "moves an account onto
+  population-rare values, which is exactly that detector's null". The injector plants the most
+  population-COMMON value the victim has never used, precisely so that population rarity is
+  held out, and its own comment records the earlier version that got this wrong. The measured
+  explanation is cardinality: the marginal's median p-value is 0.59 on the mechanisms that
+  substitute the destination computer (3,535 distinct values), 0.17 on the one that substitutes
+  the authentication type (14 values, of which three cover 99.6% of resolved ones), and
+  3.8e-05 on takeover, which substitutes two low-cardinality fields at once. Holding population
+  rarity out succeeds where the vocabulary is large and cannot where it is small, which is a
+  limitation of the planted corpus and is now stated as one
+- **the utility-cutoff table had the wrong precision at the tightest budget**: 4 of 70 is 5.7%,
+  not 6.7%. 6.7% is the 100/day row's figure, 47 of 700. The same table said two thirds of the
+  queue is suppressed for free at 10 and 100 a day; the recorded shares are 57% and 68%
+- **"the composite does not detect" was contradicted by two of the paper's own tables**, which
+  give it 6 at 100 alerts a day and 113 at 1000. The claim is now scoped to what holds: the
+  uncalibrated composite detects nothing at 10 to 100 alerts a day, conformal calibration moves
+  it to 6 at 100, and it is an order of magnitude below its best component at every budget
+- **the composite was computed under a repair the paper never disclosed.** Brown's correction
+  needs a positive variance estimate and the burn-in covariance implies Var[X²] = −27.5 with six
+  detectors; the code degrades to plain Fisher and records it. Every composite figure is
+  therefore plain Fisher, which the method section now says, and the negative estimate is read
+  as evidence about the marginals rather than mentioned in passing
+- **"the other five detectors divide the remaining 16%" of the corrected minimum's queue.** Four
+  do -- pairing 390, novelty rate 292, timing 225, marginal 214 of 7,000 -- and `volume` and
+  `cooccurrence` never supply the minimum at all
+- **the per-entity baseline's single detection was read three times against its own result
+  file's instruction not to read it.** The export samples 1 in 100 events, so every entity's
+  history is decimated and the file records `entity_history_intact: false`; an EWMA over an
+  entity's past estimated from a hundredth of it is not a measurement of the per-entity framing.
+  The paper now declines the comparison, and the "margin rests on one event" claim is withdrawn
+  from all three places it appeared
+- **the baselines' implementation provenance was wrong.** Extended isolation forest and
+  half-space trees are not scikit-learn, and the one-class SVM is a Nyström map with a
+  stochastic-gradient objective rather than the exact kernel machine, which the result file
+  records as a deviation. Each is now named for what it is
+- **the two baseline advantages were reported as two different factors, 97x and 8.3x.** They are
+  one factor: reading a 1-in-100 event sample raises the labelled share and the share of the
+  corpus a fixed budget covers by the same hundredfold
+- **the dash convention was broken by the table that stated it.** The rule is that a dash means
+  unmeasured and never zero; the seven baseline rows then carried zeros in every column with a
+  note that they were measured at a different budget. Baselines now have their own table at
+  their own budget
+- **the per-mechanism table had a `total` column summing planted detections and real ones.** The
+  corpus that supplies the planted labels states in its manifest that sensitivity to a mechanism
+  and detection of an intrusion must not be combined into one headline. The column is gone
+- **the day range was written two ways.** "42,218,530 scored events over days 7 to 13" and
+  "days 7-14", which reads as eight days, for the same seven-day window. It is now stated once
+  as an interval
+- **three different quantities were each called "the base rate"**: 1.30e-5 on the full corpus,
+  1.31e-4 on the `r11` subset and 3.1% on the baselines' sampled export. All three were correct
+  and none was labelled. A corpus table gives the scored count, labelled count and rate for
+  every design, and every rate quoted afterwards names its corpus
+- the `Šidák` and `×` characters in the headline table were double-encoded mojibake, from a
+  paste rather than from the generator. The tables are regenerated
+- effective sample size is now stated rather than implied: 549 labelled events on 104 accounts
+  with 93.6% of label rows sharing one source computer, and eight victims per planted mechanism
+  with deterministic value choice, so "120 of 120" is eight of eight and every interval in the
+  paper is optimistic
+- the entity-day aggregation moves out of a threats bullet, where it was also being offered as a
+  conclusion, and is reported with its confound priced: 65 of 108 labelled entity-days at 100
+  alerts a day, and 14 once the statistic is count-normalised, so most of the apparent gain is
+  activity rather than evidence
 - **the paper's lead conclusion was contradicted by its own data.** It read "per-entity
   conditioning works and population-scope conditioning does not". Measured against planted
   ground truth, the population marginal detects **every one of 120 account takeovers** and a

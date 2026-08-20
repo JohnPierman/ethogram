@@ -77,6 +77,980 @@
  "provenance_complete": true,
  "results": {
   "ablations": {},
+  "arm_detection": [
+   {
+    "arm": "marginal",
+    "group": "population detector",
+    "budget_per_day": 10,
+    "alerts": 70,
+    "true_positives": 0,
+    "false_positives": 70,
+    "red_team_scored": 549,
+    "scored_events": 4190603,
+    "recall_wilson": {
+     "point": 0,
+     "low": 0,
+     "high": 0.0069485722523209776,
+     "n": 549,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "precision_wilson": {
+     "point": 0,
+     "low": 0,
+     "high": 0.05202306241026692,
+     "n": 70,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "false_alarm_rate": 0.000016704039967517802
+   },
+   {
+    "arm": "marginal",
+    "group": "population detector",
+    "budget_per_day": 100,
+    "alerts": 700,
+    "true_positives": 0,
+    "false_positives": 700,
+    "red_team_scored": 549,
+    "scored_events": 4190603,
+    "recall_wilson": {
+     "point": 0,
+     "low": 0,
+     "high": 0.0069485722523209776,
+     "n": 549,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "precision_wilson": {
+     "point": 0,
+     "low": 0,
+     "high": 0.005457846753060832,
+     "n": 700,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "false_alarm_rate": 0.00016704039967517802
+   },
+   {
+    "arm": "marginal",
+    "group": "population detector",
+    "budget_per_day": 1000,
+    "alerts": 7000,
+    "true_positives": 0,
+    "false_positives": 7000,
+    "red_team_scored": 549,
+    "scored_events": 4190603,
+    "recall_wilson": {
+     "point": 0,
+     "low": 0,
+     "high": 0.0069485722523209776,
+     "n": 549,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "precision_wilson": {
+     "point": 0,
+     "low": 0,
+     "high": 0.0005484788374037452,
+     "n": 7000,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "false_alarm_rate": 0.00167040399675178
+   },
+   {
+    "arm": "novelty",
+    "group": "per-entity detector",
+    "budget_per_day": 10,
+    "alerts": 70,
+    "true_positives": 11,
+    "false_positives": 59,
+    "red_team_scored": 549,
+    "scored_events": 4190603,
+    "recall_wilson": {
+     "point": 0.020036429872495445,
+     "low": 0.011224160327876539,
+     "high": 0.03551882250814014,
+     "n": 549,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "precision_wilson": {
+     "point": 0.15714285714285714,
+     "low": 0.09007620559861788,
+     "high": 0.2598824657684223,
+     "n": 70,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "false_alarm_rate": 0.000014079119401193575
+   },
+   {
+    "arm": "novelty",
+    "group": "per-entity detector",
+    "budget_per_day": 100,
+    "alerts": 700,
+    "true_positives": 60,
+    "false_positives": 640,
+    "red_team_scored": 549,
+    "scored_events": 4190603,
+    "recall_wilson": {
+     "point": 0.1092896174863388,
+     "low": 0.08585526939792845,
+     "high": 0.13815372422000546,
+     "n": 549,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "precision_wilson": {
+     "point": 0.08571428571428572,
+     "low": 0.06717083696274383,
+     "high": 0.10877995034693516,
+     "n": 700,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "false_alarm_rate": 0.00015272265113159132
+   },
+   {
+    "arm": "novelty",
+    "group": "per-entity detector",
+    "budget_per_day": 1000,
+    "alerts": 7000,
+    "true_positives": 201,
+    "false_positives": 6799,
+    "red_team_scored": 549,
+    "scored_events": 4190603,
+    "recall_wilson": {
+     "point": 0.366120218579235,
+     "low": 0.3268825484648925,
+     "high": 0.40721843536223185,
+     "n": 549,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "precision_wilson": {
+     "point": 0.028714285714285713,
+     "low": 0.025053111574946982,
+     "high": 0.03289244033493729,
+     "n": 7000,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "false_alarm_rate": 0.0016224395391307648
+   },
+   {
+    "arm": "noveltyrate",
+    "group": "per-entity detector",
+    "budget_per_day": 10,
+    "alerts": 70,
+    "true_positives": 0,
+    "false_positives": 70,
+    "red_team_scored": 530,
+    "scored_events": 4190603,
+    "recall_wilson": {
+     "point": 0,
+     "low": 0,
+     "high": 0.00719587952044839,
+     "n": 530,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "precision_wilson": {
+     "point": 0,
+     "low": 0,
+     "high": 0.05202306241026692,
+     "n": 70,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "false_alarm_rate": 0.000016704039967517802
+   },
+   {
+    "arm": "noveltyrate",
+    "group": "per-entity detector",
+    "budget_per_day": 100,
+    "alerts": 700,
+    "true_positives": 22,
+    "false_positives": 678,
+    "red_team_scored": 530,
+    "scored_events": 4190603,
+    "recall_wilson": {
+     "point": 0.04150943396226415,
+     "low": 0.027569675976903227,
+     "high": 0.06204767769656453,
+     "n": 530,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "precision_wilson": {
+     "point": 0.03142857142857143,
+     "low": 0.02084512690655483,
+     "high": 0.04712679805059933,
+     "n": 700,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "false_alarm_rate": 0.00016179055854252956
+   },
+   {
+    "arm": "noveltyrate",
+    "group": "per-entity detector",
+    "budget_per_day": 1000,
+    "alerts": 7000,
+    "true_positives": 185,
+    "false_positives": 6815,
+    "red_team_scored": 530,
+    "scored_events": 4190603,
+    "recall_wilson": {
+     "point": 0.3490566037735849,
+     "low": 0.3096928127930835,
+     "high": 0.39059273574139136,
+     "n": 530,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "precision_wilson": {
+     "point": 0.02642857142857143,
+     "low": 0.022922696747097297,
+     "high": 0.03045393392318654,
+     "n": 7000,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "false_alarm_rate": 0.0016262576054090546
+   },
+   {
+    "arm": "pairing",
+    "group": "per-entity detector",
+    "budget_per_day": 10,
+    "alerts": 70,
+    "true_positives": 4,
+    "false_positives": 66,
+    "red_team_scored": 549,
+    "scored_events": 4190603,
+    "recall_wilson": {
+     "point": 0.007285974499089253,
+     "low": 0.0028369152122424946,
+     "high": 0.01858235179778601,
+     "n": 549,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "precision_wilson": {
+     "point": 0.05714285714285714,
+     "low": 0.022443779100711252,
+     "high": 0.13791950474838227,
+     "n": 70,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "false_alarm_rate": 0.000015749523397945354
+   },
+   {
+    "arm": "pairing",
+    "group": "per-entity detector",
+    "budget_per_day": 100,
+    "alerts": 700,
+    "true_positives": 59,
+    "false_positives": 641,
+    "red_team_scored": 549,
+    "scored_events": 4190603,
+    "recall_wilson": {
+     "point": 0.10746812386156648,
+     "low": 0.08423535078565048,
+     "high": 0.13615596914285655,
+     "n": 549,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "precision_wilson": {
+     "point": 0.08428571428571428,
+     "low": 0.06590532249255343,
+     "high": 0.10720391580784859,
+     "n": 700,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "false_alarm_rate": 0.00015296128027398443
+   },
+   {
+    "arm": "pairing",
+    "group": "per-entity detector",
+    "budget_per_day": 1000,
+    "alerts": 7000,
+    "true_positives": 127,
+    "false_positives": 6873,
+    "red_team_scored": 549,
+    "scored_events": 4190603,
+    "recall_wilson": {
+     "point": 0.23132969034608378,
+     "low": 0.19799636106639384,
+     "high": 0.26839676974314114,
+     "n": 549,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "precision_wilson": {
+     "point": 0.01814285714285714,
+     "low": 0.015270223133115598,
+     "high": 0.021544068043616638,
+     "n": 7000,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "false_alarm_rate": 0.001640098095667855
+   },
+   {
+    "arm": "timing",
+    "group": "per-entity detector",
+    "budget_per_day": 10,
+    "alerts": 70,
+    "true_positives": 0,
+    "false_positives": 70,
+    "red_team_scored": 549,
+    "scored_events": 4190603,
+    "recall_wilson": {
+     "point": 0,
+     "low": 0,
+     "high": 0.0069485722523209776,
+     "n": 549,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "precision_wilson": {
+     "point": 0,
+     "low": 0,
+     "high": 0.05202306241026692,
+     "n": 70,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "false_alarm_rate": 0.000016704039967517802
+   },
+   {
+    "arm": "timing",
+    "group": "per-entity detector",
+    "budget_per_day": 100,
+    "alerts": 700,
+    "true_positives": 0,
+    "false_positives": 700,
+    "red_team_scored": 549,
+    "scored_events": 4190603,
+    "recall_wilson": {
+     "point": 0,
+     "low": 0,
+     "high": 0.0069485722523209776,
+     "n": 549,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "precision_wilson": {
+     "point": 0,
+     "low": 0,
+     "high": 0.005457846753060832,
+     "n": 700,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "false_alarm_rate": 0.00016704039967517802
+   },
+   {
+    "arm": "timing",
+    "group": "per-entity detector",
+    "budget_per_day": 1000,
+    "alerts": 7000,
+    "true_positives": 6,
+    "false_positives": 6994,
+    "red_team_scored": 549,
+    "scored_events": 4190603,
+    "recall_wilson": {
+     "point": 0.01092896174863388,
+     "low": 0.0050181998617519295,
+     "high": 0.02363641452713034,
+     "n": 549,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "precision_wilson": {
+     "point": 0.0008571428571428571,
+     "low": 0.00039289360118435144,
+     "high": 0.0018689307010695587,
+     "n": 7000,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "false_alarm_rate": 0.0016689722218974213
+   },
+   {
+    "arm": "volume",
+    "group": "per-entity detector",
+    "budget_per_day": 10,
+    "alerts": 70,
+    "true_positives": 0,
+    "false_positives": 70,
+    "red_team_scored": 549,
+    "scored_events": 4190603,
+    "recall_wilson": {
+     "point": 0,
+     "low": 0,
+     "high": 0.0069485722523209776,
+     "n": 549,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "precision_wilson": {
+     "point": 0,
+     "low": 0,
+     "high": 0.05202306241026692,
+     "n": 70,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "false_alarm_rate": 0.000016704039967517802
+   },
+   {
+    "arm": "volume",
+    "group": "per-entity detector",
+    "budget_per_day": 100,
+    "alerts": 700,
+    "true_positives": 0,
+    "false_positives": 700,
+    "red_team_scored": 549,
+    "scored_events": 4190603,
+    "recall_wilson": {
+     "point": 0,
+     "low": 0,
+     "high": 0.0069485722523209776,
+     "n": 549,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "precision_wilson": {
+     "point": 0,
+     "low": 0,
+     "high": 0.005457846753060832,
+     "n": 700,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "false_alarm_rate": 0.00016704039967517802
+   },
+   {
+    "arm": "volume",
+    "group": "per-entity detector",
+    "budget_per_day": 1000,
+    "alerts": 7000,
+    "true_positives": 0,
+    "false_positives": 7000,
+    "red_team_scored": 549,
+    "scored_events": 4190603,
+    "recall_wilson": {
+     "point": 0,
+     "low": 0,
+     "high": 0.0069485722523209776,
+     "n": 549,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "precision_wilson": {
+     "point": 0,
+     "low": 0,
+     "high": 0.0005484788374037452,
+     "n": 7000,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "false_alarm_rate": 0.00167040399675178
+   },
+   {
+    "arm": "corrected minimum",
+    "group": "combination",
+    "budget_per_day": 10,
+    "alerts": 70,
+    "true_positives": 4,
+    "false_positives": 66,
+    "red_team_scored": 549,
+    "scored_events": 4190603,
+    "recall_wilson": {
+     "point": 0.007285974499089253,
+     "low": 0.0028369152122424946,
+     "high": 0.01858235179778601,
+     "n": 549,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "precision_wilson": {
+     "point": 0.05714285714285714,
+     "low": 0.022443779100711252,
+     "high": 0.13791950474838227,
+     "n": 70,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "false_alarm_rate": 0.000015749523397945354
+   },
+   {
+    "arm": "corrected minimum",
+    "group": "combination",
+    "budget_per_day": 100,
+    "alerts": 700,
+    "true_positives": 47,
+    "false_positives": 653,
+    "red_team_scored": 549,
+    "scored_events": 4190603,
+    "recall_wilson": {
+     "point": 0.08561020036429873,
+     "low": 0.06498998203720442,
+     "high": 0.11198925361818003,
+     "n": 549,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "precision_wilson": {
+     "point": 0.06714285714285714,
+     "low": 0.05086580215452606,
+     "high": 0.08814484803455234,
+     "n": 700,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "false_alarm_rate": 0.00015582482998270178
+   },
+   {
+    "arm": "corrected minimum",
+    "group": "combination",
+    "budget_per_day": 1000,
+    "alerts": 7000,
+    "true_positives": 161,
+    "false_positives": 6839,
+    "red_team_scored": 549,
+    "scored_events": 4190603,
+    "recall_wilson": {
+     "point": 0.29326047358834245,
+     "low": 0.2567204966136588,
+     "high": 0.3326735396363902,
+     "n": 549,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "precision_wilson": {
+     "point": 0.023,
+     "low": 0.019741210326839155,
+     "high": 0.026782038484044018,
+     "n": 7000,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "false_alarm_rate": 0.0016319847048264892
+   },
+   {
+    "arm": "composite",
+    "group": "combination",
+    "budget_per_day": 10,
+    "alerts": 70,
+    "true_positives": 0,
+    "false_positives": 70,
+    "red_team_scored": 549,
+    "scored_events": 4190603,
+    "recall_wilson": {
+     "point": 0,
+     "low": 0,
+     "high": 0.0069485722523209776,
+     "n": 549,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "precision_wilson": {
+     "point": 0,
+     "low": 0,
+     "high": 0.05202306241026692,
+     "n": 70,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "false_alarm_rate": 0.000016704039967517802
+   },
+   {
+    "arm": "composite",
+    "group": "combination",
+    "budget_per_day": 100,
+    "alerts": 700,
+    "true_positives": 6,
+    "false_positives": 694,
+    "red_team_scored": 549,
+    "scored_events": 4190603,
+    "recall_wilson": {
+     "point": 0.01092896174863388,
+     "low": 0.0050181998617519295,
+     "high": 0.02363641452713034,
+     "n": 549,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "precision_wilson": {
+     "point": 0.008571428571428572,
+     "low": 0.003934113884221076,
+     "high": 0.018573026924501572,
+     "n": 700,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "false_alarm_rate": 0.00016560862482081936
+   },
+   {
+    "arm": "composite",
+    "group": "combination",
+    "budget_per_day": 1000,
+    "alerts": 7000,
+    "true_positives": 113,
+    "false_positives": 6887,
+    "red_team_scored": 549,
+    "scored_events": 4190603,
+    "recall_wilson": {
+     "point": 0.2058287795992714,
+     "low": 0.17410874549315256,
+     "high": 0.2416369536644061,
+     "n": 549,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "precision_wilson": {
+     "point": 0.016142857142857143,
+     "low": 0.013444880296388871,
+     "high": 0.01937160479569298,
+     "n": 7000,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "false_alarm_rate": 0.0016434389036613585
+   },
+   {
+    "arm": "union, per-entity arms (equal cost)",
+    "group": "combination",
+    "budget_per_day": 10,
+    "alerts": 70,
+    "true_positives": 2,
+    "false_positives": 68,
+    "red_team_scored": 549,
+    "scored_events": 4190603,
+    "recall_wilson": {
+     "point": 0.0036429872495446266,
+     "low": 0.0009996076505930608,
+     "high": 0.01318431198058168,
+     "n": 549,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "precision_wilson": {
+     "point": 0.02857142857142857,
+     "low": 0.007870611945441225,
+     "high": 0.09832256118423902,
+     "n": 70,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "false_alarm_rate": 0.000016226781682731578
+   },
+   {
+    "arm": "union, per-entity arms (equal cost)",
+    "group": "combination",
+    "budget_per_day": 100,
+    "alerts": 700,
+    "true_positives": 27,
+    "false_positives": 673,
+    "red_team_scored": 549,
+    "scored_events": 4190603,
+    "recall_wilson": {
+     "point": 0.04918032786885246,
+     "low": 0.034016995978622545,
+     "high": 0.07060876588822425,
+     "n": 549,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "precision_wilson": {
+     "point": 0.03857142857142857,
+     "low": 0.026642019326559328,
+     "high": 0.05553765067697967,
+     "n": 700,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "false_alarm_rate": 0.000160597412830564
+   },
+   {
+    "arm": "union, per-entity arms (equal cost)",
+    "group": "combination",
+    "budget_per_day": 1000,
+    "alerts": 7000,
+    "true_positives": 106,
+    "false_positives": 6894,
+    "red_team_scored": 549,
+    "scored_events": 4190603,
+    "recall_wilson": {
+     "point": 0.1930783242258652,
+     "low": 0.16223934522584602,
+     "high": 0.22818263810572445,
+     "n": 549,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "precision_wilson": {
+     "point": 0.015142857142857144,
+     "low": 0.012536424760830207,
+     "high": 0.018281157288926455,
+     "n": 7000,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "false_alarm_rate": 0.0016451093076581102
+   },
+   {
+    "arm": "union, per-entity arms (equal depth)",
+    "group": "combination",
+    "budget_per_day": 10,
+    "alerts": 307,
+    "true_positives": 11,
+    "false_positives": 296,
+    "red_team_scored": 549,
+    "scored_events": 4190603,
+    "recall_wilson": {
+     "point": 0.020036429872495445,
+     "low": 0.011224160327876539,
+     "high": 0.03551882250814014,
+     "n": 549,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "precision_wilson": {
+     "point": 0.035830618892508145,
+     "low": 0.020122981861902218,
+     "high": 0.06301090548611889,
+     "n": 307,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "false_alarm_rate": 0.00007063422614836099
+   },
+   {
+    "arm": "union, per-entity arms (equal depth)",
+    "group": "combination",
+    "budget_per_day": 100,
+    "alerts": 2739,
+    "true_positives": 74,
+    "false_positives": 2665,
+    "red_team_scored": 549,
+    "scored_events": 4190603,
+    "recall_wilson": {
+     "point": 0.13479052823315119,
+     "low": 0.10874856033984105,
+     "high": 0.1659078649300692,
+     "n": 549,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "precision_wilson": {
+     "point": 0.02701715954728003,
+     "low": 0.021575892597029404,
+     "high": 0.033783289149472095,
+     "n": 2739,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "false_alarm_rate": 0.000635946664477642
+   },
+   {
+    "arm": "union, per-entity arms (equal depth)",
+    "group": "combination",
+    "budget_per_day": 1000,
+    "alerts": 25930,
+    "true_positives": 278,
+    "false_positives": 25652,
+    "red_team_scored": 549,
+    "scored_events": 4190603,
+    "recall_wilson": {
+     "point": 0.5063752276867031,
+     "low": 0.46465524526724666,
+     "high": 0.5480066126457473,
+     "n": 549,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "precision_wilson": {
+     "point": 0.010721172387196297,
+     "low": 0.009538137630940163,
+     "high": 0.012049156318922368,
+     "n": 25930,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "false_alarm_rate": 0.006121314760668095
+   },
+   {
+    "arm": "union, all arms (equal cost)",
+    "group": "combination",
+    "budget_per_day": 10,
+    "alerts": 70,
+    "true_positives": 2,
+    "false_positives": 68,
+    "red_team_scored": 549,
+    "scored_events": 4190603,
+    "recall_wilson": {
+     "point": 0.0036429872495446266,
+     "low": 0.0009996076505930608,
+     "high": 0.01318431198058168,
+     "n": 549,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "precision_wilson": {
+     "point": 0.02857142857142857,
+     "low": 0.007870611945441225,
+     "high": 0.09832256118423902,
+     "n": 70,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "false_alarm_rate": 0.000016226781682731578
+   },
+   {
+    "arm": "union, all arms (equal cost)",
+    "group": "combination",
+    "budget_per_day": 100,
+    "alerts": 700,
+    "true_positives": 21,
+    "false_positives": 679,
+    "red_team_scored": 549,
+    "scored_events": 4190603,
+    "recall_wilson": {
+     "point": 0.03825136612021858,
+     "low": 0.025152809498479138,
+     "high": 0.057766910231806363,
+     "n": 549,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "precision_wilson": {
+     "point": 0.03,
+     "low": 0.019704257608847992,
+     "high": 0.045426118339029195,
+     "n": 700,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "false_alarm_rate": 0.00016202918768492267
+   },
+   {
+    "arm": "union, all arms (equal cost)",
+    "group": "combination",
+    "budget_per_day": 1000,
+    "alerts": 7000,
+    "true_positives": 96,
+    "false_positives": 6904,
+    "red_team_scored": 549,
+    "scored_events": 4190603,
+    "recall_wilson": {
+     "point": 0.17486338797814208,
+     "low": 0.14537853534243672,
+     "high": 0.20886671109486493,
+     "n": 549,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "precision_wilson": {
+     "point": 0.013714285714285714,
+     "low": 0.011244221291424217,
+     "high": 0.016717784983582163,
+     "n": 7000,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "false_alarm_rate": 0.0016474955990820415
+   },
+   {
+    "arm": "union, all arms (equal depth)",
+    "group": "combination",
+    "budget_per_day": 10,
+    "alerts": 376,
+    "true_positives": 11,
+    "false_positives": 365,
+    "red_team_scored": 549,
+    "scored_events": 4190603,
+    "recall_wilson": {
+     "point": 0.020036429872495445,
+     "low": 0.011224160327876539,
+     "high": 0.03551882250814014,
+     "n": 549,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "precision_wilson": {
+     "point": 0.02925531914893617,
+     "low": 0.016412763279731214,
+     "high": 0.05161945969278191,
+     "n": 376,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "false_alarm_rate": 0.00008709963697348568
+   },
+   {
+    "arm": "union, all arms (equal depth)",
+    "group": "combination",
+    "budget_per_day": 100,
+    "alerts": 3372,
+    "true_positives": 74,
+    "false_positives": 3298,
+    "red_team_scored": 549,
+    "scored_events": 4190603,
+    "recall_wilson": {
+     "point": 0.13479052823315119,
+     "low": 0.10874856033984105,
+     "high": 0.1659078649300692,
+     "n": 549,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "precision_wilson": {
+     "point": 0.021945432977461446,
+     "low": 0.01751748418028461,
+     "high": 0.027461363515287544,
+     "n": 3372,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "false_alarm_rate": 0.0007869989116124816
+   },
+   {
+    "arm": "union, all arms (equal depth)",
+    "group": "combination",
+    "budget_per_day": 1000,
+    "alerts": 32134,
+    "true_positives": 278,
+    "false_positives": 31856,
+    "red_team_scored": 549,
+    "scored_events": 4190603,
+    "recall_wilson": {
+     "point": 0.5063752276867031,
+     "low": 0.46465524526724666,
+     "high": 0.5480066126457473,
+     "n": 549,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "precision_wilson": {
+     "point": 0.008651272795170225,
+     "low": 0.0076958068982245055,
+     "high": 0.009724201210846476,
+     "n": 32134,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "false_alarm_rate": 0.007601769960074958
+   }
+  ],
   "baseline_source": null,
   "calibration_bh": [
    {
@@ -743,12 +1717,12 @@
   ]
  },
  "run": {
-  "finished_at": "2026-08-19T20:50:16Z",
+  "finished_at": "2026-08-20T19:22:17Z",
   "go_version": "go1.26.3",
-  "parent_file": "results/lanl-r11-b1000-conf-d7-14.json",
-  "parent_run": "lanl-r11-b1000-conf-d7-14-001",
+  "parent_file": "C:/Users/JohnPierman/Documents/calibrated-anomaly-detection/results/lanl-r11-b1000-conf-d7-14.json",
+  "parent_run": "lanl-r11-b1000-weighted-d7-14-003",
   "run_id": "analysis-r11-b1000-conf-001",
-  "started_at": "2026-08-19T20:50:15Z"
+  "started_at": "2026-08-20T19:22:17Z"
  },
  "schema_version": "1"
 }

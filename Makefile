@@ -156,6 +156,87 @@ inject:
 	  -real-labels $(DATA)/redteam.txt.gz -per-type 8
 	@echo "wrote $(INJECT_CORPUS), $(INJECT_LABELS) and $(INJECT_TAXONOMY)"
 
+# ---------------------------------------------------------------------------
+# The corpus: derive every input from the two files the archive actually ships
+# ---------------------------------------------------------------------------
+#
+# These targets exist because their absence cost a day. Every recorded run cites its inputs
+# by SHA-256, which proves WHICH file was read and says nothing about how to make it, and for
+# one release the derivations lived only in a shell history: two `cmd/subset` invocations
+# whose parameters survived solely inside the manifests of files that are not in the
+# repository, and a combined label file that no target, no command and no document knew how to
+# build. Reproducing a result on a second machine meant reading bytes off the first one.
+#
+# What the archive ships is `auth.txt.gz` and `redteam.txt.gz`. Everything else here is
+# derived from those two, deterministically: the subset selector is FNV-1a of the entity
+# identifier and the injector is seeded, so the same two inputs give the same outputs on any
+# machine. `make corpus-check` is what turns "should" into "did".
+
+RAW_AUTH        ?= $(DATA)/auth.txt.gz
+RAW_REDTEAM     ?= $(DATA)/redteam.txt.gz
+R11_CORPUS      ?= $(DATA)/auth-r11-d0-14.txt.gz
+HOLDOUT_CORPUS  ?= $(DATA)/auth-holdout-r7-d0-14.txt.gz
+COMBINED_LABELS ?= $(DATA)/labels-combined-r7.txt.gz
+CORPUS_DIGESTS  ?= $(ROOT)/config/corpus-digests.txt
+
+# Entity samples, not event samples: whole entities are kept or dropped so per-entity
+# histories stay intact, and every labelled entity is kept regardless. Two residues of the
+# same modulus share no unlabelled entity, which is what makes one a held-out evaluation of
+# the other.
+.PHONY: corpus-r11
+corpus-r11:
+	$(GO) run ./cmd/subset -auth $(RAW_AUTH) -redteam $(RAW_REDTEAM) -out $(R11_CORPUS) -entity-sample 16 -sample-residue 11 -maxseconds 1209600
+
+.PHONY: corpus-holdout
+corpus-holdout:
+	$(GO) run ./cmd/subset -auth $(RAW_AUTH) -redteam $(RAW_REDTEAM) -out $(HOLDOUT_CORPUS) -entity-sample 16 -sample-residue 7 -maxseconds 1209600
+
+# The injected corpus, and the combined labels a replay over it needs. -combined-labels is
+# not optional in practice: the injected corpus is scored against both ground truths at once
+# and a replay takes one -redteam argument.
+#
+# INJECT_TAXONOMY defaults to the COMMITTED taxonomy, which this rewrites. That is deliberate
+# for a genuinely new planting and wrong for a reproduction, so a reproduction should point it
+# at a scratch path and diff: `make inject INJECT_TAXONOMY=/tmp/tax.json`, then compare
+# per_type, victim_type, events_injected, parameters, order and premise. The run block carries
+# timestamps and always differs.
+.PHONY: corpus-injected
+corpus-injected:
+	$(GO) run ./cmd/inject -auth $(INJECT_SOURCE) -out $(INJECT_CORPUS) -labels $(INJECT_LABELS) -combined-labels $(COMBINED_LABELS) -taxonomy $(INJECT_TAXONOMY) -run-id $(INJECT_RUN_ID) -real-labels $(RAW_REDTEAM) -per-type 8
+
+# Everything, in dependency order. The two subset passes read 239M rows each and are the
+# expensive part.
+.PHONY: corpus
+corpus: corpus-r11 corpus-holdout corpus-injected
+	@echo "corpus derived; run 'make corpus-check' before any replay"
+
+# Verify every derived input against the digests the recorded runs cite. Fails closed: a
+# reproduction that starts from a different corpus is not a reproduction, and the cheapest
+# place to learn that is before a two-hour replay rather than after it.
+.PHONY: corpus-check
+corpus-check:
+	@$(GO) run ./cmd/corpuscheck -digests $(CORPUS_DIGESTS) -dir $(DATA)
+
+# ---------------------------------------------------------------------------
+# Reproducing a recorded run
+# ---------------------------------------------------------------------------
+#
+# One target per recorded run, because a run launched by hand is a run nobody else can
+# repeat. The flags below are the ones the result file records in its `parameters` block; if
+# they drift apart, the result file is authoritative and this is the bug.
+
+.PHONY: replay-r11
+replay-r11:
+	$(GO) run ./cmd/replay -auth $(R11_CORPUS) -redteam $(RAW_REDTEAM) -out $(RESULTS)/lanl-r11-b1000-conf-d7-14.json -run-id lanl-r11-b1000-weighted-d7-14-003 -topk 1000 -budgets 10,100,1000 -conformal -pairing -novelty-rate -weighted
+
+.PHONY: replay-inj
+replay-inj:
+	$(GO) run ./cmd/replay -auth $(INJECT_CORPUS) -redteam $(COMBINED_LABELS) -out $(RESULTS)/lanl-inj-b1000-conf-d7-14.json -run-id lanl-inj-b1000-weighted-d7-14-003 -topk 1000 -budgets 10,100,1000 -conformal -pairing -novelty-rate -weighted
+
+.PHONY: analyse-r11
+analyse-r11:
+	$(GO) run ./cmd/analyse -run $(RESULTS)/lanl-r11-b1000-conf-d7-14.json -out $(RESULTS)/analysis-r11-b1000-conf.json -run-id analysis-r11-b1000-conf-001 -budgets 10,100,1000 -value-ratio 10
+
 # The interactive dashboard. It reads the same results directory and embeds a distilled
 # index, so a new run appears on it without any edit here.
 #
@@ -183,31 +264,44 @@ paper-check:
 
 # The paper: the project's presentable artefact, rendered and printed.
 #
-# The page count is REPORTED rather than assumed. The target is 10-15 pages, exceeded only
-# for figures and citations, and prose has a way of growing past a budget nobody measures.
-# The print stylesheet runs about 480 words to the page; the screen one ran 330, which
-# turned a short paper into a 55-page document.
+# The page count is REPORTED rather than assumed, because prose has a way of growing past a
+# budget nobody measures. The print stylesheet runs about 480 words to the page; the screen
+# one ran 330, which turned a short paper into a 55-page document.
+#
+# The allowance is 15 pages of body plus 5 for figures and citations, so the gate is 20
+# total. It cannot tell the two apart -- it counts pages in the PDF -- so 20 is the number
+# it enforces and the 15/5 split is the author's to keep. The ceiling is deliberately tight:
+# the constraint exists to prevent verbosity, not to be grown into.
 .PHONY: paper
 paper:
 	$(GO) run ./cmd/thesis -in $(PAPER_MD) -out $(PAPER_HTML)
 	@chrome=$$(command -v chrome || command -v google-chrome 	  || echo "/c/Program Files/Google/Chrome/Application/chrome.exe"); 	"$$chrome" --headless --disable-gpu --no-pdf-header-footer 	  --print-to-pdf="$(PAPER_PDF)" "file:///$(PAPER_HTML)" 2>/dev/null
-	@python -c "import sys;b=open(sys.argv[1],'rb').read();n=b.count(b'/Type /Page')-b.count(b'/Type /Pages');w=len(open(sys.argv[2],encoding='utf-8').read().split());print('wrote %s: %d pages, %d words'%(sys.argv[1],n,w));sys.exit(1 if n>15 else 0)" 	  "$(PAPER_PDF)" "$(PAPER_MD)" 	  || { echo "OVER BUDGET: the paper ceiling is 15 pages"; exit 1; }
+	@python -c "import sys;b=open(sys.argv[1],'rb').read();n=b.count(b'/Type /Page')-b.count(b'/Type /Pages');w=len(open(sys.argv[2],encoding='utf-8').read().split());print('wrote %s: %d pages, %d words'%(sys.argv[1],n,w));sys.exit(1 if n>20 else 0)" 	  "$(PAPER_PDF)" "$(PAPER_MD)" 	  || { echo "OVER BUDGET: the paper ceiling is 20 pages (15 body + 5 figures and citations)"; exit 1; }
 
-# The paper's headline comparison: one row per method, one column per attack type.
+# The paper's headline comparison: one row per method, one column per attack type, at
+# each of the alert budgets the run measured.
 #
 # Derived rather than typed. The table crosses fifteen methods with seven ground truths, and
 # keeping a hundred cells correct by hand across a re-run is not a reasonable expectation --
-# the numbers are read out of the recorded runs and pasted in.
+# the numbers are read out of the recorded runs and pasted in. Three budgets makes that three
+# hundred cells, which is why the set is emitted in one pass rather than one invocation per
+# budget: three invocations could read three different files and nothing in the output would
+# say so.
+#
+# One table reads at one budget and the comparison moves a great deal with it -- at 1000
+# alerts a day five of six planted types are reached, at 100 exactly one is, at 10 none at
+# all. A reader given only the widest budget would take the framework's reach for a property
+# of the methods when it is mostly a property of what was affordable.
 #
 # INJ_RUN is the injected-corpus replay, the only run with per-type ground truth.
 INJ_RUN ?= $(RESULTS)/lanl-inj-b1000-conf-d7-14.json
 INJ_BASELINES ?= $(RESULTS)/baselines-injected-r7-d7-14.json
-METHOD_BUDGET ?= 1000
+METHOD_BUDGETS ?= 10,100,1000
 
 .PHONY: method-table
 method-table:
 	$(GO) run ./cmd/methodtable -run $(INJ_RUN) -baselines $(INJ_BASELINES) \
-	  -taxonomy $(INJECT_TAXONOMY) -budget $(METHOD_BUDGET)
+	  -taxonomy $(INJECT_TAXONOMY) -budgets $(METHOD_BUDGETS)
 
 .PHONY: clean
 clean:
