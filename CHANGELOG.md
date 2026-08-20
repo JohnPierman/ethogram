@@ -29,6 +29,21 @@ Equation numbers `(1)`–`(20)`, requirements `R1`–`R6`, and evaluation hypoth
 
 ### Fixed
 
+- **the volume detector never abstains, and the paper now says so.** R3 requires a detector
+  with no basis for an opinion to say so; this one scores an entity's first period against a
+  rate posterior fitted on no completed periods, because an unseen entity is given a
+  zero-valued state and the tail is computed from the prior. It abstained on none of 4,494,396
+  scored events, against 8,705 for `noveltyrate` and 3,741,825 for `novelty`
+- the consequence is that **its alert queue is entirely background at every budget**: 13,618
+  events fall below 1e-12 where a calibrated null predicts 4.5e-06, no labelled event goes
+  below 1.96e-07, and the realised cut is 1.12e-12 at 10, 100 and 1000 alerts a day alike. Same
+  misspecification already recorded for the population co-occurrence null at 18.4%; at 0.303%
+  it was small enough to escape notice and large enough to consume twice a 1000/day budget
+- volume's response is **inverted** on the mechanism it was built for -- median p 0.72 on
+  planted low-and-slow against 0.29 on the other mechanisms -- a second defect the first masks
+- section 5.1's enrichment result no longer carries the whole explanation for two arms' zeros.
+  Neither the volume nor the timing detector is evidence about per-entity conditioning in
+  either direction, and section 5.3's zeros for them read as unmeasured rather than measured
 - **the paper attributed the timing and volume detectors' null results entirely to their
   properties not being enriched, and that is only half of it.** The timing detector's tail mass
   is read from a 512-point grid lookup and floored at one half-cell, 1/(2 x 512) = 9.77e-04,
