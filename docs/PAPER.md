@@ -644,24 +644,108 @@ At equal depth it finds what no single arm finds: 278 against 201 at 1000 a day,
 spends 3.7 times the alerts to get it.
 
 So the scale mismatch was not the binding defect. Removing it made the marginal's signal
-reachable, and at equal cost the result got *worse*: the novelty detector holding 84% of the
+reachable and the result at equal cost got *worse*: the novelty detector holding 84% of the
 minimum's queue was closer to correct than crowding-out suggested, because it is the better
-arm. What the union changes is the accounting, not the ranking, and the diagnosis it leaves is
-this: at a fixed budget, adding an arm divides the queue rather than extending it. Rank
-fusion takes rank 1 from every arm, then rank 2, so with six arms each reads about a sixth of
-the depth it had alone, and the novelty detector's 201 detections are spread through the full
-ranking rather than packed into the top sixth. Complementarity is also rarer than the equal
-allocation assumes: on the real campaign only two of the 96 detections at equal cost are found
-by exactly one arm.
-
-The defect is therefore allocation. No rule above divides a budget in proportion to what each
-arm has demonstrably earned, and section 5.5 measures a rule that does.
+arm. What the union changes is the accounting, not the ranking. The diagnosis it leaves is
+that a fixed budget divided among six arms gives each about a sixth of the depth it had
+alone, and section 5.5 tests whether dividing it by quality instead recovers anything.
 
 <!-- figure: combination-destroys -->
 
-### 5.5 Allocation by demonstrated quality
+### 5.5 Allocation by demonstrated quality, and why it cannot help
 
-*The allocation result is pending: the two replays it depends on are still running.*
+Section 5.4 leaves one diagnosis standing: every rule tried divides a fixed budget by quota
+rather than by quality, so a detector that finds nothing draws the same share as the best
+one. This section tests that diagnosis and rejects it.
+
+The rule measured is a per-alert likelihood ratio. Two quantities are fitted per detector on
+the burn-in window and frozen at the boundary: a null over that detector's own log p-value,
+and the single parameter *a* of a Beta(*a*, 1) density over the null quantiles its labelled
+burn-in events received. An alert at quantile *q* from a detector of weight *a* scores
+
+```
+s = ln a + (a − 1) ln q,
+```
+
+the log density of *q* under that Beta and, because a null quantile is uniform under the null
+by construction, the log-likelihood ratio of the alert being labelled against its being
+background. Alerts from detectors sharing no p-value scale are comparable on *s*, so the
+budget goes to the highest scores and no share parameter is chosen. Two details of the fit
+matter. A weight is retained only where twice its log-likelihood ratio against *a* = 1 exceeds
+2.706, the 5% one-sided point for a parameter tested at the boundary of its range [10]:
+without it, fifty uniform draws fit *a* ≈ 1 ± 0.14, and at *a* = 0.93 the ratio scores an
+alert at ln *q* = −4000 some 248 log units above zero, so noise alone would buy a large share
+of the queue. And labelled events a detector evaluated without surfacing enter as
+right-censored observations, without which a detector that surfaced two of forty-nine at its
+two most extreme ranks is fitted as the sharpest in the set.
+
+The fit separates the detectors in the expected direction. On `r11` the three per-entity arms
+are informative — *a* = 0.376, 0.414 and 0.491 for the novelty, novelty-rate and pairing
+detectors — while the timing, volume and marginal detectors surface none of the 49 labelled
+burn-in events, are fitted uninformative, and therefore cost nothing. That is the intended
+behaviour, and it is not enough.
+
+| Rule | `r11` 100/day | `r11` 1000/day | `inj` 100/day | `inj` 1000/day |
+|---|---|---|---|---|
+| best single arm | **60** | **201** | **76** | **384** |
+| weighted, burn-in weights | 56 | 164 | 56 | 231 |
+| weighted, oracle weights | 61 | 174 | 61 | 309 |
+| best two-arm split, oracle | 60 | 201 | 77 | 395 |
+
+Two of those rows read the labels they are evaluated against and are marked oracles; neither
+is a deployable configuration, and both are here to bound what a fitted rule could reach.
+
+**Provenance of this table, stated because it differs from every other in this paper.** These
+four rows are computed from the per-detector ranked queues of `lanl-r11-ledger-d7-14-001` and
+`lanl-inj-ledger-d7-14-001`, which reproduce the recorded runs of sections 5.2 to 5.4 exactly
+— all thirty-six per-arm, per-budget cells agree on both corpora — but which record the
+rankings rather than this arm's own detections. The arm is implemented in the replay and its
+recorded run is pending. Until that run is committed, read this table as the measurement it
+is: exact on the rankings it reads, and not yet carrying a result file of its own.
+
+The burn-in-weighted rule loses at every budget on both corpora. That alone would leave the
+diagnosis open, because 49 labelled events is a thin sample for ranking six detectors, and a
+rule may be sound while its estimator is starved. Refitting the same rule's weights on the
+evaluation labels settles it. Those weights separate the arms properly — 0.19, 0.22 and 0.23
+for the three per-entity arms against 0.71 for timing and 1.0 for volume — and the rule still
+loses, by 27 detections on the real campaign at the widest budget and by 75 on the planted
+corpus. The construction is what fails, not the fit.
+
+An exhaustive search over two-arm splits, again choosing the split with the labels in hand,
+shows why. On the real campaign the optimum is the corner: the whole budget to the best single
+arm, at both budgets. Diverting 5% of it costs 13 detections at 1000 alerts a day, so the
+derivative is negative *at* the corner and no allocation over any number of arms can improve
+on it.
+
+The mechanism is that the arms are substitutes rather than complements. At 1000 alerts a day
+on the real campaign, 74.6% of the novelty-rate detector's detections are also found by the
+novelty detector, and 78.7% of the pairing detector's are. Splitting a budget halves each
+arm's depth, and what survives the halving largely coincides, so the union of two half-depth
+prefixes is smaller than one full-depth prefix. The 77 additional detections the equal-depth
+union reaches (section 5.4) are real, and they are reachable only by spending more alerts, not
+by spending the same alerts differently.
+
+Where the arms are genuine complements the same search finds the headroom, which is the
+control this argument needs. On the planted corpus at 100 alerts a day the population marginal
+detector's 76 detections overlap the per-entity arms' by **zero** — the two scopes answer
+different questions and, there, catch disjoint events — and the best split is 95% to the
+marginal plus 5% to the novelty detector, for 77 against 76. At 1000 a day the best split is
+150 to the marginal and 850 to the novelty-rate detector, for 395 against 384. Both gains are
+inside the sampling error of the counts, and both are on the corpus of planted attacks rather
+than the real campaign.
+
+So the overlap between two arms' detections is what decides whether dividing a budget can pay,
+and on this corpus no division of a fixed budget beats using the best detector alone. The
+reason is not that the wrong rule was tried.
+
+One property of the rule survives its negative result, and is why the implementation retains
+it. Every quantity *s* reads is a property of the single alert or of state frozen before the
+scoring window began, so the same arithmetic thresholds a stream in service against the
+operating point section 4 derives. The null is deliberately not a rank in the burn-in sample:
+a rank cannot fall below 1/(*n*+1), the alerts worth having are past that floor, and a rank
+therefore ties the head of the queue and orders it by arrival. Past a high threshold the null
+is extended by an exponential fit to the burn-in excesses, monotone everywhere and linear in
+the log p-value, so nothing ties and nothing underflows at ln *P* = −4000.
 
 ### 5.6 Truncating where the objective peaks
 
@@ -832,20 +916,16 @@ presentation available in this paper, which is why it is here rather than in sec
 
 ### 6.3 What a deployable version needs
 
-Two gaps separate what is measured here from something that can be run.
-
-The first is a calibrated per-alert probability. Both the allocation rule of section 5.5 and
-the truncation of section 5.6 need to compare alerts on one scale; the latter currently uses
-labels to do so and is therefore a bound rather than a rule.
-
-The second is that a fixed budget is a batch construction. Selecting the top B of a day
-requires the whole day, and an operator at 14:00 does not know what arrives by 23:59; the same
-objection applies to a per-day Benjamini–Hochberg step-up, whose threshold depends on the
-number of tests. Section 4's objective does not have this defect — it compares one alert
-against a stated exchange rate and needs no day context — which is why every quantity in
-section 5.5 is computed from an alert and from state frozen before the scoring window began.
-Reporting at matched budgets is how this paper charges methods a comparable cost, not a claim
-about how a threshold should be set in service.
+One gap separates what is measured here from something that can be run: a fixed budget is a
+batch construction. Selecting the top *B* of a day requires the whole day, and an operator at
+14:00 does not know what arrives by 23:59; the same objection applies to a per-day
+Benjamini–Hochberg step-up, whose threshold depends on the number of tests. Section 4's
+objective does not have this defect, comparing one alert against a stated exchange rate and
+needing no day context, and section 5.5's score is built to the same constraint. Reporting at
+matched budgets is how this paper charges methods a comparable cost, not a claim about how a
+threshold should be set in service. What remains missing is a calibrated per-alert
+probability: section 5.6's truncation uses labels to place alerts on one scale and is
+therefore a bound rather than a rule.
 
 ---
 

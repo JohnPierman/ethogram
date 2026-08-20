@@ -80,6 +80,7 @@ func main() {
 		schemaPath    = flag.String("schema", "", "schema configuration JSON (config/schemas/*.json); empty uses the built-in LANL auth schema")
 		leidenPy      = flag.String("leiden", "", "python interpreter for sidecar/partition.py; set to run the offline partition at the burn-in boundary and score the (14) arm as a shadow (E4)")
 		leidenSeed    = flag.Int64("leiden-seed", 42, "seed for the offline Leiden batch, recorded")
+		weightedOn    = flag.Bool("weighted", false, "add the weighted arm: score each alert by the log-likelihood ratio its own detector's fitted weight implies over that detector's frozen burn-in null, and give the day's budget to the highest scores. It divides a fixed budget by demonstrated quality where the union arm divides it by quota. Needs the burn-in mirror, so it costs what -ledger costs. Off by default until a recorded run justifies the flip; recorded in the result either way")
 		ledgerPath    = flag.String("ledger", "", "write the alert ledger here: every per-detector arm's ranked queue per day, for both the burn-in and the scoring window, so budget-allocation rules can be screened offline instead of at eighty minutes a candidate. Also mirrors the per-arm ranking across burn-in, which roughly doubles burn-in cost. An intermediate artefact: never write it into results/, which holds measurements with provenance")
 	)
 	flag.Parse()
@@ -141,6 +142,7 @@ func main() {
 		schemaPath:     *schemaPath,
 		leidenPy:       *leidenPy, leidenSeed: *leidenSeed,
 		ledgerPath: *ledgerPath,
+		weighted:   *weightedOn,
 	}); err != nil {
 		log.Fatal(err)
 	}
@@ -167,6 +169,7 @@ type runConfig struct {
 	leidenPy                              string
 	leidenSeed                            int64
 	ledgerPath                            string
+	weighted                              bool
 }
 
 func run(cfg runConfig) error {
@@ -366,7 +369,9 @@ func run(cfg runConfig) error {
 	if cfg.derive {
 		cmd.Deriver = derive.NewInferrer(derive.DefaultPolicy())
 	}
-	if cfg.ledgerPath != "" {
+	// The burn-in mirror. Either consumer needs it: the ledger dumps it for offline
+	// screening, and the weighted arm fits its nulls and its weights from it.
+	if cfg.ledgerPath != "" || cfg.weighted {
 		acc.burnInFitDays = labels.days
 		// Mirroring the per-arm ranking across burn-in is what makes a weight fittable
 		// on data the scoring window has not seen. It is off unless a ledger is asked

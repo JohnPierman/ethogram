@@ -31,12 +31,18 @@ subset at 21 of 262.
 At 10 alerts/day that is 11 hits in 70 alerts — **16% precision against a 0.013% base rate,
 about 1,200× better than chance**. Precision improves as the budget tightens.
 
-**No combination beats its own best component at the same budget.** Three rules are
-implemented -- Fisher, the corrected minimum, and a union that alerts when any arm ranks an
-event highly -- and all three lose to simply using the best arm. The union was built to test
-the diagnosis that an informative arm was being crowded out by a scale mismatch, and it
-refutes it: giving every arm an equal share of the budget hands the same share to an arm that
-detects nothing. Use the detectors directly. The paper works through it.
+**No combination beats its own best component at the same budget, and the optimum is not a
+combination at all.** Four rules are implemented -- Fisher, the corrected minimum, a union
+that alerts when any arm ranks an event highly, and a weighted arm that scores each alert by
+a likelihood ratio fitted per detector on burn-in -- and all four lose to simply using the
+best arm. The last one settles why. Refit its weights on the evaluation labels, which is an
+oracle and separates the arms properly, and it still loses; and an exhaustive search over
+budget splits, choosing the split with the labels in hand, finds the optimum at the corner --
+the whole budget to the best arm. Diverting 5% of it costs 13 detections at 1000/day.
+
+The reason is that the arms are **substitutes, not complements**: 74.6% of `noveltyrate`'s
+detections are also found by `novelty`. Splitting halves each arm's depth and the survivors
+coincide. Use the detectors directly; the paper works through it.
 
 The union does earn its keep in one place. Let every arm keep its own top *B* and emit the
 deduplicated union, and it matches the best arm on **every attack type at once** -- 533
@@ -82,9 +88,13 @@ real run, a 100/day budget can drop 68% of its queue and lose no detections.
   than on the full 42M-event corpus. The detectors have never been measured at full scale.
 - **Precision is 16% at best.** Good against a 0.013% base rate; not good enough to alert on
   unattended.
-- **No combination layer works at a fixed budget.** Three rules tried; each is beaten by
-  its own best component. The defect is how a budget is split across arms of very unequal
-  quality, and fixing it needs a calibrated per-alert probability that does not exist yet.
+- **No combination layer works at a fixed budget, and this is now a result rather than a
+  gap.** Four rules tried, each beaten by its own best component. A calibrated per-alert
+  probability was the proposed fix; it is implemented (`domain/allocation`) and it does not
+  help, and neither does an oracle that reads the evaluation labels. On the real campaign the
+  optimal split of a fixed budget *is* the best single arm. Where the arms genuinely do not
+  overlap -- the population `marginal` against the per-entity arms on planted takeovers -- a
+  split does win, by 11 detections of 384.
 - **Detection by attack type depends on the budget.** At 100 alerts/day one of six planted
   types is reached; at 1000/day five of six are. `low_and_slow` (288 planted events) is
   reached by no arm of this framework at any budget -- though a local-outlier-factor baseline

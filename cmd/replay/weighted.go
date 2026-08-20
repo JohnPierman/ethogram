@@ -298,7 +298,20 @@ func (a *accumulator) weightedResults(budgets []int) map[string]any {
 		"weights":           w.weightRecord(),
 		"all_arms":          a.weightedGrouping(w, ids, budgets),
 		"entity_scope_arms": a.weightedGrouping(w, entityIDs, budgets),
+		// The oracle bound, which is what makes a negative result here conclusive rather
+		// than merely current. If the best split chosen with the labels in hand ties the
+		// best single arm, no fitted rule can beat it.
+		"optimal_split": a.optimalSplits(ids, budgets),
 	}
+}
+
+// optimalSplits runs the oracle split search at every budget.
+func (a *accumulator) optimalSplits(ids []detector.ID, budgets []int) map[string]any {
+	out := make(map[string]any, len(budgets))
+	for _, b := range budgets {
+		out[fmt.Sprintf("budget_%d_per_day", b)] = a.optimalSplit(ids, b)
+	}
+	return out
 }
 
 // weightRecord states every fitted weight and the evidence behind it, so a reader can see
@@ -358,4 +371,180 @@ func (a *accumulator) weightedGrouping(w *weightedArm, ids []detector.ID,
 		"red_team_scored": redTeam,
 		"at_equal_cost":   out,
 	}
+}
+
+// The oracle allocation: the best any split of a fixed budget between two arms achieves.
+//
+// It exists because the weighted arm losing does not, on its own, distinguish two very
+// different explanations. Either the weights are badly estimated -- 49 labelled events before
+// the boundary is a thin sample for ranking six detectors -- or no allocation would help,
+// because the arms are substitutes rather than complements and any budget given to a second
+// arm mostly re-buys events the first already had while costing it depth.
+//
+// This settles it by searching the splits directly and choosing the best one WITH the
+// evaluation labels in hand. It is an oracle and is recorded as one: not a rule, and never a
+// figure to quote as achievable. What it bounds is the other direction -- if the oracle ties
+// with the best single arm, no fitted rule can beat it, and the question is closed.
+//
+// Two arms rather than every subset, because the search is over depth vectors and the space
+// is exponential. Two is enough to answer the question, for a reason the search itself shows:
+// where the optimum is a corner at 100% of one arm, diverting even 5% of the budget already
+// costs detections, so the derivative is negative at the corner and adding a third arm can
+// only divert more.
+
+// splitSearchSteps is how many points the split grid carries. Twenty gives 5% resolution,
+// which is finer than the effect being measured: on the real campaign a 5% diversion already
+// costs an order of ten detections.
+const splitSearchSteps = 20
+
+// optimalSplit exhaustively searches two-arm splits of the budget and returns the best.
+func (a *accumulator) optimalSplit(ids []detector.ID, budget int) map[string]any {
+	days := a.unionArmDays(ids)
+
+	// Only arms that detect anything at this depth can contribute to a maximum.
+	live := make([]detector.ID, 0, len(ids))
+	for _, id := range ids {
+		if a.armDetections(id, budget, days) > 0 {
+			live = append(live, id)
+		}
+	}
+	if len(live) == 0 {
+		return map[string]any{"searched": 0}
+	}
+
+	bestSingle, bestSingleArm := 0, live[0]
+	for _, id := range live {
+		if n := a.armDetections(id, budget, days); n > bestSingle {
+			bestSingle, bestSingleArm = n, id
+		}
+	}
+
+	step := budget / splitSearchSteps
+	if step < 1 {
+		step = 1
+	}
+	type result struct {
+		tp         int
+		first      detector.ID
+		firstDepth int
+		second     detector.ID
+		secondepth int
+	}
+	best := result{tp: bestSingle, first: bestSingleArm, firstDepth: budget}
+	searched := 0
+	for i := 0; i < len(live); i++ {
+		for j := i + 1; j < len(live); j++ {
+			for d := 0; d <= budget; d += step {
+				depths := map[detector.ID]int{live[i]: d, live[j]: budget - d}
+				tp := a.splitDetections(depths, budget, days)
+				searched++
+				if tp > best.tp {
+					best = result{tp: tp, first: live[i], firstDepth: d,
+						second: live[j], secondepth: budget - d}
+				}
+			}
+		}
+	}
+
+	return map[string]any{
+		"oracle": "the split is chosen with the evaluation labels in hand, so this is an " +
+			"upper bound on what any fitted rule could reach and not a rule itself",
+		"searched":              searched,
+		"grid_step":             step,
+		"best_single_arm":       string(bestSingleArm),
+		"best_single_arm_tp":    bestSingle,
+		"best_split_tp":         best.tp,
+		"gain_over_best_single": best.tp - bestSingle,
+		"best_split": map[string]any{
+			string(best.first):  best.firstDepth,
+			string(best.second): best.secondepth,
+		},
+	}
+}
+
+// armDetections is one arm's labelled alerts at the given depth, over the given days.
+func (a *accumulator) armDetections(id detector.ID, depth int, days []int64) int {
+	byDay, ok := a.detectorPerDay[id]
+	if !ok {
+		return 0
+	}
+	tp := 0
+	for _, d := range days {
+		da, ok := byDay[d]
+		if !ok || da == nil {
+			continue
+		}
+		n := depth
+		if n > len(da.alerts) {
+			n = len(da.alerts)
+		}
+		for _, al := range da.alerts[:n] {
+			if al.IsRedTeam {
+				tp++
+			}
+		}
+	}
+	return tp
+}
+
+// splitDetections applies per-arm depths, deduplicates, truncates to the budget and counts
+// labelled alerts. Alerts are ordered by within-arm quantile so that the truncation takes the
+// most extreme of what the depths admit rather than an arbitrary prefix.
+func (a *accumulator) splitDetections(depths map[detector.ID]int, budget int,
+	days []int64) int {
+	tp := 0
+	for _, d := range days {
+		type row struct {
+			q  float64
+			al alert
+		}
+		rows := make([]row, 0, budget*len(depths))
+		for id, depth := range depths {
+			if depth <= 0 {
+				continue
+			}
+			byDay, ok := a.detectorPerDay[id]
+			if !ok {
+				continue
+			}
+			da, ok := byDay[d]
+			if !ok || da == nil {
+				continue
+			}
+			scored := float64(a.armScored[id][d])
+			if scored <= 0 {
+				scored = 1
+			}
+			n := depth
+			if n > len(da.alerts) {
+				n = len(da.alerts)
+			}
+			for i, al := range da.alerts[:n] {
+				rows = append(rows, row{q: float64(i+1) / scored, al: al})
+			}
+		}
+		sort.Slice(rows, func(i, j int) bool {
+			if rows[i].q != rows[j].q {
+				return rows[i].q < rows[j].q
+			}
+			return alertIdentity(rows[i].al) < alertIdentity(rows[j].al)
+		})
+		seen := make(map[string]bool, budget)
+		kept := 0
+		for _, r := range rows {
+			k := alertIdentity(r.al)
+			if seen[k] {
+				continue
+			}
+			seen[k] = true
+			kept++
+			if r.al.IsRedTeam {
+				tp++
+			}
+			if kept >= budget {
+				break
+			}
+		}
+	}
+	return tp
 }

@@ -11,6 +11,20 @@ Equation numbers `(1)`–`(20)`, requirements `R1`–`R6`, and evaluation hypoth
 
 ### Added
 
+- **the oracle bound that makes the allocation result conclusive.** The weighted arm losing
+  does not by itself distinguish a bad estimator from a wrong construction, so the replay also
+  searches two-arm budget splits exhaustively and picks the best one WITH the evaluation labels
+  in hand. On the real campaign the optimum is the corner -- the whole budget to the best
+  single arm, at both budgets -- and diverting 5% of it costs 13 detections at 1000/day, so the
+  derivative is negative at the corner and no allocation over any number of arms improves on
+  it. Recorded as an oracle and never quotable as achievable
+- `cmd/replay -weighted` gates the arm, and either it or `-ledger` turns on the burn-in mirror
+  the fit needs. Off by default, on the standing rule that a default changing what every result
+  means is not changed on an argument
+- `cmd/analyse` records each arm's **false-alarm rate**, false positives over events scored.
+  It is the only quantity on which this framework is comparable to a published detector at all:
+  precision and recall are properties of a corpus and a budget, and the per-event rate is a
+  property of the method. It feeds the base-rate figure's operating-point rules
 - **a fourth combination rule: the weighted arm.** Each alert is scored by the
   log-likelihood ratio its own detector's fitted weight implies, over that detector's frozen
   burn-in null, and the day's budget goes to the highest scores. There is no share parameter:
