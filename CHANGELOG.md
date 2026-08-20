@@ -86,8 +86,96 @@ Equation numbers `(1)`–`(20)`, requirements `R1`–`R6`, and evaluation hypoth
 - the dashboard shows the four union arms, each stating which accounting it was charged under
 - **GitHub Pages is enabled and publishing**, at https://johnpierman.github.io/ethogram/
 
+### Changed
+
+- **the paper is rewritten as a research paper rather than a record of how it was found.** It
+  stated a claim and corrected it later in six places -- "this refutes part of §3.3's
+  diagnosis", "an earlier version of this paper concluded", a paragraph correcting a source-code
+  comment the reader never sees -- and each is now said once, correctly, where it belongs. The
+  combination rules and the calibration are defined in the method section instead of being
+  introduced inside three separate results subsections, so no subsection has to re-explain the
+  machinery of the one before it
+- the audience is stated: statisticians rather than engineers. The build-assurance section, the
+  requirement table's "Enforced by" column, and the changelog of a withdrawn requirement are
+  gone; the developer-diary rhetoric with them. Twenty-six bolded pseudo-headings are plain
+  topic sentences, and the four argumentative section titles are descriptive
+- **a data and evaluation-design section, which the paper did not have.** What an
+  authentication event contains, what a red-team exercise is and why its labels are a partial
+  record, what each of the four sampling designs is and what base rate it carries, and what the
+  six planted mechanisms isolate. A reader previously could not tell what population any figure
+  generalised to
+- **every proportion now carries a 95% Wilson interval.** They were already computed for one
+  arm and reported for none; `cmd/analyse` now emits them for every arm, combination and union
+  accounting, and the paper reads them. Two conclusions change: the novelty and pairing
+  detectors at 100 alerts a day are 10.9% (8.6-13.8) and 10.7% (8.4-13.6) recall, which is one
+  measurement and not a ranking, and the union's domination at equal cost is confirmed as
+  separated rather than asserted from point counts
+
 ### Fixed
 
+- **the stated mechanism for the population marginal taking 120 of 120 planted takeovers was
+  the one the corpus was built to exclude.** The paper said a takeover "moves an account onto
+  population-rare values, which is exactly that detector's null". The injector plants the most
+  population-COMMON value the victim has never used, precisely so that population rarity is
+  held out, and its own comment records the earlier version that got this wrong. The measured
+  explanation is cardinality: the marginal's median p-value is 0.59 on the mechanisms that
+  substitute the destination computer (3,535 distinct values), 0.17 on the one that substitutes
+  the authentication type (14 values, of which three cover 99.6% of resolved ones), and
+  3.8e-05 on takeover, which substitutes two low-cardinality fields at once. Holding population
+  rarity out succeeds where the vocabulary is large and cannot where it is small, which is a
+  limitation of the planted corpus and is now stated as one
+- **the utility-cutoff table had the wrong precision at the tightest budget**: 4 of 70 is 5.7%,
+  not 6.7%. 6.7% is the 100/day row's figure, 47 of 700. The same table said two thirds of the
+  queue is suppressed for free at 10 and 100 a day; the recorded shares are 57% and 68%
+- **"the composite does not detect" was contradicted by two of the paper's own tables**, which
+  give it 6 at 100 alerts a day and 113 at 1000. The claim is now scoped to what holds: the
+  uncalibrated composite detects nothing at 10 to 100 alerts a day, conformal calibration moves
+  it to 6 at 100, and it is an order of magnitude below its best component at every budget
+- **the composite was computed under a repair the paper never disclosed.** Brown's correction
+  needs a positive variance estimate and the burn-in covariance implies Var[X²] = −27.5 with six
+  detectors; the code degrades to plain Fisher and records it. Every composite figure is
+  therefore plain Fisher, which the method section now says, and the negative estimate is read
+  as evidence about the marginals rather than mentioned in passing
+- **"the other five detectors divide the remaining 16%" of the corrected minimum's queue.** Four
+  do -- pairing 390, novelty rate 292, timing 225, marginal 214 of 7,000 -- and `volume` and
+  `cooccurrence` never supply the minimum at all
+- **the per-entity baseline's single detection was read three times against its own result
+  file's instruction not to read it.** The export samples 1 in 100 events, so every entity's
+  history is decimated and the file records `entity_history_intact: false`; an EWMA over an
+  entity's past estimated from a hundredth of it is not a measurement of the per-entity framing.
+  The paper now declines the comparison, and the "margin rests on one event" claim is withdrawn
+  from all three places it appeared
+- **the baselines' implementation provenance was wrong.** Extended isolation forest and
+  half-space trees are not scikit-learn, and the one-class SVM is a Nyström map with a
+  stochastic-gradient objective rather than the exact kernel machine, which the result file
+  records as a deviation. Each is now named for what it is
+- **the two baseline advantages were reported as two different factors, 97x and 8.3x.** They are
+  one factor: reading a 1-in-100 event sample raises the labelled share and the share of the
+  corpus a fixed budget covers by the same hundredfold
+- **the dash convention was broken by the table that stated it.** The rule is that a dash means
+  unmeasured and never zero; the seven baseline rows then carried zeros in every column with a
+  note that they were measured at a different budget. Baselines now have their own table at
+  their own budget
+- **the per-mechanism table had a `total` column summing planted detections and real ones.** The
+  corpus that supplies the planted labels states in its manifest that sensitivity to a mechanism
+  and detection of an intrusion must not be combined into one headline. The column is gone
+- **the day range was written two ways.** "42,218,530 scored events over days 7 to 13" and
+  "days 7-14", which reads as eight days, for the same seven-day window. It is now stated once
+  as an interval
+- **three different quantities were each called "the base rate"**: 1.30e-5 on the full corpus,
+  1.31e-4 on the `r11` subset and 3.1% on the baselines' sampled export. All three were correct
+  and none was labelled. A corpus table gives the scored count, labelled count and rate for
+  every design, and every rate quoted afterwards names its corpus
+- the `Šidák` and `×` characters in the headline table were double-encoded mojibake, from a
+  paste rather than from the generator. The tables are regenerated
+- effective sample size is now stated rather than implied: 549 labelled events on 104 accounts
+  with 93.6% of label rows sharing one source computer, and eight victims per planted mechanism
+  with deterministic value choice, so "120 of 120" is eight of eight and every interval in the
+  paper is optimistic
+- the entity-day aggregation moves out of a threats bullet, where it was also being offered as a
+  conclusion, and is reported with its confound priced: 65 of 108 labelled entity-days at 100
+  alerts a day, and 14 once the statistic is count-normalised, so most of the apparent gain is
+  activity rather than evidence
 - **the paper's lead conclusion was contradicted by its own data.** It read "per-entity
   conditioning works and population-scope conditioning does not". Measured against planted
   ground truth, the population marginal detects **every one of 120 account takeovers** and a

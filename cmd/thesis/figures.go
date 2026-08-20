@@ -560,7 +560,7 @@ timing, volume and the population marginal find none.</figcaption>
 
 const figBaseRate = `<figure class="fig">
 <svg viewBox="0 0 720 300" role="img" class="figsvg"
- aria-label="To make half of alerts real at this corpus's base rate of 1.3 in 100000, a detector needs a false-alarm rate near 1e-5. Published detectors operate between 1e-2 and 1e-3, two to three orders of magnitude away.">
+ aria-label="To make half of alerts real at this corpus's base rate of 1.3 in 100000, a detector needs a false-alarm rate near 1e-5. Published detectors operate between 1e-2 and 1e-3, two to three orders of magnitude away. This framework operates at 1.4e-5 at ten alerts a day, below the rate the arithmetic requires, and at 1.6e-3 at a thousand alerts a day, inside the published band.">
 <g font-size="12" fill="currentColor">
 
 <text x="0" y="14" font-size="11">false-alarm rate needed for a given share of alerts to be real, at this corpus's base rate</text>
@@ -594,6 +594,13 @@ const figBaseRate = `<figure class="fig">
 <text x="272" y="130" font-size="11" fill="var(--fig-a)">half the queue real needs 1.3&#215;10&#8315;&#8309;</text>
 <text x="272" y="148" font-size="10" fill="var(--fig-a)">— about two orders of magnitude below the shaded band</text>
 
+<rect x="70" y="102" width="620" height="99" fill="currentColor" opacity="0.07"/>
+<line x1="70" y1="201" x2="690" y2="201" stroke="currentColor" stroke-width="2"/>
+<text x="686" y="196" font-size="10.5" text-anchor="end">this framework at 10 alerts/day: &#945; = 1.4&#215;10&#8315;&#8309;</text>
+<line x1="70" y1="102" x2="690" y2="102" stroke="currentColor" stroke-width="1.5" stroke-dasharray="5 4"/>
+<text x="686" y="118" font-size="10.5" text-anchor="end">and at 1000 alerts/day: &#945; = 1.6&#215;10&#8315;&#179;</text>
+<text x="76" y="216" font-size="9.5" opacity="0.75">the band its budgets span</text>
+
 </g>
 </svg>
 <figcaption><strong>The base rate, not the model, sets the ceiling.</strong> Over the scored
@@ -603,7 +610,20 @@ achieve, and it lands two to three orders of magnitude below where published det
 operate. Two consequences follow: "everything suspicious and nothing else" is not
 attainable here by any known method, and even a perfect detector still yields 87 alerts a
 day, because 78 genuinely suspicious events happen daily. What an operator can choose is the
-error rate; the volume follows from it.</figcaption>
+error rate; the volume follows from it.
+<br><br>
+The two horizontal rules mark where this framework actually operates, measured on the
+<code>r11</code> subset, and the band between them is what its alert budget spans. At 10 alerts a day
+its false-alarm rate is &#945;&nbsp;=&nbsp;1.4&#215;10&#8315;&#8309; &#8212; the order the
+arithmetic asks for, and two orders of magnitude below where published detectors sit. At
+1000 a day it is 1.6&#215;10&#8315;&#179;, inside the shaded band.
+<br><br>
+<em>The rules are deliberately not points on the curve.</em> The curve inverts the identity
+for a detector that misses nothing; this one misses most, with recall of 2.0% at the tighter
+operating point, and its queue is 15.7% real rather than the large majority that perfect
+recall at that rate would give. The reading is therefore the opposite of the usual one:
+suppressing false alarms to the rate the base rate demands is not this framework's binding
+constraint, because it already achieves it. Recall is.</figcaption>
 </figure>`
 
 const figAbstention = `<figure class="fig">

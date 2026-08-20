@@ -27,12 +27,14 @@ func main() {
 	log.SetPrefix("methodtable: ")
 
 	var (
-		runPath      = flag.String("run", "", "replay result JSON over the injected corpus (required)")
-		baselinePath = flag.String("baselines", "", "baselines result JSON for the same corpus")
-		taxPath      = flag.String("taxonomy", "", "injection taxonomy JSON (required)")
-		budget       = flag.Int("budget", 1000, "per-day alert budget to report the framework at")
-		budgetSpec   = flag.String("budgets", "", "comma-separated per-day budgets to emit one table each for, ascending, for instance \"10,100,1000\". Supersedes -budget. Every budget must be one the run recorded: a budget the run never measured is not a table of zeros, and this refuses rather than rendering one")
-		outPath      = flag.String("out", "", "write Markdown here (default stdout)")
+		runPath       = flag.String("run", "", "replay result JSON over the injected corpus (required)")
+		baselinePath  = flag.String("baselines", "", "baselines result JSON for the same corpus")
+		taxPath       = flag.String("taxonomy", "", "injection taxonomy JSON (required)")
+		budget        = flag.Int("budget", 1000, "per-day alert budget to report the framework at")
+		budgetSpec    = flag.String("budgets", "", "comma-separated per-day budgets to emit one table each for, ascending, for instance \"10,100,1000\". Supersedes -budget. Every budget must be one the run recorded: a budget the run never measured is not a table of zeros, and this refuses rather than rendering one")
+		onlyBaselines = flag.Bool("only-baselines", false, "emit only the reference-implementation rows, in one table at their own measured budget. Their budgets stop short of the framework's, so carrying them inside a framework table at a budget they were not measured at forces every cell to be a dash -- which is honest and unreadable")
+		noBaselines   = flag.Bool("no-baselines", false, "omit the reference-implementation rows")
+		outPath       = flag.String("out", "", "write Markdown here (default stdout)")
 	)
 	flag.Parse()
 
@@ -80,8 +82,11 @@ func main() {
 				"re-run the replay with that budget rather than publishing a table "+
 				"of zeros for it", b)
 		}
-		if bl != nil {
+		if bl != nil && !*noBaselines {
 			t.addBaselines(bl)
+		}
+		if *onlyBaselines {
+			t.keepOnlyBaselines()
 		}
 		if i > 0 {
 			md.WriteString("\n")
@@ -412,6 +417,23 @@ func (t *table) addUnionRows(union map[string]any) {
 	}
 }
 
+// keepOnlyBaselines drops the framework's own rows, leaving the reference implementations
+// to be tabulated on their own.
+//
+// They belong in a separate table because their budgets are not the framework's. Carrying
+// them inside a table at 1000 alerts a day, when they were measured at 100, makes every one
+// of their cells a dash -- correct, and a page of dashes that a reader takes for a row of
+// zeros, which is exactly what `cell` exists to prevent one cell at a time.
+func (t *table) keepOnlyBaselines() {
+	kept := make([]row, 0, len(t.rows))
+	for _, r := range t.rows {
+		if strings.HasPrefix(r.group, "baseline") {
+			kept = append(kept, r)
+		}
+	}
+	t.rows = kept
+}
+
 func groupOf(name string) string {
 	switch name {
 	case "marginal", "cooccurrence":
@@ -534,7 +556,13 @@ func (t *table) render(showPlanted bool) string {
 	// Alerts, beside the detections. A recall figure without the cost that bought it is
 	// the one number in this table a reader could be actively misled by: the union's
 	// equal-depth rows find the most and spend several times the budget to do it.
-	head = append(head, "total", "alerts")
+	//
+	// There is deliberately no total column. Planted attacks test whether a detector
+	// responds to a MECHANISM and the real campaign tests whether it detects an intrusion;
+	// the corpus supplying the planted labels states in its own manifest that the two must
+	// not be combined into one headline, and a column summing them is exactly that
+	// combination. The two ground truths sit side by side and are never added.
+	head = append(head, "alerts")
 	b.WriteString("| " + strings.Join(head, " | ") + " |\n")
 	b.WriteString("|" + strings.Repeat("---|", len(head)) + "\n")
 
@@ -548,13 +576,19 @@ func (t *table) render(showPlanted bool) string {
 		if r.group != group {
 			group = r.group
 			b.WriteString("| *" + group + "* |" +
-				strings.Repeat(" |", len(t.types)+2) + "\n")
+				strings.Repeat(" |", len(t.types)+1) + "\n")
 		}
-		b.WriteString("| " + r.name)
+		name := r.name
+		if r.note != "" {
+			// The qualification rides on the row's own name rather than sitting in a
+			// footnote, so a reader cannot take the cells at face value without it.
+			name += " *(" + r.note + ")*"
+		}
+		b.WriteString("| " + name)
 		for _, kind := range t.types {
 			b.WriteString(" | " + cell(r, kind, t.planted[kind]))
 		}
-		b.WriteString(" | " + totalCell(r) + " | " + alertCell(r) + " |\n")
+		b.WriteString(" | " + alertCell(r) + " |\n")
 	}
 
 	if !showPlanted {
@@ -595,19 +629,6 @@ func alertCell(r row) string {
 			float64(r.alerts)/float64(r.permitted))
 	}
 	return fmt.Sprintf("%d", r.alerts)
-}
-
-func totalCell(r row) string {
-	if !r.measured {
-		if r.note != "" {
-			return "*" + r.note + "*"
-		}
-		return "--"
-	}
-	if r.note != "" {
-		return fmt.Sprintf("%d *(%s)*", r.total, r.note)
-	}
-	return fmt.Sprintf("%d", r.total)
 }
 
 func shortType(kind string) string {
