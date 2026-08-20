@@ -29,6 +29,24 @@ Equation numbers `(1)`–`(20)`, requirements `R1`–`R6`, and evaluation hypoth
 
 ### Fixed
 
+- **the paper attributed the timing and volume detectors' null results entirely to their
+  properties not being enriched, and that is only half of it.** The timing detector's tail mass
+  is read from a 512-point grid lookup and floored at one half-cell, 1/(2 x 512) = 9.77e-04,
+  while the realised alert cut is 3.98e-03 at 1000 alerts a day and 1.00e-03 at 100 and at 10.
+  Its most extreme possible answer is a factor of four inside the widest cut and at or above
+  the other two, so at the tighter budgets it cannot alert whatever it observes. Section 6.2
+  now reports it
+- the detector is meanwhile **responding** to the mechanism it was built for -- median p-value
+  3.20e-02 on planted off-hours attacks against 0.59 to 0.83 on every other mechanism, more
+  than an order of magnitude of separation from its own baseline -- so this is a dynamic-range
+  ceiling and not a failure to discriminate. Raising the grid alone would not lift it: 1 of 64
+  planted off-hours events and 5 of 549 real labelled events sit at the floor, and the rest are
+  held up by a tail mass over density levels saturating. The statistic is the thing to change
+- **the structural census in section 5.1 could be read as a detection table.** Its rows count
+  labelled events that exhibit a property -- 181 events outside their entity's hours, 33% of
+  the campaign -- and it sits three pages from tables whose columns are detections, where the
+  timing detector reaches 2 of 64. The header and a lead sentence now say that no detector is
+  involved in it
 - a variable in `cmd/inject` shadowed the predeclared identifier `real`, which `golangci-lint`
   refuses and which the local linter would have caught before the push
 - `weighted_arm.optimal_split.best_split` named an arm called nothing at depth zero where the
