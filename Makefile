@@ -227,15 +227,15 @@ corpus-check:
 
 .PHONY: replay-r11
 replay-r11:
-	$(GO) run ./cmd/replay -auth $(R11_CORPUS) -redteam $(RAW_REDTEAM) -out $(RESULTS)/lanl-r11-b1000-conf-d7-14.json -run-id lanl-r11-b1000-weighted-d7-14-003 -topk 1000 -budgets 10,100,1000 -conformal -pairing -novelty-rate -weighted
+	$(GO) run ./cmd/replay -auth $(R11_CORPUS) -redteam $(RAW_REDTEAM) -out $(RESULTS)/lanl-r11-b1000-conf-d7-14.json -run-id lanl-r11-b1000-weighted-d7-14-004 -topk 1000 -budgets 10,100,1000 -conformal -pairing -novelty-rate -weighted
 
 .PHONY: replay-inj
 replay-inj:
-	$(GO) run ./cmd/replay -auth $(INJECT_CORPUS) -redteam $(COMBINED_LABELS) -out $(RESULTS)/lanl-inj-b1000-conf-d7-14.json -run-id lanl-inj-b1000-weighted-d7-14-003 -topk 1000 -budgets 10,100,1000 -conformal -pairing -novelty-rate -weighted
+	$(GO) run ./cmd/replay -auth $(INJECT_CORPUS) -redteam $(COMBINED_LABELS) -out $(RESULTS)/lanl-inj-b1000-conf-d7-14.json -run-id lanl-inj-b1000-weighted-d7-14-004 -topk 1000 -budgets 10,100,1000 -conformal -pairing -novelty-rate -weighted
 
 .PHONY: analyse-r11
 analyse-r11:
-	$(GO) run ./cmd/analyse -run $(RESULTS)/lanl-r11-b1000-conf-d7-14.json -out $(RESULTS)/analysis-r11-b1000-conf.json -run-id analysis-r11-b1000-conf-001 -budgets 10,100,1000 -value-ratio 10
+	$(GO) run ./cmd/analyse -run $(RESULTS)/lanl-r11-b1000-conf-d7-14.json -out $(RESULTS)/analysis-r11-b1000-conf.json -run-id analysis-r11-b1000-conf-002 -budgets 10,100,1000 -value-ratio 10
 
 # The interactive dashboard. It reads the same results directory and embeds a distilled
 # index, so a new run appears on it without any edit here.

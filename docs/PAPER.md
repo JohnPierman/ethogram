@@ -462,16 +462,17 @@ work on those two detectors could recover on this campaign.
 It is not the whole explanation for their null results, and section 6.2 gives the other half
 for each of them. The timing detector's p-value is floored by its own construction at a value
 close to the alert cut, so it has under a decade of usable dynamic range here and cannot alert
-at all at the two tighter budgets. The volume detector's tail is misspecified: 13,618
-background events fall below 1e-12 where a calibrated null predicts 4.5 × 10⁻⁶, and no
-labelled event goes below 1.96 × 10⁻⁷, so its queue is filled with background at every budget
-before a labelled event can compete. The limits are real and independent of the enrichment
+at all at the two tighter budgets. The volume detector's tail is misspecified: on `r11`, 27,464
+background events fall below 10⁻¹² where a calibrated null over this many events predicts
+4.2 × 10⁻⁶, and no labelled event goes below 1.96 × 10⁻⁷, so its queue is filled with
+background at every budget before a labelled event can compete. Section 6.2 shows a per-entity
+abstention accounts for none of it. The limits are real and independent of the enrichment
 result — a property that does not discriminate, and, separately, statistics that could not
 express discrimination if they had any.
 
 ### 5.2 Detection on the real campaign
 
-`lanl-r11-b1000-weighted-d7-14-003` and `analysis-r11-b1000-conf-001`, 549 labelled events among
+`lanl-r11-b1000-weighted-d7-14-004` and `analysis-r11-b1000-conf-002`, 549 labelled events among
 4,190,603 scored. Every proportion carries a 95% Wilson interval [7], and section 6.2 states why
 those intervals are optimistic.
 
@@ -518,7 +519,7 @@ sensitivity to background, not an independent replication.
 ### 5.3 Detection by attack mechanism
 
 The planted corpus separates "this test cannot express this mechanism" from "this budget
-cannot afford it". `lanl-inj-b1000-weighted-d7-14-003`: 856 planted events across six mechanisms
+cannot afford it". `lanl-inj-b1000-weighted-d7-14-004`: 856 planted events across six mechanisms
 plus the 549 real labelled events. Attribution is by victim account, which the design makes
 unambiguous. Planted and real ground truth are reported side by side and never summed.
 
@@ -710,7 +711,7 @@ behaviour, and it is not enough.
 | weighted, oracle weights | 61 | 174 | 61 | 309 |
 | best two-arm split, oracle | 60 | 201 | 77 | 395 |
 
-`lanl-r11-b1000-weighted-d7-14-003` and `lanl-inj-b1000-weighted-d7-14-003`. The two oracle
+`lanl-r11-b1000-weighted-d7-14-004` and `lanl-inj-b1000-weighted-d7-14-004`. The two oracle
 rows read the labels they are evaluated against; neither is a deployable configuration, and
 both are here to bound what a fitted rule could reach. All four rows are computed by the same
 run from the same rankings.
@@ -902,25 +903,22 @@ history, which is the construction section 5.5 applies across detectors, has no 
 We report this as a limitation rather than a fix because changing it changes every timing
 figure in this paper, and no run here measures the alternative.
 
-The volume detector never abstains, and its alert queue is entirely background. R3 requires a
-detector with no basis for an opinion to say so; this one scores an entity's first period
-against a rate posterior fitted on no completed periods, because an unseen entity is given a
-zero-valued state and the tail is computed from the prior. Across 4,494,396 scored events it
-abstained on none, against 8,705 abstentions for the novelty-rate detector, which gates on a
-minimum history, and 3,741,825 for the novelty detector.
+The volume detector now abstains where an entity has no completed period, as R3 requires:
+with none the rate posterior of equation (10) is the prior, and reporting that as P = 1 is an
+opinion. On `lanl-inj-b1000-weighted-d7-14-004` it abstains on 4,399 of 4,494,396 events.
 
-The consequence is measurable and it is not a matter of degree. 13,618 events receive a
-p-value below 10⁻¹², where a correctly calibrated null over this many events predicts
-4.5 × 10⁻⁶ of them, and no labelled event falls below 1.96 × 10⁻⁷ — five decades above. The
-realised cut is therefore 1.12 × 10⁻¹² at 10, 100 and 1000 alerts a day alike: the queue is
-drawn entirely from that background pile at every budget, ordering within it falls to the
-tie-break rather than to evidence, and no labelled event can enter. This is the same
-misspecification already recorded for the population co-occurrence null, which put 18.4% of
-events below the same threshold and was replaced as a default for it; at 0.303% this one was
-small enough to escape notice and large enough to consume twice the alerts a 1000/day budget
-permits. Its response is also inverted — median p 0.72 on planted low-and-slow attacks against
-0.29 on the other mechanisms — so it rates its own target mechanism as less remarkable than
-the rest, which is a second defect the first one masks.
+It does not repair the queue. 13,618 events on the planted corpus and 27,464 on `r11` still
+fall below 10⁻¹², where a calibrated null predicts about 4 × 10⁻⁶; no labelled event falls
+below 1.96 × 10⁻⁷; and the realised cut stays on that floor on six of seven scored days at
+every budget, so volume detects nothing at any budget on either corpus. One, two, three and
+five completed periods were each measured from a single ungated pass
+(`results/volume-abstention-gate.json`) and none clears the floor: a first period scores
+P = 1 exactly, so a gate at one removes none of the pile, and at five — 4.9% of events
+abstained, 132 labelled events withheld — only 10.6% of it goes. The pile is made of entities
+with established history, so the cause is equation (11)'s predictive being too narrow for
+their habitual variation, not the cold start. Its response is inverted as well — median
+p 0.72 on planted low-and-slow attacks against 0.29 on the other mechanisms — a second defect
+the abstention does not touch.
 
 Neither this detector nor the timing detector is therefore evidence about per-entity
 conditioning in either direction, and section 5.3's zeros for them should be read as

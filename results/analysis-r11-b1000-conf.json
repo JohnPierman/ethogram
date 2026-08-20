@@ -20,7 +20,7 @@
     "sha256": "77d2897145ce4fd1d66e2534ae4a8e52310ea4f915edc6c6750d8d826131961f"
    },
    {
-    "path": "data/lanl/redteam.txt.gz",
+    "path": "/Users/john/Documents/GitHub/ethogram/data/lanl/redteam.txt.gz",
     "sha256": "606635837c684ad11e464075ecf97bc5df325ff7d7f64614d2d8c8af18051669"
    }
   ],
@@ -89,7 +89,7 @@
     "scored_events": 4190603,
     "recall_wilson": {
      "point": 0,
-     "low": 0,
+     "low": 1.3981187101771616e-19,
      "high": 0.0069485722523209776,
      "n": 549,
      "level": 0.95,
@@ -116,7 +116,7 @@
     "scored_events": 4190603,
     "recall_wilson": {
      "point": 0,
-     "low": 0,
+     "low": 1.3981187101771616e-19,
      "high": 0.0069485722523209776,
      "n": 549,
      "level": 0.95,
@@ -143,7 +143,7 @@
     "scored_events": 4190603,
     "recall_wilson": {
      "point": 0,
-     "low": 0,
+     "low": 1.3981187101771616e-19,
      "high": 0.0069485722523209776,
      "n": 549,
      "level": 0.95,
@@ -152,7 +152,7 @@
     "precision_wilson": {
      "point": 0,
      "low": 0,
-     "high": 0.0005484788374037452,
+     "high": 0.0005484788374037451,
      "n": 7000,
      "level": 0.95,
      "kind": "wilson"
@@ -179,7 +179,7 @@
     "precision_wilson": {
      "point": 0.15714285714285714,
      "low": 0.09007620559861788,
-     "high": 0.2598824657684223,
+     "high": 0.2598824657684222,
      "n": 70,
      "level": 0.95,
      "kind": "wilson"
@@ -251,7 +251,7 @@
     "scored_events": 4190603,
     "recall_wilson": {
      "point": 0,
-     "low": 0,
+     "low": 7.503728556000606e-20,
      "high": 0.00719587952044839,
      "n": 530,
      "level": 0.95,
@@ -341,7 +341,7 @@
     "precision_wilson": {
      "point": 0.05714285714285714,
      "low": 0.022443779100711252,
-     "high": 0.13791950474838227,
+     "high": 0.1379195047483823,
      "n": 70,
      "level": 0.95,
      "kind": "wilson"
@@ -386,7 +386,7 @@
     "scored_events": 4190603,
     "recall_wilson": {
      "point": 0.23132969034608378,
-     "low": 0.19799636106639384,
+     "low": 0.19799636106639382,
      "high": 0.26839676974314114,
      "n": 549,
      "level": 0.95,
@@ -413,7 +413,7 @@
     "scored_events": 4190603,
     "recall_wilson": {
      "point": 0,
-     "low": 0,
+     "low": 1.3981187101771616e-19,
      "high": 0.0069485722523209776,
      "n": 549,
      "level": 0.95,
@@ -440,7 +440,7 @@
     "scored_events": 4190603,
     "recall_wilson": {
      "point": 0,
-     "low": 0,
+     "low": 1.3981187101771616e-19,
      "high": 0.0069485722523209776,
      "n": 549,
      "level": 0.95,
@@ -467,7 +467,7 @@
     "scored_events": 4190603,
     "recall_wilson": {
      "point": 0.01092896174863388,
-     "low": 0.0050181998617519295,
+     "low": 0.00501819986175193,
      "high": 0.02363641452713034,
      "n": 549,
      "level": 0.95,
@@ -475,8 +475,8 @@
     },
     "precision_wilson": {
      "point": 0.0008571428571428571,
-     "low": 0.00039289360118435144,
-     "high": 0.0018689307010695587,
+     "low": 0.0003928936011843515,
+     "high": 0.0018689307010695585,
      "n": 7000,
      "level": 0.95,
      "kind": "wilson"
@@ -490,13 +490,13 @@
     "alerts": 70,
     "true_positives": 0,
     "false_positives": 70,
-    "red_team_scored": 549,
+    "red_team_scored": 538,
     "scored_events": 4190603,
     "recall_wilson": {
      "point": 0,
      "low": 0,
-     "high": 0.0069485722523209776,
-     "n": 549,
+     "high": 0.0070896361992214005,
+     "n": 538,
      "level": 0.95,
      "kind": "wilson"
     },
@@ -517,13 +517,13 @@
     "alerts": 700,
     "true_positives": 0,
     "false_positives": 700,
-    "red_team_scored": 549,
+    "red_team_scored": 538,
     "scored_events": 4190603,
     "recall_wilson": {
      "point": 0,
      "low": 0,
-     "high": 0.0069485722523209776,
-     "n": 549,
+     "high": 0.0070896361992214005,
+     "n": 538,
      "level": 0.95,
      "kind": "wilson"
     },
@@ -544,20 +544,20 @@
     "alerts": 7000,
     "true_positives": 0,
     "false_positives": 7000,
-    "red_team_scored": 549,
+    "red_team_scored": 538,
     "scored_events": 4190603,
     "recall_wilson": {
      "point": 0,
      "low": 0,
-     "high": 0.0069485722523209776,
-     "n": 549,
+     "high": 0.0070896361992214005,
+     "n": 538,
      "level": 0.95,
      "kind": "wilson"
     },
     "precision_wilson": {
      "point": 0,
      "low": 0,
-     "high": 0.0005484788374037452,
+     "high": 0.0005484788374037451,
      "n": 7000,
      "level": 0.95,
      "kind": "wilson"
@@ -584,7 +584,7 @@
     "precision_wilson": {
      "point": 0.05714285714285714,
      "low": 0.022443779100711252,
-     "high": 0.13791950474838227,
+     "high": 0.1379195047483823,
      "n": 70,
      "level": 0.95,
      "kind": "wilson"
@@ -602,8 +602,8 @@
     "scored_events": 4190603,
     "recall_wilson": {
      "point": 0.08561020036429873,
-     "low": 0.06498998203720442,
-     "high": 0.11198925361818003,
+     "low": 0.06498998203720444,
+     "high": 0.11198925361818002,
      "n": 549,
      "level": 0.95,
      "kind": "wilson"
@@ -611,7 +611,7 @@
     "precision_wilson": {
      "point": 0.06714285714285714,
      "low": 0.05086580215452606,
-     "high": 0.08814484803455234,
+     "high": 0.08814484803455233,
      "n": 700,
      "level": 0.95,
      "kind": "wilson"
@@ -637,8 +637,8 @@
     },
     "precision_wilson": {
      "point": 0.023,
-     "low": 0.019741210326839155,
-     "high": 0.026782038484044018,
+     "low": 0.01974121032683915,
+     "high": 0.02678203848404402,
      "n": 7000,
      "level": 0.95,
      "kind": "wilson"
@@ -656,7 +656,7 @@
     "scored_events": 4190603,
     "recall_wilson": {
      "point": 0,
-     "low": 0,
+     "low": 1.3981187101771616e-19,
      "high": 0.0069485722523209776,
      "n": 549,
      "level": 0.95,
@@ -683,7 +683,7 @@
     "scored_events": 4190603,
     "recall_wilson": {
      "point": 0.01092896174863388,
-     "low": 0.0050181998617519295,
+     "low": 0.00501819986175193,
      "high": 0.02363641452713034,
      "n": 549,
      "level": 0.95,
@@ -704,27 +704,27 @@
     "group": "combination",
     "budget_per_day": 1000,
     "alerts": 7000,
-    "true_positives": 113,
-    "false_positives": 6887,
+    "true_positives": 112,
+    "false_positives": 6888,
     "red_team_scored": 549,
     "scored_events": 4190603,
     "recall_wilson": {
-     "point": 0.2058287795992714,
-     "low": 0.17410874549315256,
-     "high": 0.2416369536644061,
+     "point": 0.2040072859744991,
+     "low": 0.17240993344981392,
+     "high": 0.23971809201831787,
      "n": 549,
      "level": 0.95,
      "kind": "wilson"
     },
     "precision_wilson": {
-     "point": 0.016142857142857143,
-     "low": 0.013444880296388871,
-     "high": 0.01937160479569298,
+     "point": 0.016,
+     "low": 0.013314917736220839,
+     "high": 0.019216009778385987,
      "n": 7000,
      "level": 0.95,
      "kind": "wilson"
     },
-    "false_alarm_rate": 0.0016434389036613585
+    "false_alarm_rate": 0.0016436775328037517
    },
    {
     "arm": "union, per-entity arms (equal cost)",
@@ -737,7 +737,7 @@
     "scored_events": 4190603,
     "recall_wilson": {
      "point": 0.0036429872495446266,
-     "low": 0.0009996076505930608,
+     "low": 0.0009996076505930603,
      "high": 0.01318431198058168,
      "n": 549,
      "level": 0.95,
@@ -745,7 +745,7 @@
     },
     "precision_wilson": {
      "point": 0.02857142857142857,
-     "low": 0.007870611945441225,
+     "low": 0.007870611945441227,
      "high": 0.09832256118423902,
      "n": 70,
      "level": 0.95,
@@ -899,7 +899,7 @@
     "scored_events": 4190603,
     "recall_wilson": {
      "point": 0.0036429872495446266,
-     "low": 0.0009996076505930608,
+     "low": 0.0009996076505930603,
      "high": 0.01318431198058168,
      "n": 549,
      "level": 0.95,
@@ -907,7 +907,7 @@
     },
     "precision_wilson": {
      "point": 0.02857142857142857,
-     "low": 0.007870611945441225,
+     "low": 0.007870611945441227,
      "high": 0.09832256118423902,
      "n": 70,
      "level": 0.95,
@@ -962,7 +962,7 @@
     "precision_wilson": {
      "point": 0.013714285714285714,
      "low": 0.011244221291424217,
-     "high": 0.016717784983582163,
+     "high": 0.016717784983582167,
      "n": 7000,
      "level": 0.95,
      "kind": "wilson"
@@ -989,7 +989,7 @@
     "precision_wilson": {
      "point": 0.02925531914893617,
      "low": 0.016412763279731214,
-     "high": 0.05161945969278191,
+     "high": 0.051619459692781915,
      "n": 376,
      "level": 0.95,
      "kind": "wilson"
@@ -1015,8 +1015,8 @@
     },
     "precision_wilson": {
      "point": 0.021945432977461446,
-     "low": 0.01751748418028461,
-     "high": 0.027461363515287544,
+     "low": 0.017517484180284607,
+     "high": 0.027461363515287548,
      "n": 3372,
      "level": 0.95,
      "kind": "wilson"
@@ -1042,7 +1042,7 @@
     },
     "precision_wilson": {
      "point": 0.008651272795170225,
-     "low": 0.0076958068982245055,
+     "low": 0.007695806898224505,
      "high": 0.009724201210846476,
      "n": 32134,
      "level": 0.95,
@@ -1056,97 +1056,97 @@
    {
     "nominal_q": 0.001,
     "procedure": "benjamini-hochberg",
-    "discoveries": 3867,
+    "discoveries": 3796,
     "true_positives": 80,
     "realised_fdr": {
-     "point": 0.9793121282648047,
-     "low": 0.9743273125137131,
-     "high": 0.9833455964484092,
-     "n": 3867,
+     "point": 0.9789251844046365,
+     "low": 0.9738485151673946,
+     "high": 0.9830335125181651,
+     "n": 3796,
      "level": 0.95,
      "kind": "wilson"
     },
-    "conservatism_ratio": 979.3121282648048,
+    "conservatism_ratio": 978.9251844046365,
     "saturated_days": 2
    },
    {
     "nominal_q": 0.005,
     "procedure": "benjamini-hochberg",
-    "discoveries": 4765,
-    "true_positives": 110,
+    "discoveries": 4735,
+    "true_positives": 108,
     "realised_fdr": {
-     "point": 0.9769150052465897,
-     "low": 0.9722513452396155,
-     "high": 0.9808103237729565,
-     "n": 4765,
+     "point": 0.9771911298838437,
+     "low": 0.9725361047181441,
+     "high": 0.9810725017880959,
+     "n": 4735,
      "level": 0.95,
      "kind": "wilson"
     },
-    "conservatism_ratio": 195.38300104931793,
+    "conservatism_ratio": 195.43822597676873,
     "saturated_days": 3
    },
    {
     "nominal_q": 0.01,
     "procedure": "benjamini-hochberg",
-    "discoveries": 5147,
-    "true_positives": 113,
+    "discoveries": 5122,
+    "true_positives": 112,
     "realised_fdr": {
-     "point": 0.9780454633767243,
-     "low": 0.9736713339760174,
-     "high": 0.9817065473549842,
-     "n": 5147,
+     "point": 0.9781335415853183,
+     "low": 0.9737555819002347,
+     "high": 0.9817948461317096,
+     "n": 5122,
      "level": 0.95,
      "kind": "wilson"
     },
-    "conservatism_ratio": 97.80454633767242,
+    "conservatism_ratio": 97.81335415853182,
     "saturated_days": 4
    },
    {
     "nominal_q": 0.05,
     "procedure": "benjamini-hochberg",
-    "discoveries": 5352,
-    "true_positives": 113,
+    "discoveries": 5347,
+    "true_positives": 112,
     "realised_fdr": {
-     "point": 0.9788863976083707,
-     "low": 0.974677442653409,
-     "high": 0.9824083933281319,
-     "n": 5352,
+     "point": 0.9790536749579203,
+     "low": 0.974857350556817,
+     "high": 0.9825621580243792,
+     "n": 5347,
      "level": 0.95,
      "kind": "wilson"
     },
-    "conservatism_ratio": 19.577727952167415,
+    "conservatism_ratio": 19.581073499158403,
     "saturated_days": 5
    },
    {
     "nominal_q": 0.1,
     "procedure": "benjamini-hochberg",
-    "discoveries": 5474,
-    "true_positives": 113,
+    "discoveries": 5467,
+    "true_positives": 112,
     "realised_fdr": {
-     "point": 0.9793569601753745,
-     "low": 0.975240514691334,
-     "high": 0.9828010860836225,
-     "n": 5474,
+     "point": 0.9795134443021767,
+     "low": 0.9754079642791451,
+     "high": 0.9829455247525387,
+     "n": 5467,
      "level": 0.95,
      "kind": "wilson"
     },
-    "conservatism_ratio": 9.793569601753745,
+    "conservatism_ratio": 9.795134443021766,
     "saturated_days": 5
    },
    {
     "nominal_q": 0.25,
     "procedure": "benjamini-hochberg",
-    "discoveries": 6035,
-    "true_positives": 113,
+    "discoveries": 6014,
+    "true_positives": 112,
     "realised_fdr": {
-     "point": 0.9812758906379453,
-     "low": 0.9775373076172493,
-     "high": 0.9844021702796286,
-     "n": 6035,
+     "point": 0.981376787495843,
+     "low": 0.9776400622216923,
+     "high": 0.9844989438688165,
+     "n": 6014,
      "level": 0.95,
      "kind": "wilson"
     },
-    "conservatism_ratio": 3.925103562551781,
+    "conservatism_ratio": 3.925507149983372,
     "saturated_days": 5
    }
   ],
@@ -1154,97 +1154,97 @@
    {
     "nominal_q": 0.001,
     "procedure": "benjamini-yekutieli",
-    "discoveries": 2909,
+    "discoveries": 2895,
     "true_positives": 65,
     "realised_fdr": {
-     "point": 0.9776555517359917,
-     "low": 0.9716213376755954,
-     "high": 0.9824299003636757,
-     "n": 2909,
+     "point": 0.9775474956822107,
+     "low": 0.9714845781223032,
+     "high": 0.9823447496550276,
+     "n": 2895,
      "level": 0.95,
      "kind": "wilson"
     },
-    "conservatism_ratio": 977.6555517359917,
+    "conservatism_ratio": 977.5474956822106,
     "saturated_days": 2
    },
    {
     "nominal_q": 0.005,
     "procedure": "benjamini-yekutieli",
-    "discoveries": 3378,
+    "discoveries": 3338,
     "true_positives": 71,
     "realised_fdr": {
-     "point": 0.9789816459443458,
-     "low": 0.9735724756706825,
-     "high": 0.9833026586025985,
-     "n": 3378,
+     "point": 0.9787297783103655,
+     "low": 0.9732567775060724,
+     "high": 0.9831021758979707,
+     "n": 3338,
      "level": 0.95,
      "kind": "wilson"
     },
-    "conservatism_ratio": 195.79632918886915,
+    "conservatism_ratio": 195.74595566207307,
     "saturated_days": 2
    },
    {
     "nominal_q": 0.01,
     "procedure": "benjamini-yekutieli",
-    "discoveries": 3668,
+    "discoveries": 3639,
     "true_positives": 76,
     "realised_fdr": {
-     "point": 0.9792802617230099,
-     "low": 0.9741442810691725,
-     "high": 0.983413402025689,
-     "n": 3668,
+     "point": 0.9791151415223963,
+     "low": 0.9739388372162605,
+     "high": 0.9832809702932475,
+     "n": 3639,
      "level": 0.95,
      "kind": "wilson"
     },
-    "conservatism_ratio": 97.92802617230099,
+    "conservatism_ratio": 97.91151415223963,
     "saturated_days": 2
    },
    {
     "nominal_q": 0.05,
     "procedure": "benjamini-yekutieli",
-    "discoveries": 4592,
-    "true_positives": 107,
+    "discoveries": 4533,
+    "true_positives": 105,
     "realised_fdr": {
-     "point": 0.976698606271777,
-     "low": 0.971920483175907,
-     "high": 0.9806798271758359,
-     "n": 4592,
+     "point": 0.9768365320979484,
+     "low": 0.9720371252554825,
+     "high": 0.980828439750115,
+     "n": 4533,
      "level": 0.95,
      "kind": "wilson"
     },
-    "conservatism_ratio": 19.53397212543554,
+    "conservatism_ratio": 19.536730641958968,
     "saturated_days": 2
    },
    {
     "nominal_q": 0.1,
     "procedure": "benjamini-yekutieli",
-    "discoveries": 4963,
-    "true_positives": 111,
+    "discoveries": 4909,
+    "true_positives": 108,
     "realised_fdr": {
-     "point": 0.9776344952649607,
-     "low": 0.9731362165582489,
-     "high": 0.9813939490020754,
-     "n": 4963,
+     "point": 0.9779995925850479,
+     "low": 0.9735071167113436,
+     "high": 0.9817445516635879,
+     "n": 4909,
      "level": 0.95,
      "kind": "wilson"
     },
-    "conservatism_ratio": 9.776344952649607,
+    "conservatism_ratio": 9.779995925850478,
     "saturated_days": 3
    },
    {
     "nominal_q": 0.25,
     "procedure": "benjamini-yekutieli",
-    "discoveries": 5218,
-    "true_positives": 113,
+    "discoveries": 5216,
+    "true_positives": 112,
     "realised_fdr": {
-     "point": 0.9783441931774627,
-     "low": 0.9740287179402002,
-     "high": 0.9819558785602457,
-     "n": 5218,
+     "point": 0.9785276073619632,
+     "low": 0.9742274087515771,
+     "high": 0.9821234764969244,
+     "n": 5216,
      "level": 0.95,
      "kind": "wilson"
     },
-    "conservatism_ratio": 3.9133767727098507,
+    "conservatism_ratio": 3.914110429447853,
     "saturated_days": 5
    }
   ],
@@ -1320,7 +1320,7 @@
     "red_team_scored": 549,
     "recall_wilson": {
      "point": 0,
-     "low": 0,
+     "low": 1.3981187101771616e-19,
      "high": 0.0069485722523209776,
      "n": 549,
      "level": 0.95,
@@ -1329,7 +1329,7 @@
     "recall_clopper_pearson": {
      "point": 0,
      "low": 0,
-     "high": 0.006696746586929037,
+     "high": 0.006696746586929925,
      "n": 549,
      "level": 0.95,
      "kind": "clopper-pearson"
@@ -1356,7 +1356,7 @@
     "red_team_scored": 549,
     "recall_wilson": {
      "point": 0.01092896174863388,
-     "low": 0.0050181998617519295,
+     "low": 0.00501819986175193,
      "high": 0.02363641452713034,
      "n": 549,
      "level": 0.95,
@@ -1364,8 +1364,8 @@
     },
     "recall_clopper_pearson": {
      "point": 0.01092896174863388,
-     "low": 0.004021003611506216,
-     "high": 0.023635083911579258,
+     "low": 0.004021003611506218,
+     "high": 0.0236350839115807,
      "n": 549,
      "level": 0.95,
      "kind": "clopper-pearson"
@@ -1387,37 +1387,37 @@
    {
     "budget_per_day": 1000,
     "alerts": 7000,
-    "true_positives": 113,
-    "false_negatives": 436,
+    "true_positives": 112,
+    "false_negatives": 437,
     "red_team_scored": 549,
     "recall_wilson": {
-     "point": 0.2058287795992714,
-     "low": 0.17410874549315256,
-     "high": 0.2416369536644061,
+     "point": 0.2040072859744991,
+     "low": 0.17240993344981392,
+     "high": 0.23971809201831787,
      "n": 549,
      "level": 0.95,
      "kind": "wilson"
     },
     "recall_clopper_pearson": {
-     "point": 0.2058287795992714,
-     "low": 0.17275750033561127,
-     "high": 0.24210238857792382,
+     "point": 0.2040072859744991,
+     "low": 0.17105690905462878,
+     "high": 0.2401801758427063,
      "n": 549,
      "level": 0.95,
      "kind": "clopper-pearson"
     },
     "precision_wilson": {
-     "point": 0.016142857142857143,
-     "low": 0.013444880296388871,
-     "high": 0.01937160479569298,
+     "point": 0.016,
+     "low": 0.013314917736220839,
+     "high": 0.019216009778385987,
      "n": 7000,
      "level": 0.95,
      "kind": "wilson"
     },
-    "false_positives": 6887,
-    "true_false_ratio": 0.016407724698707712,
-    "break_even_value_ratio": 60.94690265486726,
-    "objective_utility": -5757,
+    "false_positives": 6888,
+    "true_false_ratio": 0.016260162601626018,
+    "break_even_value_ratio": 61.5,
+    "objective_utility": -5768,
     "is_worthwhile": false
    }
   ],
@@ -1428,22 +1428,22 @@
      "day": 7,
      "labelled_scored": 1,
      "alerts_retained": 1000,
-     "best_labelled_log_p": -0.6463267063119391,
+     "best_labelled_log_p": -0.6123357682985836,
      "cuts": [
       {
        "budget_per_day": 10,
-       "cut_log_p": -28.70146617024613,
-       "gap_log_units": 28.05513946393419
+       "cut_log_p": -28.56524847713623,
+       "gap_log_units": 27.952912708837648
       },
       {
        "budget_per_day": 100,
-       "cut_log_p": -22.112643451008694,
-       "gap_log_units": 21.466316744696755
+       "cut_log_p": -21.975420459117295,
+       "gap_log_units": 21.363084690818713
       },
       {
        "budget_per_day": 1000,
-       "cut_log_p": -11.062927072182113,
-       "gap_log_units": 10.416600365870174
+       "cut_log_p": -10.97931055175549,
+       "gap_log_units": 10.366974783456905
       }
      ]
     },
@@ -1455,8 +1455,8 @@
      "cuts": [
       {
        "budget_per_day": 10,
-       "cut_log_p": -35.28547695781852,
-       "gap_log_units": 10.014407232371362
+       "cut_log_p": -35.13810789402523,
+       "gap_log_units": 9.867038168578077
       },
       {
        "budget_per_day": 100,
@@ -1465,8 +1465,8 @@
       },
       {
        "budget_per_day": 1000,
-       "cut_log_p": -12.077520606979757,
-       "gap_log_units": -13.193549118467399
+       "cut_log_p": -11.974981024055289,
+       "gap_log_units": -13.296088701391866
       }
      ]
     },
@@ -1474,22 +1474,22 @@
      "day": 9,
      "labelled_scored": 5,
      "alerts_retained": 1000,
-     "best_labelled_log_p": -10.67804334315965,
+     "best_labelled_log_p": -10.568486060426551,
      "cuts": [
       {
        "budget_per_day": 10,
-       "cut_log_p": -28.325815825465646,
-       "gap_log_units": 17.647772482305996
+       "cut_log_p": -28.189905312116387,
+       "gap_log_units": 17.621419251689836
       },
       {
        "budget_per_day": 100,
-       "cut_log_p": -22.456656325949396,
-       "gap_log_units": 11.778612982789745
+       "cut_log_p": -22.31902061226419,
+       "gap_log_units": 11.750534551837639
       },
       {
        "budget_per_day": 1000,
-       "cut_log_p": -19.739662533181956,
-       "gap_log_units": 9.061619190022306
+       "cut_log_p": -19.60512986655109,
+       "gap_log_units": 9.036643806124538
       }
      ]
     },
@@ -1501,17 +1501,17 @@
      "cuts": [
       {
        "budget_per_day": 10,
-       "cut_log_p": -24.665102974132097,
+       "cut_log_p": -24.665102974132104,
        "gap_log_units": null
       },
       {
        "budget_per_day": 100,
-       "cut_log_p": -12.30350146849593,
+       "cut_log_p": -12.257874530365662,
        "gap_log_units": null
       },
       {
        "budget_per_day": 1000,
-       "cut_log_p": -5.568012460593316,
+       "cut_log_p": -5.5576545205142835,
        "gap_log_units": null
       }
      ]
@@ -1524,17 +1524,17 @@
      "cuts": [
       {
        "budget_per_day": 10,
-       "cut_log_p": -23.14803133423485,
+       "cut_log_p": -23.009665386415612,
        "gap_log_units": null
       },
       {
        "budget_per_day": 100,
-       "cut_log_p": -12.531899085328476,
+       "cut_log_p": -12.491888621531857,
        "gap_log_units": null
       },
       {
        "budget_per_day": 1000,
-       "cut_log_p": -5.816391828829449,
+       "cut_log_p": -5.813243029778199,
        "gap_log_units": null
       }
      ]
@@ -1543,22 +1543,22 @@
      "day": 12,
      "labelled_scored": 207,
      "alerts_retained": 1000,
-     "best_labelled_log_p": -24.27634311627729,
+     "best_labelled_log_p": -24.276343345474324,
      "cuts": [
       {
        "budget_per_day": 10,
-       "cut_log_p": -36.42924426578841,
-       "gap_log_units": 12.152901149511123
+       "cut_log_p": -36.42924452245325,
+       "gap_log_units": 12.15290117697893
       },
       {
        "budget_per_day": 100,
-       "cut_log_p": -26.175829167695092,
-       "gap_log_units": 1.899486051417803
+       "cut_log_p": -26.103101488472703,
+       "gap_log_units": 1.8267581429983792
       },
       {
        "budget_per_day": 1000,
-       "cut_log_p": -16.702811962552843,
-       "gap_log_units": -7.573531153724446
+       "cut_log_p": -16.58305112381997,
+       "gap_log_units": -7.693292221654353
       }
      ]
     },
@@ -1566,22 +1566,22 @@
      "day": 13,
      "labelled_scored": 75,
      "alerts_retained": 1000,
-     "best_labelled_log_p": -22.87413365787542,
+     "best_labelled_log_p": -22.74351682770819,
      "cuts": [
       {
        "budget_per_day": 10,
-       "cut_log_p": -34.43074921275355,
-       "gap_log_units": 11.556615554878128
+       "cut_log_p": -34.29031484860456,
+       "gap_log_units": 11.546798020896368
       },
       {
        "budget_per_day": 100,
-       "cut_log_p": -23.451147371271446,
-       "gap_log_units": 0.5770137133960276
+       "cut_log_p": -23.312554027754437,
+       "gap_log_units": 0.569037200046246
       },
       {
        "budget_per_day": 1000,
-       "cut_log_p": -11.343697556604297,
-       "gap_log_units": -11.530436101271121
+       "cut_log_p": -11.229687154114082,
+       "gap_log_units": -11.51382967359411
       }
      ]
     }
@@ -1590,8 +1590,8 @@
     {
      "budget_per_day": 10,
      "inside_the_cut": 0,
-     "within_10_log_units": 0,
-     "within_50_log_units": 549,
+     "within_10_log_units": 1,
+     "within_50_log_units": 548,
      "within_200_log_units": 0,
      "beyond_200_log_units": 0,
      "unmeasurable": 0
@@ -1599,17 +1599,17 @@
     {
      "budget_per_day": 100,
      "inside_the_cut": 7,
-     "within_10_log_units": 72,
-     "within_50_log_units": 470,
+     "within_10_log_units": 71,
+     "within_50_log_units": 471,
      "within_200_log_units": 0,
      "beyond_200_log_units": 0,
      "unmeasurable": 0
     },
     {
      "budget_per_day": 1000,
-     "inside_the_cut": 113,
-     "within_10_log_units": 315,
-     "within_50_log_units": 121,
+     "inside_the_cut": 112,
+     "within_10_log_units": 318,
+     "within_50_log_units": 119,
      "within_200_log_units": 0,
      "beyond_200_log_units": 0,
      "unmeasurable": 0
@@ -1657,15 +1657,15 @@
      {
       "budget_per_day": 1000,
       "alerts_at_budget": 7000,
-      "true_positives_at_budget": 113,
+      "true_positives_at_budget": 112,
       "optimal_alerts": 0,
       "true_positives_at_optimal": 0,
-      "objective_at_budget": -5757,
+      "objective_at_budget": -5768,
       "objective_at_optimal": 0,
       "precision_at_optimal": 0,
       "is_worthwhile_at_optimal": false,
       "alerts_suppressed": 7000,
-      "true_positives_forgone": 113
+      "true_positives_forgone": 112
      }
     ]
    },
@@ -1717,12 +1717,12 @@
   ]
  },
  "run": {
-  "finished_at": "2026-08-20T19:22:17Z",
-  "go_version": "go1.26.3",
-  "parent_file": "C:/Users/JohnPierman/Documents/calibrated-anomaly-detection/results/lanl-r11-b1000-conf-d7-14.json",
-  "parent_run": "lanl-r11-b1000-weighted-d7-14-003",
-  "run_id": "analysis-r11-b1000-conf-001",
-  "started_at": "2026-08-20T19:22:17Z"
+  "finished_at": "2026-08-20T21:35:44Z",
+  "go_version": "go1.26.0",
+  "parent_file": "/Users/john/Documents/GitHub/ethogram/results/lanl-r11-b1000-conf-d7-14.json",
+  "parent_run": "lanl-r11-b1000-weighted-d7-14-004",
+  "run_id": "analysis-r11-b1000-conf-002",
+  "started_at": "2026-08-20T21:35:44Z"
  },
  "schema_version": "1"
 }

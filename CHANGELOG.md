@@ -11,6 +11,27 @@ Equation numbers `(1)`–`(20)`, requirements `R1`–`R6`, and evaluation hypoth
 
 ### Added
 
+- **`cmd/replay -volume-min-periods`, and the `volume_gate_probe` diagnostic that chose its
+  value.** #25 asks for a threshold picked from a measurement rather than from taste, and the
+  four candidates it nominates would have cost a two-hour replay each. The probe answers all
+  of them from one ungated pass: it retains the smallest `-topk` p-values per (day, completed
+  period) cell, so a candidate's realised cut is exact rather than binned. The budget is per
+  DAY, which the first version of this got wrong -- a single cut pooled across the window
+  credits a labelled event at 1.96e-07 with clearing a cut the loosest day set, when on its
+  own day the cut was 1e-12 and it was nowhere near. Every quantity is therefore accumulated
+  per day, and at a threshold of zero the block's `labelled_clearing_cut` must equal the
+  volume arm's own `true_positives`: the same selection computed a second way, so a
+  disagreement indicts the instrument rather than the arm
+- **`cmd/volumegate`** writes the decision as a result file: the threshold adopted, the rule
+  that was applied, and every rejected candidate with the measurement that rejected it. It
+  refuses a parent run that armed the gate, because a gated event carries no p-value and such
+  a run cannot decide a threshold below its own. `-max-abstain-share` makes the "small share"
+  half of #25's rule an explicit recorded number rather than a judgement in prose
+- `volume.State.CompletedPeriods`, the undiscounted count of periods folded into the
+  posterior, with `completed_periods` reported on every volume verdict. `Rate.B` is the same
+  count under the per-period discount and settles near 10.6 at T1/2 = 7 days, so it cannot
+  express how many periods an established entity has and cannot gate on it
+
 - the **abstract and the contributions carry the allocation result**, which they did not. A
   paper whose sharpest negative finding appears only in section 5.5 is a paper whose abstract
   is out of date with it: the allocation bound is now one of four negative results stated up
@@ -28,6 +49,28 @@ Equation numbers `(1)`–`(20)`, requirements `R1`–`R6`, and evaluation hypoth
   a moved per-arm count would have meant it was perturbing what it measures
 
 ### Fixed
+
+- **`volume` abstains where an entity has no completed period (#25, R3).** With none, the
+  Gamma posterior of equation (10) is the prior, and the detector reported that absence of any
+  basis as P = 1, which is an opinion. It now returns `abstained_unusable` with a reason, on
+  2,362 of 4,190,603 events on `r11` and 4,399 of 4,494,396 on the planted corpus, against
+  zero before. The observation is returned on the abstaining path as well as the scoring one:
+  an entity below the gate must keep accruing state, or the abstention is permanent rather
+  than provisional and the arm goes silent instead of becoming correct
+- **#25's account of the defect does not survive the measurement, and sections 5.1 and 6.2 now
+  state what does.** The issue attributes 13,618 sub-1e-12 events to scoring an entity's first
+  period against a posterior fitted on no completed periods. A first period scores P = 1
+  exactly, so the abstention removes NONE of that pile; at five completed periods, costing
+  4.9% of events abstained and 132 labelled events withheld, only 10.6% of it goes. The pile
+  belongs to entities with established history, and the cause is equation (11)'s predictive
+  being too narrow to tolerate their habitual day-to-day variation. No candidate threshold
+  moves the realised cut off the 1e-12 floor on either corpus, so one was adopted on the R3
+  requirement alone and the rule's own recommendation is recorded as none
+- Section 5.1 quoted the planted corpus's 13,618 sub-1e-12 events and its 4.5e-06 calibrated
+  expectation in a passage that states it is reporting `r11`, where the figures are 27,464 and
+  4.2e-06
+- `completed_periods` is persisted by the postgres volume store, which would otherwise reopen
+  the gate for every entity on each process restart
 
 - **the volume detector never abstains, and the paper now says so.** R3 requires a detector
   with no basis for an opinion to say so; this one scores an entity's first period against a

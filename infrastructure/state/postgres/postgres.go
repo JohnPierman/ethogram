@@ -60,11 +60,13 @@ var migrations = []string{
 		b            float8 NOT NULL,
 		period_index bigint NOT NULL,
 		period_count bigint NOT NULL,
+		completed_periods bigint NOT NULL DEFAULT 0,
 		window_index bigint NOT NULL,
 		window_count bigint NOT NULL,
 		last_seen_us bigint NOT NULL,
 		PRIMARY KEY (source, entity)
 	)`,
+	`ALTER TABLE volume_state ADD COLUMN IF NOT EXISTS completed_periods bigint NOT NULL DEFAULT 0`,
 	`CREATE TABLE IF NOT EXISTS graph_node (
 		source       text   NOT NULL,
 		field        text   NOT NULL,
