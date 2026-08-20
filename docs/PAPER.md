@@ -81,8 +81,8 @@ reaches labelled events at every budget, 11 at 10 alerts a day where every compa
 none; its own combined verdict does not: at 50 alerts a day it reaches none where a per-entity
 moving average reaches one, which is section 5.4's finding arrived at from the other
 direction. The subset
-measured here carries a base rate of one in 7,633, ten times the full corpus's, so every
-precision on the figure is easier than the arithmetic above demands. The conclusion is
+measured here carries a base rate of one in 7,633, ten times the full corpus's one in 76,901,
+so every precision on the figure is easier than the arithmetic above demands. The conclusion is
 unchanged: suppressing false alarms to the rate the base rate demands is not this framework's
 binding constraint, because it already achieves it. Recall is.
 
@@ -719,7 +719,7 @@ behaviour, and it is not enough.
 | weighted, oracle weights | 61 | 174 | 61 | 309 |
 | best two-arm split, oracle | 60 | 201 | 77 | 395 |
 
-`lanl-r11-b1000-weighted-d7-14-005` and `lanl-inj-b1000-weighted-d7-14-004`. The two oracle
+`lanl-r11-b1000-weighted-d7-14-005` and `lanl-inj-b1000-weighted-d7-14-005`. The two oracle
 rows read the labels they are evaluated against; neither is a deployable configuration, and
 both are here to bound what a fitted rule could reach. Three of the four rows are computed by
 these runs from the same rankings; the oracle-weights row is not recorded by the replay and was

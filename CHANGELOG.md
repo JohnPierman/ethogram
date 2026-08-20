@@ -96,6 +96,14 @@ Equation numbers `(1)`–`(20)`, requirements `R1`–`R6`, and evaluation hypoth
 
 ### Fixed
 
+- section 5.5 cited `lanl-inj-b1000-weighted-d7-14-004` where the recorded run is `-005`. The two
+  ids shared a line and only the first was bumped when the run ids moved; caught by checking
+  every run-id the paper cites against the run ids the result files actually record, which is
+  now the check worth keeping
+- section 1.1 lost the full corpus's base rate of one in 76,901 when the hand-drawn figure that
+  carried it was replaced. The figure's own base rate of one in 7,633 is stated as a multiple of
+  it, so the multiple had nothing to refer to
+
 - **`timing` can now express a departure it has detected (#26).** Detections at 10, 100 and
   1000 alerts a day go from 0, 0 and 6 to **1, 2 and 7** on the real campaign and from 0, 1 and
   12 to **2, 9 and 21** on the planted corpus. The response to the mechanism the arm was built
