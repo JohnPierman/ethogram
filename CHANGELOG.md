@@ -11,6 +11,26 @@ Equation numbers `(1)`–`(20)`, requirements `R1`–`R6`, and evaluation hypoth
 
 ### Added
 
+- **a fourth combination rule: the weighted arm.** Each alert is scored by the
+  log-likelihood ratio its own detector's fitted weight implies, over that detector's frozen
+  burn-in null, and the day's budget goes to the highest scores. There is no share parameter:
+  a common scale plus a fitted weight already implies a share, so the allocation falls out of
+  the scoring rather than being chosen. A detector whose labelled burn-in events sat where any
+  event sits scores every alert it holds at exactly zero and enters the queue only if the
+  informative detectors fail to fill it -- which is what stops `volume`, detecting nothing
+  anywhere, from drawing a sixth of the budget as it does under rank fusion
+- the weighted arm **reports itself unmeasured when no labelled event falls before the
+  boundary**, rather than reporting an arm whose every weight is uninformative. A weight fitted
+  on nothing is an equal quota under another name, and the two must not render alike
+- the arm's fit **records its own evidence**: per detector, the fitted `a`, how many labelled
+  burn-in events it surfaced, how many it evaluated and missed, the deviance against
+  uninformative and whether that cleared the threshold. A weight in a result can be read back
+  to what earned it
+- `cmd/replay -ledger` records each labelled burn-in event's **log** p-value per detector, not
+  its p-value. A detector's tail reaches ln P = -4000 on this corpus, which is zero as a
+  float64, and a weight fitted from a sample of zeros is fitted from nothing. Burn-in labelled
+  events happen to sit well short of that, histories being short early in the corpus, but
+  "happens to be representable here" is not a property to rely on
 - **`domain/allocation`: how much of a budget each detector has earned.** Two frozen
   quantities per detector and a per-alert score built from them. `Tail` is the detector's own
   null over its log p-value, so alerts from detectors that share no p-value scale become

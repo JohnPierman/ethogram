@@ -79,14 +79,25 @@ type ledgerAlert struct {
 	Categories  []string `json:"cat,omitempty"`
 }
 
-// ledgerLabelled is one labelled event, with its own p-value under every arm that
-// evaluated it. On burn-in days this is the fitting sample; on scoring days it is the
-// evaluation target.
+// ledgerLabelled is one labelled event, with its own score under every arm that evaluated
+// it. On burn-in days this is the fitting sample; on scoring days it is the evaluation
+// target.
 type ledgerLabelled struct {
-	Key      string             `json:"key"`
-	TSeconds int64              `json:"t"`
-	Entity   string             `json:"e"`
-	Day      int64              `json:"day"`
+	Key      string `json:"key"`
+	TSeconds int64  `json:"t"`
+	Entity   string `json:"e"`
+	Day      int64  `json:"day"`
+	// LogDetector is each arm's log p-value for this event.
+	//
+	// The log and not the p-value. A detector's tail reaches ln P = -4000 on this corpus,
+	// which is zero as a float64, and a weight fitted from a sample of zeros is fitted
+	// from nothing. Burn-in labelled events happen to sit well short of that -- histories
+	// are short early in the corpus, so Detector I's p-value for a first-ever value is
+	// around one over a few hundred -- but "happens to be representable on this corpus" is
+	// not a property to rely on, and the field a future corpus needs is this one.
+	LogDetector map[string]float64 `json:"lp"`
+	// Detector is the same values as p-values, retained for readability of small samples.
+	// Zero where the log underflows; never read for fitting.
 	Detector map[string]float64 `json:"p"`
 }
 
@@ -159,13 +170,15 @@ func (a *accumulator) observeBurnIn(se application.ScoredEvent) error {
 	sort.Slice(ids, func(i, j int) bool { return ids[i] < ids[j] })
 
 	if isRed {
+		logs := make(map[string]float64, len(ids))
 		perDetector := make(map[string]float64, len(ids))
 		for _, id := range ids {
+			logs[string(id)] = best[id]
 			perDetector[string(id)] = math.Exp(best[id])
 		}
 		a.burnInLabelled = append(a.burnInLabelled, ledgerLabelled{
 			Key: key, TSeconds: tSeconds, Entity: entity, Day: day,
-			Detector: perDetector,
+			LogDetector: logs, Detector: perDetector,
 		})
 	}
 
