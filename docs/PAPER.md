@@ -459,11 +459,15 @@ out-of-hours activity are as common among background events as among labelled on
 of either cannot rank labelled events highly however well it is specified. That bounds what
 work on those two detectors could recover on this campaign.
 
-It is not the whole explanation for their null results, and section 6.2 gives the other half:
-the timing detector's p-value is floored by its own construction at a value close to the alert
-cut, so it has under a decade of usable dynamic range here and at the two tighter budgets
-cannot alert at all. The two limits are real and independent — a property that does not
-discriminate, and a statistic that could not express discrimination if it had any.
+It is not the whole explanation for their null results, and section 6.2 gives the other half
+for each of them. The timing detector's p-value is floored by its own construction at a value
+close to the alert cut, so it has under a decade of usable dynamic range here and cannot alert
+at all at the two tighter budgets. The volume detector's tail is misspecified: 13,618
+background events fall below 1e-12 where a calibrated null predicts 4.5 × 10⁻⁶, and no
+labelled event goes below 1.96 × 10⁻⁷, so its queue is filled with background at every budget
+before a labelled event can compete. The limits are real and independent of the enrichment
+result — a property that does not discriminate, and, separately, statistics that could not
+express discrimination if they had any.
 
 ### 5.2 Detection on the real campaign
 
@@ -897,6 +901,31 @@ thing to change rather than its resolution. A rank of the density against the en
 history, which is the construction section 5.5 applies across detectors, has no such ceiling.
 We report this as a limitation rather than a fix because changing it changes every timing
 figure in this paper, and no run here measures the alternative.
+
+The volume detector never abstains, and its alert queue is entirely background. R3 requires a
+detector with no basis for an opinion to say so; this one scores an entity's first period
+against a rate posterior fitted on no completed periods, because an unseen entity is given a
+zero-valued state and the tail is computed from the prior. Across 4,494,396 scored events it
+abstained on none, against 8,705 abstentions for the novelty-rate detector, which gates on a
+minimum history, and 3,741,825 for the novelty detector.
+
+The consequence is measurable and it is not a matter of degree. 13,618 events receive a
+p-value below 10⁻¹², where a correctly calibrated null over this many events predicts
+4.5 × 10⁻⁶ of them, and no labelled event falls below 1.96 × 10⁻⁷ — five decades above. The
+realised cut is therefore 1.12 × 10⁻¹² at 10, 100 and 1000 alerts a day alike: the queue is
+drawn entirely from that background pile at every budget, ordering within it falls to the
+tie-break rather than to evidence, and no labelled event can enter. This is the same
+misspecification already recorded for the population co-occurrence null, which put 18.4% of
+events below the same threshold and was replaced as a default for it; at 0.303% this one was
+small enough to escape notice and large enough to consume twice the alerts a 1000/day budget
+permits. Its response is also inverted — median p 0.72 on planted low-and-slow attacks against
+0.29 on the other mechanisms — so it rates its own target mechanism as less remarkable than
+the rest, which is a second defect the first one masks.
+
+Neither this detector nor the timing detector is therefore evidence about per-entity
+conditioning in either direction, and section 5.3's zeros for them should be read as
+unmeasured rather than as measured absences. Correcting either changes every figure they
+appear in, so both are reported here rather than patched.
 
 Effective sample size is far below nominal, so every interval here is optimistic. The 549
 labelled events fall on 104 accounts, 93.6% of label rows share one source computer, and two of
