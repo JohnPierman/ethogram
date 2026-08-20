@@ -165,6 +165,74 @@ so burn-in cannot be long without discarding labels; one week costs 6.5% of them
 
 ---
 
+## Reproducing the derived corpora
+
+The archive ships two files: `auth.txt.gz` and `redteam.txt.gz`. Every other input any
+recorded run reads is derived from those two, and the derivation is deterministic — the
+subset selector is FNV-1a of the entity identifier and the injector is seeded — so the same
+two inputs produce the same outputs on any machine.
+
+```sh
+make corpus         # derive everything from auth.txt.gz + redteam.txt.gz
+make corpus-check   # verify against the digests the recorded runs cite; fails closed
+```
+
+The chain, and what each step is for:
+
+| Output | From | Made by |
+|---|---|---|
+| `auth-r11-d0-14.txt.gz` | `auth.txt.gz` | `make corpus-r11` — 1 entity in 16, residue 11 |
+| `auth-holdout-r7-d0-14.txt.gz` | `auth.txt.gz` | `make corpus-holdout` — residue 7, disjoint from the above |
+| `auth-injected-r7-d0-14.txt.gz` | the holdout subset | `make corpus-injected` — 856 planted events, seed 42 |
+| `injected-labels-r7.txt.gz` | same | same step |
+| `labels-combined-r7.txt.gz` | `redteam.txt.gz` + the planted labels | same step, `-combined-labels` |
+
+Two entity samples of the same modulus and different residues share no unlabelled entity, so
+a measurement on one is held out from the other; every labelled entity is kept in both, which
+is what keeps them comparable on the thing being detected and is also why the labelled share
+of a subset is inflated relative to the full corpus.
+
+`make corpus-injected` rewrites `results/injection-r7-d0-14.taxonomy.json`, which is
+committed. That is right for a genuinely new planting and wrong for a reproduction, because
+the per-mechanism table in the paper is attributed against the committed taxonomy. For a
+reproduction, point it elsewhere and diff:
+
+```sh
+make corpus-injected INJECT_TAXONOMY=/tmp/tax.json
+```
+
+then compare `per_type`, `victim_type`, `events_injected`, `parameters`, `order` and
+`premise`. The `run` block carries timestamps and always differs; that is not a finding. Any
+of the others moving is.
+
+### Why the digest manifest allows the combined labels two values
+
+`config/corpus-digests.txt` accepts one digest per file, with one exception, stated on the
+line. `labels-combined-r7.txt.gz` was produced by hand before `cmd/inject -combined-labels`
+existed, and the rebuilt file holds the same 1,605 rows in the same order under a different
+gzip encoding. Both are admissible because the difference cannot reach a result: the replay's
+label loader builds sets and a row count, so line order and compression level are
+unobservable to scoring, and the digest is provenance of the file that was read rather than
+an input to it. `cmd/inject`'s `TestWriteCombinedLabelsReproducesTheShippedFile` pins the
+row-for-row equality, and skips where the corpus is absent.
+
+Where a digest mismatch *would* change a result — the auth corpora, whose contents the
+detectors score — exactly one digest is accepted.
+
+### Reproducing a recorded run
+
+One target per run, because a run launched by hand is a run nobody else can repeat:
+
+```sh
+make replay-r11     # lanl-r11-b1000-weighted-d7-14-003
+make replay-inj     # lanl-inj-b1000-weighted-d7-14-003
+make analyse-r11    # analysis-r11-b1000-conf-001
+```
+
+Each takes roughly two hours and about 500 MB of heap, and the two replays are independent.
+The flags in those targets are the ones the result file records in its `parameters` block; if
+the two ever disagree, the result file is authoritative and the target is the bug.
+
 ## CERT Insider Threat r5.2
 
 Reference [53]. Second corpus.

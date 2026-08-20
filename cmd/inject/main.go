@@ -217,19 +217,20 @@ type injected struct {
 // config is one injection run, gathered so the parameter list stays readable and so every
 // value that shapes the corpus is recorded from one place.
 type config struct {
-	authPath   string
-	outPath    string
-	labelsPath string
-	manifest   string
-	taxonomy   string
-	runID      string
-	realLabels string
-	profileEnd int64
-	from       int64
-	to         int64
-	perType    int
-	minEvents  int
-	seed       int64
+	authPath     string
+	outPath      string
+	labelsPath   string
+	combinedPath string
+	manifest     string
+	taxonomy     string
+	runID        string
+	realLabels   string
+	profileEnd   int64
+	from         int64
+	to           int64
+	perType      int
+	minEvents    int
+	seed         int64
 }
 
 func main() {
@@ -250,6 +251,11 @@ func main() {
 	flag.StringVar(&cfg.runID, "run-id", "",
 		"identifier recorded in the taxonomy document (required when -taxonomy is written to "+
 			"results/, which is provenance-gated)")
+	flag.StringVar(&cfg.combinedPath, "combined-labels", "",
+		"write the real and planted labels as one file here, ordered by timestamp. The "+
+			"injected corpus is scored against both ground truths at once, so a replay "+
+			"needs this file; producing it here rather than by hand is what makes it "+
+			"rebuildable from the two inputs")
 	flag.StringVar(&cfg.realLabels, "real-labels", "data/lanl/redteam.txt.gz",
 		"the real labels, so their accounts are never chosen as victims")
 	flag.Int64Var(&cfg.profileEnd, "profile-end", 604800,
@@ -355,6 +361,11 @@ func run(cfg config) error {
 	written, err := writeAugmented(cfg.authPath, cfg.outPath, plants)
 	if err != nil {
 		return err
+	}
+	if cfg.combinedPath != "" {
+		if err := writeCombinedLabels(cfg.combinedPath, cfg.realLabels, plants); err != nil {
+			log.Fatal(err)
+		}
 	}
 	if err := writeLabels(cfg.labelsPath, plants); err != nil {
 		return err
@@ -986,4 +997,88 @@ func fileDigest(path string) (string, error) {
 		return "", err
 	}
 	return hex.EncodeToString(h.Sum(nil)), nil
+}
+
+// writeCombinedLabels writes the real labels and the planted ones as one file, ordered by
+// timestamp.
+//
+// It exists because the alternative was a file nobody could rebuild. The injected corpus is
+// scored against both ground truths at once — a replay takes one -redteam argument — so a
+// combined file is needed, and for one release of this project it was produced by hand and
+// never recorded anywhere. A committed result then cited a SHA for a file that no target, no
+// command and no document in the repository knew how to make, which is the exact failure the
+// provenance rules elsewhere here exist to prevent. Reproducing it took reading its bytes.
+//
+// Ordering is by timestamp and then by the row itself, which makes the output a deterministic
+// function of its two inputs. Nothing downstream depends on the order — `loadRedTeam` builds
+// sets and a count, so line order and compression level are unobservable to scoring — but a
+// file that is byte-identical on every machine is checkable against a recorded digest, and one
+// that is merely equivalent is not.
+func writeCombinedLabels(path, realPath string, plants []injected) error {
+	rows := make([]string, 0, len(plants)*2)
+
+	real, closeFn, err := openRows(realPath)
+	if err != nil {
+		return fmt.Errorf("combined labels: open real labels: %w", err)
+	}
+	for real.Scan() {
+		line := strings.TrimSpace(real.Text())
+		if line == "" {
+			continue
+		}
+		// The same four-field shape the replay requires. Refused here rather than at the
+		// replay, where a malformed row aborts a run hours in.
+		if got := len(strings.Split(line, ",")); got != 4 {
+			closeFn()
+			return fmt.Errorf("combined labels: real label row has %d fields, want 4: %q",
+				got, line)
+		}
+		rows = append(rows, line)
+	}
+	err = real.Err()
+	closeFn()
+	if err != nil {
+		return fmt.Errorf("combined labels: read real labels: %w", err)
+	}
+
+	for _, p := range plants {
+		rows = append(rows, fmt.Sprintf("%s,%s,%s,%s",
+			p.row[colTime], p.row[colSrcUser], p.row[colSrcComp], p.row[colDstComp]))
+	}
+
+	// Stable, and keyed on the timestamp alone. Real rows are appended before planted ones
+	// and a stable sort preserves that among rows sharing a second, which is what makes the
+	// output a deterministic function of the two inputs without needing a tie-break that
+	// invents an ordering between two ground truths.
+	sort.SliceStable(rows, func(i, j int) bool {
+		ti, ei := splitFirstField(rows[i])
+		tj, ej := splitFirstField(rows[j])
+		if ei != nil || ej != nil {
+			return false // unparseable timestamps keep their input position
+		}
+		return ti < tj
+	})
+
+	out, err := os.Create(path) //nolint:gosec // the path the flag names
+	if err != nil {
+		return err
+	}
+	defer func() { _ = out.Close() }()
+	zw := gzip.NewWriter(out)
+	writer := bufio.NewWriter(zw)
+	for _, r := range rows {
+		if _, err := fmt.Fprintln(writer, r); err != nil {
+			return fmt.Errorf("combined labels: write %q: %w", r, err)
+		}
+	}
+	if err := writer.Flush(); err != nil {
+		return err
+	}
+	return zw.Close()
+}
+
+// splitFirstField reads the leading integer timestamp of a label row.
+func splitFirstField(row string) (int64, error) {
+	head, _, _ := strings.Cut(row, ",")
+	return strconv.ParseInt(head, 10, 64)
 }

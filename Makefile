@@ -156,6 +156,87 @@ inject:
 	  -real-labels $(DATA)/redteam.txt.gz -per-type 8
 	@echo "wrote $(INJECT_CORPUS), $(INJECT_LABELS) and $(INJECT_TAXONOMY)"
 
+# ---------------------------------------------------------------------------
+# The corpus: derive every input from the two files the archive actually ships
+# ---------------------------------------------------------------------------
+#
+# These targets exist because their absence cost a day. Every recorded run cites its inputs
+# by SHA-256, which proves WHICH file was read and says nothing about how to make it, and for
+# one release the derivations lived only in a shell history: two `cmd/subset` invocations
+# whose parameters survived solely inside the manifests of files that are not in the
+# repository, and a combined label file that no target, no command and no document knew how to
+# build. Reproducing a result on a second machine meant reading bytes off the first one.
+#
+# What the archive ships is `auth.txt.gz` and `redteam.txt.gz`. Everything else here is
+# derived from those two, deterministically: the subset selector is FNV-1a of the entity
+# identifier and the injector is seeded, so the same two inputs give the same outputs on any
+# machine. `make corpus-check` is what turns "should" into "did".
+
+RAW_AUTH        ?= $(DATA)/auth.txt.gz
+RAW_REDTEAM     ?= $(DATA)/redteam.txt.gz
+R11_CORPUS      ?= $(DATA)/auth-r11-d0-14.txt.gz
+HOLDOUT_CORPUS  ?= $(DATA)/auth-holdout-r7-d0-14.txt.gz
+COMBINED_LABELS ?= $(DATA)/labels-combined-r7.txt.gz
+CORPUS_DIGESTS  ?= $(ROOT)/config/corpus-digests.txt
+
+# Entity samples, not event samples: whole entities are kept or dropped so per-entity
+# histories stay intact, and every labelled entity is kept regardless. Two residues of the
+# same modulus share no unlabelled entity, which is what makes one a held-out evaluation of
+# the other.
+.PHONY: corpus-r11
+corpus-r11:
+	$(GO) run ./cmd/subset -auth $(RAW_AUTH) -redteam $(RAW_REDTEAM) -out $(R11_CORPUS) -entity-sample 16 -sample-residue 11 -maxseconds 1209600
+
+.PHONY: corpus-holdout
+corpus-holdout:
+	$(GO) run ./cmd/subset -auth $(RAW_AUTH) -redteam $(RAW_REDTEAM) -out $(HOLDOUT_CORPUS) -entity-sample 16 -sample-residue 7 -maxseconds 1209600
+
+# The injected corpus, and the combined labels a replay over it needs. -combined-labels is
+# not optional in practice: the injected corpus is scored against both ground truths at once
+# and a replay takes one -redteam argument.
+#
+# INJECT_TAXONOMY defaults to the COMMITTED taxonomy, which this rewrites. That is deliberate
+# for a genuinely new planting and wrong for a reproduction, so a reproduction should point it
+# at a scratch path and diff: `make inject INJECT_TAXONOMY=/tmp/tax.json`, then compare
+# per_type, victim_type, events_injected, parameters, order and premise. The run block carries
+# timestamps and always differs.
+.PHONY: corpus-injected
+corpus-injected:
+	$(GO) run ./cmd/inject -auth $(INJECT_SOURCE) -out $(INJECT_CORPUS) -labels $(INJECT_LABELS) -combined-labels $(COMBINED_LABELS) -taxonomy $(INJECT_TAXONOMY) -run-id $(INJECT_RUN_ID) -real-labels $(RAW_REDTEAM) -per-type 8
+
+# Everything, in dependency order. The two subset passes read 239M rows each and are the
+# expensive part.
+.PHONY: corpus
+corpus: corpus-r11 corpus-holdout corpus-injected
+	@echo "corpus derived; run 'make corpus-check' before any replay"
+
+# Verify every derived input against the digests the recorded runs cite. Fails closed: a
+# reproduction that starts from a different corpus is not a reproduction, and the cheapest
+# place to learn that is before a two-hour replay rather than after it.
+.PHONY: corpus-check
+corpus-check:
+	@$(GO) run ./cmd/corpuscheck -digests $(CORPUS_DIGESTS) -dir $(DATA)
+
+# ---------------------------------------------------------------------------
+# Reproducing a recorded run
+# ---------------------------------------------------------------------------
+#
+# One target per recorded run, because a run launched by hand is a run nobody else can
+# repeat. The flags below are the ones the result file records in its `parameters` block; if
+# they drift apart, the result file is authoritative and this is the bug.
+
+.PHONY: replay-r11
+replay-r11:
+	$(GO) run ./cmd/replay -auth $(R11_CORPUS) -redteam $(RAW_REDTEAM) -out $(RESULTS)/lanl-r11-b1000-conf-d7-14.json -run-id lanl-r11-b1000-weighted-d7-14-003 -topk 1000 -budgets 10,100,1000 -conformal -pairing -novelty-rate -weighted
+
+.PHONY: replay-inj
+replay-inj:
+	$(GO) run ./cmd/replay -auth $(INJECT_CORPUS) -redteam $(COMBINED_LABELS) -out $(RESULTS)/lanl-inj-b1000-conf-d7-14.json -run-id lanl-inj-b1000-weighted-d7-14-003 -topk 1000 -budgets 10,100,1000 -conformal -pairing -novelty-rate -weighted
+
+.PHONY: analyse-r11
+analyse-r11:
+	$(GO) run ./cmd/analyse -run $(RESULTS)/lanl-r11-b1000-conf-d7-14.json -out $(RESULTS)/analysis-r11-b1000-conf.json -run-id analysis-r11-b1000-conf-001 -budgets 10,100,1000 -value-ratio 10
+
 # The interactive dashboard. It reads the same results directory and embeds a distilled
 # index, so a new run appears on it without any edit here.
 #

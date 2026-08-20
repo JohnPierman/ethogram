@@ -11,6 +11,28 @@ Equation numbers `(1)`–`(20)`, requirements `R1`–`R6`, and evaluation hypoth
 
 ### Added
 
+- **`make corpus`, `make corpus-check`, and one target per recorded run.** Every result file
+  cites its inputs by SHA-256, which proves which file was read and says nothing about how to
+  make it. For one release the derivations lived only in a shell history: two `cmd/subset`
+  invocations whose parameters survived solely inside the manifests of files that are not in
+  the repository, and a combined label file no target, command or document knew how to build.
+  Reproducing a result on a second machine meant reading bytes off the first one. Two files in
+  -- `auth.txt.gz` and `redteam.txt.gz` -- and everything else is derived and verified
+- **`cmd/inject -combined-labels`** writes the real and planted labels as one file, ordered by
+  timestamp, which is what a replay over the injected corpus needs since it takes one
+  `-redteam` argument. It was previously produced by hand. A test pins that the tool rebuilds
+  the shipped file row for row, and skips where the corpus is absent
+- **`cmd/corpuscheck`** verifies each derived input against the digests the recorded runs cite
+  and fails closed, with a message naming the fix. The cheapest place to learn that a corpus is
+  wrong is before a two-hour replay rather than from its numbers afterwards
+- `config/corpus-digests.txt` allows one file two digests, on one line, with the reason on that
+  line: the combined labels hold the same 1,605 rows in the same order under two gzip
+  encodings, and nothing downstream can observe the difference -- the label loader builds sets
+  and a count, so line order and compression level do not reach a score. Where a mismatch
+  *would* change a result, the auth corpora whose contents are scored, exactly one digest is
+  accepted
+- `DATA.md` documents the derivation chain, why the injected corpus must not be regenerated
+  during a reproduction, and which fields of the taxonomy to diff if it is
 - **the oracle bound that makes the allocation result conclusive.** The weighted arm losing
   does not by itself distinguish a bad estimator from a wrong construction, so the replay also
   searches two-arm budget splits exhaustively and picks the best one WITH the evaluation labels
