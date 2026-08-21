@@ -476,6 +476,47 @@ func compareRules(m robust.Matrix, rect rectangle, byName map[string]matrixRow,
 		Note:      "one arm at full depth, chosen by lottery; not a budget split",
 	})
 
+	// The ceiling on per-entity routing, which is the one rule that can exceed the best
+	// single arm at equal cost, because it is the only one that exploits arms reaching
+	// different events rather than averaging over them.
+	//
+	// Two bounds, both oracles. The lower one routes each mechanism to the arm that reaches
+	// it most often, which any per-entity policy can match by construction since a mechanism's
+	// victims all share a mechanism. The upper one is the union of every arm at full depth:
+	// no routing can find an event that no arm finds. The gap between them is the headroom a
+	// router has to be measured inside, and the distance from the best single arm is what
+	// makes it worth building.
+	perMechanism := 0.0
+	for _, mech := range m.Mechanisms() {
+		best := 0
+		for _, arm := range arms {
+			if n := byName[arm].Caught[mech]; n > best {
+				best = n
+			}
+		}
+		perMechanism += float64(best)
+	}
+	ceiling := 0.0
+	for _, r := range rect.Rows {
+		if strings.Contains(r.Name, "all arms") && strings.Contains(r.Name, "equal depth") {
+			ceiling = total(r.Caught)
+		}
+	}
+	out = append(out, Rule{
+		Name:     "per-entity routing, oracle floor",
+		Detected: perMechanism, Alerts: rect.Permitted,
+		Note: "each mechanism to the arm that reaches it most; any per-entity policy " +
+			"matches this by construction",
+	})
+	if ceiling > 0 {
+		out = append(out, Rule{
+			Name:     "per-entity routing, oracle ceiling",
+			Detected: ceiling, Alerts: rect.Permitted,
+			Note: "no routing can reach an event no arm reaches; the alert cost of " +
+				"attaining it is not accounted for here",
+		})
+	}
+
 	// An even randomisation over the two highest-yielding arms. This is the row that
 	// answers whether randomising beats dividing at equal cost, and it needs no judgement
 	// about which pair is interesting: total detections is linear in the weights, so the

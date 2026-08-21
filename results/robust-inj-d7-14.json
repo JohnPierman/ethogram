@@ -399,6 +399,20 @@
       "note": "one arm at full depth, chosen by lottery; not a budget split"
     },
     {
+      "name": "per-entity routing, oracle floor",
+      "detected_total": 460,
+      "alerts": 7000,
+      "worst_case_retained_fraction": 0,
+      "note": "each mechanism to the arm that reaches it most; any per-entity policy matches this by construction"
+    },
+    {
+      "name": "per-entity routing, oracle ceiling",
+      "detected_total": 535,
+      "alerts": 7000,
+      "worst_case_retained_fraction": 0,
+      "note": "no routing can reach an event no arm reaches; the alert cost of attaining it is not accounted for here"
+    },
+    {
       "name": "randomised, even over noveltyrate and novelty",
       "detected_total": 343.5,
       "alerts": 7000,

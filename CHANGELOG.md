@@ -11,6 +11,43 @@ Equation numbers `(1)`–`(20)`, requirements `R1`–`R6`, and evaluation hypoth
 
 ### Added
 
+- **`domain/drift`: a sequential change statistic for the mechanism the volume predictive
+  cannot reach (#39, A1).** Equation (11)'s null is structurally over-dispersed, which is
+  correct for asking whether *this period* is surprising and is exactly why a modest shift
+  sustained over many periods sits inside it in every period. Page's one-sided cumulative sum
+  accumulates the excess instead, so the evidence grows linearly in the number of periods while
+  the spread of its null grows as the square root. The p-value is the upper tail of the sum
+  standardised against the entity's own realised sums, which is the construction section 6.2
+  adopts for timing and for the same reason: it removes a scale that is not comparable across
+  entities and it has no floor
+- **Measured on synthetic streams of known construction: the cumulative sum separates a
+  sustained +30% shift from matched stationary variation by 57x, and equation (11)'s predictive
+  by 1.2x.** Both statistics are fitted on the same forty stationary periods and then score
+  forty more, so the comparison isolates what each accumulates rather than how each is fitted.
+  This reproduces, on a stream whose construction is known, the inverted response the paper
+  records on the planted corpus -- median p 0.72 on low-and-slow against 0.29 elsewhere
+- **`domain/routing`: per-entity detector assignment (#39, A5).** Expected detection is linear
+  in a global allocation, so the best global allocation is a single detector; routing is not a
+  global allocation and is the only construction here able to beat the best single arm at equal
+  cost, because it exploits arms reaching different events instead of averaging over them. It
+  routes on frozen per-entity state only, its preference order is stated rather than fitted, and
+  it abstains under R3 where no arm's null is well specified
+- **The headroom for per-entity routing is now bounded from the recorded matrix: 460 to 535
+  labelled events against the best single arm's 384.** The floor routes each mechanism to the
+  arm that reaches it most, which any per-entity policy matches by construction; the ceiling is
+  the union of every arm at full depth, since no routing reaches an event no arm reaches. Both
+  are oracles and neither charges the alert cost of attaining it
+
+### Fixed
+
+- **`domain/drift` names the bound its discount must satisfy, rather than abstaining silently
+  below it.** Discounted weight saturates at 1/(1-delta) however long an entity is observed, so
+  a half-life short enough to put that ceiling below the minimum weight disables the arm for
+  every entity for all time. At daily periods the framework's seven-day half-life clears it,
+  giving a saturating weight of 10.6 against a minimum of 8 -- but not by much, and a run that
+  shortened the half-life below about five days would record only a column of abstentions.
+  `ReachesMinWeight` is what a caller consults instead of discovering it in a result file
+
 - **The allocation of a fixed budget across detectors is now solved as a two-person zero-sum
   game (#39), by `domain/robust` and `cmd/robust`.** Section 5.5 established that the optimum
   is the corner; this states why that result is forced rather than measured. Expected detection
