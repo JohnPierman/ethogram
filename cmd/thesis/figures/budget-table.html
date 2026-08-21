@@ -1,0 +1,29 @@
+<figure class="fig">
+<div class="tablewrap">
+<table>
+<thead>
+<tr><th rowspan="2">Method</th><th rowspan="2">Judged against</th><th colspan="3" class="group">100 alerts / analyst-day</th><th colspan="3" class="group">1,000 alerts / analyst-day</th></tr>
+<tr><th class="num group">Found</th><th class="num">Precision</th><th class="num">Recall</th><th class="num group">Found</th><th class="num">Precision</th><th class="num">Recall</th></tr>
+</thead>
+<tbody>
+<tr><td><strong>this framework, novelty arm</strong></td><td>its own history</td><td class="num group">60</td><td class="num">8.6%</td><td class="num">11%</td><td class="num group">201</td><td class="num">2.9%</td><td class="num">37%</td></tr>
+<tr><td><strong>this framework, composite</strong></td><td>its own history</td><td class="num group">6</td><td class="num">0.86%</td><td class="num">1.1%</td><td class="num group">113</td><td class="num">1.6%</td><td class="num">21%</td></tr>
+<tr><td>entity_ewma</td><td>its own history</td><td class="num group">2</td><td class="num">0.29%</td><td class="num">0.36%</td><td class="num group">11</td><td class="num">0.16%</td><td class="num">2.0%</td></tr>
+<tr><td>lof</td><td>the population</td><td class="num group">0</td><td class="num">0</td><td class="num">0</td><td class="num group">10</td><td class="num">0.14%</td><td class="num">1.8%</td></tr>
+<tr><td>ocsvm</td><td>the population</td><td class="num group">0</td><td class="num">0</td><td class="num">0</td><td class="num group">0</td><td class="num">0</td><td class="num">0</td></tr>
+<tr><td>hst</td><td>the population</td><td class="num group">0</td><td class="num">0</td><td class="num">0</td><td class="num group">0</td><td class="num">0</td><td class="num">0</td></tr>
+<tr><td>rrcf</td><td>the population</td><td class="num group">0</td><td class="num">0</td><td class="num">0</td><td class="num group">0</td><td class="num">0</td><td class="num">0</td></tr>
+<tr><td>eif</td><td>the population</td><td class="num group">0</td><td class="num">0</td><td class="num">0</td><td class="num group">0</td><td class="num">0</td><td class="num">0</td></tr>
+<tr><td>iforest</td><td>the population</td><td class="num group">0</td><td class="num">0</td><td class="num">0</td><td class="num group">0</td><td class="num">0</td><td class="num">0</td></tr>
+<tr><td>pca</td><td>the population</td><td class="num group">0</td><td class="num">0</td><td class="num">0</td><td class="num group">0</td><td class="num">0</td><td class="num">0</td></tr>
+</tbody>
+</table>
+</div>
+<figcaption><strong>Every method that was run, at two budgets.</strong> A budget of <i>b</i> alerts per analyst-day buys a queue of <i>b</i>&#8239;&#215;&#8239;7 alerts over the 7 days scored, whichever method spends it. <i>Found</i> is labelled events reached, <i>precision</i> the share of the queue that is real, and <i>recall</i> the share of the 549 labelled events reached.
+<br><br>
+<strong>Most of the comparators reach nothing at all:</strong> seven of the eight at 100 a day and six of the eight at 1,000 a day. A zero is measured, not missing &#8212; every method read the same events, which is why the figure above needs a row below its axis.
+<br><br>
+This framework's novelty arm reaches 11% of the campaign at 100 alerts a day and 37% at 1,000, against a base rate of 1.3&#215;10&#8315;&#8308; &#8212; a lift of 650&#215; and 220&#215;.
+<br><br>
+<em>Recall counts what the red team wrote down, not what happened.</em> The label file records an authorised exercise rather than annotating the log exhaustively, so unrecorded malicious activity counts against precision and is absent from the recall denominator (§12.5): both columns are lower bounds. Only <code>entity_ewma</code> holds per-entity state, and no comparator is held to R2 or R4 (§12.4).</figcaption>
+</figure>

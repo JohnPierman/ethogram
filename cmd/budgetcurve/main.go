@@ -40,19 +40,140 @@ func main() {
 	basePath := flag.String("baselines", "", "baselines result JSON over the same slice (required)")
 	outPath := flag.String("out", "", "curve data JSON (required)")
 	svgPath := flag.String("svg", "", "figure SVG (required)")
+	tablePath := flag.String("table", "", "headline table HTML fragment for the `budget-table` anchor; omitted, no table is written")
+	tableBudgetsFlag := flag.String("table-budgets", joinInts(tableBudgets), "comma-separated alerts-per-analyst-day the table reports, one column group each")
 	runID := flag.String("run-id", "", "identifier for this derivation (required)")
+	curvePath := flag.String("curve", "", "a curve JSON this command wrote earlier. Given this, only -svg is read and the figure is redrawn from the recorded points: the replay the curve came from is 46 MB of retained alerts and is deliberately not in the repository, so redrawing after a change to the DRAWING must not require re-measuring")
 	methods := flag.String("methods", "", "comma-separated baseline methods to draw; empty selects the strongest four by total detections")
 	arms := flag.String("arms", "composite", "comma-separated framework series to draw. `composite` is the combined verdict; any other name is a per-detector arm, for instance `novelty`. Each is a FIXED arm across every budget: picking the best arm per budget would be choosing with the evaluation labels in hand, which is an oracle rather than a deployable configuration. Drawing the composite beside a single arm is deliberate where they disagree -- omitting the weaker one would overstate the framework")
 	tolerance := flag.Float64("population-tolerance", 0.01, "the largest relative difference between the framework's scored events and the baselines' estimated population that still counts as the same slice")
 	flag.Parse()
 
-	if *runPath == "" || *basePath == "" || *outPath == "" || *svgPath == "" || *runID == "" {
+	budgets, err := parseBudgets(*tableBudgetsFlag)
+	if err != nil {
+		log.Fatal(err)
+	}
+	out := outputs{svg: *svgPath, table: *tablePath, tableBudgets: budgets}
+
+	if *curvePath != "" {
+		if out.svg == "" && out.table == "" {
+			flag.Usage()
+			log.Fatal("-curve needs -svg, -table, or both")
+		}
+		if err := redraw(*curvePath, out); err != nil {
+			log.Fatal(err)
+		}
+		return
+	}
+
+	out.curve = *outPath
+	if *runPath == "" || *basePath == "" || out.curve == "" || out.svg == "" || *runID == "" {
 		flag.Usage()
 		log.Fatal("-run, -baselines, -out, -svg and -run-id are required")
 	}
-	if err := run(*runPath, *basePath, *outPath, *svgPath, *runID, *methods, *arms, *tolerance); err != nil {
+	if err := run(*runPath, *basePath, out, *runID, *methods, *arms, *tolerance); err != nil {
 		log.Fatal(err)
 	}
+}
+
+// outputs names the artefacts one derivation writes. It is a struct rather than four more
+// parameters because the drawing gained a second artefact and the signature was already at the
+// edge of readable.
+type outputs struct {
+	curve        string // the curve data JSON; empty when redrawing, which re-measures nothing
+	svg          string // section 1.1's figure
+	table        string // section 1.1's headline table; optional
+	tableBudgets []int
+}
+
+// curveFile is the subset of a curve JSON that redrawing needs. It is the file this command
+// writes, read back through the same field names, so the two cannot drift.
+type curveFile struct {
+	Kind       string `json:"kind"`
+	Parameters struct {
+		ScoredEvents   int `json:"scored_events"`
+		LabelledEvents int `json:"labelled_events"`
+		ScoredDays     int `json:"scored_days"`
+	} `json:"parameters"`
+	Results struct {
+		Drawn    []series `json:"drawn"`
+		Measured []series `json:"measured"`
+		Rejected []series `json:"rejected"`
+	} `json:"results"`
+}
+
+// redraw regenerates the figure from a curve file this command wrote earlier, without
+// re-reading the replay.
+//
+// This exists because the two inputs have very different lifetimes. The measurement is
+// expensive and settled: answering a budget of 10,000 needs a replay that retains ten
+// thousand alerts a day for every arm, which is 46 MB and stays out of the repository for
+// the same reason the alert ledger does. The DRAWING is neither -- it gets revised whenever
+// the figure is found to be hard to read. Without this path, changing a stroke width means
+// reproducing a two-hour replay first, and the honest alternative is editing the committed
+// SVG by hand, which is how a figure stops matching the numbers it claims to plot.
+//
+// It writes no curve file: the measurement is unchanged, so the recorded one still describes
+// it and rewriting it would only churn its timestamps.
+func redraw(curvePath string, out outputs) error {
+	var c curveFile
+	if err := readJSON(curvePath, &c); err != nil {
+		return err
+	}
+	if c.Kind != "budget-curve" {
+		return fmt.Errorf("%s is a %q file, not a budget-curve", curvePath, c.Kind)
+	}
+	if len(c.Results.Drawn) == 0 {
+		return fmt.Errorf("%s records no drawn series", curvePath)
+	}
+	p := c.Parameters
+	if p.ScoredEvents == 0 || p.LabelledEvents == 0 || p.ScoredDays == 0 {
+		return fmt.Errorf("%s is missing the population it was measured on: "+
+			"scored_events=%d labelled_events=%d scored_days=%d",
+			curvePath, p.ScoredEvents, p.LabelledEvents, p.ScoredDays)
+	}
+	if err := writeFigures(out, c.Results.Drawn, c.Results.Measured, c.Results.Rejected,
+		p.ScoredEvents, p.LabelledEvents, p.ScoredDays); err != nil {
+		return err
+	}
+	log.Printf("redrew from %s: %d series drawn, %d measured, no re-measurement",
+		curvePath, len(c.Results.Drawn), len(c.Results.Measured))
+	return nil
+}
+
+// writeFigures renders whichever artefacts were asked for. Both read the same series, so a
+// figure and the table beneath it cannot disagree about what a method did.
+func writeFigures(out outputs, drawn, measured, rejected []series, scored, labelled, days int) error {
+	if out.svg != "" {
+		svg, err := renderSVG(drawn, rejected, scored, labelled, days)
+		if err != nil {
+			return err
+		}
+		if err := os.WriteFile(out.svg, []byte(svg), 0o644); err != nil { //nolint:gosec // the output the flag names
+			return fmt.Errorf("write svg: %w", err)
+		}
+	}
+	if out.table == "" {
+		return nil
+	}
+	budgets := out.tableBudgets
+	if len(budgets) == 0 {
+		budgets = tableBudgets
+	}
+	var ours []series
+	for _, s := range drawn {
+		if s.Ours {
+			ours = append(ours, s)
+		}
+	}
+	table, err := renderTable(ours, measured, scored, labelled, days, budgets)
+	if err != nil {
+		return err
+	}
+	if err := os.WriteFile(out.table, []byte(table), 0o644); err != nil { //nolint:gosec // the output the flag names
+		return fmt.Errorf("write table: %w", err)
+	}
+	return nil
 }
 
 // point is one detector at one budget.
@@ -71,7 +192,7 @@ type series struct {
 	Points []point `json:"points"`
 }
 
-func run(runPath, basePath, outPath, svgPath, runID, methodSpec, armSpec string, tolerance float64) error {
+func run(runPath, basePath string, out outputs, runID, methodSpec, armSpec string, tolerance float64) error {
 	started := time.Now().UTC()
 
 	var fw, bl map[string]any
@@ -201,15 +322,11 @@ func run(runPath, basePath, outPath, svgPath, runID, methodSpec, armSpec string,
 	chosen, rejected := selectMethods(all, methodSpec)
 	drawn := append(append([]series{}, oursAll...), chosen...)
 
-	svg, err := renderSVG(drawn, rejected, scored, labelled, days)
-	if err != nil {
+	if err := writeFigures(out, drawn, all, rejected, scored, labelled, days); err != nil {
 		return err
 	}
-	if err := os.WriteFile(svgPath, []byte(svg), 0o644); err != nil { //nolint:gosec // the output the flag names
-		return fmt.Errorf("write svg: %w", err)
-	}
 
-	out := map[string]any{
+	record := map[string]any{
 		"schema_version": "1",
 		"kind":           "budget-curve",
 		"hypothesis": []string{
@@ -244,6 +361,12 @@ func run(runPath, basePath, outPath, svgPath, runID, methodSpec, armSpec string,
 			"alpha":                          "false alerts over background events; the corpus has no true negative class (§12.5), so every unlabelled alert counts as false and alpha is an upper bound",
 			"selection":                      selectionNote(methodSpec),
 			"framework_arms":                 armNames,
+			// The figure colours a line by the scope of the null it tests rather than by who
+			// wrote the method, so the classification is a claim the figure makes and is
+			// recorded here for a reader to check. See entityScopeBaselines in svg.go.
+			"scope_by_series": scopeBySeries(drawn),
+			"scope": "the reference set a method judges an event against: `entity` is that " +
+				"account's own history, `population` is the pooled set of all accounts",
 			"arm_selection": "a single arm held fixed across every budget. Selecting the best " +
 				"arm at each budget would be selecting with the evaluation labels in hand, which " +
 				"bounds what an oracle could reach and is not a configuration anyone can deploy",
@@ -254,11 +377,54 @@ func run(runPath, basePath, outPath, svgPath, runID, methodSpec, armSpec string,
 			"rejected": rejected,
 		},
 	}
-	if err := writeJSON(outPath, out); err != nil {
+	if err := writeJSON(out.curve, record); err != nil {
 		return err
 	}
-	log.Printf("wrote %s and %s: %d series, %d budgets", outPath, svgPath, len(drawn), len(oursAll[0].Points))
+	log.Printf("wrote %s, %s and %s: %d series, %d budgets",
+		out.curve, out.svg, orNone(out.table), len(drawn), len(oursAll[0].Points))
 	return nil
+}
+
+// parseBudgets reads the -table-budgets flag, keeping the order given: the table's column
+// groups run left to right in the order the caller listed them.
+func parseBudgets(spec string) ([]int, error) {
+	var out []int
+	for _, part := range strings.Split(spec, ",") {
+		part = strings.TrimSpace(part)
+		if part == "" {
+			continue
+		}
+		var b int
+		if _, err := fmt.Sscanf(part, "%d", &b); err != nil || b <= 0 {
+			return nil, fmt.Errorf("-table-budgets: %q is not a positive budget", part)
+		}
+		out = append(out, b)
+	}
+	return out, nil
+}
+
+func joinInts(v []int) string {
+	parts := make([]string, len(v))
+	for i, n := range v {
+		parts[i] = fmt.Sprintf("%d", n)
+	}
+	return strings.Join(parts, ",")
+}
+
+func orNone(s string) string {
+	if s == "" {
+		return "(no table)"
+	}
+	return s
+}
+
+// scopeBySeries records which family each drawn line was put in.
+func scopeBySeries(drawn []series) map[string]string {
+	out := make(map[string]string, len(drawn))
+	for _, s := range drawn {
+		out[s.Name] = scopeOf(s)
+	}
+	return out
 }
 
 func frameworkLabel(name string) string {

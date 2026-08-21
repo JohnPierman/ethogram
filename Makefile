@@ -253,13 +253,38 @@ CURVE_RUN       ?= /tmp/r11-curve-b10000.json
 CURVE_BASELINES ?= $(RESULTS)/baselines-r11-d7-14-full.json
 CURVE_ARMS      ?= novelty,composite
 CURVE_SVG       ?= $(ROOT)/cmd/thesis/figures/budget-curve.svg
+CURVE_TABLE     ?= $(ROOT)/cmd/thesis/figures/budget-table.html
+# The two operating points the headline table reports. One budget makes the comparison look
+# like a property of the methods when most of it is a property of what was affordable; see
+# tableBudgets in cmd/budgetcurve for why these two.
+CURVE_TABLE_BUDGETS ?= 100,1000
+
+CURVE_JSON      ?= $(RESULTS)/budget-curve-r11-d7-14.json
 
 .PHONY: figure-budget-curve
 figure-budget-curve:
 	$(GO) run ./cmd/budgetcurve -run $(CURVE_RUN) -baselines $(CURVE_BASELINES) \
-	  -out $(RESULTS)/budget-curve-r11-d7-14.json -svg $(CURVE_SVG) \
+	  -out $(CURVE_JSON) -svg $(CURVE_SVG) -table $(CURVE_TABLE) \
+	  -table-budgets $(CURVE_TABLE_BUDGETS) \
 	  -run-id budget-curve-r11-d7-14-001 -arms $(CURVE_ARMS)
 	@echo "regenerated $(CURVE_SVG); run 'make paper' so the rendered page follows"
+
+# Redraw the figure from the curve file, without the replay.
+#
+# The measurement and the drawing have very different lifetimes. CURVE_RUN is 46 MB of retained
+# alerts and is not in the repository; CURVE_JSON, which carries every plotted point with its
+# provenance, is. So revising HOW the figure is drawn -- which is what happens whenever it turns
+# out to be hard to read -- must not require reproducing a two-hour replay first, because the
+# only other way to move a line is to edit the committed SVG by hand, and that is how a figure
+# stops matching the numbers it claims to plot.
+#
+# A test asserts that this path and `figure-budget-curve` draw byte-identical figures from the
+# same measurement, so using it is not a shortcut with a caveat.
+.PHONY: figure-budget-curve-redraw
+figure-budget-curve-redraw:
+	$(GO) run ./cmd/budgetcurve -curve $(CURVE_JSON) -svg $(CURVE_SVG) -table $(CURVE_TABLE) \
+	  -table-budgets $(CURVE_TABLE_BUDGETS)
+	@echo "redrew $(CURVE_SVG); run 'make paper' so the rendered page follows"
 
 # The interactive dashboard. It reads the same results directory and embeds a distilled
 # index, so a new run appears on it without any edit here.

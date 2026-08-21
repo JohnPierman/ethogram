@@ -68,7 +68,7 @@ func TestRefusesDifferentPopulations(t *testing.T) {
 	bl := writeTmp(t, "bl.json", baselinesFixture(1_344_903, 100, 549, 7, 30,
 		map[string]map[int]int{"iforest": {10: 0}}))
 	dir := t.TempDir()
-	err := run(fw, bl, filepath.Join(dir, "o.json"), filepath.Join(dir, "o.svg"), "c-001", "", "composite", 0.01)
+	err := run(fw, bl, outputs{curve: filepath.Join(dir, "o.json"), svg: filepath.Join(dir, "o.svg")}, "c-001", "", "composite", 0.01)
 	if err == nil {
 		t.Fatal("want a refusal when the populations differ")
 	}
@@ -84,7 +84,7 @@ func TestRefusesDifferentGroundTruth(t *testing.T) {
 	bl := writeTmp(t, "bl.json", baselinesFixture(1_000_000, 4, 653, 7, 14,
 		map[string]map[int]int{"iforest": {10: 0}}))
 	dir := t.TempDir()
-	err := run(fw, bl, filepath.Join(dir, "o.json"), filepath.Join(dir, "o.svg"), "c-001", "", "composite", 0.01)
+	err := run(fw, bl, outputs{curve: filepath.Join(dir, "o.json"), svg: filepath.Join(dir, "o.svg")}, "c-001", "", "composite", 0.01)
 	if err == nil || !strings.Contains(err.Error(), "not the same ground truth") {
 		t.Fatalf("want a ground-truth refusal, got %v", err)
 	}
@@ -100,7 +100,7 @@ func TestPrecisionAndAlphaAreComputedFromTheQueue(t *testing.T) {
 		map[string]map[int]int{"iforest": {10: 0, 100: 3}}))
 	dir := t.TempDir()
 	outPath := filepath.Join(dir, "o.json")
-	if err := run(fw, bl, outPath, filepath.Join(dir, "o.svg"), "c-001", "", "composite", 0.01); err != nil {
+	if err := run(fw, bl, outputs{curve: outPath, svg: filepath.Join(dir, "o.svg")}, "c-001", "", "composite", 0.01); err != nil {
 		t.Fatal(err)
 	}
 	var out map[string]any
@@ -133,7 +133,7 @@ func TestZeroDetectionPointsSurvive(t *testing.T) {
 		map[string]map[int]int{"iforest": {10: 0, 100: 0}}))
 	dir := t.TempDir()
 	outPath := filepath.Join(dir, "o.json")
-	if err := run(fw, bl, outPath, filepath.Join(dir, "o.svg"), "c-001", "", "composite", 0.01); err != nil {
+	if err := run(fw, bl, outputs{curve: outPath, svg: filepath.Join(dir, "o.svg")}, "c-001", "", "composite", 0.01); err != nil {
 		t.Fatal(err)
 	}
 	var out map[string]any
@@ -162,7 +162,7 @@ func TestSelectsTheStrongestFour(t *testing.T) {
 		}))
 	dir := t.TempDir()
 	outPath := filepath.Join(dir, "o.json")
-	if err := run(fw, bl, outPath, filepath.Join(dir, "o.svg"), "c-001", "", "composite", 0.01); err != nil {
+	if err := run(fw, bl, outputs{curve: outPath, svg: filepath.Join(dir, "o.svg")}, "c-001", "", "composite", 0.01); err != nil {
 		t.Fatal(err)
 	}
 	var out map[string]any
