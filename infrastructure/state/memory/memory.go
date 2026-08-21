@@ -13,6 +13,7 @@ import (
 	"context"
 	"slices"
 
+	"github.com/JohnPierman/ethogram/domain/drift"
 	"github.com/JohnPierman/ethogram/domain/event"
 	"github.com/JohnPierman/ethogram/domain/marginal"
 	"github.com/JohnPierman/ethogram/domain/novelty"
@@ -194,6 +195,43 @@ func (s *VolumeStore) SaveState(_ context.Context, src event.SourceID, en event.
 
 // Entities reports the number of entities held, for table T5.
 func (s *VolumeStore) Entities() int64 { return int64(len(s.states)) }
+
+// ---------------------------------------------------------------------------
+// drift.StateRepository
+// ---------------------------------------------------------------------------
+
+// DriftStore implements drift.StateRepository.
+//
+// Its own store rather than a field on the volume state: the two arms answer different
+// questions about the same counts, and keeping the rows separate leaves every volume figure
+// untouched by a run that adds this arm.
+type DriftStore struct {
+	states map[entityKey]*drift.State
+}
+
+// NewDriftStore returns an empty store.
+func NewDriftStore() *DriftStore {
+	return &DriftStore{states: make(map[entityKey]*drift.State)}
+}
+
+// FindByEntity implements drift.StateRepository, returning a copy.
+func (s *DriftStore) FindByEntity(_ context.Context, src event.SourceID, en event.EntityID) (*drift.State, bool, error) {
+	st, ok := s.states[entityKey{src, en}]
+	if !ok {
+		return nil, false, nil
+	}
+	c := *st
+	return &c, true, nil
+}
+
+// SaveState implements drift.StateRepository.
+func (s *DriftStore) SaveState(_ context.Context, src event.SourceID, en event.EntityID, st *drift.State) error {
+	s.states[entityKey{src, en}] = st
+	return nil
+}
+
+// Entities reports the number of entities held, for table T5.
+func (s *DriftStore) Entities() int64 { return int64(len(s.states)) }
 
 // ---------------------------------------------------------------------------
 // noveltyrate.StateRepository

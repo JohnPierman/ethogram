@@ -138,10 +138,20 @@ footer{margin-top:3.5rem;padding-top:1rem;border-top:1px solid var(--rule-2);
   h2{font-size:13pt;margin:1rem 0 .35rem;break-after:avoid}
   h3{font-size:11pt;margin:.7rem 0 .25rem;break-after:avoid}
   h4{font-size:10.4pt;margin:.6rem 0 .2rem;break-after:avoid}
-  table{font-size:8.8pt;break-inside:avoid;width:100%}
+  /* Tables break across pages with their header repeated, rather than being kept whole.
+     A table that cannot break is pushed entire to the next page whenever it does not fit
+     the remainder of this one, which orphaned most of a page for each of the wider tables
+     here and cost more paper than the prose it was summarising. */
+  table{font-size:8.8pt;break-inside:auto;width:100%}
+  thead{display:table-header-group}
+  tr{break-inside:avoid}
   th,td{padding:.18rem .35rem}
   pre{font-size:8.4pt;line-height:1.32;break-inside:avoid}
   pre code{font-size:8.4pt;line-height:1.32}
+  /* A figure is kept whole: half a diagram is not a diagram. Capping its printed height was
+     tried and reverted -- an SVG sized only by its viewBox resolves width:auto against its
+     own intrinsic height, so the cap either does nothing or collapses the drawing, and the
+     rendered PDF could not be inspected here to tell which. */
   figure.fig{break-inside:avoid;margin:.6rem 0}
   figcaption{font-size:8.4pt;line-height:1.35}
   a{color:#000;text-decoration:none}

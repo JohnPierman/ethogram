@@ -9,7 +9,122 @@ Equation numbers `(1)`–`(20)`, requirements `R1`–`R6`, and evaluation hypoth
 
 ## [Unreleased]
 
+### Changed
+
+- **The sequential-change arm is now scored on the corpus, and it does not work there
+  (#39, A1).** `lanl-inj-b1000-drift-d7-14-006`: 0 of 288 planted low-and-slow events, one
+  detection in 4.49 million, and an inverted response on the column it was built for -- median
+  p 0.77 against 0.62 on the real campaign. The game value of section 2.3 therefore stays at
+  zero, the guarantee stays at 0.421 and the arm takes weight zero in the optimum. Three causes,
+  and only the first is the statistic's: the planted mechanism is three seventeen-minute bursts
+  rather than a sustained elevation, so a daily-period cumulative sum is the wrong instrument and
+  an hourly-window test is the right one; the plant is shorter than the arm's eight-period
+  warm-up; and the planted events raise the entity's own baseline rate, which raises the reference
+  value and floors the sum. Protecting the null over S from the change left the baseline exposed.
+  **The fix for that column is repairing `volume`'s tail, not adding a sequential statistic**
+- **The dilution the combination rules suffer from is now tested rather than inferred.** That
+  seventh arm is close to a controlled injection of noise -- one labelled event in 4.49 million,
+  abstaining on 66% of them -- and adding it takes the composite from 227 detections to 171 and
+  the corrected minimum from 234 to 134 at 1000 alerts a day, while leaving every single arm's
+  row identical. Adding a test that knows nothing costs a combination a fifth to a half of what
+  it had
+
+- **The paper is rewritten as a finished paper rather than a working notebook (#39, A7).** It was
+  21 pages against a 20-page ceiling and so failing its own gate; it is now 19, at 8,841 words
+  against 11,856, while gaining a whole results section. The cuts are verbosity, not evidence:
+  every measurement, interval and caveat is retained, and several passages that narrated a table
+  in prose became the table. The six planted mechanisms, the six detector nulls, the four
+  combination rules and six of the threats to validity are now tables where they were paragraphs;
+  section 5.3's three per-budget tables became one at the budget where the methods separate, with
+  the budget dependence stated in a sentence, because a reader given three tables of the same
+  shape has lost the sentence saying which budget each was
+- **Section 5.8 is new: allocation read as a two-person zero-sum game.** It states why section
+  5.5's corner result is forced rather than measured, reports that the portfolio's game value is
+  zero and why that is a coverage defect, gives the competitive-ratio equilibrium and its price,
+  distinguishes randomising from dividing and measures both, and locates every positive shadow
+  price in the two mechanisms the paper's headline does not compare arms on
+- **Section 6.3 now separates what is repaired from what is missing**, carrying the replaced
+  timing statistic and the new drift statistic that the threats section previously had to both
+  raise and answer
+- **Four references were added and are cited**: Page for the cumulative sum, von Neumann and
+  Dantzig for the equilibrium and its reduction to a linear programme, and Auer for the
+  adversarial bandit bound section 6.3 uses to close the online-learning direction
+
 ### Added
+
+- **`domain/drift`: a sequential change statistic for the mechanism the volume predictive
+  cannot reach (#39, A1).** Equation (11)'s null is structurally over-dispersed, which is
+  correct for asking whether *this period* is surprising and is exactly why a modest shift
+  sustained over many periods sits inside it in every period. Page's one-sided cumulative sum
+  accumulates the excess instead, so the evidence grows linearly in the number of periods while
+  the spread of its null grows as the square root. The p-value is the upper tail of the sum
+  standardised against the entity's own realised sums, which is the construction section 6.2
+  adopts for timing and for the same reason: it removes a scale that is not comparable across
+  entities and it has no floor
+- **Measured on synthetic streams of known construction: the cumulative sum separates a
+  sustained +30% shift from matched stationary variation by 57x, and equation (11)'s predictive
+  by 1.2x.** Both statistics are fitted on the same forty stationary periods and then score
+  forty more, so the comparison isolates what each accumulates rather than how each is fitted.
+  This reproduces, on a stream whose construction is known, the inverted response the paper
+  records on the planted corpus -- median p 0.72 on low-and-slow against 0.29 elsewhere
+- **`domain/routing`: per-entity detector assignment (#39, A5).** Expected detection is linear
+  in a global allocation, so the best global allocation is a single detector; routing is not a
+  global allocation and is the only construction here able to beat the best single arm at equal
+  cost, because it exploits arms reaching different events instead of averaging over them. It
+  routes on frozen per-entity state only, its preference order is stated rather than fitted, and
+  it abstains under R3 where no arm's null is well specified
+- **The headroom for per-entity routing is now bounded from the recorded matrix: 460 to 535
+  labelled events against the best single arm's 384.** The floor routes each mechanism to the
+  arm that reaches it most, which any per-entity policy matches by construction; the ceiling is
+  the union of every arm at full depth, since no routing reaches an event no arm reaches. Both
+  are oracles and neither charges the alert cost of attaining it
+
+### Fixed
+
+- **`domain/drift` names the bound its discount must satisfy, rather than abstaining silently
+  below it.** Discounted weight saturates at 1/(1-delta) however long an entity is observed, so
+  a half-life short enough to put that ceiling below the minimum weight disables the arm for
+  every entity for all time. At daily periods the framework's seven-day half-life clears it,
+  giving a saturating weight of 10.6 against a minimum of 8 -- but not by much, and a run that
+  shortened the half-life below about five days would record only a column of abstentions.
+  `ReachesMinWeight` is what a caller consults instead of discovering it in a result file
+
+- **The allocation of a fixed budget across detectors is now solved as a two-person zero-sum
+  game (#39), by `domain/robust` and `cmd/robust`.** Section 5.5 established that the optimum
+  is the corner; this states why that result is forced rather than measured. Expected detection
+  under any known attack mix is linear in the allocation weights, so its maximum over the
+  simplex is at a vertex and no prior-weighted mixture -- including one fitted to published
+  industry base rates -- can beat the best single arm. A property test checks it directly over
+  the vertices and a spread of interior mixtures
+- **The portfolio's game value is zero, and the analysis reports that rather than an
+  allocation.** Every arm scores 0 on planted low-and-slow, so the saddle point is (any arm,
+  low-and-slow) and no reweighting of rows changes a column of zeros. `Matrix.Unreachable`
+  names such mechanisms, because a value of zero grades the coverage and not the allocation,
+  and reading it as the latter is the error the report is shaped to prevent
+- **A well-posed robust objective, since maximin is not one here.** Normalising each mechanism
+  by the best rate any single arm reaches against it and maximising the worst-case retained
+  fraction gives an interior equalising optimum: 29.6% of the achievable on every mechanism at
+  once, against 0% for any single arm and for every combination rule the paper tests. The price
+  is reported beside it -- under a stated prior the robust mixture gives up 59% of expected
+  detection -- because neither number alone is a decision
+- **Randomising over detectors is now distinguished from dividing the budget between them, and
+  measured.** Sections 5.4 and 5.5 test unions and splits, which give every arm a fraction of
+  its depth; a mixed strategy runs one arm at full depth chosen by lottery, and is a different
+  object. It is exactly evaluable from the per-arm detections already recorded, because each arm
+  at full budget is the recorded configuration. At 1000 alerts a day an even randomisation over
+  the two best arms finds 344 against the best combination rule's 234 at the same alert spend,
+  and still loses to the best single arm's 384 -- which is what linearity requires
+- **Per-mechanism attacker cost as a stated parameter.** The value-zero equilibrium assumes an
+  uncovered mechanism is free to mount, and low-and-slow is slow by construction. Charging it
+  twelve times the cost of credential spray removes it from the adversary's reply and raises the
+  guarantee from 0.019 to 0.043. The cost and the exchange rate are stated and never fitted: a
+  cost fitted to the labels the allocation is scored on would make the equilibrium a restatement
+  of the corpus
+- **`cmd/methodtable -matrix` emits the per-mechanism table as data.** The robust analysis reads
+  exactly the rectangle the Markdown table renders, so the table and the analysis of it cannot
+  disagree about a count. `make matrix` and `make robust` reproduce both, and neither needs the
+  corpus: allocation is about spending a budget across detectors whose performance is already
+  measured
 
 - **Section 1.1's figure is now one line per detector across the whole budget range (#29),
   generated by `cmd/budgetcurve` from recorded runs rather than typed.** It replaces a

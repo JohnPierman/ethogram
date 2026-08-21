@@ -35,6 +35,7 @@ func main() {
 		onlyBaselines = flag.Bool("only-baselines", false, "emit only the reference-implementation rows, in one table at their own measured budget. Their budgets stop short of the framework's, so carrying them inside a framework table at a budget they were not measured at forces every cell to be a dash -- which is honest and unreadable")
 		noBaselines   = flag.Bool("no-baselines", false, "omit the reference-implementation rows")
 		outPath       = flag.String("out", "", "write Markdown here (default stdout)")
+		matrixPath    = flag.String("matrix", "", "also write the table as JSON here, one rectangle per budget, for the robust-allocation analysis to read. Emitted from the same rows the Markdown renders, so the two cannot disagree about a count")
 	)
 	flag.Parse()
 
@@ -74,6 +75,7 @@ func main() {
 	}
 
 	var md strings.Builder
+	var matrices []matrixBudget
 	rows := 0
 	for i, b := range budgets {
 		t := newTable(run, tax, b)
@@ -99,7 +101,20 @@ func main() {
 			fmt.Fprintf(&md, "**At %d alerts a day.**\n\n", b)
 		}
 		md.WriteString(t.render(i == len(budgets)-1))
+		matrices = append(matrices, t.matrix())
 		rows += len(t.rows)
+	}
+
+	if *matrixPath != "" {
+		corpus := str(mapOf(run, "parameters"), "corpus_subset")
+		if corpus == "" {
+			corpus = str(mapOf(mapOf(run, "parameters"), "corpus_subset"), "source")
+		}
+		runID := str(mapOf(run, "run"), "run_id")
+		if err := writeMatrix(*matrixPath, runID, corpus, matrices); err != nil {
+			log.Fatalf("writing the matrix: %v", err)
+		}
+		log.Printf("wrote %s: %d matrices", *matrixPath, len(matrices))
 	}
 
 	if *outPath == "" {
