@@ -566,34 +566,43 @@ allocation *w* is *w*ᵀ(A*p*), which is **linear in *w***; a linear form on a s
 maximum at a vertex. So no prior-weighted mixture, including one fitted to published incident
 statistics, can beat the best single detector. Checked over 20,000 random priors, mixtures
 strictly beating the best single arm: none. The equilibria below are the minimax solutions [18],
-computed by Dantzig's reduction to a linear programme [19]; `robust-inj-d7-14-001`.
+computed by Dantzig's reduction to a linear programme [19]; `robust-inj-d7-14-002` for the
+framework's own arms and `robust-inj-lof-d7-14-001` for the variant admitting a baseline.
 
-Three objectives, on the seven mechanisms of §5.3 with `lof` admitted so that every column is
-reachable. Expected rate is under a prior weighted towards credential attacks and takeover:
+**The game's value is exactly zero.** Every arm scores 0 on low-and-slow, so the saddle point
+is (any arm, low-and-slow) and a rational adversary wins with certainty. No reweighting of rows
+changes a column of zeros: the defect is coverage, not allocation, and it is why §5.5's negative
+result cannot be repaired by a better allocation rule. Maximin is therefore degenerate here,
+returning 0 for every allocation, and it is not the objective to use.
 
-| Objective | Guarantee | Expected rate | Worst-case rate | Allocation |
-|---|---|---|---|---|
-| best single arm | **0** | **0.372** | 0 | any one arm — each is blind to some mechanism |
-| maximin | 0.019 | 0.059 | 0.019 | `lof` 0.47, `timing` 0.42, `noveltyrate` 0.12 |
-| competitive ratio | **0.296 of achievable** | 0.154 | **0.012** | `lof` 0.30, `noveltyrate` 0.30, `timing` 0.30, `marginal` 0.11 |
+What is well posed is to normalise each mechanism by the best rate any arm reaches against it
+and maximise the worst-case *fraction retained*, dropping the mechanism no arm reaches since
+every allocation ties at zero there. On the framework's six arms, with expected rate under a
+prior weighted towards credential attacks and takeover:
 
-**Without `lof` the game's value is exactly zero.** Every arm scores 0 on low-and-slow, so the
-saddle point is (any arm, low-and-slow) and a rational adversary wins with certainty. No
-reweighting of rows changes a column of zeros: the defect is coverage, not allocation, and it is
-why §5.5's negative result cannot be repaired by a better allocation rule.
+| Objective | Guarantee | Expected rate | Allocation |
+|---|---|---|---|
+| best single arm | **0** | **0.372** | any one arm — each is blind to some mechanism |
+| competitive ratio | **0.421 of achievable** | 0.217 | `noveltyrate` 0.42, `timing` 0.42, `marginal` 0.16 |
 
-Maximin is a poor objective even with the column covered, being hostage to the mechanism nobody
-catches. Normalising each mechanism by the best rate any arm reaches against it and maximising
-the worst-case retained fraction is well posed, and its optimum **equalises**:
+The optimum **equalises**, which is what makes a single number mean something:
 
-| spray | lateral | off-hrs | priv-esc | low+slow | takeover | real |
-|---|---|---|---|---|---|---|
-| 0.296 | 0.296 | 0.296 | 0.296 | 0.296 | 0.296 | 0.300 |
+| spray | lateral | off-hrs | priv-esc | takeover | real |
+|---|---|---|---|---|---|
+| 0.421 | 0.421 | 0.421 | 0.421 | 0.421 | 0.426 |
 
-Six of seven sit exactly at the guarantee; only the real campaign is not binding. **No rule in
-§5.4 or §5.5 guarantees anything at all** — each retains 0 against its worst mechanism — and
-this is the only allocation that does. It costs **59% of expected detection** to buy that, and
-which side of the exchange an operator wants is what §4's objective decides.
+Five of six sit exactly at the guarantee; only the real campaign is not binding, and
+low-and-slow is absent because it is excluded rather than covered. **No rule in §5.4 or §5.5
+guarantees anything at all** — each retains 0 against its worst mechanism — and this is the only
+allocation at this budget that does. It costs **42% of expected detection**.
+
+Admitting a low-and-slow-capable arm shows what covering the excluded column is worth. With
+`lof` from §5.7 in the strategy set every mechanism is reachable, and the guarantee over all
+seven falls to **0.296** at a price of **59%** of expected detection: covering the hole is
+expensive, and the two figures bracket the choice rather than settling it. `lof`'s row comes
+from §5.7's hundredfold easier sampled problem, so it is an existence proof that the mechanism
+is reachable at all rather than a matched comparison, which is why the framework's own arms
+carry the primary result.
 
 **Randomising is not dividing, and only dividing had been tested.** §5.4 and §5.5 measure unions
 and splits, which give every arm a fraction of its depth. A mixed strategy runs one arm at *full*
@@ -603,18 +612,20 @@ Total labelled events found on `inj` at 1000 alerts a day, all at 7,000 alerts e
 | Rule | Found | Worst-case retained |
 |---|---|---|
 | best single arm (`noveltyrate`) | **384** | 0 |
+| randomised, even over the two best arms | 344 | 0 |
 | corrected minimum | 234 | 0 |
 | composite | 227 | 0 |
 | union, all arms, equal cost | 221 | 0 |
-| randomised, even over the two best arms | 344 | 0 |
-| randomised, competitive-ratio mixture | 137 | **0.296** |
-| union, all arms, equal depth *(31,505 alerts)* | 535 | 0 |
-| per-entity routing, oracle floor | 460 | — |
+| randomised, competitive-ratio mixture | 189 | **0.421** |
+| union, all arms, equal depth *(31,505 alerts, ×4.5)* | 535 | **1.000** |
+| per-entity routing, oracle floor | 448 | — |
 | per-entity routing, oracle ceiling | 535 | — |
 
 Randomising at equal cost beats every combination rule tested, 344 against 234, and still loses
-to the best single arm, which is what linearity requires. The routing rows are the interesting
-ones. **Routing is not a global allocation**: it chooses per entity, so it can send an
+to the best single arm, which is what linearity requires. The equal-depth union is the other way
+to buy a guarantee: it reaches every arm's best on every reachable mechanism, retaining 1.000,
+and it pays 4.5 times the alerts for that. Coverage is purchasable either with budget or with
+expected detection, and not by reweighting. The routing rows are the interesting ones. **Routing is not a global allocation**: it chooses per entity, so it can send an
 established account to a per-entity null and a cold one to the population null and collect both,
 and it is therefore the only construction here that can exceed the best single arm at equal cost.
 The floor routes each mechanism to the arm reaching it most, which any per-entity policy matches
@@ -623,7 +634,8 @@ event no arm reaches. Both are oracles and neither charges the alert cost of att
 
 **The adversary's cost changes the answer.** A value-zero equilibrium assumes an uncovered
 mechanism is free to mount, and low-and-slow is slow by construction. Charging λ times a stated
-per-mechanism cost, with low-and-slow at twelve times credential spray:
+per-mechanism cost, with low-and-slow at twelve times credential spray, on the strategy set with
+`lof` admitted so that the mechanism being priced is one some arm can reach:
 
 | λ | Value | Allocation | Adversary's reply |
 |---|---|---|---|

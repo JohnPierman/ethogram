@@ -999,32 +999,40 @@ allocation <em>w</em> is <em>w</em>ᵀ(A<em>p</em>), which is *<em>linear in </e
 maximum at a vertex. So no prior-weighted mixture, including one fitted to published incident
 statistics, can beat the best single detector. Checked over 20,000 random priors, mixtures
 strictly beating the best single arm: none. The equilibria below are the minimax solutions [18],
-computed by Dantzig&#39;s reduction to a linear programme [19]; <code>robust-inj-d7-14-001</code>.</p>
-<p>Three objectives, on the seven mechanisms of §5.3 with <code>lof</code> admitted so that every column is
-reachable. Expected rate is under a prior weighted towards credential attacks and takeover:</p>
+computed by Dantzig&#39;s reduction to a linear programme [19]; <code>robust-inj-d7-14-002</code> for the
+framework&#39;s own arms and <code>robust-inj-lof-d7-14-001</code> for the variant admitting a baseline.</p>
+<p><strong>The game&#39;s value is exactly zero.</strong> Every arm scores 0 on low-and-slow, so the saddle point
+is (any arm, low-and-slow) and a rational adversary wins with certainty. No reweighting of rows
+changes a column of zeros: the defect is coverage, not allocation, and it is why §5.5&#39;s negative
+result cannot be repaired by a better allocation rule. Maximin is therefore degenerate here,
+returning 0 for every allocation, and it is not the objective to use.</p>
+<p>What is well posed is to normalise each mechanism by the best rate any arm reaches against it
+and maximise the worst-case <em>fraction retained</em>, dropping the mechanism no arm reaches since
+every allocation ties at zero there. On the framework&#39;s six arms, with expected rate under a
+prior weighted towards credential attacks and takeover:</p>
 <div class="tablewrap"><table>
-<thead><tr><th>Objective</th><th>Guarantee</th><th>Expected rate</th><th>Worst-case rate</th><th>Allocation</th></tr></thead>
+<thead><tr><th>Objective</th><th>Guarantee</th><th>Expected rate</th><th>Allocation</th></tr></thead>
 <tbody>
-<tr><td>best single arm</td><td><strong>0</strong></td><td><strong>0.372</strong></td><td>0</td><td>any one arm — each is blind to some mechanism</td></tr>
-<tr><td>maximin</td><td>0.019</td><td>0.059</td><td>0.019</td><td><code>lof</code> 0.47, <code>timing</code> 0.42, <code>noveltyrate</code> 0.12</td></tr>
-<tr><td>competitive ratio</td><td><strong>0.296 of achievable</strong></td><td>0.154</td><td><strong>0.012</strong></td><td><code>lof</code> 0.30, <code>noveltyrate</code> 0.30, <code>timing</code> 0.30, <code>marginal</code> 0.11</td></tr>
+<tr><td>best single arm</td><td><strong>0</strong></td><td><strong>0.372</strong></td><td>any one arm — each is blind to some mechanism</td></tr>
+<tr><td>competitive ratio</td><td><strong>0.421 of achievable</strong></td><td>0.217</td><td><code>noveltyrate</code> 0.42, <code>timing</code> 0.42, <code>marginal</code> 0.16</td></tr>
 </tbody></table></div>
-<p><strong>Without <code>lof</code> the game&#39;s value is exactly zero.</strong> Every arm scores 0 on low-and-slow, so the
-saddle point is (any arm, low-and-slow) and a rational adversary wins with certainty. No
-reweighting of rows changes a column of zeros: the defect is coverage, not allocation, and it is
-why §5.5&#39;s negative result cannot be repaired by a better allocation rule.</p>
-<p>Maximin is a poor objective even with the column covered, being hostage to the mechanism nobody
-catches. Normalising each mechanism by the best rate any arm reaches against it and maximising
-the worst-case retained fraction is well posed, and its optimum <strong>equalises</strong>:</p>
+<p>The optimum <strong>equalises</strong>, which is what makes a single number mean something:</p>
 <div class="tablewrap"><table>
-<thead><tr><th>spray</th><th>lateral</th><th>off-hrs</th><th>priv-esc</th><th>low+slow</th><th>takeover</th><th>real</th></tr></thead>
+<thead><tr><th>spray</th><th>lateral</th><th>off-hrs</th><th>priv-esc</th><th>takeover</th><th>real</th></tr></thead>
 <tbody>
-<tr><td>0.296</td><td>0.296</td><td>0.296</td><td>0.296</td><td>0.296</td><td>0.296</td><td>0.300</td></tr>
+<tr><td>0.421</td><td>0.421</td><td>0.421</td><td>0.421</td><td>0.421</td><td>0.426</td></tr>
 </tbody></table></div>
-<p>Six of seven sit exactly at the guarantee; only the real campaign is not binding. <strong>No rule in
-§5.4 or §5.5 guarantees anything at all</strong> — each retains 0 against its worst mechanism — and
-this is the only allocation that does. It costs <strong>59% of expected detection</strong> to buy that, and
-which side of the exchange an operator wants is what §4&#39;s objective decides.</p>
+<p>Five of six sit exactly at the guarantee; only the real campaign is not binding, and
+low-and-slow is absent because it is excluded rather than covered. <strong>No rule in §5.4 or §5.5
+guarantees anything at all</strong> — each retains 0 against its worst mechanism — and this is the only
+allocation at this budget that does. It costs <strong>42% of expected detection</strong>.</p>
+<p>Admitting a low-and-slow-capable arm shows what covering the excluded column is worth. With
+<code>lof</code> from §5.7 in the strategy set every mechanism is reachable, and the guarantee over all
+seven falls to <strong>0.296</strong> at a price of <strong>59%</strong> of expected detection: covering the hole is
+expensive, and the two figures bracket the choice rather than settling it. <code>lof</code>&#39;s row comes
+from §5.7&#39;s hundredfold easier sampled problem, so it is an existence proof that the mechanism
+is reachable at all rather than a matched comparison, which is why the framework&#39;s own arms
+carry the primary result.</p>
 <p><strong>Randomising is not dividing, and only dividing had been tested.</strong> §5.4 and §5.5 measure unions
 and splits, which give every arm a fraction of its depth. A mixed strategy runs one arm at <em>full</em>
 depth chosen by lottery, and is exactly evaluable from the per-arm detections already recorded.
@@ -1033,18 +1041,20 @@ Total labelled events found on <code>inj</code> at 1000 alerts a day, all at 7,0
 <thead><tr><th>Rule</th><th>Found</th><th>Worst-case retained</th></tr></thead>
 <tbody>
 <tr><td>best single arm (<code>noveltyrate</code>)</td><td><strong>384</strong></td><td>0</td></tr>
+<tr><td>randomised, even over the two best arms</td><td>344</td><td>0</td></tr>
 <tr><td>corrected minimum</td><td>234</td><td>0</td></tr>
 <tr><td>composite</td><td>227</td><td>0</td></tr>
 <tr><td>union, all arms, equal cost</td><td>221</td><td>0</td></tr>
-<tr><td>randomised, even over the two best arms</td><td>344</td><td>0</td></tr>
-<tr><td>randomised, competitive-ratio mixture</td><td>137</td><td><strong>0.296</strong></td></tr>
-<tr><td>union, all arms, equal depth <em>(31,505 alerts)</em></td><td>535</td><td>0</td></tr>
-<tr><td>per-entity routing, oracle floor</td><td>460</td><td>—</td></tr>
+<tr><td>randomised, competitive-ratio mixture</td><td>189</td><td><strong>0.421</strong></td></tr>
+<tr><td>union, all arms, equal depth <em>(31,505 alerts, ×4.5)</em></td><td>535</td><td><strong>1.000</strong></td></tr>
+<tr><td>per-entity routing, oracle floor</td><td>448</td><td>—</td></tr>
 <tr><td>per-entity routing, oracle ceiling</td><td>535</td><td>—</td></tr>
 </tbody></table></div>
 <p>Randomising at equal cost beats every combination rule tested, 344 against 234, and still loses
-to the best single arm, which is what linearity requires. The routing rows are the interesting
-ones. <strong>Routing is not a global allocation</strong>: it chooses per entity, so it can send an
+to the best single arm, which is what linearity requires. The equal-depth union is the other way
+to buy a guarantee: it reaches every arm&#39;s best on every reachable mechanism, retaining 1.000,
+and it pays 4.5 times the alerts for that. Coverage is purchasable either with budget or with
+expected detection, and not by reweighting. The routing rows are the interesting ones. <strong>Routing is not a global allocation</strong>: it chooses per entity, so it can send an
 established account to a per-entity null and a cold one to the population null and collect both,
 and it is therefore the only construction here that can exceed the best single arm at equal cost.
 The floor routes each mechanism to the arm reaching it most, which any per-entity policy matches
@@ -1052,7 +1062,8 @@ by construction; the ceiling is the union of all arms at full depth, since no ro
 event no arm reaches. Both are oracles and neither charges the alert cost of attaining it.</p>
 <p><strong>The adversary&#39;s cost changes the answer.</strong> A value-zero equilibrium assumes an uncovered
 mechanism is free to mount, and low-and-slow is slow by construction. Charging λ times a stated
-per-mechanism cost, with low-and-slow at twelve times credential spray:</p>
+per-mechanism cost, with low-and-slow at twelve times credential spray, on the strategy set with
+<code>lof</code> admitted so that the mechanism being priced is one some arm can reach:</p>
 <div class="tablewrap"><table>
 <thead><tr><th>λ</th><th>Value</th><th>Allocation</th><th>Adversary&#39;s reply</th></tr></thead>
 <tbody>
