@@ -11,6 +11,17 @@ Equation numbers `(1)`–`(20)`, requirements `R1`–`R6`, and evaluation hypoth
 
 ### Changed
 
+- **The dilution result is replicated on the real campaign, where it is much larger (#39).**
+  `lanl-r11-b1000-drift-d7-14-006`: adding the uninformative seventh arm takes the corrected
+  minimum from 162 detections to 59 and the composite from 113 to 60, against 234 to 134 and 227
+  to 171 on the planted corpus. Every single arm's count is unchanged on both. The loss is larger
+  where the signal is sparsest, which is the direction the mechanism predicts and the opposite of
+  what a reader would guess from the planted corpus alone
+- **Section 3.3 no longer carries the `timing` repair at length.** Its one non-obvious fact --
+  that raising the grid would not have lifted the floor, because only 6 of 613 labelled events sat
+  on it and the rest were held up by the statistic -- is folded into the sentence that names the
+  ceiling, and the appendix that restated the rest is gone. The paper is back to 17 pages
+
 - **The sequential-change arm is now scored on the corpus, and it does not work there
   (#39, A1).** `lanl-inj-b1000-drift-d7-14-006`: 0 of 288 planted low-and-slow events, one
   detection in 4.49 million, and an inverted response on the column it was built for -- median

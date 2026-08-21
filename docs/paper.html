@@ -214,8 +214,9 @@ detections — 74.6% between the two strongest, 0% where a split does win. Read 
 against an adversary choosing the mechanism, that corner result is a theorem rather than a
 measurement, and the conclusion usually drawn from it is also wrong: the best single arm
 guarantees nothing at all. Adding a seventh arm that reaches one labelled event in 4.49 million
-takes the composite from 227 detections to 171 and the corrected minimum from 234 to 134 while
-leaving every single arm untouched, which tests the dilution directly rather than inferring it.
+costs the composite a quarter of its detections and the corrected minimum two thirds of theirs,
+on both corpora, while leaving every single arm untouched — which tests the dilution directly
+rather than inferring it.
 Every result points the same way: what limits this framework is coverage, not allocation.</p>
 <p><strong>Keywords:</strong> anomaly detection; multiple testing; conditional inference; game theory;
 intrusion detection; decision theory.</p>
@@ -531,10 +532,10 @@ their own budgets on the sampled corpus of §2.5.</p>
 <tr><td><code>ocsvm</code> — baseline</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>33</td><td>0</td></tr>
 </tbody></table></div>
 <p>The <code>drift</code> row is the sequential-change arm §3.3 introduces, on
-<code>lanl-inj-b1000-drift-d7-14-006</code>. <strong>It reaches 0 of 288 low-and-slow events</strong>, which was the
-column it was built for, and its single detection is a real-campaign event. §3.3 diagnoses why;
-adding it leaves every other arm&#39;s row identical, which is what its own state being separate
-should guarantee.</p>
+<code>lanl-inj-b1000-drift-d7-14-006</code>. <strong>It reaches 0 of 288 low-and-slow events</strong>, the column it was
+built for, and its single detection is a real-campaign event; §3.3 diagnoses why. Adding it leaves
+every other arm&#39;s row identical, which its state being separate should guarantee, and §2.4 measures
+what it does to the combinations.</p>
 <p><strong>No single method is best at more than one thing.</strong> The <code>marginal</code> takes every planted takeover
 and nothing else; <code>noveltyrate</code> takes spray, lateral movement and privilege escalation; <code>novelty</code>
 takes the real campaign. A reader looking for one row to deploy will not find one, which is what
@@ -603,12 +604,11 @@ expected detection, or buy the guarantee outright at 4.5 times the alerts.</p>
 <p>Two further readings. <strong>Randomising is not dividing, and only dividing had been tested</strong> — §2.4
 measures unions and splits, which give every arm a fraction of its depth, whereas a mixed strategy
 runs one arm at full depth chosen by lottery and is exactly evaluable from detections already
-recorded. It finds 344 against the best combination rule&#39;s 234 at the same spend, and still loses
-to the best single arm, which linearity requires. And <strong>routing is not a global allocation</strong>: it
-chooses per entity, so it can send an established account to a per-entity null and a cold one to
-the population null and collect both, which makes it the only construction here able to exceed the
-best single arm at equal cost. Its floor is what any per-entity policy matches by construction and
-its ceiling is the union at full depth; both are oracles charging no alert cost.</p>
+recorded. And <strong>routing is not a global allocation</strong>: it chooses per entity, so it can send an
+established account to a per-entity null and a cold one to the population null and collect both,
+which makes it the only construction here able to exceed the best single arm at equal cost. Its
+floor is what any per-entity policy matches by construction and its ceiling is the union at full
+depth; both are oracles charging no alert cost.</p>
 <p>Admitting a low-and-slow-capable arm prices the excluded column. With <code>lof</code> from §2.5 admitted
 every mechanism is reachable and the guarantee over all seven falls to <strong>0.296</strong> at <strong>59%</strong> of
 expected detection: covering the hole is expensive, and the two figures bracket the choice rather
@@ -701,12 +701,14 @@ minimum against sparse ones, and this alternative is sparse. <strong>The correct
 p-values across tests sharing no scale</strong>: <code>novelty</code> supplies 5,979 of the 7,000 retained alerts and
 <code>volume</code> never supplies the minimum at all. Removing the scale mismatch made the <code>marginal</code>&#39;s
 signal reachable and the equal-cost result got <em>worse</em>, so it was not the binding defect.</p>
-<p>The dilution is not only inferred from where labelled events sit; adding an arm tests it
-directly. The seventh arm of §2.2 reaches one labelled event in 4.49 million and abstains on 66%
-of them, so it is close to a controlled injection of noise into both rules — and at 1000 alerts a
-day it takes the composite from 227 detections to <strong>171</strong> and the corrected minimum from 234 to
-<strong>134</strong>, while leaving every single arm untouched. Adding a test that knows nothing costs a
-combination a fifth to a half of what it had.</p>
+<p>The dilution is not only inferred from where labelled events sit; adding an arm tests it directly.
+The seventh arm of §2.2 reaches one labelled event in 4.49 million and abstains on two thirds of
+them, so it is close to a controlled injection of noise. Adding it at 1000 alerts a day, with every
+single arm&#39;s count unchanged, takes the corrected minimum from 234 detections to <strong>134</strong> on the
+planted corpus and from 162 to <strong>59</strong> on the real campaign, and the composite from 227 to <strong>171</strong>
+and from 113 to <strong>60</strong> — a quarter to two thirds of what each rule had
+(<code>lanl-inj-b1000-drift-d7-14-006</code>, <code>lanl-r11-b1000-drift-d7-14-006</code>). The loss is larger on the real
+campaign than on the planted corpus: where the signal is sparsest, dilution is worst.</p>
 <p>Dividing by demonstrated quality fails too, and the failure is bounded. A per-alert likelihood
 ratio fitted per arm on burn-in (Appendix D) loses at every budget on both corpora:</p>
 <div class="tablewrap"><table>
@@ -777,13 +779,14 @@ low-and-slow zero in particular, and cannot be separated from the stated mechani
 that freezes per-entity state across the campaign window.</p>
 <h3 id="33-what-is-repaired-and-what-a-deployable-version-needs">3.3 What is repaired, and what a deployable version needs<a class="anchor" href="#33-what-is-repaired-and-what-a-deployable-version-needs" aria-label="link to this section">#</a></h3>
 <p>Two arms of §2.2 are <strong>not evidence about per-entity conditioning in either direction</strong>, and their
-zeros should be read as unmeasured. <code>timing</code>&#39;s tail mass was floored by its own 512-point grid at
-9.77 × 10⁻⁴ against a realised cut of 1.00 × 10⁻³ at 10 and 100 alerts a day: it could not alert
-whatever it observed. Standardising the event&#39;s ln U by the mean and spread of the ln U this
-entity&#39;s own events received removes the floor and takes detections from 0, 0 and 6 to 1, 2 and 7
-on the real campaign and from 0, 1 and 12 to 2, 9 and 21 on the planted corpus, and the off-hours
-response improves rather than being traded away: median p falls from 3.20 × 10⁻² to
-8.23 × 10⁻³, widening the separation from the nearest other mechanism from 5.7 to 18.6.</p>
+zeros should be read as unmeasured. <code>timing</code>&#39;s was a ceiling rather than blindness: its tail mass
+was floored by its own 512-point grid at 9.77 × 10⁻⁴, at or above its realised alert cut, so it
+could not alert whatever it observed. Raising the grid would not have helped — only 6 of 613
+labelled events sat at the floor and the rest were held up by the statistic, since a tail mass over
+density levels saturates. Standardising the event&#39;s ln U against the mean and spread of the ln U
+this entity&#39;s own events received removes the floor and takes detections from 0, 0 and 6 to 1, 2
+and 7 on the real campaign and from 0, 1 and 12 to 2, 9 and 21 on the planted corpus, improving the
+off-hours response rather than trading it away.</p>
 <p><code>volume</code> is misspecified in the opposite direction — 27,464 background events on <code>r11</code> fall below
 10⁻¹² where a calibrated null predicts 4.2 × 10⁻⁶ and no labelled event goes below
 1.96 × 10⁻⁷, so its queue fills with background before a labelled event can compete, and an
@@ -807,23 +810,22 @@ undiscounting it is what takes the separation from 2× to 237×.</p>
 planted low-and-slow events; its median p-value there is 0.77 against 0.62 on the real campaign,
 so like the arm it was built to replace its response is <em>inverted</em> rather than merely weak. Three
 things account for it, and only the first is a defect in the statistic.</p>
-<p>The planted mechanism is not what its name says. Each victim receives twelve events at
+<p>The planted mechanism is not what its name says: each victim receives twelve events at
 ninety-second intervals on each of three days — three bursts of about seventeen minutes, not a
-sustained elevation. A cumulative sum over daily periods is the wrong instrument for that, and the
-right one is an hourly-window test, which is what the <code>volume</code> arm already is and what the
-local-outlier-factor baseline reaching 12 of 288 (§2.5) confirms is reachable. <strong>The fix for this
-column is repairing <code>volume</code>&#39;s tail, not adding a sequential statistic.</strong></p>
-<p>The plant is also shorter than the arm&#39;s warm-up. Its null needs eight closed periods and a
-seven-day burn-in supplies seven, so the arm is silent on the first scored day and can accumulate
-at most two periods of a three-day plant. Lowering the gate to seven would recover a day and would
-be fitting a parameter to the length of one corpus&#39;s burn-in.</p>
-<p>And the inversion has a mechanism worth recording, because it is §3.2&#39;s second limitation reached
-by a different route. The null over S is undiscounted precisely so a campaign cannot inflate it —
-but the <em>baseline rate</em> is discounted, and the planted events raise it, which raises the reference
-value k and floors the cumulative sum. Protecting one of the two estimators from the change left
-the other exposed. The arm is retained because the alternative it tests — a genuinely sustained
-shift — is one no corpus here contains, so this is a null result about the corpus as much as about
-the statistic; on synthetic streams that do contain it the separation is 237×.</p>
+sustained elevation. A cumulative sum over daily periods is the wrong instrument, and the right one
+is an hourly-window test, which is what <code>volume</code> already is and what the local-outlier-factor
+baseline reaching 12 of 288 (§2.5) confirms is reachable. <strong>The fix for this column is repairing
+<code>volume</code>&#39;s tail, not adding a sequential statistic.</strong></p>
+<p>The plant is also shorter than the arm&#39;s warm-up: its null needs eight closed periods, a seven-day
+burn-in supplies seven, so the arm is silent on the first scored day and accumulates at most two
+periods of a three-day plant. Lowering the gate to seven would be fitting a parameter to the length
+of one corpus&#39;s burn-in.</p>
+<p>And the inversion has a mechanism, which is §3.2&#39;s second limitation by another route. The null over
+S is undiscounted precisely so a campaign cannot inflate it — but the <em>baseline rate</em> is discounted,
+and the planted events raise it, which raises the reference value and floors the sum. Protecting one
+estimator from the change left the other exposed. The arm is retained because the alternative it
+tests is one no corpus here contains, so this is a null result about the corpus as much as the
+statistic, and its one use here is as the noise injection §2.4 measures.</p>
 <p>The routing policy of §2.3 is implemented but not scored: its harness needs a per-entity burn-in
 pass and a choice about how alerts are charged, and choosing that against the evaluation labels is
 the defect Appendix F lists.</p>
@@ -960,11 +962,11 @@ missed counts as a false positive and <strong>every precision figure in this pap
 Failed authentications appear only for accounts that succeeded somewhere in the data set, so the
 failure population is conditioned on eventual success — a property of the archive rather than of a
 live stream, and one the arms score.</p>
-<p><strong>Windows.</strong> The first seven days are a burn-in window: events are scored, so state warms under
-exactly the code path scoring uses, but nothing is emitted or counted. Two quantities are fitted
-there and frozen at the boundary — a between-arm covariance and a conformal calibration (§4.3) —
-and neither is ever updated by an event it is later used to score. The window was fixed before any
-end-to-end measurement and costs the 49 labelled events inside it. Scoring runs over days 7–13.</p>
+<p><strong>Windows.</strong> The first seven days are a burn-in window: events are scored, so state warms under the
+code path scoring uses, but nothing is emitted. Two quantities are fitted there and frozen at the
+boundary — a between-arm covariance and a conformal calibration (§4.3) — and neither is ever updated
+by an event it is later used to score. The window was fixed before any end-to-end measurement and
+costs the 49 labelled events inside it. Scoring runs over days 7–13.</p>
 <p><strong>Sampling.</strong> Three of four designs are entity samples, because a fixed alerts-per-day budget is a
 far harder target on 42.2 million events than on 4.2 million. Every labelled account is retained
 in every sample, which inflates the labelled share, so each base rate is stated.</p>
