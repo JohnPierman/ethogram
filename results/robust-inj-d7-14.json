@@ -1,0 +1,409 @@
+{
+  "schema_version": 1,
+  "kind": "robust-allocation",
+  "run_id": "robust-inj-d7-14-001",
+  "source": {
+    "corpus": "data/lanl/auth-holdout-r7-d0-14.txt.gz",
+    "run_id": "lanl-inj-b1000-weighted-d7-14-005"
+  },
+  "budget": 1000,
+  "arms": [
+    "novelty",
+    "noveltyrate",
+    "pairing",
+    "timing",
+    "volume",
+    "marginal",
+    "lof"
+  ],
+  "mechanisms": [
+    "credential_spray",
+    "lateral_chain",
+    "off_hours",
+    "privilege_escalation",
+    "low_and_slow",
+    "account_takeover",
+    "real campaign"
+  ],
+  "caveats": [
+    "detection rates are event-level; each mechanism has eight victims and a deterministic choice of planted values, so the effective sample size is nearer eight than the event count and every value here is a coarse rate",
+    "the adversary is assumed to choose the mechanism knowing the allocation but not the realised draw, which is what makes a mixed strategy meaningful",
+    "\"lof\" is admitted into the strategy set but was measured on a 1-in-100 event sample rather than the full corpus, a hundredfold easier problem; its row is an existence proof that the mechanism is reachable, not a matched comparison"
+  ],
+  "detection_rate": {
+    "lof": {
+      "account_takeover": 0,
+      "credential_spray": 0,
+      "lateral_chain": 0,
+      "low_and_slow": 0.041666666666666664,
+      "off_hours": 0,
+      "privilege_escalation": 0,
+      "real campaign": 0
+    },
+    "marginal": {
+      "account_takeover": 1,
+      "credential_spray": 0,
+      "lateral_chain": 0,
+      "low_and_slow": 0,
+      "off_hours": 0,
+      "privilege_escalation": 0,
+      "real campaign": 0
+    },
+    "novelty": {
+      "account_takeover": 0.25,
+      "credential_spray": 0.25,
+      "lateral_chain": 0.375,
+      "low_and_slow": 0,
+      "off_hours": 0,
+      "privilege_escalation": 0,
+      "real campaign": 0.3242258652094718
+    },
+    "noveltyrate": {
+      "account_takeover": 0.5333333333333333,
+      "credential_spray": 0.365625,
+      "lateral_chain": 0.65,
+      "low_and_slow": 0,
+      "off_hours": 0,
+      "privilege_escalation": 0.16666666666666666,
+      "real campaign": 0.3151183970856102
+    },
+    "pairing": {
+      "account_takeover": 0.1,
+      "credential_spray": 0,
+      "lateral_chain": 0,
+      "low_and_slow": 0,
+      "off_hours": 0,
+      "privilege_escalation": 0,
+      "real campaign": 0.23679417122040072
+    },
+    "timing": {
+      "account_takeover": 0.09166666666666666,
+      "credential_spray": 0,
+      "lateral_chain": 0,
+      "low_and_slow": 0,
+      "off_hours": 0.046875,
+      "privilege_escalation": 0,
+      "real campaign": 0.012750455373406194
+    },
+    "volume": {
+      "account_takeover": 0,
+      "credential_spray": 0,
+      "lateral_chain": 0,
+      "low_and_slow": 0,
+      "off_hours": 0,
+      "privilege_escalation": 0,
+      "real campaign": 0
+    }
+  },
+  "planted": {
+    "account_takeover": 120,
+    "credential_spray": 320,
+    "lateral_chain": 40,
+    "low_and_slow": 288,
+    "off_hours": 64,
+    "privilege_escalation": 24,
+    "real campaign": 549
+  },
+  "unreachable": null,
+  "maximin": {
+    "value": 0.01948051948051943,
+    "mix": {
+      "lof": 0.46753246753246713,
+      "noveltyrate": 0.11688311688311694,
+      "timing": 0.415584415584416
+    },
+    "adversary_reply": {
+      "low_and_slow": 0.4675324675324671,
+      "off_hours": 0.415584415584416,
+      "privilege_escalation": 0.11688311688311694
+    },
+    "support": [
+      "lof",
+      "timing",
+      "noveltyrate"
+    ],
+    "best_pure_arm": "novelty",
+    "best_pure_value": 0,
+    "gain_from_mixing": 0.01948051948051943
+  },
+  "competitive_ratio": {
+    "value": 0.2962962962962963,
+    "mix": {
+      "lof": 0.2962962962962963,
+      "marginal": 0.11111111111111115,
+      "noveltyrate": 0.2962962962962963,
+      "timing": 0.2962962962962963
+    },
+    "adversary_reply": {
+      "account_takeover": 0.2962962962962963,
+      "credential_spray": 0.1382716049382716,
+      "low_and_slow": 0.29629629629629634,
+      "off_hours": 0.26913580246913577
+    },
+    "support": [
+      "lof",
+      "noveltyrate",
+      "timing",
+      "marginal"
+    ],
+    "best_pure_arm": "novelty",
+    "best_pure_value": 0,
+    "gain_from_mixing": 0.2962962962962963,
+    "retained_fraction": {
+      "account_takeover": 0.29629629629629634,
+      "credential_spray": 0.2962962962962963,
+      "lateral_chain": 0.2962962962962963,
+      "low_and_slow": 0.2962962962962963,
+      "off_hours": 0.2962962962962963,
+      "privilege_escalation": 0.2962962962962963,
+      "real campaign": 0.29962546816479396
+    }
+  },
+  "price_of_robustness": {
+    "prior": {
+      "account_takeover": 0.3,
+      "credential_spray": 0.3,
+      "lateral_chain": 0.12,
+      "low_and_slow": 0.1,
+      "off_hours": 0.08,
+      "privilege_escalation": 0.05,
+      "real campaign": 0.05
+    },
+    "bayes_arm": "noveltyrate",
+    "bayes_expected_rate": 0.37177675318761383,
+    "bayes_worst_case_rate": 0,
+    "robust_expected_rate": 0.154172131147541,
+    "robust_worst_case_rate": 0.012345679012345678,
+    "expected_rate_given_up": 0.21760462204007283,
+    "worst_case_rate_bought": 0.012345679012345678,
+    "fraction_of_expected_given_up": 0.5853099210059016
+  },
+  "attacker_cost": [
+    {
+      "lambda": 0,
+      "value": 0.01948051948051943,
+      "mix": {
+        "lof": 0.46753246753246713,
+        "noveltyrate": 0.11688311688311694,
+        "timing": 0.415584415584416
+      },
+      "adversary_reply": {
+        "low_and_slow": 0.4675324675324671,
+        "off_hours": 0.415584415584416,
+        "privilege_escalation": 0.11688311688311694
+      }
+    },
+    {
+      "lambda": 0.005,
+      "value": 0.04268292682926822,
+      "mix": {
+        "noveltyrate": 0.1960975609756109,
+        "timing": 0.803902439024389
+      },
+      "adversary_reply": {
+        "off_hours": 0.7804878048780488,
+        "privilege_escalation": 0.21951219512195108
+      }
+    },
+    {
+      "lambda": 0.01,
+      "value": 0.04878048780487809,
+      "mix": {
+        "noveltyrate": 0.17268292682926872,
+        "timing": 0.8273170731707314
+      },
+      "adversary_reply": {
+        "off_hours": 0.7804878048780489,
+        "privilege_escalation": 0.21951219512195114
+      }
+    },
+    {
+      "lambda": 0.02,
+      "value": 0.060975609756097615,
+      "mix": {
+        "noveltyrate": 0.12585365853658534,
+        "timing": 0.8741463414634146
+      },
+      "adversary_reply": {
+        "off_hours": 0.7804878048780486,
+        "privilege_escalation": 0.21951219512195147
+      }
+    },
+    {
+      "lambda": 0.05,
+      "value": 0.09154829545454546,
+      "mix": {
+        "noveltyrate": 0.11363636363636391,
+        "timing": 0.8863636363636361
+      },
+      "adversary_reply": {
+        "credential_spray": 0.11363636363636373,
+        "off_hours": 0.8863636363636362
+      }
+    }
+  ],
+  "shadow_prices": [
+    {
+      "arm": "timing",
+      "mechanism": "low_and_slow",
+      "current_rate": 0,
+      "gain_in_guarantee": 0.017104846373139138
+    },
+    {
+      "arm": "lof",
+      "mechanism": "off_hours",
+      "current_rate": 0,
+      "gain_in_guarantee": 0.013852813852814005
+    },
+    {
+      "arm": "noveltyrate",
+      "mechanism": "low_and_slow",
+      "current_rate": 0,
+      "gain_in_guarantee": 0.012434374136501836
+    },
+    {
+      "arm": "noveltyrate",
+      "mechanism": "off_hours",
+      "current_rate": 0,
+      "gain_in_guarantee": 0.009931245225363039
+    },
+    {
+      "arm": "lof",
+      "mechanism": "low_and_slow",
+      "current_rate": 0.041666666666666664,
+      "gain_in_guarantee": 0.009595877326778135
+    },
+    {
+      "arm": "timing",
+      "mechanism": "off_hours",
+      "current_rate": 0.046875,
+      "gain_in_guarantee": 0.007687110577283995
+    },
+    {
+      "arm": "marginal",
+      "mechanism": "low_and_slow",
+      "current_rate": 0,
+      "gain_in_guarantee": 0.007305194805194759
+    },
+    {
+      "arm": "novelty",
+      "mechanism": "low_and_slow",
+      "current_rate": 0,
+      "gain_in_guarantee": 0.007305194805194759
+    },
+    {
+      "arm": "pairing",
+      "mechanism": "low_and_slow",
+      "current_rate": 0,
+      "gain_in_guarantee": 0.007305194805194759
+    },
+    {
+      "arm": "volume",
+      "mechanism": "low_and_slow",
+      "current_rate": 0,
+      "gain_in_guarantee": 0.007305194805194759
+    },
+    {
+      "arm": "marginal",
+      "mechanism": "off_hours",
+      "current_rate": 0,
+      "gain_in_guarantee": 0.005519480519480702
+    },
+    {
+      "arm": "novelty",
+      "mechanism": "off_hours",
+      "current_rate": 0,
+      "gain_in_guarantee": 0.005519480519480702
+    },
+    {
+      "arm": "pairing",
+      "mechanism": "off_hours",
+      "current_rate": 0,
+      "gain_in_guarantee": 0.005519480519480702
+    },
+    {
+      "arm": "volume",
+      "mechanism": "off_hours",
+      "current_rate": 0,
+      "gain_in_guarantee": 0.005519480519480702
+    },
+    {
+      "arm": "lof",
+      "mechanism": "privilege_escalation",
+      "current_rate": 0,
+      "gain_in_guarantee": 0.0013231789547578643
+    },
+    {
+      "arm": "timing",
+      "mechanism": "privilege_escalation",
+      "current_rate": 0,
+      "gain_in_guarantee": 0.0013231789547578643
+    },
+    {
+      "arm": "noveltyrate",
+      "mechanism": "privilege_escalation",
+      "current_rate": 0.16666666666666666,
+      "gain_in_guarantee": 0.0008929949507199275
+    }
+  ],
+  "randomised_against_the_recorded_rules": [
+    {
+      "name": "best single arm (noveltyrate)",
+      "detected_total": 384,
+      "alerts": 7000,
+      "worst_case_retained_fraction": 0
+    },
+    {
+      "name": "composite (Fisher + Brown)",
+      "detected_total": 227,
+      "alerts": 7000,
+      "worst_case_retained_fraction": 0
+    },
+    {
+      "name": "corrected minimum (Šidák)",
+      "detected_total": 234,
+      "alerts": 7000,
+      "worst_case_retained_fraction": 0
+    },
+    {
+      "name": "union, per-entity arms (equal cost)",
+      "detected_total": 133,
+      "alerts": 7000,
+      "worst_case_retained_fraction": 0
+    },
+    {
+      "name": "union, per-entity arms (equal depth)",
+      "detected_total": 486,
+      "alerts": 25818,
+      "worst_case_retained_fraction": 0,
+      "note": "spends 3.7x the permitted alerts"
+    },
+    {
+      "name": "union, all arms (equal cost)",
+      "detected_total": 221,
+      "alerts": 7000,
+      "worst_case_retained_fraction": 0
+    },
+    {
+      "name": "union, all arms (equal depth)",
+      "detected_total": 535,
+      "alerts": 31505,
+      "worst_case_retained_fraction": 0,
+      "note": "spends 4.5x the permitted alerts"
+    },
+    {
+      "name": "randomised, competitive-ratio mixture",
+      "detected_total": 136.88888888888889,
+      "alerts": 7000,
+      "worst_case_retained_fraction": 0.2962962962962963,
+      "note": "one arm at full depth, chosen by lottery; not a budget split"
+    },
+    {
+      "name": "randomised, even over noveltyrate and novelty",
+      "detected_total": 343.5,
+      "alerts": 7000,
+      "worst_case_retained_fraction": 0,
+      "note": "the two highest-yielding arms, each at its own full depth"
+    }
+  ]
+}

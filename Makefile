@@ -352,6 +352,32 @@ method-table:
 	$(GO) run ./cmd/methodtable -run $(INJ_RUN) -baselines $(INJ_BASELINES) \
 	  -taxonomy $(INJECT_TAXONOMY) -budgets $(METHOD_BUDGETS)
 
+# The robust-allocation analysis: the same per-mechanism rectangle the method table
+# renders, solved as a two-person zero-sum game.
+#
+# It reads only committed result files, so unlike every replay target it runs without the
+# corpus. That is a property of the question rather than a convenience: allocation is about
+# how to spend a budget across detectors whose performance is already measured, so the
+# measurement is the input and re-scoring the corpus would answer a different question.
+#
+# The prior and the attacker costs are STATED, never fitted. A cost fitted to the same
+# labels the allocation is scored against would make the equilibrium a restatement of the
+# corpus, which is the defect section 5.5's oracle rows exist to bound.
+MATRIX_JSON   ?= $(RESULTS)/method-matrix-inj-d7-14.json
+ROBUST_JSON   ?= $(RESULTS)/robust-inj-d7-14.json
+ROBUST_BUDGET ?= 1000
+ROBUST_ADMIT  ?= lof
+ROBUST_PRIOR  ?= credential_spray=0.30,lateral_chain=0.12,off_hours=0.08,privilege_escalation=0.05,low_and_slow=0.10,account_takeover=0.30,real campaign=0.05
+ROBUST_COST   ?= credential_spray=1,lateral_chain=3,off_hours=1,privilege_escalation=2,low_and_slow=12,account_takeover=4,real campaign=4
+
+.PHONY: matrix
+matrix:
+	$(GO) run ./cmd/methodtable -run $(INJ_RUN) -baselines $(INJ_BASELINES) 	  -taxonomy $(INJECT_TAXONOMY) -budgets $(METHOD_BUDGETS) -matrix $(MATRIX_JSON) >/dev/null
+
+.PHONY: robust
+robust: matrix
+	$(GO) run ./cmd/robust -matrix $(MATRIX_JSON) -budget $(ROBUST_BUDGET) 	  -admit $(ROBUST_ADMIT) -prior "$(ROBUST_PRIOR)" -attacker-cost "$(ROBUST_COST)" 	  -out $(ROBUST_JSON) -run-id robust-inj-d7-14-001
+
 .PHONY: clean
 clean:
 	rm -f $(COVER_PROFILE)
