@@ -114,7 +114,7 @@ var (
 func TestDetectorAbstainsBeforeItHasANull(t *testing.T) {
 	d, _ := dWire(t, drift.DefaultMinPeriods)
 	ctx := context.Background()
-	verdicts, obs, err := d.Score(ctx, dEvent("U1@DOM1", event.Timestamp(3*event.Hour), 0))
+	verdicts, obs, err := d.Score(ctx, dEvent("U1@DOM1", 3*event.Hour, 0))
 	if err != nil {
 		t.Fatalf("Score: %v", err)
 	}
@@ -220,7 +220,7 @@ func TestCommitIsIdempotent(t *testing.T) {
 	ctx := context.Background()
 	entity := event.EntityID("U-idem@DOM1")
 
-	_, obs, err := d.Score(ctx, dEvent(entity, event.Timestamp(2*event.Hour), 0))
+	_, obs, err := d.Score(ctx, dEvent(entity, 2*event.Hour, 0))
 	if err != nil {
 		t.Fatalf("Score: %v", err)
 	}

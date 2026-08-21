@@ -297,11 +297,11 @@ func analyse(doc matrixDoc, rect rectangle, admit []string,
 				"comparison", name))
 	}
 
-	if maximin, err := m.Maximin(); err == nil {
-		out.Maximin = solved(maximin, nil, nil)
-	} else {
+	maximin, err := m.Maximin()
+	if err != nil {
 		return nil, err
 	}
+	out.Maximin = solved(maximin, nil, nil)
 
 	comp, dropped, err := m.CompetitiveRatio()
 	if err != nil {
@@ -314,13 +314,13 @@ func analyse(doc matrixDoc, rect rectangle, admit []string,
 	out.Competitive = solved(comp, retained, dropped)
 
 	if priorSpec != "" {
-		prior, err := parsePairs(priorSpec)
-		if err != nil {
-			return nil, fmt.Errorf("-prior: %w", err)
+		prior, parseErr := parsePairs(priorSpec)
+		if parseErr != nil {
+			return nil, fmt.Errorf("-prior: %w", parseErr)
 		}
-		p, err := m.PriceOfRobustness(comp.Mix, prior)
-		if err != nil {
-			return nil, err
+		p, priceErr := m.PriceOfRobustness(comp.Mix, prior)
+		if priceErr != nil {
+			return nil, priceErr
 		}
 		fraction := 0.0
 		if p.BayesExpected > 0 {
@@ -336,22 +336,22 @@ func analyse(doc matrixDoc, rect rectangle, admit []string,
 	}
 
 	if costSpec != "" {
-		cost, err := parsePairs(costSpec)
-		if err != nil {
-			return nil, fmt.Errorf("-attacker-cost: %w", err)
+		cost, parseErr := parsePairs(costSpec)
+		if parseErr != nil {
+			return nil, fmt.Errorf("-attacker-cost: %w", parseErr)
 		}
-		lambdas, err := parseFloats(lambdaSpec)
-		if err != nil {
-			return nil, fmt.Errorf("-lambdas: %w", err)
+		lambdas, lambdaErr := parseFloats(lambdaSpec)
+		if lambdaErr != nil {
+			return nil, fmt.Errorf("-lambdas: %w", lambdaErr)
 		}
 		for _, lambda := range lambdas {
-			priced, err := m.WithAttackerCost(cost, lambda)
-			if err != nil {
-				return nil, err
+			priced, costErr := m.WithAttackerCost(cost, lambda)
+			if costErr != nil {
+				return nil, costErr
 			}
-			a, err := priced.Maximin()
-			if err != nil {
-				return nil, err
+			a, solveErr := priced.Maximin()
+			if solveErr != nil {
+				return nil, solveErr
 			}
 			out.AttackerCost = append(out.AttackerCost, Costed{
 				Lambda: lambda, Value: a.Value,
