@@ -96,6 +96,12 @@ th{font-family:"Segoe UI",Calibri,sans-serif;font-size:.7rem;text-transform:uppe
   letter-spacing:.05em;color:var(--ink-2);text-align:left;white-space:nowrap;
   border-bottom:1px solid var(--rule-2);padding:.4rem .6rem}
 td{border-bottom:1px solid var(--rule);padding:.34rem .6rem;vertical-align:top}
+/* Measurements read as a column, so they are right-aligned on a fixed digit width. .group
+   rules off a band of columns that share a heading -- two budgets side by side in one table
+   run together without it. */
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+td.group,th.group{border-left:1px solid var(--rule-2)}
+th[colspan]{text-align:center}
 tbody tr:hover{background:var(--panel)}
 a.anchor{color:var(--rule-2);text-decoration:none;font-weight:400;margin-left:.4rem;
   opacity:0;font-size:.8em}

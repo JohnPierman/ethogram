@@ -213,26 +213,53 @@ func TestAnUnknownFigureIsAnErrorNotAnOmission(t *testing.T) {
 	}
 }
 
+// TestEveryDefinedFigureIsWellFormedAndAccessible holds every figure to the requirements that
+// apply to all of them, and then to the ones that depend on what it is made of.
+//
+// Not every figure is a drawing. §1.1's headline table is a figure by the same mechanism — one
+// anchor, one caption, one claim — and holding it to `role="img"` and a viewBox would be
+// demanding the wrong contract: a data table is read by a screen reader through its header
+// cells, and a table given an image role hides its own contents from one.
 func TestEveryDefinedFigureIsWellFormedAndAccessible(t *testing.T) {
-	for id, svg := range figures() {
-		if !strings.Contains(svg, "<figcaption>") {
+	for id, fig := range figures() {
+		if !strings.Contains(fig, "<figcaption>") {
 			t.Errorf("figure %q has no caption; the claim it makes must be stated", id)
 		}
-		if !strings.Contains(svg, `role="img"`) || !strings.Contains(svg, "aria-label=") {
-			t.Errorf("figure %q is unreadable to a screen reader: needs role and aria-label", id)
-		}
-		if !strings.Contains(svg, "viewBox=") {
-			t.Errorf("figure %q has no viewBox, so it cannot scale", id)
-		}
-		// Self-contained: a diagram that reaches outside the page cannot be trusted to
-		// render from disk, and a script inside an SVG is not a diagram.
+		// Self-contained: a figure that reaches outside the page cannot be trusted to render
+		// from disk, and a script inside one is not a figure. Presentation belongs to the page
+		// template, so a fragment carrying its own <style> is a fragment that will disagree
+		// with the page in one mode or the other.
 		for _, forbidden := range []string{"<script", "<foreignObject", "<style", "http://", "https://"} {
-			if strings.Contains(svg, forbidden) {
+			if strings.Contains(fig, forbidden) {
 				t.Errorf("figure %q contains %q; figures must be self-contained", id, forbidden)
 			}
 		}
-		if strings.Count(svg, "<figure") != 1 || strings.Count(svg, "</figure>") != 1 {
+		if strings.Count(fig, "<figure") != 1 || strings.Count(fig, "</figure>") != 1 {
 			t.Errorf("figure %q is not wrapped in exactly one <figure>", id)
+		}
+
+		switch {
+		case strings.Contains(fig, "<svg"):
+			if !strings.Contains(fig, `role="img"`) || !strings.Contains(fig, "aria-label=") {
+				t.Errorf("drawn figure %q is unreadable to a screen reader: needs role and aria-label", id)
+			}
+			if !strings.Contains(fig, "viewBox=") {
+				t.Errorf("drawn figure %q has no viewBox, so it cannot scale", id)
+			}
+		case strings.Contains(fig, "<table"):
+			if !strings.Contains(fig, "<thead>") || !strings.Contains(fig, "<th") {
+				t.Errorf("tabular figure %q has no header cells, which is what a screen reader "+
+					"reads a data table by", id)
+			}
+			// A wide table must be able to scroll inside its own box rather than widening
+			// the page, which is what .tablewrap is for.
+			if !strings.Contains(fig, `class="tablewrap"`) {
+				t.Errorf("tabular figure %q is not wrapped in .tablewrap, so a wide table "+
+					"would widen the page instead of scrolling", id)
+			}
+		default:
+			t.Errorf("figure %q is neither a drawing nor a table; if a third kind is intended, "+
+				"state what makes it accessible", id)
 		}
 	}
 }

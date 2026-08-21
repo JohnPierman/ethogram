@@ -31,6 +31,31 @@ subset at 21 of 262.
 At 10 alerts/day that is 11 hits in 70 alerts — **16% precision against a 0.013% base rate,
 about 1,200× better than chance**. Precision improves as the budget tightens.
 
+### Against published baselines
+
+Eight reference implementations, run on exactly the same 4,190,603 events with the same
+labels and the same per-analyst-day budgets:
+
+| | 100/day found | recall | 1000/day found | recall |
+|---|---|---|---|---|
+| **`novelty`** (per-entity) | **60** | **11%** | **201** | **37%** |
+| composite (Fisher) | 6 | 1.1% | 113 | 21% |
+| `entity_ewma` — per-entity EWMA | 2 | 0.4% | 11 | 2.0% |
+| `lof` | 0 | 0 | 10 | 1.8% |
+| `hst`, `ocsvm`, `eif`, `iforest`, `pca`, `rrcf` | 0 | 0 | 0 | 0 |
+
+**Seven of the eight comparators reach nothing at 100 alerts/day, and six of the eight still
+reach nothing at 1,000.** A zero there is measured, not missing. The one comparator that does
+better than the rest, `entity_ewma`, is the one that also conditions on the entity — which is
+the paper's point rather than a coincidence, and why §1.1 groups its lines by the scope of the
+null rather than by who wrote the method.
+
+Precision at those budgets: 8.6% and 2.9% for `novelty`, against a 0.013% base rate — a lift
+of 650× and 220×. Both columns are lower bounds: the corpus has no true negative class, so an
+unlabelled alert on genuine but unrecorded activity counts as a false alarm. Derived from
+`results/budget-curve-r11-d7-14.json`; the figure and table in §1.1 are generated from the
+same file.
+
 **No combination beats its own best component at the same budget, and the optimum is not a
 combination at all.** Four rules are implemented -- Fisher, the corrected minimum, a union
 that alerts when any arm ranks an event highly, and a weighted arm that scores each alert by
@@ -103,12 +128,104 @@ real run, a 100/day budget can drop 68% of its queue and lose no detections.
   population `marginal` owns account takeover outright and a population baseline reaches the
   one type no arm here does. The scopes are complementary.
 
+## Usage
+
+The whole API is: build a detector over some state, then for each event **score it, then
+observe it**. That order is the design — a value must not be able to explain away its own
+first appearance — and it is enforced by the types: `Score` hands back the state update, and
+committing it is the only way state advances.
+
+```go
+package main
+
+import (
+	"context"
+	"fmt"
+
+	"github.com/JohnPierman/ethogram/domain/event"
+	"github.com/JohnPierman/ethogram/domain/novelty"
+	"github.com/JohnPierman/ethogram/domain/registry"
+	"github.com/JohnPierman/ethogram/infrastructure/state/memory"
+)
+
+func main() {
+	ctx := context.Background()
+	const halfLife = novelty.HalfLife(7 * event.Day)
+
+	// The field registry infers each field's kind from the values it sees.
+	// Nothing here declares a type.
+	fields := registry.New(registry.DefaultPolicy())
+	nov := novelty.NewDetector(memory.NewNoveltyStore(halfLife), fields, 1.0, halfLife)
+
+	offset := int64(0)
+	score := func(at event.Timestamp, dst string, report bool) {
+		e := event.New("auth", "U42", at, map[event.FieldPath]event.Value{
+			"auth.destination_computer": event.NewValue(dst),
+		}, offset)
+		offset++
+
+		verdicts, observation, err := nov.Score(ctx, &e) // score against history
+		if err != nil {
+			panic(err)
+		}
+		if report {
+			for _, v := range verdicts {
+				if p, ok := v.PValue(); ok {
+					fmt.Printf("%-8s p = %.4g\n", dst, p)
+				} else {
+					fmt.Printf("%-8s abstained: %s\n", dst, v.Reason())
+				}
+			}
+		}
+		if err := observation.Commit(ctx); err != nil { // then advance it
+			panic(err)
+		}
+		fields.ObserveEvent(&e)
+	}
+
+	// Burn-in: this account's habit is three machines. DefaultPolicy wants 50
+	// observations of a field before it will commit to that field's kind.
+	habit := []string{"C625", "C1065", "C529"}
+	for i := range 60 {
+		score(event.Timestamp(i)*event.Hour, habit[i%len(habit)], false)
+	}
+
+	score(61*event.Hour, "C625", true)   // habitual for this account
+	score(62*event.Hour, "C17693", true) // never seen for this account
+}
+```
+
+```
+C625     p = 0.3578
+C17693   p = 0.06806
+```
+
+The account's habitual destination is unremarkable; a machine it has never touched is about
+five times more surprising. Note what is *not* in the example: no threshold, no field schema,
+and no list of "suspicious" values.
+
+Three things are worth knowing before you wire this to a real log:
+
+- **One field must be named the entity, and one the timestamp.** Everything else is inferred.
+  `event.New` takes the entity and the timestamp as arguments for exactly that reason.
+- **Abstention is a real answer.** Cut the burn-in above to ten events and every verdict comes
+  back `abstained: field kind has not settled; scoring would guess at the type`. A detector
+  without its inputs says so; it does not return a neutral score that averages into a
+  combination as though it were evidence.
+- **Swap `memory` for `postgres`** (`infrastructure/state/postgres`) and nothing else changes.
+  State is behind an interface; the in-memory store is for tests and single-process runs.
+
+To score a whole corpus with every detector wired together, use
+`application.ReplayCorpusCommand` — `cmd/replay` is a working caller of it, and
+`application/replay_test.go` is the smallest one.
+
 ## Getting started
 
 ```sh
 make test      # full suite, race detector on
 make e8        # determinism gate; needs no corpus and no database
 make cover     # 80% floor on domain and application
+make paper     # regenerate docs/paper.html and docs/paper.pdf
 ```
 
 Corpus- and database-dependent tests sit behind the `corpus` and `integration` build tags,
@@ -145,8 +262,16 @@ SHA-256, row counts, seeds and timestamps. A hypothesis with no result file rend
 **NOT RUN**, never as zero. `make dashboard-check` and `make paper-check` fail the build if
 a published document has drifted from its source.
 
-Every figure in the paper is a diagram drawn in code, not a plot of data, so no figure can
-disagree with a result. Numbers in the paper cite the result file they came from.
+Every figure in the paper is drawn in code, so no figure can disagree with a result. Most are
+diagrams of a mechanism and plot nothing. The two that do carry data — §1.1's budget curve and
+the table beneath it — are emitted by `cmd/budgetcurve` from a recorded run, never hand-placed,
+and both read the same series so a point on the curve cannot contradict a cell in the table.
+Numbers in the paper cite the result file they came from.
+
+`make figure-budget-curve-redraw` redraws them from
+`results/budget-curve-r11-d7-14.json` without re-measuring, which is what to use when changing
+how the figure looks rather than what it shows; a test asserts the two paths produce identical
+output. Follow it with `make paper`, and `make paper-check` fails the build if you forget.
 
 **Never edit a result file by hand. Re-run instead.**
 

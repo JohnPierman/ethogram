@@ -72,9 +72,19 @@ is the suppression of false alarms rather than the recognition of intrusions.
 <!-- figure: budget-curve -->
 
 The figure measures that trade-off across the operating range rather than asserting it at one
-point. Each line is one detector as the budget rises from 10 to 10,000 alerts a day: the share
-of its queue that is real against the rate at which it alarms on a background event. The
-comparators are the strongest four of eight reference implementations run on the same events.
+point. Each line is one detector as the budget rises from 10 to 10,000 alerts a day, plotting
+the share of its queue that is real against the budget that bought that queue. The false-alarm
+rate is not given an axis of its own: a budget of *b* buys the same *b* × 7 alerts whichever
+method spends it, so α follows from the budget and is read off the scale above the plot. The
+comparators are the strongest four of eight reference implementations run on the same events,
+and the lines are coloured by the scope of the null each one tests rather than by who wrote it.
+
+The table beneath it fixes the budget and reports what each method actually did, at two
+operating points and for every comparator that was run, including the four the figure has no
+room to draw. It is placed this early on purpose: the figure answers how the comparison moves
+with the budget, and a reader arriving at the paper wants first to know what the numbers are.
+
+<!-- figure: budget-table -->
 
 Two readings, and the second is not in this framework's favour. Its per-entity novelty arm
 reaches labelled events at every budget, 11 at 10 alerts a day where every comparator reaches
