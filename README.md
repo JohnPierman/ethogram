@@ -128,7 +128,7 @@ Each detector asks one question and returns a p-value under a stated null, or **
 | `marginal` | is this value rare across the whole population? | population | on, measured |
 | `pairing` | has *this account* combined these two values before? | per-entity | opt-in, measured |
 | `noveltyrate` | is it producing *new* values faster than it usually does? | per-entity | opt-in, **measured** |
-| `drift` | has this account's *rate* shifted upward and stayed there? | per-entity | opt-in, measured |
+| `drift` | has this account's *rate* shifted upward and stayed there? | per-entity | opt-in, **measured: does not work here** |
 
 `noveltyrate` exists because `novelty`'s p-value for a first-ever value is roughly one over
 the size of the account's history, which makes it structurally unable to alert on a small
@@ -171,6 +171,19 @@ real run, a 100/day budget can drop 68% of its queue and lose no detections.
   types is reached; at 1000/day five of six are. `low_and_slow` (288 planted events) is
   reached by no arm of this framework at any budget -- though a local-outlier-factor baseline
   reaches 12 of them, so it is a gap in this approach rather than in the corpus.
+- **A sequential-change arm was built for that gap and does not close it.** `domain/drift` is
+  Page's cumulative sum on the per-entity rate; it separates a sustained +30% shift from matched
+  stationary variation by 237x on synthetic streams and reaches **0 of 288** on the corpus, with
+  an inverted response there (median p 0.77 against 0.62 on the real campaign). Three reasons,
+  and only the first is the statistic's fault: the planted mechanism is three seventeen-minute
+  bursts rather than a sustained elevation, so a daily-period statistic is the wrong instrument;
+  the plant is shorter than the arm's eight-period warm-up; and the planted events raise the
+  entity's own baseline rate, which raises the reference value and floors the sum. **The fix for
+  that column is repairing `volume`'s tail, not adding a sequential statistic.**
+- **Adding an uninformative arm makes the combinations measurably worse.** That seventh arm
+  reaches one labelled event in 4.49 million, and it takes the composite from 227 detections to
+  171 and the corrected minimum from 234 to 134 while leaving every single arm untouched. The
+  dilution the combination rules suffer from is now tested rather than inferred.
 - **Population scope is not useless, which an earlier version of this README implied.** The
   population `marginal` owns account takeover outright and a population baseline reaches the
   one type no arm here does. The scopes are complementary.

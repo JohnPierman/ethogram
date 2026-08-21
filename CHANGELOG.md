@@ -11,6 +11,24 @@ Equation numbers `(1)`–`(20)`, requirements `R1`–`R6`, and evaluation hypoth
 
 ### Changed
 
+- **The sequential-change arm is now scored on the corpus, and it does not work there
+  (#39, A1).** `lanl-inj-b1000-drift-d7-14-006`: 0 of 288 planted low-and-slow events, one
+  detection in 4.49 million, and an inverted response on the column it was built for -- median
+  p 0.77 against 0.62 on the real campaign. The game value of section 2.3 therefore stays at
+  zero, the guarantee stays at 0.421 and the arm takes weight zero in the optimum. Three causes,
+  and only the first is the statistic's: the planted mechanism is three seventeen-minute bursts
+  rather than a sustained elevation, so a daily-period cumulative sum is the wrong instrument and
+  an hourly-window test is the right one; the plant is shorter than the arm's eight-period
+  warm-up; and the planted events raise the entity's own baseline rate, which raises the reference
+  value and floors the sum. Protecting the null over S from the change left the baseline exposed.
+  **The fix for that column is repairing `volume`'s tail, not adding a sequential statistic**
+- **The dilution the combination rules suffer from is now tested rather than inferred.** That
+  seventh arm is close to a controlled injection of noise -- one labelled event in 4.49 million,
+  abstaining on 66% of them -- and adding it takes the composite from 227 detections to 171 and
+  the corrected minimum from 234 to 134 at 1000 alerts a day, while leaving every single arm's
+  row identical. Adding a test that knows nothing costs a combination a fifth to a half of what
+  it had
+
 - **The paper is rewritten as a finished paper rather than a working notebook (#39, A7).** It was
   21 pages against a 20-page ceiling and so failing its own gate; it is now 19, at 8,841 words
   against 11,856, while gaining a whole results section. The cuts are verbosity, not evidence:

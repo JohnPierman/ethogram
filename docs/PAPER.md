@@ -24,7 +24,10 @@ the optimum at the corner. What decides whether a division pays is the overlap b
 detections — 74.6% between the two strongest, 0% where a split does win. Read as a zero-sum game
 against an adversary choosing the mechanism, that corner result is a theorem rather than a
 measurement, and the conclusion usually drawn from it is also wrong: the best single arm
-guarantees nothing at all.
+guarantees nothing at all. Adding a seventh arm that reaches one labelled event in 4.49 million
+takes the composite from 227 detections to 171 and the corrected minimum from 234 to 134 while
+leaving every single arm untouched, which tests the dilution directly rather than inferring it.
+Every result points the same way: what limits this framework is coverage, not allocation.
 
 **Keywords:** anomaly detection; multiple testing; conditional inference; game theory;
 intrusion detection; decision theory.
@@ -152,7 +155,7 @@ their own budgets on the sampled corpus of §2.5.
 | `pairing` | 0 | 0 | 0 | 0 | 0 | 12 | 130 |
 | `timing` | 0 | 0 | **3** | 0 | 0 | 11 | 7 |
 | `volume` | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
-| `drift` | *pending* | *pending* | *pending* | *pending* | *pending* | *pending* | *pending* |
+| `drift` | 0 | 0 | 0 | 0 | **0** | 0 | 1 |
 | `marginal` | 0 | 0 | 0 | 0 | 0 | **120/120** | 0 |
 | composite | 0 | 4 | 0 | 0 | 0 | 116 | 107 |
 | corrected minimum | 40 | 10 | 0 | 0 | 0 | 28 | 156 |
@@ -161,12 +164,11 @@ their own budgets on the sampled corpus of §2.5.
 | `lof` — baseline | 0 | 0 | 0 | 0 | **12** | 0 | 0 |
 | `ocsvm` — baseline | 0 | 0 | 0 | 0 | 0 | 33 | 0 |
 
-> **Pending measurement.** The `drift` row is the sequential-change arm of §3.3, whose replay
-> (`lanl-inj-b1000-drift-d7-14-006`) is running as this draft is rendered; its low-and-slow cell
-> decides whether §2.3's game value stays at zero. The plant adds a fixed twelve events a day for
-> three days rather than a fixed fraction, so the arm's power here scales inversely with the
-> victim's baseline volume — +42% on the smallest victim the design permits, far less on a busy
-> one — and a partial result is the expected outcome.
+The `drift` row is the sequential-change arm §3.3 introduces, on
+`lanl-inj-b1000-drift-d7-14-006`. **It reaches 0 of 288 low-and-slow events**, which was the
+column it was built for, and its single detection is a real-campaign event. §3.3 diagnoses why;
+adding it leaves every other arm's row identical, which is what its own state being separate
+should guarantee.
 
 **No single method is best at more than one thing.** The `marginal` takes every planted takeover
 and nothing else; `noveltyrate` takes spray, lateral movement and privilege escalation; `novelty`
@@ -257,11 +259,11 @@ than settling it. `lof` comes from a hundredfold easier sampled problem, so it i
 proof rather than a matched comparison, which is why the framework's own arms carry the primary
 result.
 
-> **Pending measurement.** A third strategy set — the framework's arms plus the sequential-change
-> arm of §3.3, which is the framework's own attempt at the excluded column — is the one that
-> matters, and its replay is running as this draft is rendered. If that arm reaches low-and-slow at
-> all, the value of the game ceases to be zero without appeal to a baseline, and the guarantee and
-> its price are restated over all seven mechanisms.
+A third strategy set was measured and **changes none of this**. Adding the sequential-change arm
+of §3.3 — the framework's own attempt at the excluded column — leaves low-and-slow unreachable, the
+guarantee at 0.421, the price at 42% and the maximin value at zero, and gives that arm weight zero
+in the optimum (`robust-inj-drift-d7-14-001`). An arm that reaches nothing no other arm reaches
+cannot move an equilibrium, which is the same linearity as above seen from the other side.
 
 Two properties of the equilibrium are reported in Appendix G: what happens once the adversary is
 charged for the mechanism it picks, which removes low-and-slow from its reply and concentrates the
@@ -294,6 +296,13 @@ minimum against sparse ones, and this alternative is sparse. **The corrected min
 p-values across tests sharing no scale**: `novelty` supplies 5,979 of the 7,000 retained alerts and
 `volume` never supplies the minimum at all. Removing the scale mismatch made the `marginal`'s
 signal reachable and the equal-cost result got *worse*, so it was not the binding defect.
+
+The dilution is not only inferred from where labelled events sit; adding an arm tests it
+directly. The seventh arm of §2.2 reaches one labelled event in 4.49 million and abstains on 66%
+of them, so it is close to a controlled injection of noise into both rules — and at 1000 alerts a
+day it takes the composite from 227 detections to **171** and the corrected minimum from 234 to
+**134**, while leaving every single arm untouched. Adding a test that knows nothing costs a
+combination a fifth to a half of what it had.
 
 Dividing by demonstrated quality fails too, and the failure is bounded. A per-alert likelihood
 ratio fitted per arm on burn-in (Appendix D) loses at every budget on both corpora:
@@ -410,15 +419,34 @@ And the null over S is not discounted while the baseline rate is — a discounte
 distribution tracks the change it exists to detect, §3.2's second limitation in acute form, and
 undiscounting it is what takes the separation from 2× to 237×.
 
-> **Pending measurement.** The arm is wired into the replay and its corpus run
-> (`lanl-inj-b1000-drift-d7-14-006`) is in flight as this draft is rendered, so §2.2's `drift` row
-> and §2.3's third strategy set are not yet filled. One limitation is already known: a seven-day
-> burn-in leaves an entity with seven closed periods at the boundary and the arm's null needs
-> eight, so its first scored day is a column of abstentions. Lowering the gate to seven would
-> recover that day and would be fitting a parameter to the length of one corpus's burn-in. The
-> routing policy of §2.3 is implemented but not scored: its harness needs a per-entity burn-in
-> pass and a choice about how alerts are charged, and choosing that against the evaluation labels
-> is the defect Appendix F lists.
+**On the corpus it does not work, and the reason is instructive.** The arm reaches 0 of 288
+planted low-and-slow events; its median p-value there is 0.77 against 0.62 on the real campaign,
+so like the arm it was built to replace its response is *inverted* rather than merely weak. Three
+things account for it, and only the first is a defect in the statistic.
+
+The planted mechanism is not what its name says. Each victim receives twelve events at
+ninety-second intervals on each of three days — three bursts of about seventeen minutes, not a
+sustained elevation. A cumulative sum over daily periods is the wrong instrument for that, and the
+right one is an hourly-window test, which is what the `volume` arm already is and what the
+local-outlier-factor baseline reaching 12 of 288 (§2.5) confirms is reachable. **The fix for this
+column is repairing `volume`'s tail, not adding a sequential statistic.**
+
+The plant is also shorter than the arm's warm-up. Its null needs eight closed periods and a
+seven-day burn-in supplies seven, so the arm is silent on the first scored day and can accumulate
+at most two periods of a three-day plant. Lowering the gate to seven would recover a day and would
+be fitting a parameter to the length of one corpus's burn-in.
+
+And the inversion has a mechanism worth recording, because it is §3.2's second limitation reached
+by a different route. The null over S is undiscounted precisely so a campaign cannot inflate it —
+but the *baseline rate* is discounted, and the planted events raise it, which raises the reference
+value k and floors the cumulative sum. Protecting one of the two estimators from the change left
+the other exposed. The arm is retained because the alternative it tests — a genuinely sustained
+shift — is one no corpus here contains, so this is a null result about the corpus as much as about
+the statistic; on synthetic streams that do contain it the separation is 237×.
+
+The routing policy of §2.3 is implemented but not scored: its harness needs a per-entity burn-in
+pass and a choice about how alerts are charged, and choosing that against the evaluation labels is
+the defect Appendix F lists.
 
 One gap separates what is measured from what can be run: **a fixed budget is a batch
 construction.** Selecting the top *B* of a day requires the whole day, and an operator at 14:00 does
