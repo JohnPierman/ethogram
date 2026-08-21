@@ -20,6 +20,12 @@ const DetectorID = detector.ID("drift")
 // the null is one observation per closed period, so fewer closed periods than MinWeight
 // cannot produce a null to standardise against. Stating both keeps the abstention legible in
 // a result file, where "too few periods" and "no spread" are different diagnoses.
+//
+// It interacts with the length of the burn-in window, and on this corpus the interaction
+// costs a day: a seven-day burn-in leaves an entity with seven closed periods at the
+// boundary, so the arm's first opinion falls on the second scored day and the first is a
+// column of abstentions. Lowering the gate to seven would recover that day and would be
+// fitting a parameter to the length of one corpus's burn-in, so it is reported instead.
 const DefaultMinPeriods = MinWeight
 
 // NullDiscount is the discount applied to the null over the cumulative sum: none.
