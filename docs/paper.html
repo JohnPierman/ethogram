@@ -124,10 +124,20 @@ footer{margin-top:3.5rem;padding-top:1rem;border-top:1px solid var(--rule-2);
   h2{font-size:13pt;margin:1rem 0 .35rem;break-after:avoid}
   h3{font-size:11pt;margin:.7rem 0 .25rem;break-after:avoid}
   h4{font-size:10.4pt;margin:.6rem 0 .2rem;break-after:avoid}
-  table{font-size:8.8pt;break-inside:avoid;width:100%}
+  /* Tables break across pages with their header repeated, rather than being kept whole.
+     A table that cannot break is pushed entire to the next page whenever it does not fit
+     the remainder of this one, which orphaned most of a page for each of the wider tables
+     here and cost more paper than the prose it was summarising. */
+  table{font-size:8.8pt;break-inside:auto;width:100%}
+  thead{display:table-header-group}
+  tr{break-inside:avoid}
   th,td{padding:.18rem .35rem}
   pre{font-size:8.4pt;line-height:1.32;break-inside:avoid}
   pre code{font-size:8.4pt;line-height:1.32}
+  /* A figure is kept whole: half a diagram is not a diagram. Capping its printed height was
+     tried and reverted -- an SVG sized only by its viewBox resolves width:auto against its
+     own intrinsic height, so the cap either does nothing or collapses the drawing, and the
+     rendered PDF could not be inspected here to tell which. */
   figure.fig{break-inside:avoid;margin:.6rem 0}
   figcaption{font-size:8.4pt;line-height:1.35}
   a{color:#000;text-decoration:none}
@@ -152,32 +162,31 @@ footer{margin-top:3.5rem;padding-top:1rem;border-top:1px solid var(--rule-2);
 <a class="h1" href="#entity-conditioned-nulls-for-anomaly-detection-in-authentication-logs">Entity-conditioned nulls for anomaly detection in authentication logs</a>
 <a class="h2" href="#abstract">Abstract</a>
 <a class="h2" href="#1-introduction">1. Introduction</a>
-<a class="h3" href="#11-the-operational-problem">1.1 The operational problem</a>
-<a class="h3" href="#12-why-a-population-scope-null-asks-the-wrong-question">1.2 Why a population-scope null asks the wrong question</a>
-<a class="h3" href="#13-contributions-and-what-is-not-claimed">1.3 Contributions, and what is not claimed</a>
-<a class="h2" href="#2-data-and-evaluation-design">2. Data and evaluation design</a>
-<a class="h3" href="#21-telemetry-and-labels">2.1 Telemetry and labels</a>
-<a class="h3" href="#22-windows-entity-population-and-sampling">2.2 Windows, entity population and sampling</a>
-<a class="h3" href="#23-planted-attack-mechanisms">2.3 Planted attack mechanisms</a>
-<a class="h2" href="#3-method">3. Method</a>
-<a class="h3" href="#31-the-entity-conditioned-null">3.1 The entity-conditioned null</a>
-<a class="h3" href="#32-inferring-what-a-field-is-and-declining-to-answer">3.2 Inferring what a field is, and declining to answer</a>
-<a class="h3" href="#33-combination-and-calibration">3.3 Combination and calibration</a>
-<a class="h2" href="#4-the-decision-problem">4. The decision problem</a>
-<a class="h2" href="#5-results">5. Results</a>
-<a class="h3" href="#51-what-distinguishes-the-campaign">5.1 What distinguishes the campaign</a>
-<a class="h3" href="#52-detection-on-the-real-campaign">5.2 Detection on the real campaign</a>
-<a class="h3" href="#53-detection-by-attack-mechanism">5.3 Detection by attack mechanism</a>
-<a class="h3" href="#54-combination-and-budget-allocation">5.4 Combination and budget allocation</a>
-<a class="h3" href="#55-allocation-by-demonstrated-quality-and-why-it-cannot-help">5.5 Allocation by demonstrated quality, and why it cannot help</a>
-<a class="h3" href="#56-truncating-where-the-objective-peaks">5.6 Truncating where the objective peaks</a>
-<a class="h3" href="#57-population-scope-baselines">5.7 Population-scope baselines</a>
-<a class="h3" href="#58-allocation-under-an-adversarial-mix">5.8 Allocation under an adversarial mix</a>
-<a class="h2" href="#6-discussion">6. Discussion</a>
-<a class="h3" href="#61-what-the-evidence-supports">6.1 What the evidence supports</a>
-<a class="h3" href="#62-threats-to-validity">6.2 Threats to validity</a>
-<a class="h3" href="#63-what-is-repaired-and-what-a-deployable-version-needs">6.3 What is repaired, and what a deployable version needs</a>
+<a class="h3" href="#11-why-a-population-scope-null-asks-the-wrong-question">1.1 Why a population-scope null asks the wrong question</a>
+<a class="h3" href="#12-what-this-paper-establishes">1.2 What this paper establishes</a>
+<a class="h2" href="#2-results">2. Results</a>
+<a class="h3" href="#21-detection-on-the-real-campaign">2.1 Detection on the real campaign</a>
+<a class="h3" href="#22-detection-by-attack-mechanism">2.2 Detection by attack mechanism</a>
+<a class="h3" href="#23-allocation-under-an-adversarial-mix">2.3 Allocation under an adversarial mix</a>
+<a class="h3" href="#24-why-combination-and-allocation-do-not-help">2.4 Why combination and allocation do not help</a>
+<a class="h3" href="#25-population-scope-baselines">2.5 Population-scope baselines</a>
+<a class="h2" href="#3-discussion">3. Discussion</a>
+<a class="h3" href="#31-what-the-evidence-supports">3.1 What the evidence supports</a>
+<a class="h3" href="#32-principal-limitations">3.2 Principal limitations</a>
+<a class="h3" href="#33-what-is-repaired-and-what-a-deployable-version-needs">3.3 What is repaired, and what a deployable version needs</a>
+<a class="h2" href="#4-method">4. Method</a>
+<a class="h3" href="#41-the-entity-conditioned-null">4.1 The entity-conditioned null</a>
+<a class="h3" href="#42-field-inference-and-abstention">4.2 Field inference and abstention</a>
+<a class="h3" href="#43-combination-and-calibration">4.3 Combination and calibration</a>
+<a class="h3" href="#44-the-decision-problem">4.4 The decision problem</a>
 <a class="h2" href="#references">References</a>
+<a class="h2" href="#appendix-a-data-and-evaluation-design">Appendix A. Data and evaluation design</a>
+<a class="h2" href="#appendix-b-the-structural-census">Appendix B. The structural census</a>
+<a class="h2" href="#appendix-c-requirements">Appendix C. Requirements</a>
+<a class="h2" href="#appendix-d-the-likelihood-ratio-allocation-rule">Appendix D. The likelihood-ratio allocation rule</a>
+<a class="h2" href="#appendix-e-truncation-at-a-stated-exchange-rate">Appendix E. Truncation at a stated exchange rate</a>
+<a class="h2" href="#appendix-f-threats-to-validity">Appendix F. Threats to validity</a>
+<a class="h2" href="#appendix-g-adversary-cost-and-where-work-is-worth-spending">Appendix G. Adversary cost, and where work is worth spending</a>
 <a class="h2" href="#data-and-code-availability">Data and code availability</a>
 
 </nav>
@@ -187,43 +196,129 @@ footer{margin-top:3.5rem;padding-top:1rem;border-top:1px solid var(--rule-2);
 <p>Anomaly detection on security telemetry is usually posed as outlier detection against a pooled
 population. We argue and then measure that this asks the wrong question: an account that is
 permanently unusual is not thereby suspicious, and an account that has changed is suspicious
-whether or not it is unusual for the organisation. We therefore condition each null on the
-entity that produced the event, so that the reference set for an authentication is that
-account&#39;s own history.</p>
+whether or not it is unusual for the organisation. We condition each null on the entity that
+produced the event, so the reference set for an authentication is that account&#39;s own history.</p>
 <p>On the Los Alamos authentication corpus, where 549 labelled red-team events occur among 4.19
 million scored events, a per-entity novelty test attains 15.7% precision (95% CI 9.0–26.0) at
 10 alerts per analyst-day against a base rate of 1.31 × 10⁻⁴, a lift of about 1,200. A
 structural census locates the mechanism: the properties per-entity tests express are enriched
 139- and 184-fold among labelled events, while the property a population-rarity test expresses
 contains none of them.</p>
-<p>Five negative results are of independent interest. Combining the detectors&#39; p-values, by
-Fisher&#39;s method with Brown&#39;s correction or by the Šidák-corrected minimum, never exceeds the best
-single component. Alerting whenever any detector ranks an event highly is strictly dominated at
-equal cost and superior at equal depth, at 3.7 times the alert volume. Dividing the budget by
-demonstrated quality does not help either, and the failure is bounded rather than observed: an
-exhaustive search over splits, chosen with the labels in hand, finds the optimum at the corner.
-What decides whether a division pays is the overlap between two detectors&#39; detections — 74.6%
-between the two strongest, and 0% in the one configuration where a split wins. Read as a zero-sum
-game against an adversary choosing the mechanism, the corner result is a theorem rather than a
-measurement, and the portfolio&#39;s game value is exactly zero: every detector is blind to one
-planted mechanism, so no reweighting helps and the defect is coverage, not allocation.</p>
+<p>Five negative results are of independent interest. Combining the arms&#39; p-values, by Fisher&#39;s
+method or by the Šidák-corrected minimum, never exceeds the best single component; alerting
+whenever any arm ranks an event highly is dominated at equal cost and superior at equal depth, at
+3.7 times the volume; and dividing the budget by demonstrated quality fails too, bounded rather
+than merely observed, since an exhaustive search over splits chosen with the labels in hand finds
+the optimum at the corner. What decides whether a division pays is the overlap between two arms&#39;
+detections — 74.6% between the two strongest, 0% where a split does win. Read as a zero-sum game
+against an adversary choosing the mechanism, that corner result is a theorem rather than a
+measurement, and the conclusion usually drawn from it is also wrong: the best single arm
+guarantees nothing at all.</p>
 <p><strong>Keywords:</strong> anomaly detection; multiple testing; conditional inference; game theory;
 intrusion detection; decision theory.</p>
 <hr>
 <h2 id="1-introduction">1. Introduction<a class="anchor" href="#1-introduction" aria-label="link to this section">#</a></h2>
-<h3 id="11-the-operational-problem">1.1 The operational problem<a class="anchor" href="#11-the-operational-problem" aria-label="link to this section">#</a></h3>
-<p>An enterprise authentication log records who authenticated to what, from where, and how. A
-record from the corpus studied here carries nine fields: a timestamp, source and destination
-account, source and destination computer, an authentication type, a logon type, an orientation,
-and success. An uninterpretable value is written <code>?</code>, a distinct state from absence and treated
-as one throughout.</p>
-<p>Two features of the setting bound what any method can achieve. The first is volume against
-rarity: 42.2 million events were scored over seven days and 549 are labelled, a base rate π of
-1.30 × 10⁻⁵. With α the per-event false-alarm rate,</p>
-<pre><code>P(intrusion | alarm) = π / (π + (1 − π)·α),</code></pre>
-<p>so half a queue is real only at α ≈ 1.3 × 10⁻⁵, about 78 false alerts a day; at α = 10⁻³, an
-operating point typical of published detectors, the same corpus yields some 6,000 false alerts
-against 78 real ones. This is Axelsson&#39;s base-rate argument [1] on our own data.</p>
+<p>An enterprise authentication log records who authenticated to what, from where, and how. Two
+features of the setting bound what any method can achieve.</p>
+<p><strong>Volume against rarity.</strong> 42.2 million events were scored over seven days and 549 are labelled,
+a base rate π of 1.30 × 10⁻⁵. With α the per-event false-alarm rate,
+P(intrusion | alarm) = π / (π + (1 − π)·α), so half a queue is real only at α ≈ 1.3 × 10⁻⁵ —
+about 78 false alerts a day. At α = 10⁻³, typical of published detectors, the same corpus yields
+some 6,000 false alerts against 78 real ones. This is Axelsson&#39;s base-rate argument [1] on our
+own data.</p>
+<p><strong>A fixed working day.</strong> Triage capacity is a staffing constant, not a tuning parameter, which is
+why every comparison here is at a matched number of alerts per analyst-day and never at a matched
+threshold: two methods thresholded alike may emit volumes differing by three orders of magnitude,
+and the comparison would then be between their volumes.</p>
+<h3 id="11-why-a-population-scope-null-asks-the-wrong-question">1.1 Why a population-scope null asks the wrong question<a class="anchor" href="#11-why-a-population-scope-null-asks-the-wrong-question" aria-label="link to this section">#</a></h3>
+<figure class="fig">
+<svg viewBox="0 0 760 330" role="img" class="figsvg"
+ aria-label="Two accounts judged against the population's working hours, then against each account's own hours. The population reference flags the night-shift engineer on every event and misses the accountant's 3am event. Each account's own reference does the opposite.">
+<g font-size="12" fill="currentColor">
+
+<text x="0" y="14" font-size="13" font-weight="600" fill="var(--fig-b)">Compared to everyone</text>
+<text x="400" y="14" font-size="13" font-weight="600" fill="var(--fig-a)">Compared to itself</text>
+
+<g stroke="currentColor" stroke-width="1" opacity="0.45">
+<line x1="0" y1="300" x2="340" y2="300"/><line x1="400" y1="300" x2="740" y2="300"/>
+</g>
+<g font-size="10" opacity="0.7">
+<text x="0" y="316" text-anchor="start">00:00</text><text x="113" y="316" text-anchor="middle">08:00</text><text x="227" y="316" text-anchor="middle">16:00</text><text x="340" y="316" text-anchor="end">24:00</text>
+<text x="400" y="316" text-anchor="start">00:00</text><text x="513" y="316" text-anchor="middle">08:00</text><text x="627" y="316" text-anchor="middle">16:00</text><text x="740" y="316" text-anchor="end">24:00</text>
+</g>
+
+<rect x="128" y="88" width="114" height="180" fill="var(--fig-b)" opacity="0.13"/>
+<text x="185" y="34" font-size="10" text-anchor="middle" fill="var(--fig-b)">one band for everyone: 09:00–17:00</text>
+
+<rect x="400" y="88" width="42" height="60" fill="var(--fig-a)" opacity="0.16"/>
+<rect x="726" y="88" width="14" height="60" fill="var(--fig-a)" opacity="0.16"/>
+<rect x="583" y="208" width="71" height="60" fill="var(--fig-a)" opacity="0.16"/>
+<text x="570" y="34" font-size="10" text-anchor="middle" fill="var(--fig-a)">a band per account, from its own past</text>
+
+<text x="0" y="76" font-size="11">night-shift engineer</text>
+<text x="400" y="76" font-size="11">night-shift engineer</text>
+<text x="0" y="196" font-size="11">day-shift accountant</text>
+<text x="400" y="196" font-size="11">day-shift accountant</text>
+
+<g>
+<circle cx="7" cy="110" r="5" fill="var(--fig-b)"/><circle cx="21" cy="110" r="5" fill="var(--fig-b)"/><circle cx="35" cy="110" r="5" fill="var(--fig-b)"/>
+<circle cx="49" cy="110" r="5" fill="var(--fig-b)"/><circle cx="63" cy="110" r="5" fill="var(--fig-b)"/><circle cx="77" cy="110" r="5" fill="var(--fig-b)"/>
+<circle cx="91" cy="110" r="5" fill="var(--fig-b)"/><circle cx="105" cy="110" r="5" fill="var(--fig-b)"/><circle cx="326" cy="110" r="5" fill="var(--fig-b)"/>
+<text x="0" y="136" font-size="10" fill="var(--fig-b)">hundreds of events, every one of them outside the band, every one flagged</text>
+</g>
+
+<g>
+<circle cx="185" cy="230" r="5" fill="currentColor" opacity="0.55"/><circle cx="199" cy="230" r="5" fill="currentColor" opacity="0.55"/>
+<circle cx="21" cy="230" r="5" fill="var(--fig-b)"/>
+<circle cx="21" cy="230" r="9" fill="none" stroke="var(--fig-b)" stroke-width="1.5"/>
+<text x="0" y="256" font-size="10" fill="var(--fig-b)">flagged too — and buried among the engineer's hundreds when the budget is spent</text>
+</g>
+
+<g>
+<circle cx="414" cy="110" r="5" fill="currentColor" opacity="0.55"/><circle cx="428" cy="110" r="5" fill="currentColor" opacity="0.55"/><circle cx="733" cy="110" r="5" fill="currentColor" opacity="0.55"/>
+<text x="446" y="136" font-size="10" opacity="0.75">nothing flagged — this is what it always does</text>
+</g>
+
+<g>
+<circle cx="585" cy="230" r="5" fill="currentColor" opacity="0.55"/><circle cx="599" cy="230" r="5" fill="currentColor" opacity="0.55"/>
+<circle cx="421" cy="230" r="5" fill="var(--fig-a)"/>
+<circle cx="421" cy="230" r="9" fill="none" stroke="var(--fig-a)" stroke-width="1.5"/>
+<text x="446" y="256" font-size="10" fill="var(--fig-a)">the 03:00 event flagged — it never did this before</text>
+</g>
+
+</g>
+</svg>
+<figcaption><strong>The reference moves with the account.</strong> Both panels hold the same
+two accounts and the same events. On the left one band serves everyone, and the failure is
+not that the accountant's 03:00 event goes unflagged — it is flagged. It is that the
+night-shift engineer is flagged on <em>every event it ever produces</em>, so the day's alert
+budget is spent on accounts that are behaving exactly as they always have, and the one event
+that matters is buried among them. On the right each account is judged against its own past:
+the engineer's night work is unremarkable, and the accountant's 03:00 event is the only thing
+left to look at. Nothing about the events changed, only what they were compared
+against.</figcaption>
+</figure>
+<p>A systems administrator who works nights and authenticates to database servers no one else
+touches is a persistent outlier and not an intruder; an account whose behaviour has just changed
+completely may still sit inside the population&#39;s bulk, because the values it moved onto are
+ordinary for other people. Both errors have one cause: &#34;is this event unusual for this
+organisation&#34; is not &#34;has this account departed from its own behaviour&#34;. The two differ in the
+reference set against which an observation is judged exchangeable — all accounts, or one
+account&#39;s history. Conditioning on the entity is this paper&#39;s whole commitment.</p>
+<p>Seven questions are asked of each event, each returning a p-value under its own null or
+abstaining. Section 4 gives the estimators.</p>
+<div class="tablewrap"><table>
+<thead><tr><th>Arm</th><th>Asks</th><th>Scope</th></tr></thead>
+<tbody>
+<tr><td><code>novelty</code></td><td>has this account used this categorical value before?</td><td>per-entity</td></tr>
+<tr><td><code>noveltyrate</code></td><td>is it producing first-ever values faster than it historically does?</td><td>per-entity</td></tr>
+<tr><td><code>pairing</code></td><td>has this account combined these two values before?</td><td>per-entity</td></tr>
+<tr><td><code>timing</code></td><td>is this hour unusual for this account?</td><td>per-entity</td></tr>
+<tr><td><code>volume</code></td><td>is this much activity in this window unusual for this account?</td><td>per-entity</td></tr>
+<tr><td><code>drift</code></td><td>has this account&#39;s rate shifted upward and stayed there?</td><td>per-entity</td></tr>
+<tr><td><code>marginal</code></td><td>is this value rare across the whole population?</td><td>population</td></tr>
+</tbody></table></div>
+<h3 id="12-what-this-paper-establishes">1.2 What this paper establishes<a class="anchor" href="#12-what-this-paper-establishes" aria-label="link to this section">#</a></h3>
 <figure class="fig">
 <svg viewBox="0 0 760 392" role="img" class="figsvg"
  aria-label="this framework, novelty arm, entity scope, reaches at most 387 of the 549 labelled events; this framework, composite, entity scope, reaches at most 416 of the 549 labelled events; entity_ewma, entity scope, reaches at most 82 of the 549 labelled events; hst, population scope, reaches at most 1 of the 549 labelled events; lof, population scope, reaches at most 140 of the 549 labelled events; ocsvm, population scope, reaches at most 4 of the 549 labelled events.">
@@ -361,443 +456,60 @@ This framework's novelty arm reaches 11% of the campaign at 100 alerts a day and
 <br><br>
 <em>Recall counts what the red team wrote down, not what happened.</em> The label file records an authorised exercise rather than annotating the log exhaustively, so unrecorded malicious activity counts against precision and is absent from the recall denominator (§12.5): both columns are lower bounds. Only <code>entity_ewma</code> holds per-entity state, and no comparator is held to R2 or R4 (§12.4).</figcaption>
 </figure>
-<p>The second is that the consumer is a person with a fixed working day. Triage capacity is a
-staffing constant, not a tuning parameter, which is why every comparison here is made at a
-matched number of alerts per analyst-day and never at a matched threshold: two methods
-thresholded alike may emit volumes differing by three orders of magnitude, and the comparison
-would then be between their volumes.</p>
-<p>Suppressing false alarms is therefore not this framework&#39;s binding constraint — it already
-reaches labelled events at every budget where the comparators reach none. Recall is.</p>
-<p>The labels shape every figure. A red team&#39;s label file records what its members did; it is not
-an exhaustive annotation of the log. Malicious activity the red team did not record counts as a
-false positive, so every precision figure here is a <strong>lower bound</strong>, and the recall denominator
-is what was written down.</p>
-<h3 id="12-why-a-population-scope-null-asks-the-wrong-question">1.2 Why a population-scope null asks the wrong question<a class="anchor" href="#12-why-a-population-scope-null-asks-the-wrong-question" aria-label="link to this section">#</a></h3>
-<figure class="fig">
-<svg viewBox="0 0 760 330" role="img" class="figsvg"
- aria-label="Two accounts judged against the population's working hours, then against each account's own hours. The population reference flags the night-shift engineer on every event and misses the accountant's 3am event. Each account's own reference does the opposite.">
-<g font-size="12" fill="currentColor">
-
-<text x="0" y="14" font-size="13" font-weight="600" fill="var(--fig-b)">Compared to everyone</text>
-<text x="400" y="14" font-size="13" font-weight="600" fill="var(--fig-a)">Compared to itself</text>
-
-<g stroke="currentColor" stroke-width="1" opacity="0.45">
-<line x1="0" y1="300" x2="340" y2="300"/><line x1="400" y1="300" x2="740" y2="300"/>
-</g>
-<g font-size="10" opacity="0.7">
-<text x="0" y="316" text-anchor="start">00:00</text><text x="113" y="316" text-anchor="middle">08:00</text><text x="227" y="316" text-anchor="middle">16:00</text><text x="340" y="316" text-anchor="end">24:00</text>
-<text x="400" y="316" text-anchor="start">00:00</text><text x="513" y="316" text-anchor="middle">08:00</text><text x="627" y="316" text-anchor="middle">16:00</text><text x="740" y="316" text-anchor="end">24:00</text>
-</g>
-
-<rect x="128" y="88" width="114" height="180" fill="var(--fig-b)" opacity="0.13"/>
-<text x="185" y="34" font-size="10" text-anchor="middle" fill="var(--fig-b)">one band for everyone: 09:00–17:00</text>
-
-<rect x="400" y="88" width="42" height="60" fill="var(--fig-a)" opacity="0.16"/>
-<rect x="726" y="88" width="14" height="60" fill="var(--fig-a)" opacity="0.16"/>
-<rect x="583" y="208" width="71" height="60" fill="var(--fig-a)" opacity="0.16"/>
-<text x="570" y="34" font-size="10" text-anchor="middle" fill="var(--fig-a)">a band per account, from its own past</text>
-
-<text x="0" y="76" font-size="11">night-shift engineer</text>
-<text x="400" y="76" font-size="11">night-shift engineer</text>
-<text x="0" y="196" font-size="11">day-shift accountant</text>
-<text x="400" y="196" font-size="11">day-shift accountant</text>
-
-<g>
-<circle cx="7" cy="110" r="5" fill="var(--fig-b)"/><circle cx="21" cy="110" r="5" fill="var(--fig-b)"/><circle cx="35" cy="110" r="5" fill="var(--fig-b)"/>
-<circle cx="49" cy="110" r="5" fill="var(--fig-b)"/><circle cx="63" cy="110" r="5" fill="var(--fig-b)"/><circle cx="77" cy="110" r="5" fill="var(--fig-b)"/>
-<circle cx="91" cy="110" r="5" fill="var(--fig-b)"/><circle cx="105" cy="110" r="5" fill="var(--fig-b)"/><circle cx="326" cy="110" r="5" fill="var(--fig-b)"/>
-<text x="0" y="136" font-size="10" fill="var(--fig-b)">hundreds of events, every one of them outside the band, every one flagged</text>
-</g>
-
-<g>
-<circle cx="185" cy="230" r="5" fill="currentColor" opacity="0.55"/><circle cx="199" cy="230" r="5" fill="currentColor" opacity="0.55"/>
-<circle cx="21" cy="230" r="5" fill="var(--fig-b)"/>
-<circle cx="21" cy="230" r="9" fill="none" stroke="var(--fig-b)" stroke-width="1.5"/>
-<text x="0" y="256" font-size="10" fill="var(--fig-b)">flagged too — and buried among the engineer's hundreds when the budget is spent</text>
-</g>
-
-<g>
-<circle cx="414" cy="110" r="5" fill="currentColor" opacity="0.55"/><circle cx="428" cy="110" r="5" fill="currentColor" opacity="0.55"/><circle cx="733" cy="110" r="5" fill="currentColor" opacity="0.55"/>
-<text x="446" y="136" font-size="10" opacity="0.75">nothing flagged — this is what it always does</text>
-</g>
-
-<g>
-<circle cx="585" cy="230" r="5" fill="currentColor" opacity="0.55"/><circle cx="599" cy="230" r="5" fill="currentColor" opacity="0.55"/>
-<circle cx="421" cy="230" r="5" fill="var(--fig-a)"/>
-<circle cx="421" cy="230" r="9" fill="none" stroke="var(--fig-a)" stroke-width="1.5"/>
-<text x="446" y="256" font-size="10" fill="var(--fig-a)">the 03:00 event flagged — it never did this before</text>
-</g>
-
-</g>
-</svg>
-<figcaption><strong>The reference moves with the account.</strong> Both panels hold the same
-two accounts and the same events. On the left one band serves everyone, and the failure is
-not that the accountant's 03:00 event goes unflagged — it is flagged. It is that the
-night-shift engineer is flagged on <em>every event it ever produces</em>, so the day's alert
-budget is spent on accounts that are behaving exactly as they always have, and the one event
-that matters is buried among them. On the right each account is judged against its own past:
-the engineer's night work is unremarkable, and the accountant's 03:00 event is the only thing
-left to look at. Nothing about the events changed, only what they were compared
-against.</figcaption>
-</figure>
-<p>A systems administrator who works nights and authenticates to database servers no one else
-touches is a persistent outlier and not an intruder. Conversely an account whose behaviour has
-just changed completely may still sit inside the population&#39;s bulk, because the values it moved
-onto are ordinary for other people. Both errors have one cause: &#34;is this event unusual for this
-organisation&#34; is not &#34;has this account departed from its own behaviour&#34;. The two differ in the
-reference set against which an observation is judged exchangeable — all accounts, or one
-account&#39;s history. Conditioning on the entity is this paper&#39;s whole commitment, and §5.1 shows
-it is where the discriminating information on this corpus lies.</p>
-<h3 id="13-contributions-and-what-is-not-claimed">1.3 Contributions, and what is not claimed<a class="anchor" href="#13-contributions-and-what-is-not-claimed" aria-label="link to this section">#</a></h3>
-<p>We contribute a family of entity-conditioned nulls over heterogeneous log fields requiring no
-advance declaration of a field&#39;s type, cardinality or value set (§3.2); a measurement of what
-per-entity conditioning is worth at matched budgets, with intervals (§5.2); a structural census
-identifying which properties of an event carry the discriminating information (§5.1);
-per-mechanism sensitivity against planted attacks constructed to hold population rarity out
-(§5.3); and a bound on what any allocation of a fixed budget across detectors can achieve
-(§5.5–5.8).</p>
-<p>We do not claim state-of-the-art detection: 15.7% precision at the tightest budget is good against
-this base rate and not good enough to act on unattended. We do not claim that combining evidence
-helps, nor that population-scope conditioning is useless — it retains one capability this
-framework lacks (§5.7). And we do not claim generalisation beyond authentication telemetry of this
-shape, nor to the full population: every figure is measured on entity subsets (§2.2).</p>
-<p>The framework is stated as six requirements, referred to by number throughout.</p>
-<div class="tablewrap"><table>
-<thead><tr><th></th><th>Requirement</th></tr></thead>
-<tbody>
-<tr><td>R1</td><td>A verdict is a function of the event and of persisted state only, so scoring is reproducible from the record and independent of batching.</td></tr>
-<tr><td>R2</td><td>No component requires advance knowledge of a field&#39;s type, cardinality or value set. One field must be declared the entity, and one the timestamp; nothing else.</td></tr>
-<tr><td>R3</td><td>Abstention is an outcome. A component with no basis for an opinion says so, and does not contribute a neutral value.</td></tr>
-<tr><td>R4</td><td>Scoring is deterministic: no wall clock, no randomness, and a canonical total order before every floating-point reduction.</td></tr>
-<tr><td>R5</td><td>A verdict carries the evidence needed to reconstruct it.</td></tr>
-<tr><td>R6</td><td>Alert volume follows from a stated exchange rate between a missed intrusion and a wasted investigation, not from a quota.</td></tr>
-</tbody></table></div>
+<p>The figure tracks each method across the operating range; the table fixes two budgets and
+includes every comparator the figure has no room to draw. Three results follow. Per-entity
+conditioning is worth a great deal, and the population arm is not merely weaker but <em>empty</em> on
+the real campaign, since no labelled event holds a population-rare value (Appendix B). Combining
+or dividing evidence never beats the best single arm, and under a known attack mix that is forced
+rather than measured. And the best single arm nonetheless guarantees nothing against an adversary
+who picks the mechanism — a coverage defect rather than an allocation one.</p>
+<p>We do not claim state-of-the-art detection: 15.7% precision at the tightest budget is good
+against this base rate and not good enough to act on unattended. We do not claim that
+population-scope conditioning is useless — it retains one capability this framework lacks
+(§2.5) — nor generalisation beyond telemetry of this shape, nor to the full population: every
+figure is from an entity subset (Appendix A).</p>
 <hr>
-<h2 id="2-data-and-evaluation-design">2. Data and evaluation design<a class="anchor" href="#2-data-and-evaluation-design" aria-label="link to this section">#</a></h2>
-<h3 id="21-telemetry-and-labels">2.1 Telemetry and labels<a class="anchor" href="#21-telemetry-and-labels" aria-label="link to this section">#</a></h3>
-<p>We use the Los Alamos comprehensive cyber-security events data set [2], released CC0, and
-specifically its authentication log: 1.05 billion events over 58 days from 12,425 users and
-17,684 computers, with a labelled red-team exercise embedded.</p>
-<p>The unit of analysis is a human account. Machine accounts, <code>SYSTEM</code> and <code>ANONYMOUS LOGON</code> are
-excluded — they are not individuals — at no cost in labels, since all 104 accounts the red team
-touched are human.</p>
-<p>The label file carries 749 rows, 715 distinct, naming 104 accounts, and is highly concentrated:
-93.6% of rows share one source computer, and two of the seven scored days carry 482 of the 700
-post-boundary labels. The effective sample size is therefore far below 549 (§6.2).</p>
-<p>Two corpus properties bear on specific detectors. Distinct human-user counts follow a weekly
-cycle, about 12,800 on weekdays against 5,400 at weekends, which a null over an account&#39;s hour
-or event count must absorb. And failed authentications appear only for accounts that succeeded
-somewhere in the data set, so the failure population is conditioned on eventual success — a
-property of the archive rather than of a live stream, and one the detectors score.</p>
-<h3 id="22-windows-entity-population-and-sampling">2.2 Windows, entity population and sampling<a class="anchor" href="#22-windows-entity-population-and-sampling" aria-label="link to this section">#</a></h3>
-<p>The first seven days are a burn-in window: events are scored, so state warms under exactly the
-code path scoring uses, but nothing is emitted or counted. Two quantities are fitted there and
-frozen at the boundary — a between-detector covariance and a conformal calibration (§3.3) — and
-neither is ever updated by an event it is later used to score. The window was fixed before any
-end-to-end measurement, recorded by the commit that fixed it, and costs the 49 labelled events
-inside it. Scoring runs over days 7 to 13 inclusive.</p>
-<p>Three of the four designs below are entity samples, taken because a fixed alerts-per-day budget
-is a far harder target on 42.2 million events than on 4.2 million. Every labelled account is
-retained in every sample, which inflates the labelled share, so each base rate is stated.</p>
-<div class="tablewrap"><table>
-<thead><tr><th>Design</th><th>Selector</th><th>Scored events</th><th>Labelled</th><th>Base rate</th></tr></thead>
-<tbody>
-<tr><td>full</td><td>none</td><td>42,218,530</td><td>549</td><td>1.30 × 10⁻⁵</td></tr>
-<tr><td><code>r11</code></td><td>1 entity in 16, residue 11</td><td>4,190,603</td><td>549</td><td>1.31 × 10⁻⁴</td></tr>
-<tr><td><code>inj</code></td><td>1 entity in 16, residue 7, plus planted attacks</td><td>4,494,396</td><td>1,405</td><td>3.13 × 10⁻⁴</td></tr>
-<tr><td><code>holdout-r7</code></td><td>days 7–8 of the residue-7 corpus</td><td>1,427,225</td><td>262</td><td>1.84 × 10⁻⁴</td></tr>
-</tbody></table></div>
-<p>Because labelled accounts are exempt from sampling, the residue-7 and residue-11 corpora share
-their labelled events and differ only in background and window. A result reproduced across them
-is a check on sensitivity to background, not an independent replication, and is described as the
-former.</p>
-<h3 id="23-planted-attack-mechanisms">2.3 Planted attack mechanisms<a class="anchor" href="#23-planted-attack-mechanisms" aria-label="link to this section">#</a></h3>
-<p>The real campaign supplies one uneven mixture, which cannot separate &#34;this detector cannot
-express this mechanism&#34; from &#34;this corpus barely contains it&#34;. We therefore plant six named
-kinds into a held-out copy, eight victims each, entirely inside the scoring window. Victims are
-disjoint from every account the real labels name, so the account alone determines which ground
-truth an event belongs to.</p>
-<div class="tablewrap"><table>
-<thead><tr><th>Mechanism</th><th>Construction</th><th>Events</th><th>Premise isolated</th></tr></thead>
-<tbody>
-<tr><td>credential spray</td><td>many never-used destinations within ten minutes</td><td>320</td><td>categorical novelty and its rate</td></tr>
-<tr><td>lateral chain</td><td>connected hops, each sourced from the previous destination</td><td>40</td><td>novel <em>pairings</em> of real values</td></tr>
-<tr><td>off-hours</td><td>only familiar values, twelve hours from the account&#39;s window</td><td>64</td><td>the circular timing null alone</td></tr>
-<tr><td>privilege escalation</td><td>an authentication type absent from the account&#39;s history</td><td>24</td><td>novelty on a low-cardinality field</td></tr>
-<tr><td>low-and-slow</td><td>familiar values only, a modest sustained volume increase</td><td>288</td><td>the volume null alone</td></tr>
-<tr><td>account takeover</td><td>destination, authentication type, logon type and hour all change</td><td>120</td><td>an upper bound: everything at once</td></tr>
-</tbody></table></div>
-<p>The decision that matters statistically is the choice of planted value: <strong>the most
-population-common value the victim has never used</strong>. Sampling the vocabulary uniformly instead
-plants population-rare values, and a population-rarity test then detects the plant for the wrong
-reason. Choosing the most ordinary unused value tests per-entity novelty with population rarity
-held out, which is the only construction under which §5.3 separates the two questions this paper
-is about. §5.3 reports where that construction succeeds and where the cardinality of the
-substituted field defeats it.</p>
-<p>Value choice is deterministic given the corpus, so every victim of a kind receives the same
-planted values: the events of one kind are not independent draws and the effective sample size
-is nearer eight than the event count. Sensitivity against planted labels is a claim about whether
-a test responds to a mechanism, not about detecting an intrusion, so the two ground truths are
-reported side by side and never summed.</p>
-<hr>
-<h2 id="3-method">3. Method<a class="anchor" href="#3-method" aria-label="link to this section">#</a></h2>
-<h3 id="31-the-entity-conditioned-null">3.1 The entity-conditioned null<a class="anchor" href="#31-the-entity-conditioned-null" aria-label="link to this section">#</a></h3>
-<p>Write an event as field–value pairs with an entity <em>e</em> and a time <em>t</em>. For each field the
-framework maintains a per-entity summary of <em>e</em>&#39;s history, decayed exponentially in event time
-with a seven-day half-life, and asks</p>
-<pre><code>H₀ : this observation is exchangeable with e&#39;s own decayed history for this field.</code></pre>
-<p>Six such questions are asked, each returning a p-value under its own null or abstaining.
-Nothing is specific to authentication: what makes a question available is the inferred kind of
-the field, not its name.</p>
-<div class="tablewrap"><table>
-<thead><tr><th>Detector</th><th>Question</th><th>Predictive</th><th>Scope</th></tr></thead>
-<tbody>
-<tr><td>novelty</td><td>has <em>e</em> taken this categorical value before?</td><td>Dirichlet–multinomial over decayed counts</td><td>per-entity</td></tr>
-<tr><td>novelty rate</td><td>is <em>e</em> producing first-ever values faster than it historically does?</td><td>Beta-binomial over <em>e</em>&#39;s own novelty rate</td><td>per-entity</td></tr>
-<tr><td>timing</td><td>is this hour unusual for <em>e</em>?</td><td>von Mises KDE on the 24-hour circle, truncated Fourier</td><td>per-entity</td></tr>
-<tr><td>volume</td><td>is <em>e</em>&#39;s activity this period unusual for <em>e</em>?</td><td>Gamma–Poisson over completed periods</td><td>per-entity</td></tr>
-<tr><td>pairing</td><td>has <em>e</em> combined these two values before?</td><td>novelty&#39;s estimator on a composite field</td><td>per-entity</td></tr>
-<tr><td>marginal</td><td>is this value rare across the whole population?</td><td>Dirichlet form over decayed population counts</td><td>population</td></tr>
-</tbody></table></div>
-<p>Two properties of the table are load-bearing. Novelty&#39;s reserved mass for a first-ever value is
-a/(n + a(K+1)) ≈ 1/n, so <strong>the p-value for a first-ever value is set by the length of the
-account&#39;s history rather than by how surprising the value is</strong> — the detector&#39;s most important
-property and its principal weakness (§6.2). Novelty rate exists because of that weakness and
-asks a scale-free question instead, carrying a posterior over <em>e</em>&#39;s own rate so that a second
-novel value from an account with twenty events of history is not called overwhelming. Volume&#39;s
-predictive is deliberately over-dispersed relative to the Poisson, which makes it tolerant of
-ordinary bursts and, as §5.3 shows, blind to sustained small increases.</p>
-<p>A detector may score several fields; its arm takes the most extreme, with a Šidák correction
-where it combines fields internally.</p>
-<figure class="fig">
-<svg viewBox="0 0 760 250" role="img" class="figsvg"
- aria-label="Observing before scoring makes a first-ever value already known by the time it is scored, so it is reported as ordinary. Scoring before observing reports it as novel. The only difference is the order of two steps.">
-<g font-size="12" fill="currentColor">
-
-<text x="0" y="14" font-size="13" font-weight="600" fill="var(--fig-b)">Observe, then score</text>
-<text x="400" y="14" font-size="13" font-weight="600" fill="var(--fig-a)">Score, then observe</text>
-
-<g fill="none" stroke="currentColor" stroke-width="1.5">
-<rect x="0" y="34" width="120" height="40" rx="4"/>
-<rect x="0" y="106" width="120" height="40" rx="4"/>
-<rect x="200" y="70" width="130" height="40" rx="4"/>
-<rect x="400" y="34" width="120" height="40" rx="4"/>
-<rect x="400" y="106" width="120" height="40" rx="4"/>
-<rect x="600" y="70" width="130" height="40" rx="4"/>
-</g>
-<g text-anchor="middle" font-size="11">
-<text x="60" y="58">event: value X</text>
-<text x="60" y="130">history of X</text>
-<text x="265" y="88">score X</text>
-<text x="460" y="58">event: value X</text>
-<text x="460" y="130">history of X</text>
-<text x="665" y="88">score X</text>
-</g>
-
-<g stroke="var(--fig-b)" stroke-width="1.5" fill="none" marker-end="url(#fig-arrow-b)">
-<path d="M120,54 C165,54 165,120 196,124"/>
-<path d="M120,126 L196,94"/>
-</g>
-<text x="128" y="76" font-size="10" fill="var(--fig-b)">1. record X first</text>
-<text x="128" y="146" font-size="10" fill="var(--fig-b)">2. read: X is known</text>
-
-<g stroke="var(--fig-a)" stroke-width="1.5" fill="none" marker-end="url(#fig-arrow-a)">
-<path d="M520,54 L596,84"/>
-<path d="M520,126 L596,100"/>
-</g>
-<text x="528" y="46" font-size="10" fill="var(--fig-a)">1. score against history</text>
-<text x="528" y="146" font-size="10" fill="var(--fig-a)">2. record X after</text>
-
-<text x="265" y="140" font-size="11" text-anchor="middle" fill="var(--fig-b)">p is high</text>
-<text x="265" y="158" font-size="11" text-anchor="middle" fill="var(--fig-b)">&#8220;seen before&#8221;</text>
-<text x="265" y="182" font-size="12" text-anchor="middle" font-weight="600" fill="var(--fig-b)">MISSED</text>
-<text x="665" y="140" font-size="11" text-anchor="middle" fill="var(--fig-a)">p is small</text>
-<text x="665" y="158" font-size="11" text-anchor="middle" fill="var(--fig-a)">&#8220;first ever&#8221;</text>
-<text x="665" y="182" font-size="12" text-anchor="middle" font-weight="600" fill="var(--fig-a)">ALERT</text>
-
-<text x="0" y="228" font-size="11" opacity="0.8">Both arrangements return a number. Only one of them is measuring anything.</text>
-</g>
-</svg>
-<figcaption><strong>The failure is silent, which is what makes it dangerous.</strong> Update
-state before scoring and a first-ever value is already a known value by the time it is
-judged, so novelty detection dies while still emitting plausible p-values. Nothing in the
-output announces it. The framework therefore makes the ordering unexpressible rather than
-conventional: <code>Score</code> holds no means of writing, and the update it computes does
-not exist until it has produced it.</figcaption>
-</figure>
-<p>Ordering is the leakage control: every detector scores against pre-event state, the combination
-is computed, and only then are observations committed. A first-ever value is therefore still
-novel when scored. The rule cuts the other way too — because an event updates <em>e</em>&#39;s state after
-being scored, a sustained intrusion progressively enlarges its own reference set, which §6.2
-treats as a live threat rather than a solved problem.</p>
-<h3 id="32-inferring-what-a-field-is-and-declining-to-answer">3.2 Inferring what a field is, and declining to answer<a class="anchor" href="#32-inferring-what-a-field-is-and-declining-to-answer" aria-label="link to this section">#</a></h3>
-<figure class="fig">
-<svg viewBox="0 0 700 200" role="img" class="figsvg"
- aria-label="A verdict has four states. Only the evaluated state carries a p-value; the three abstentions carry none and reduce the degrees of freedom of the combination instead.">
-<g font-size="12" fill="currentColor">
-<rect x="0" y="40" width="150" height="56" rx="4" fill="var(--fig-a)" opacity="0.16" stroke="var(--fig-a)" stroke-width="1.5"/>
-<text x="75" y="64" font-size="12" text-anchor="middle" font-weight="600" fill="var(--fig-a)">evaluated</text>
-<text x="75" y="82" font-size="10" text-anchor="middle" fill="var(--fig-a)">carries a p-value</text>
-
-<g fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.6">
-<rect x="220" y="8" width="200" height="40" rx="4"/>
-<rect x="220" y="60" width="200" height="40" rx="4"/>
-<rect x="220" y="112" width="200" height="40" rx="4"/>
-</g>
-<g font-size="11" opacity="0.85">
-<text x="234" y="26">abstained: structural</text>
-<text x="234" y="42" font-size="9" opacity="0.8">the source never sends this field</text>
-<text x="234" y="78">abstained: unexpected</text>
-<text x="234" y="94" font-size="9" opacity="0.8">usually sent, absent here</text>
-<text x="234" y="130">abstained: unusable</text>
-<text x="234" y="146" font-size="9" opacity="0.8">present, but nothing can be concluded</text>
-</g>
-
-<line x1="420" y1="28" x2="500" y2="70" stroke="currentColor" stroke-width="1.5" opacity="0.6" marker-end="url(#fig-arrow)"/>
-<line x1="420" y1="80" x2="500" y2="80" stroke="currentColor" stroke-width="1.5" opacity="0.6" marker-end="url(#fig-arrow)"/>
-<line x1="420" y1="132" x2="500" y2="90" stroke="currentColor" stroke-width="1.5" opacity="0.6" marker-end="url(#fig-arrow)"/>
-
-<text x="512" y="76" font-size="11">no p-value exists</text>
-<text x="512" y="94" font-size="11">to be combined</text>
-
-<text x="0" y="132" font-size="11" width="150">A &#8220;0.5 because</text>
-<text x="0" y="150" font-size="11">we do not know&#8221;</text>
-<text x="0" y="168" font-size="11">is unrepresentable:</text>
-<text x="0" y="186" font-size="11">it asserts normality.</text>
-</g>
-</svg>
-<figcaption><strong>Declining is not the same as reporting nothing unusual.</strong> A verdict
-has four states and only one of them carries a p-value, so a detector with no basis for an
-opinion cannot express a confident middle value — the field is unreachable. An abstention
-reduces the degrees of freedom of the combination rather than contributing to it. This is
-what lets the system degrade honestly instead of inventing findings when a source changes
-shape.</figcaption>
-</figure>
-<p>R2 requires that no component be told a field&#39;s type. A registry observes values as they arrive
-and settles each field into one of five kinds — categorical, boolean, discrete, continuous,
-identifier — after which detectors iterate the registry rather than a list of names.</p>
-<p>The identifier kind carries the weight. A field whose values are almost all distinct — a session
-GUID, a request id — is unbounded by construction: every value is first-ever, so a novelty test
-on it fires on every event and, being the most extreme thing in the queue, consumes the whole
-budget. Detectors decline such fields. Without that, the framework&#39;s headline arm is a
-random-number generator with a large p-value.</p>
-<p>R3 makes abstention an outcome: it reduces the number of tests combined rather than contributing
-a p-value of one. At this base rate that matters, because a neutral value entered into a
-combination over six tests is not neutral but evidence of ordinariness, and in Fisher&#39;s sum five
-such values bury one informative test.</p>
-<h3 id="33-combination-and-calibration">3.3 Combination and calibration<a class="anchor" href="#33-combination-and-calibration" aria-label="link to this section">#</a></h3>
-<p>Given J evaluated p-values for one event, four rules turn them into one decision.</p>
-<div class="tablewrap"><table>
-<thead><tr><th>Rule</th><th>Statistic</th><th>What it asks</th></tr></thead>
-<tbody>
-<tr><td>composite</td><td>Fisher&#39;s X² = −2 Σ ln P_j on χ²(2J), with Brown&#39;s correction [3, 4]</td><td>is the evidence <em>jointly</em> unusual?</td></tr>
-<tr><td>corrected minimum</td><td>P = 1 − (1 − min_j P_j)^J, Šidák [5]</td><td>did <em>any</em> detector find <em>e</em> out of character?</td></tr>
-<tr><td>union, equal cost</td><td>best rank in any detector, truncated to the shared budget</td><td>the same, with the p-value scale removed</td></tr>
-<tr><td>union, equal depth</td><td>best rank in any detector, every arm keeping its own top <em>B</em></td><td>the same, paying for the depth</td></tr>
-</tbody></table></div>
-<p>Brown&#39;s correction requires a positive variance estimate for X², and on this corpus it does not
-get one: with six detectors the burn-in covariance implies Var[X²] = −27.5, which no joint
-distribution can produce. The correction is then not applied, the combination degrades to plain
-Fisher, and the run records that it did. <strong>Every composite figure below is Fisher&#39;s statistic
-without Brown&#39;s correction.</strong> §6.2 reads the negative estimate.</p>
-<p>A fused rank is not calibrated against any of these nulls and carries no tail-probability
-interpretation; it reports a selection, and each alert still carries the p-value of the detector
-that raised it. Rank collisions are structural — every detector has a rank 1 — and break on event
-identity rather than on log P, which would hand each collision to whichever detector&#39;s numbers
-happen to be smallest.</p>
-<p><strong>Conformal calibration</strong> [6] is applied optionally and orthogonally, replacing each detector&#39;s
-model tail with that value&#39;s rank in its own burn-in distribution, which is super-uniform whether
-or not the model is correct. Being monotone it cannot change any single detector&#39;s ordering, so
-per-detector figures are identical with and without it; what it changes is which detector
-supplies the minimum. It floors every p-value at 1/(n+1), with the model log p-value as
-tie-break.</p>
-<hr>
-<h2 id="4-the-decision-problem">4. The decision problem<a class="anchor" href="#4-the-decision-problem" aria-label="link to this section">#</a></h2>
-<p>R6 states that alert volume follows from a stated exchange rate rather than a quota, because
-quotas are pathological: a system tuned to emit 100 alerts a day emits 100 on a quiet day too,
-all benign. If nothing happened, the right number of alerts is zero. We score an alerting
-configuration by</p>
-<pre><code>U = v·TP − c·FP,</code></pre>
-<p>with v what catching one incident is worth and c what one wasted investigation costs. Only v/c
-is identifiable from counts, so an operator supplies one number, and a queue is worth reading
-exactly when TP/FP &gt; c/v.</p>
-<p>Maximising a ratio does not work, and the failure is structural. TP/FP is precision under the
-monotone transform P/(1−P), and precision&#39;s maximiser is the smallest queue containing a true
-positive; forbidding TP = 0 moves that corner from &#34;alert on nothing&#34; to &#34;alert on one thing&#34;
-rather than removing it. <strong>Any objective that is a function of precision alone is scale-free, and
-a scale-free quantity cannot say how many rows to show.</strong> The same argument disposes of accuracy,
-balanced accuracy, F₁ and Youden&#39;s J: each is an unstated exchange rate wearing a metric&#39;s
-clothes. Accuracy is the sharpest case — alerting on nothing scores 99.9987%.</p>
-<p>A budget is therefore a <strong>ceiling rather than a quota</strong>: within it the queue is truncated where
-marginal alerts stop paying. §5.6 measures what that costs and buys at v/c = 10, stated in
-advance.</p>
-<hr>
-<h2 id="5-results">5. Results<a class="anchor" href="#5-results" aria-label="link to this section">#</a></h2>
-<p>All comparisons are at matched alerts per analyst-day, over the whole seven-day window, so a
-budget of <em>B</em> corresponds to 7<em>B</em> alerts.</p>
-<h3 id="51-what-distinguishes-the-campaign">5.1 What distinguishes the campaign<a class="anchor" href="#51-what-distinguishes-the-campaign" aria-label="link to this section">#</a></h3>
-<p>Before any detector, what property of a labelled event could a method exploit? We census five
-structural properties of an event relative to the history it was scored against, defined by
-facts about the event and the history and never by which detector produced the smallest p-value
-— a partition defined by our own detectors would flatter the framework by construction. On
-<code>r11</code>, 4,190,603 scored events of which 549 are labelled:</p>
-<div class="tablewrap"><table>
-<thead><tr><th>Property</th><th>labelled</th><th>share</th><th>background</th><th>share</th><th>lift</th></tr></thead>
-<tbody>
-<tr><td>novel pairing for this entity</td><td>362</td><td>65.9%</td><td>19,841</td><td>0.473%</td><td><strong>139</strong></td></tr>
-<tr><td>novel value for this entity</td><td>215</td><td>39.2%</td><td>8,913</td><td>0.213%</td><td><strong>184</strong></td></tr>
-<tr><td>volume burst for this entity</td><td>199</td><td>36.2%</td><td>1,143,820</td><td>27.3%</td><td>1.3</td></tr>
-<tr><td>outside this entity&#39;s hours</td><td>181</td><td>33.0%</td><td>1,576,171</td><td>37.6%</td><td>0.9</td></tr>
-<tr><td>population-rare value</td><td>0</td><td>0.0%</td><td>4,835</td><td>0.115%</td><td><strong>0.0</strong></td></tr>
-</tbody></table></div>
-<p>The properties are not mutually exclusive and 92 labelled events exhibit none of them.</p>
-<p>Population rarity is not merely weaker, it is <strong>empty</strong>: not one labelled event holds a
-population-rare value while 4,835 background events do, so a population-rarity test on this
-campaign is a test of something the campaign does not exhibit. That is the strongest form this
-paper&#39;s central claim takes, and it is a statement about this campaign — §5.3 shows the same
-property behaving differently on planted attacks. Volume bursts and out-of-hours activity are
-not enriched at all, which bounds what work on those two detectors could recover here; §6.2
-gives the other half of the explanation for each, and it is not the enrichment.</p>
-<h3 id="52-detection-on-the-real-campaign">5.2 Detection on the real campaign<a class="anchor" href="#52-detection-on-the-real-campaign" aria-label="link to this section">#</a></h3>
+<h2 id="2-results">2. Results<a class="anchor" href="#2-results" aria-label="link to this section">#</a></h2>
+<p>All comparisons are at matched alerts per analyst-day over a seven-day window, so a budget of <em>B</em>
+corresponds to 7<em>B</em> alerts. Corpora, windows and sampling are in Appendix A; the six framework
+requirements referred to as R1–R6 are in Appendix C.</p>
+<h3 id="21-detection-on-the-real-campaign">2.1 Detection on the real campaign<a class="anchor" href="#21-detection-on-the-real-campaign" aria-label="link to this section">#</a></h3>
 <p><code>lanl-r11-b1000-weighted-d7-14-005</code>, 549 labelled among 4,190,603 scored. Every proportion
-carries a 95% Wilson interval [7]; §6.2 states why those intervals are optimistic.</p>
+carries a 95% Wilson interval [7]; Appendix F states why those intervals are optimistic.</p>
 <div class="tablewrap"><table>
 <thead><tr><th>Arm</th><th>10/day</th><th>100/day</th><th>1000/day</th><th>precision at 10/day</th><th>recall at 1000/day</th></tr></thead>
 <tbody>
-<tr><td>novelty</td><td><strong>11</strong></td><td><strong>60</strong></td><td><strong>201</strong></td><td><strong>15.7% (9.0–26.0)</strong></td><td>36.6% (32.7–40.7)</td></tr>
-<tr><td>pairing</td><td>4</td><td>59</td><td>127</td><td>5.7% (2.2–13.8)</td><td>23.1% (19.8–26.8)</td></tr>
-<tr><td>novelty rate</td><td>0</td><td>22</td><td>185</td><td>—</td><td>34.9% (31.0–39.1)</td></tr>
-<tr><td>timing</td><td>1</td><td>2</td><td>7</td><td>1.4% (0.3–7.7)</td><td>1.3% (0.6–2.7)</td></tr>
-<tr><td>volume</td><td>0</td><td>0</td><td>0</td><td>—</td><td>0.0% (0.0–0.7)</td></tr>
-<tr><td>marginal</td><td>0</td><td>0</td><td>0</td><td>—</td><td>0.0% (0.0–0.7)</td></tr>
+<tr><td><code>novelty</code></td><td><strong>11</strong></td><td><strong>60</strong></td><td><strong>201</strong></td><td><strong>15.7% (9.0–26.0)</strong></td><td>36.6% (32.7–40.7)</td></tr>
+<tr><td><code>pairing</code></td><td>4</td><td>59</td><td>127</td><td>5.7% (2.2–13.8)</td><td>23.1% (19.8–26.8)</td></tr>
+<tr><td><code>noveltyrate</code></td><td>0</td><td>22</td><td>185</td><td>—</td><td>34.9% (31.0–39.1)</td></tr>
+<tr><td><code>timing</code></td><td>1</td><td>2</td><td>7</td><td>1.4% (0.3–7.7)</td><td>1.3% (0.6–2.7)</td></tr>
+<tr><td><code>volume</code></td><td>0</td><td>0</td><td>0</td><td>—</td><td>0.0% (0.0–0.7)</td></tr>
+<tr><td><code>marginal</code></td><td>0</td><td>0</td><td>0</td><td>—</td><td>0.0% (0.0–0.7)</td></tr>
 <tr><td>corrected minimum</td><td>4</td><td>47</td><td>162</td><td>5.7% (2.2–13.8)</td><td>29.5% (25.8–33.5)</td></tr>
 <tr><td>composite</td><td>0</td><td>6</td><td>113</td><td>—</td><td>20.6% (17.4–24.2)</td></tr>
 </tbody></table></div>
-<p>At the tightest budget novelty returns 11 true positives in 70 alerts, a lift of about 1,200
-over the base rate; precision falls to 2.9% at 1000 alerts a day as recall rises to 36.6%, the
-ordinary consequence of taking a longer prefix of one ranking.</p>
-<p>Novelty and pairing are <strong>not distinguishable and should not be ranked</strong>: at 100 alerts a day
-their recalls are 10.9% (8.6–13.8) and 10.7% (8.4–13.6), and the two questions are nearly the
-same question, a novel pairing being a novel value of a composite field. The volume and marginal
-zeros carry an upper bound rather than a point. Neither combination reaches its best component at
-any budget, and the composite&#39;s zero at the two tighter budgets is not an artefact calibration
-removes — those figures are <em>with</em> conformal calibration, and without it the composite reaches 0
-at 100 a day rather than 6.</p>
-<p>On a corpus differing in background (<code>holdout-r7-fixed</code>, 262 labelled among 1,427,225) novelty
+<p>At the tightest budget <code>novelty</code> returns 11 true positives in 70 alerts, a lift of about 1,200;
+precision falls to 2.9% at 1000 alerts a day as recall rises to 36.6%, the ordinary consequence of
+taking a longer prefix of one ranking. <code>novelty</code> and <code>pairing</code> are <strong>not distinguishable and
+should not be ranked</strong> — at 100 alerts a day their recalls are 10.9% (8.6–13.8) and 10.7%
+(8.4–13.6), and a novel pairing is a novel value of a composite field. The <code>volume</code> and <code>marginal</code>
+zeros carry an upper bound rather than a point. The composite&#39;s zero at the two tighter budgets is
+not an artefact calibration removes: those figures are <em>with</em> conformal calibration, and without
+it the composite reaches 0 at 100 a day rather than 6.</p>
+<p>On a corpus differing in background (<code>holdout-r7-fixed</code>, 262 labelled among 1,427,225) <code>novelty</code>
 gives 2, 8, 15 and 21 at 10, 25, 50 and 100 alerts a day and the composite 0 everywhere.</p>
-<h3 id="53-detection-by-attack-mechanism">5.3 Detection by attack mechanism<a class="anchor" href="#53-detection-by-attack-mechanism" aria-label="link to this section">#</a></h3>
-<p>The planted corpus separates &#34;cannot express this mechanism&#34; from &#34;cannot afford it&#34;.
-<code>lanl-inj-b1000-weighted-d7-14-005</code>: 856 planted events across six mechanisms plus the 549 real
-labelled events, attributed by victim account.</p>
+<h3 id="22-detection-by-attack-mechanism">2.2 Detection by attack mechanism<a class="anchor" href="#22-detection-by-attack-mechanism" aria-label="link to this section">#</a></h3>
+<p>Planted attacks of six named kinds separate &#34;cannot express this mechanism&#34; from &#34;cannot afford
+it&#34;: eight victims each, inside the scoring window, with the planted value always the most
+population-common value the victim has never used, so population rarity is held out by
+construction (Appendix A). <code>lanl-inj-b1000-weighted-d7-14-005</code>.</p>
 <p><strong>The budget binds harder than the method.</strong> At 10 alerts a day no arm reaches any planted
-mechanism — the only detections anywhere are 11 real-campaign events to novelty and 4 to
-pairing. At 100 a day exactly one mechanism is reached, account takeover, by the marginal (76)
-and the composite (26). At 1000 a day five of six are, as below. For four of the six mechanisms
-the sentence &#34;this framework does not detect it&#34; is therefore false at some budget and true at
-another, and only the budget changed.</p>
+mechanism; at 100 exactly one is reached, account takeover, by the <code>marginal</code> (76) and the
+composite (26); at 1000 five of six are. For four of the six, &#34;this framework does not detect it&#34;
+is false at some budget and true at another, and only the budget changed.</p>
 <p><strong>At 1000 alerts a day</strong>, planted totals in the header. Every row spends the permitted 7,000
 alerts except the equal-depth union, which spends 31,505 (×4.5), and the baselines, measured at
-their own budgets on the sampled corpus of §5.7.</p>
+their own budgets on the sampled corpus of §2.5.</p>
 <div class="tablewrap"><table>
 <thead><tr><th>Method</th><th>spray /320</th><th>lateral /40</th><th>off-hrs /64</th><th>priv-esc /24</th><th>low+slow /288</th><th>takeover /120</th><th>real /549</th></tr></thead>
 <tbody>
@@ -806,6 +518,7 @@ their own budgets on the sampled corpus of §5.7.</p>
 <tr><td><code>pairing</code></td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>12</td><td>130</td></tr>
 <tr><td><code>timing</code></td><td>0</td><td>0</td><td><strong>3</strong></td><td>0</td><td>0</td><td>11</td><td>7</td></tr>
 <tr><td><code>volume</code></td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+<tr><td><code>drift</code></td><td><em>pending</em></td><td><em>pending</em></td><td><em>pending</em></td><td><em>pending</em></td><td><em>pending</em></td><td><em>pending</em></td><td><em>pending</em></td></tr>
 <tr><td><code>marginal</code></td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td><strong>120/120</strong></td><td>0</td></tr>
 <tr><td>composite</td><td>0</td><td>4</td><td>0</td><td>0</td><td>0</td><td>116</td><td>107</td></tr>
 <tr><td>corrected minimum</td><td>40</td><td>10</td><td>0</td><td>0</td><td>0</td><td>28</td><td>156</td></tr>
@@ -814,39 +527,107 @@ their own budgets on the sampled corpus of §5.7.</p>
 <tr><td><code>lof</code> — baseline</td><td>0</td><td>0</td><td>0</td><td>0</td><td><strong>12</strong></td><td>0</td><td>0</td></tr>
 <tr><td><code>ocsvm</code> — baseline</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>33</td><td>0</td></tr>
 </tbody></table></div>
-<p><strong>No single method is best at more than one thing.</strong> The marginal takes every planted takeover
-and nothing else; novelty rate takes spray, lateral movement and privilege escalation; novelty
+<blockquote>
+<p><strong>Pending measurement.</strong> The <code>drift</code> row is the sequential-change arm of §3.3, whose replay
+(<code>lanl-inj-b1000-drift-d7-14-006</code>) is running as this draft is rendered; its low-and-slow cell
+decides whether §2.3&#39;s game value stays at zero. The plant adds a fixed twelve events a day for
+three days rather than a fixed fraction, so the arm&#39;s power here scales inversely with the
+victim&#39;s baseline volume — +42% on the smallest victim the design permits, far less on a busy
+one — and a partial result is the expected outcome.</p>
+</blockquote>
+<p><strong>No single method is best at more than one thing.</strong> The <code>marginal</code> takes every planted takeover
+and nothing else; <code>noveltyrate</code> takes spray, lateral movement and privilege escalation; <code>novelty</code>
 takes the real campaign. A reader looking for one row to deploy will not find one, which is what
-§5.8 formalises.</p>
-<p><strong>Low-and-slow is reached by no arm at any budget</strong> — 0 of 288, 0 of 8 victims. It is the
-mechanism volume&#39;s over-dispersion is built to tolerate, so this is a confirmed prediction; §6.2
-reports that volume&#39;s response to it is in addition <em>inverted</em>, and §6.3 the statistic that
-repairs the direction.</p>
-<p>The marginal&#39;s 120 of 120 needs explaining, since the corpus plants the most population-common
-unused value precisely to hold population rarity out. Its median p-value is 0.59 on spray and
-lateral movement, which substitute the destination computer, 0.17 on privilege escalation, which
-substitutes the authentication type, and 3.8 × 10⁻⁵ on takeover, which substitutes three fields
-at once: the pattern follows the <strong>cardinality of the substituted field</strong>. Destination takes
-3,535 distinct values, so a common value the victim has not used is genuinely common and the
-marginal is unmoved; authentication type takes 14 and logon type 10, with Kerberos, NTLM and
-Negotiate accounting for 99.6% of resolved types, so an account already using the common values
-can only be given one from the tail. <strong>Holding population rarity out succeeds where the
-vocabulary is large and cannot where it is small</strong> — a limitation of the planted corpus, stated
-because the alternative is to read the row as evidence for a mechanism the design excludes.</p>
-<h3 id="54-combination-and-budget-allocation">5.4 Combination and budget allocation<a class="anchor" href="#54-combination-and-budget-allocation" aria-label="link to this section">#</a></h3>
+§2.3 formalises. And <strong>low-and-slow is reached by no arm at any budget</strong> — 0 of 288, 0 of 8
+victims. It is the mechanism <code>volume</code>&#39;s over-dispersion is built to tolerate, so this is a
+confirmed prediction; §3.3 reports that its response is in addition <em>inverted</em>, and the statistic
+that repairs the direction.</p>
+<p>The <code>marginal</code>&#39;s 120 of 120 needs explaining, since population rarity is held out by construction.
+Its median p-value is 0.59 on spray and lateral movement, which substitute the destination
+computer, 0.17 on privilege escalation, which substitutes the authentication type, and
+3.8 × 10⁻⁵ on takeover, which substitutes three at once: the pattern follows the <strong>cardinality of
+the substituted field.</strong> Destination takes 3,535 distinct values, so a common value the victim has
+not used is genuinely common; authentication and logon type take 14 and 10, with three values
+accounting for 99.6% of resolved authentication types, so an account already using the common
+ones can only be given a tail value. <strong>Holding population rarity out succeeds where the vocabulary
+is large and cannot where it is small</strong> — a limitation of the planted corpus, stated because the
+alternative is to read the row as evidence for a mechanism the design excludes.</p>
+<h3 id="23-allocation-under-an-adversarial-mix">2.3 Allocation under an adversarial mix<a class="anchor" href="#23-allocation-under-an-adversarial-mix" aria-label="link to this section">#</a></h3>
+<p>Read the table above as a payoff matrix — rows arms, columns the mechanism an adversary chooses,
+entries P(detected | mechanism). Under a known mix <em>p</em> the expected detection of a randomised
+allocation <em>w</em> is <em>w</em>ᵀ(A<em>p</em>), *<em>linear in </em>w***, and a linear form on a simplex attains its maximum
+at a vertex. So no prior-weighted mixture, including one fitted to published incident statistics,
+can beat the best single arm; checked over 20,000 random priors, none does. The equilibria are the
+minimax solutions [18] by Dantzig&#39;s reduction [19]: <code>robust-inj-d7-14-002</code> for the framework&#39;s own
+arms, <code>robust-inj-lof-d7-14-001</code> for the variant admitting a baseline.</p>
+<p><strong>The game&#39;s value is exactly zero.</strong> Every arm scores 0 on low-and-slow, so the saddle point is
+(any arm, low-and-slow) and a rational adversary wins with certainty. No reweighting of rows
+changes a column of zeros: the defect is coverage, not allocation, which is why §2.4&#39;s negative
+result cannot be repaired by a better rule. Maximin is therefore degenerate, returning 0 for every
+allocation.</p>
+<p>What is well posed is to normalise each mechanism by the best rate any arm reaches against it and
+maximise the worst-case <em>fraction retained</em>, dropping the mechanism no arm reaches since every
+allocation ties at zero there:</p>
 <div class="tablewrap"><table>
-<thead><tr><th>Rule</th><th>10/day</th><th>100/day</th><th>1000/day</th><th>alerts at 1000/day</th></tr></thead>
+<thead><tr><th>Objective</th><th>Guarantee</th><th>Expected rate</th><th>Allocation</th></tr></thead>
 <tbody>
-<tr><td>best single arm</td><td><strong>11</strong></td><td><strong>60</strong></td><td><strong>201</strong></td><td>7,000</td></tr>
-<tr><td>union, per-entity arms, equal cost</td><td>2</td><td>27</td><td>106</td><td>7,000</td></tr>
-<tr><td>union, all arms, equal cost</td><td>2</td><td>21</td><td>96</td><td>7,000</td></tr>
-<tr><td>union, per-entity arms, equal depth</td><td>11</td><td>74</td><td>278</td><td>25,930 (×3.7)</td></tr>
-<tr><td>union, all arms, equal depth</td><td>11</td><td>74</td><td>278</td><td>32,134 (×4.5)</td></tr>
+<tr><td>best single arm</td><td><strong>0</strong></td><td><strong>0.372</strong></td><td>any one arm — each is blind to some mechanism</td></tr>
+<tr><td>competitive ratio</td><td><strong>0.421 of achievable</strong></td><td>0.217</td><td><code>noveltyrate</code> 0.42, <code>timing</code> 0.42, <code>marginal</code> 0.16</td></tr>
 </tbody></table></div>
-<p>At equal cost the union is strictly dominated at every budget, with non-overlapping intervals at
-the widest: recall 17.5% (14.5–20.9) against 36.6% (32.7–40.7). No exchange rate rescues a
-dominated option. At equal depth it finds what no single arm finds, 278 against 201 and recall
-50.6% (46.5–54.8), for 3.7 times the alerts.</p>
+<p>Expected rate is under a prior weighted towards credential attacks and takeover. The optimum
+<strong>equalises</strong>, which is what makes a single number mean something:</p>
+<div class="tablewrap"><table>
+<thead><tr><th>spray</th><th>lateral</th><th>off-hrs</th><th>priv-esc</th><th>takeover</th><th>real</th></tr></thead>
+<tbody>
+<tr><td>0.421</td><td>0.421</td><td>0.421</td><td>0.421</td><td>0.421</td><td>0.426</td></tr>
+</tbody></table></div>
+<p>Five of six sit exactly at the guarantee; the real campaign is not binding, and low-and-slow is
+absent because excluded rather than covered.</p>
+<p><strong>Coverage is purchasable, and not by reweighting.</strong> Labelled events found on the planted corpus
+at 1000 alerts a day, against the worst mechanism&#39;s retained fraction:</p>
+<div class="tablewrap"><table>
+<thead><tr><th>Rule</th><th>Found</th><th>Alerts</th><th>Worst-case retained</th></tr></thead>
+<tbody>
+<tr><td>best single arm (<code>noveltyrate</code>)</td><td><strong>384</strong></td><td>7,000</td><td>0</td></tr>
+<tr><td>randomised, even over the two best arms</td><td>344</td><td>7,000</td><td>0</td></tr>
+<tr><td>corrected minimum</td><td>234</td><td>7,000</td><td>0</td></tr>
+<tr><td>composite</td><td>227</td><td>7,000</td><td>0</td></tr>
+<tr><td>union, all arms, equal cost</td><td>221</td><td>7,000</td><td>0</td></tr>
+<tr><td>randomised, competitive-ratio mixture</td><td>189</td><td>7,000</td><td><strong>0.421</strong></td></tr>
+<tr><td>union, all arms, equal depth</td><td>535</td><td>31,505 (×4.5)</td><td><strong>1.000</strong></td></tr>
+<tr><td><em>per-entity routing, oracle floor–ceiling</em></td><td><em>448–535</em></td><td><em>7,000</em></td><td><em>—</em></td></tr>
+</tbody></table></div>
+<p><strong>No rule in §2.4 guarantees anything at all.</strong> Two allocations do, and the table prices both:
+retain 42.1% of the achievable on every reachable mechanism at the same budget for 42% of the
+expected detection, or buy the guarantee outright at 4.5 times the alerts.</p>
+<p>Two further readings. <strong>Randomising is not dividing, and only dividing had been tested</strong> — §2.4
+measures unions and splits, which give every arm a fraction of its depth, whereas a mixed strategy
+runs one arm at full depth chosen by lottery and is exactly evaluable from detections already
+recorded. It finds 344 against the best combination rule&#39;s 234 at the same spend, and still loses
+to the best single arm, which linearity requires. And <strong>routing is not a global allocation</strong>: it
+chooses per entity, so it can send an established account to a per-entity null and a cold one to
+the population null and collect both, which makes it the only construction here able to exceed the
+best single arm at equal cost. Its floor is what any per-entity policy matches by construction and
+its ceiling is the union at full depth; both are oracles charging no alert cost.</p>
+<p>Admitting a low-and-slow-capable arm prices the excluded column. With <code>lof</code> from §2.5 admitted
+every mechanism is reachable and the guarantee over all seven falls to <strong>0.296</strong> at <strong>59%</strong> of
+expected detection: covering the hole is expensive, and the two figures bracket the choice rather
+than settling it. <code>lof</code> comes from a hundredfold easier sampled problem, so it is an existence
+proof rather than a matched comparison, which is why the framework&#39;s own arms carry the primary
+result.</p>
+<blockquote>
+<p><strong>Pending measurement.</strong> A third strategy set — the framework&#39;s arms plus the sequential-change
+arm of §3.3, which is the framework&#39;s own attempt at the excluded column — is the one that
+matters, and its replay is running as this draft is rendered. If that arm reaches low-and-slow at
+all, the value of the game ceases to be zero without appeal to a baseline, and the guarantee and
+its price are restated over all seven mechanisms.</p>
+</blockquote>
+<p>Two properties of the equilibrium are reported in Appendix G: what happens once the adversary is
+charged for the mechanism it picks, which removes low-and-slow from its reply and concentrates the
+allocation on <code>timing</code>; and where the next unit of detector work is worth spending, which is in
+none of the columns §2.1 and §2.2 compare arms on. <strong>Marginal improvement to <code>novelty</code> against
+<code>noveltyrate</code>, which is what §2.1&#39;s headline turns on, has a shadow price of exactly zero.</strong></p>
+<h3 id="24-why-combination-and-allocation-do-not-help">2.4 Why combination and allocation do not help<a class="anchor" href="#24-why-combination-and-allocation-do-not-help" aria-label="link to this section">#</a></h3>
 <figure class="fig">
 <svg viewBox="0 0 740 300" role="img" class="figsvg"
  aria-label="For a labelled event, one detector places it deep in its tail and four place it where any event would sit. Summing all five contributions lets the four uninformative ones supply most of the total, so the combined statistic is unremarkable.">
@@ -901,31 +682,29 @@ composite built from a component that finds 21 labelled events finds none — an
 combiner recovers it, because the remedy is not a better average but not averaging in
 detectors that know nothing.</figcaption>
 </figure>
-<p>The two p-value rules fail for different reasons, and the union isolates them. <strong>Fisher&#39;s sum
-averages an informative test with uninformative ones</strong>: labelled events sit at the 0.07th
-percentile of novelty&#39;s own distribution and between the 18th and 36th of every other detector&#39;s,
-so summing −2 ln P over six tests dilutes one signal with five non-signals — Fisher&#39;s method is
-powerful against diffuse alternatives and the minimum against sparse ones, and this alternative
-is sparse. <strong>The corrected minimum compares p-values across tests sharing no scale</strong>: novelty
-supplies 5,979 of the 7,000 retained alerts, 85%, and volume never supplies the minimum at all.</p>
-<p>Removing the scale mismatch made the marginal&#39;s signal reachable and the equal-cost result got
-<em>worse</em>, so the mismatch was not the binding defect: novelty holding 85% of the queue was closer
-to correct than crowding-out suggests, because it is the better arm. The diagnosis left is that a
-fixed budget divided among six arms gives each about a sixth of the depth it had alone.</p>
-<h3 id="55-allocation-by-demonstrated-quality-and-why-it-cannot-help">5.5 Allocation by demonstrated quality, and why it cannot help<a class="anchor" href="#55-allocation-by-demonstrated-quality-and-why-it-cannot-help" aria-label="link to this section">#</a></h3>
-<p>The rule measured is a per-alert likelihood ratio. Two quantities are fitted per detector on
-burn-in and frozen: a null over that detector&#39;s own log p-value, and the single parameter <em>a</em> of
-a Beta(<em>a</em>, 1) density over the null quantiles its labelled burn-in events received. An alert at
-quantile <em>q</em> from a detector of weight <em>a</em> scores <em>s</em> = ln <em>a</em> + (<em>a</em> − 1) ln <em>q</em>, the
-log-likelihood ratio of its being labelled against its being background. Alerts from detectors
-sharing no p-value scale are comparable on <em>s</em>, so the budget goes to the highest scores and no
-share parameter is chosen. A weight is retained only where twice its log-likelihood ratio against
-<em>a</em> = 1 exceeds 2.706, the 5% one-sided point at the boundary of the range [10]; without that
-guard, fifty uniform draws fit <em>a</em> ≈ 1 ± 0.14 and noise alone buys a large share of the queue.
-Labelled events a detector evaluated without surfacing enter right-censored.</p>
-<p>The fit separates the detectors as intended — on <code>r11</code> the three per-entity arms are informative
-at <em>a</em> = 0.376, 0.414 and 0.491, while timing, volume and the marginal surface none of the 49
-labelled burn-in events, are fitted uninformative and cost nothing. It is not enough.</p>
+<div class="tablewrap"><table>
+<thead><tr><th>Rule</th><th>10/day</th><th>100/day</th><th>1000/day</th><th>alerts at 1000/day</th></tr></thead>
+<tbody>
+<tr><td>best single arm</td><td><strong>11</strong></td><td><strong>60</strong></td><td><strong>201</strong></td><td>7,000</td></tr>
+<tr><td>union, per-entity arms, equal cost</td><td>2</td><td>27</td><td>106</td><td>7,000</td></tr>
+<tr><td>union, all arms, equal cost</td><td>2</td><td>21</td><td>96</td><td>7,000</td></tr>
+<tr><td>union, per-entity arms, equal depth</td><td>11</td><td>74</td><td>278</td><td>25,930 (×3.7)</td></tr>
+<tr><td>union, all arms, equal depth</td><td>11</td><td>74</td><td>278</td><td>32,134 (×4.5)</td></tr>
+</tbody></table></div>
+<p>At equal cost the union is strictly dominated at every budget, with non-overlapping intervals at
+the widest: recall 17.5% (14.5–20.9) against 36.6% (32.7–40.7). No exchange rate rescues a
+dominated option. At equal depth it finds what no single arm finds, 278 against 201, for 3.7 times
+the alerts.</p>
+<p>The two p-value rules fail for different reasons. <strong>Fisher&#39;s sum averages an informative test with
+uninformative ones</strong>: labelled events sit at the 0.07th percentile of <code>novelty</code>&#39;s own distribution
+and between the 18th and 36th of every other arm&#39;s, so summing −2 ln P over six tests dilutes one
+signal with five non-signals — Fisher&#39;s method is powerful against diffuse alternatives and the
+minimum against sparse ones, and this alternative is sparse. <strong>The corrected minimum compares
+p-values across tests sharing no scale</strong>: <code>novelty</code> supplies 5,979 of the 7,000 retained alerts and
+<code>volume</code> never supplies the minimum at all. Removing the scale mismatch made the <code>marginal</code>&#39;s
+signal reachable and the equal-cost result got <em>worse</em>, so it was not the binding defect.</p>
+<p>Dividing by demonstrated quality fails too, and the failure is bounded. A per-alert likelihood
+ratio fitted per arm on burn-in (Appendix D) loses at every budget on both corpora:</p>
 <div class="tablewrap"><table>
 <thead><tr><th>Rule</th><th><code>r11</code> 100/day</th><th><code>r11</code> 1000/day</th><th><code>inj</code> 100/day</th><th><code>inj</code> 1000/day</th></tr></thead>
 <tbody>
@@ -934,250 +713,197 @@ labelled burn-in events, are fitted uninformative and cost nothing. It is not en
 <tr><td>weighted, oracle weights</td><td>61</td><td>174</td><td>61</td><td>309</td></tr>
 <tr><td>best two-arm split, oracle</td><td>60</td><td><strong>201</strong></td><td><strong>77</strong></td><td><strong>395</strong></td></tr>
 </tbody></table></div>
-<p>The two oracle rows read the labels they are evaluated against and bound what a fitted rule
-could reach. The burn-in rule loses at every budget on both corpora, which alone would leave the
-diagnosis open — 49 labelled events is a thin sample for ranking six detectors, and a rule may
-be sound while its estimator is starved. Refitting on the evaluation labels settles it: those
-weights separate the arms properly, 0.19, 0.22 and 0.23 for the per-entity arms against 0.71 for
-timing and 1.0 for volume, and the rule still loses. <strong>The construction fails, not the fit.</strong></p>
-<p>An exhaustive search over two-arm splits, again oracular, shows why: on the real campaign the
-optimum is the corner at both budgets, and diverting 5% of the budget costs 13 detections at 1000
-a day, so the derivative is negative <em>at</em> the corner. The mechanism is that <strong>the arms are
-substitutes rather than complements</strong> — 74.6% of novelty rate&#39;s detections are also found by
-novelty and 78.7% of pairing&#39;s are, so splitting halves each arm&#39;s depth and what survives
-largely coincides.</p>
-<p>Where the arms are genuine complements the same search finds headroom, which is the control this
-argument needs. On the planted corpus the marginal&#39;s 76 detections at 100 alerts a day overlap
-the per-entity arms&#39; by <strong>zero</strong> — the two scopes catch disjoint events there — and the best
-split gives the marginal 75 alerts and novelty 25, for 77 against 76; at 1000 a day, the marginal
-150 and novelty rate 850, for 395 against 384. Both optima sit on a plateau, both gains are
-inside sampling error, and both are on planted rather than real attacks. <strong>Overlap is what
-decides whether dividing a budget can pay</strong>, and on this corpus no division beats the best
-detector alone.</p>
-<h3 id="56-truncating-where-the-objective-peaks">5.6 Truncating where the objective peaks<a class="anchor" href="#56-truncating-where-the-objective-peaks" aria-label="link to this section">#</a></h3>
-<p>At v/c = 10 as stated in §4, on the corrected-minimum arm:</p>
-<div class="tablewrap"><table>
-<thead><tr><th>Budget</th><th>Permitted</th><th>TP</th><th>Optimal</th><th>TP</th><th>Precision</th><th>Suppressed</th><th>TP forgone</th></tr></thead>
-<tbody>
-<tr><td>10/day</td><td>70</td><td>4</td><td><strong>30</strong></td><td>4</td><td>5.7% → <strong>13.3%</strong></td><td>40 (57%)</td><td><strong>0</strong></td></tr>
-<tr><td>100/day</td><td>700</td><td>47</td><td><strong>221</strong></td><td>47</td><td>6.7% → <strong>21.3%</strong></td><td>479 (68%)</td><td><strong>0</strong></td></tr>
-<tr><td>1000/day</td><td>7,000</td><td>162</td><td><strong>315</strong></td><td>74</td><td>2.3% → <strong>23.5%</strong></td><td>6,685 (95%)</td><td>88</td></tr>
-</tbody></table></div>
-<p>At the two tighter budgets the truncation is free. At 1000 it becomes a decision: the objective
-discards 6,685 alerts and 88 true positives with them, because at this rate those 88 do not pay
-for 6,685 wasted investigations. For the composite the optimum is to emit nothing at any budget,
-including the one at which it finds 113 true positives. An objective declining to deploy a
-detector is a usable answer. This is an oracle bound — the optimum is located using the labels —
-so it measures the headroom a cutoff has rather than being a deployable rule.</p>
-<p>Reporting at a nominal false discovery rate is not available on this corpus. Benjamini–Hochberg
-[8] per day on the composite at q = 0.05 yields 5,352 discoveries of which 113 are labelled, a
-realised FDR of 0.979 (0.975–0.982) with five of seven days saturated; Benjamini–Yekutieli [9]
-gives 0.978 at q = 0.001. The nominal level has no purchase because the p-values are not
-calibrated, which is a property of the composite rather than of the procedures.</p>
-<h3 id="57-population-scope-baselines">5.7 Population-scope baselines<a class="anchor" href="#57-population-scope-baselines" aria-label="link to this section">#</a></h3>
+<p>Refitting the weights on the evaluation labels — an oracle — separates the arms properly, 0.19,
+0.22 and 0.23 for the per-entity arms against 0.71 for <code>timing</code> and 1.0 for <code>volume</code>, and the rule
+still loses. <strong>The construction fails, not the fit.</strong> An exhaustive search over two-arm splits,
+again oracular, finds the optimum on the real campaign at the corner at both budgets, and diverting
+5% costs 13 detections at 1000 a day, so the derivative is negative <em>at</em> the corner.</p>
+<p>The mechanism is that <strong>the arms are substitutes rather than complements</strong> — 74.6% of
+<code>noveltyrate</code>&#39;s detections are also found by <code>novelty</code> and 78.7% of <code>pairing</code>&#39;s are, so splitting
+halves each arm&#39;s depth and what survives largely coincides. Where the arms genuinely are
+complements the same search finds headroom, which is the control this argument needs: the
+<code>marginal</code>&#39;s 76 detections at 100 alerts a day overlap the per-entity arms&#39; by <strong>zero</strong>, and the
+best split gives it 75 alerts and <code>novelty</code> 25, for 77 against 76; at 1000, 150 and 850 for 395
+against 384. Both optima sit on a plateau, both gains are inside sampling error, and both are on
+planted rather than real attacks. <strong>Overlap decides whether dividing a budget can pay.</strong></p>
+<h3 id="25-population-scope-baselines">2.5 Population-scope baselines<a class="anchor" href="#25-population-scope-baselines" aria-label="link to this section">#</a></h3>
 <p>Eight reference implementations spanning four inductive biases were run on the same events with
 the same labels and budgets: isolation forest [11], extended isolation forest [12], half-space
 trees [13], local outlier factor [14], one-class SVM [15] and PCA reconstruction error, from
-scikit-learn [16], plus an uncalibrated per-entity EWMA z-score. The one-class SVM is a Nyström
-kernel map with a stochastic-gradient objective rather than the exact kernel machine, which is
-O(n²) in the fit set at this row count; the deviation is recorded as one.</p>
-<p>On the matched comparison all six population models detect <strong>0 at every budget</strong>, which §5.1&#39;s
-census explains: not one labelled event of the real campaign holds a population-rare value. On
-the planted corpus the exception is the interesting one — one-class SVM detects 33 of 120 planted
-takeovers and <strong>local outlier factor 12 of 288 low-and-slow events, the one mechanism no arm of
-this framework reaches at any budget</strong>. A sustained small departure is what volume&#39;s
-over-dispersion tolerates and what a density estimate has no such tolerance for: a capability this
-framework does not have, and why the two scopes are complementary rather than ordered.</p>
-<p>Both figures come from an easier problem in one way that dominates: the models read a 1-in-100
-sample of 45,071 rows rather than 4.49 million events, raising the labelled share from 0.031% to
-3.1%. Given a hundredfold easier problem they reached 33 and 12.</p>
-<h3 id="58-allocation-under-an-adversarial-mix">5.8 Allocation under an adversarial mix<a class="anchor" href="#58-allocation-under-an-adversarial-mix" aria-label="link to this section">#</a></h3>
-<p>§5.5 found the optimum at the corner. Read §5.3 as a payoff matrix — rows detectors, columns the
-mechanism an adversary chooses, entries P(detected | mechanism) — and that result is a theorem
-rather than a measurement. Under a known mix <em>p</em> the expected detection of a randomised
-allocation <em>w</em> is <em>w</em>ᵀ(A<em>p</em>), which is *<em>linear in </em>w***; a linear form on a simplex attains its
-maximum at a vertex. So no prior-weighted mixture, including one fitted to published incident
-statistics, can beat the best single detector. Checked over 20,000 random priors, mixtures
-strictly beating the best single arm: none. The equilibria below are the minimax solutions [18],
-computed by Dantzig&#39;s reduction to a linear programme [19]; <code>robust-inj-d7-14-002</code> for the
-framework&#39;s own arms and <code>robust-inj-lof-d7-14-001</code> for the variant admitting a baseline.</p>
-<p><strong>The game&#39;s value is exactly zero.</strong> Every arm scores 0 on low-and-slow, so the saddle point
-is (any arm, low-and-slow) and a rational adversary wins with certainty. No reweighting of rows
-changes a column of zeros: the defect is coverage, not allocation, and it is why §5.5&#39;s negative
-result cannot be repaired by a better allocation rule. Maximin is therefore degenerate here,
-returning 0 for every allocation, and it is not the objective to use.</p>
-<p>What is well posed is to normalise each mechanism by the best rate any arm reaches against it
-and maximise the worst-case <em>fraction retained</em>, dropping the mechanism no arm reaches since
-every allocation ties at zero there. On the framework&#39;s six arms, with expected rate under a
-prior weighted towards credential attacks and takeover:</p>
-<div class="tablewrap"><table>
-<thead><tr><th>Objective</th><th>Guarantee</th><th>Expected rate</th><th>Allocation</th></tr></thead>
-<tbody>
-<tr><td>best single arm</td><td><strong>0</strong></td><td><strong>0.372</strong></td><td>any one arm — each is blind to some mechanism</td></tr>
-<tr><td>competitive ratio</td><td><strong>0.421 of achievable</strong></td><td>0.217</td><td><code>noveltyrate</code> 0.42, <code>timing</code> 0.42, <code>marginal</code> 0.16</td></tr>
-</tbody></table></div>
-<p>The optimum <strong>equalises</strong>, which is what makes a single number mean something:</p>
-<div class="tablewrap"><table>
-<thead><tr><th>spray</th><th>lateral</th><th>off-hrs</th><th>priv-esc</th><th>takeover</th><th>real</th></tr></thead>
-<tbody>
-<tr><td>0.421</td><td>0.421</td><td>0.421</td><td>0.421</td><td>0.421</td><td>0.426</td></tr>
-</tbody></table></div>
-<p>Five of six sit exactly at the guarantee; only the real campaign is not binding, and
-low-and-slow is absent because it is excluded rather than covered. <strong>No rule in §5.4 or §5.5
-guarantees anything at all</strong> — each retains 0 against its worst mechanism — and this is the only
-allocation at this budget that does. It costs <strong>42% of expected detection</strong>.</p>
-<p>Admitting a low-and-slow-capable arm shows what covering the excluded column is worth. With
-<code>lof</code> from §5.7 in the strategy set every mechanism is reachable, and the guarantee over all
-seven falls to <strong>0.296</strong> at a price of <strong>59%</strong> of expected detection: covering the hole is
-expensive, and the two figures bracket the choice rather than settling it. <code>lof</code>&#39;s row comes
-from §5.7&#39;s hundredfold easier sampled problem, so it is an existence proof that the mechanism
-is reachable at all rather than a matched comparison, which is why the framework&#39;s own arms
-carry the primary result.</p>
-<p><strong>Randomising is not dividing, and only dividing had been tested.</strong> §5.4 and §5.5 measure unions
-and splits, which give every arm a fraction of its depth. A mixed strategy runs one arm at <em>full</em>
-depth chosen by lottery, and is exactly evaluable from the per-arm detections already recorded.
-Total labelled events found on <code>inj</code> at 1000 alerts a day, all at 7,000 alerts except where noted:</p>
-<div class="tablewrap"><table>
-<thead><tr><th>Rule</th><th>Found</th><th>Worst-case retained</th></tr></thead>
-<tbody>
-<tr><td>best single arm (<code>noveltyrate</code>)</td><td><strong>384</strong></td><td>0</td></tr>
-<tr><td>randomised, even over the two best arms</td><td>344</td><td>0</td></tr>
-<tr><td>corrected minimum</td><td>234</td><td>0</td></tr>
-<tr><td>composite</td><td>227</td><td>0</td></tr>
-<tr><td>union, all arms, equal cost</td><td>221</td><td>0</td></tr>
-<tr><td>randomised, competitive-ratio mixture</td><td>189</td><td><strong>0.421</strong></td></tr>
-<tr><td>union, all arms, equal depth <em>(31,505 alerts, ×4.5)</em></td><td>535</td><td><strong>1.000</strong></td></tr>
-<tr><td>per-entity routing, oracle floor</td><td>448</td><td>—</td></tr>
-<tr><td>per-entity routing, oracle ceiling</td><td>535</td><td>—</td></tr>
-</tbody></table></div>
-<p>Randomising at equal cost beats every combination rule tested, 344 against 234, and still loses
-to the best single arm, which is what linearity requires. The equal-depth union is the other way
-to buy a guarantee: it reaches every arm&#39;s best on every reachable mechanism, retaining 1.000,
-and it pays 4.5 times the alerts for that. Coverage is purchasable either with budget or with
-expected detection, and not by reweighting. The routing rows are the interesting ones. <strong>Routing is not a global allocation</strong>: it chooses per entity, so it can send an
-established account to a per-entity null and a cold one to the population null and collect both,
-and it is therefore the only construction here that can exceed the best single arm at equal cost.
-The floor routes each mechanism to the arm reaching it most, which any per-entity policy matches
-by construction; the ceiling is the union of all arms at full depth, since no routing reaches an
-event no arm reaches. Both are oracles and neither charges the alert cost of attaining it.</p>
-<p><strong>The adversary&#39;s cost changes the answer.</strong> A value-zero equilibrium assumes an uncovered
-mechanism is free to mount, and low-and-slow is slow by construction. Charging λ times a stated
-per-mechanism cost, with low-and-slow at twelve times credential spray, on the strategy set with
-<code>lof</code> admitted so that the mechanism being priced is one some arm can reach:</p>
-<div class="tablewrap"><table>
-<thead><tr><th>λ</th><th>Value</th><th>Allocation</th><th>Adversary&#39;s reply</th></tr></thead>
-<tbody>
-<tr><td>0</td><td>0.019</td><td><code>lof</code> 0.47, <code>timing</code> 0.42, <code>noveltyrate</code> 0.12</td><td>low+slow 0.47, off-hrs 0.42, priv-esc 0.12</td></tr>
-<tr><td>0.005</td><td>0.043</td><td><code>timing</code> 0.80, <code>noveltyrate</code> 0.20</td><td>off-hrs 0.78, priv-esc 0.22</td></tr>
-<tr><td>0.02</td><td>0.061</td><td><code>timing</code> 0.87, <code>noveltyrate</code> 0.13</td><td>off-hrs 0.78, priv-esc 0.22</td></tr>
-<tr><td>0.05</td><td>0.092</td><td><code>timing</code> 0.89, <code>noveltyrate</code> 0.11</td><td>off-hrs 0.89, spray 0.11</td></tr>
-</tbody></table></div>
-<p>Any appreciable cost removes low-and-slow from the reply and concentrates the allocation on
-timing. The costs and λ are stated, never fitted: a cost fitted to the labels the allocation is
-scored against would make the equilibrium a restatement of the corpus. The solution concept is
-properly Stackelberg rather than simultaneous, the defender committing first; for zero-sum games
-the two coincide, and once mechanism costs differ they do not.</p>
-<p>Finally, <strong>where the next unit of detector work is worth spending.</strong> Every cell whose improvement
-by 0.10 raises the guarantee lies in low-and-slow, off-hours or privilege escalation — the three
-mechanisms in the adversary&#39;s reply — and not one lies in the four columns §5.2 and §5.3 compare
-arms on. The largest are <code>timing</code> on low-and-slow (+0.017), <code>lof</code> on off-hours (+0.014) and
-<code>noveltyrate</code> on low-and-slow (+0.012). <strong>Marginal improvement to novelty against novelty rate,
-which is what §5.2&#39;s headline turns on, has a shadow price of exactly zero</strong>, and the two arms
-carrying every positive shadow price are the two §6.2 reports as unmeasured.</p>
+scikit-learn [16], plus an uncalibrated per-entity EWMA z-score.</p>
+<p>On the matched comparison all six population models detect <strong>0 at every budget</strong>, which Appendix
+B&#39;s census explains. On the planted corpus the exception is the interesting one — one-class SVM
+reaches 33 of 120 takeovers and <strong>local outlier factor 12 of 288 low-and-slow events, the one
+mechanism no arm of this framework reaches at any budget</strong>. A sustained small departure is what
+<code>volume</code>&#39;s over-dispersion tolerates and what a density estimate does not: a capability this
+framework lacks, and why the two scopes are complementary rather than ordered. Both figures come
+from an easier problem in the way that dominates — a 1-in-100 sample of 45,071 rows rather than
+4.49 million events, raising the labelled share from 0.031% to 3.1%.</p>
 <hr>
-<h2 id="6-discussion">6. Discussion<a class="anchor" href="#6-discussion" aria-label="link to this section">#</a></h2>
-<h3 id="61-what-the-evidence-supports">6.1 What the evidence supports<a class="anchor" href="#61-what-the-evidence-supports" aria-label="link to this section">#</a></h3>
+<h2 id="3-discussion">3. Discussion<a class="anchor" href="#3-discussion" aria-label="link to this section">#</a></h2>
+<h3 id="31-what-the-evidence-supports">3.1 What the evidence supports<a class="anchor" href="#31-what-the-evidence-supports" aria-label="link to this section">#</a></h3>
 <p>Conditioning each null on the entity is supported on this campaign, and specifically: the
-properties per-entity tests express are enriched 139- and 184-fold among labelled events, and
-the property a population-rarity test expresses contains none of them. That direction is what the
+properties per-entity tests express are enriched 139- and 184-fold among labelled events, and the
+property a population-rarity test expresses contains none of them. That direction is what the
 evidence establishes, and it is narrower than &#34;per-entity beats population conditioning&#34; — on
 planted attacks the population test detects a mechanism no entity-scope test here reaches, and a
 population density estimate reaches a second.</p>
 <p>Combining evidence is not supported: five rules, none exceeding its best component at equal cost
-at any budget, with non-overlapping intervals at the widest. The union at equal depth does exceed
-it at 3.7 times the alerts, and whether that trade is worth taking is what §4&#39;s objective decides.</p>
-<p>Allocation is not supported either, and §5.8 states why in a form independent of this corpus: the
-objective is linear in the allocation, so its optimum is a single detector. What §5.8 adds is that
-the corollary usually drawn — deploy the best arm — is also wrong, because the best arm guarantees
-nothing against an adversary who chooses the mechanism. Both point at the same place: <strong>coverage,
-not allocation</strong>.</p>
-<h3 id="62-threats-to-validity">6.2 Threats to validity<a class="anchor" href="#62-threats-to-validity" aria-label="link to this section">#</a></h3>
-<p><strong>The novelty p-value is confounded with history length</strong>, and this is the single largest
-methodological limitation here. For a first-ever value the estimate reduces to
-a/(n + a(K+1)) ≈ 1/n. Across 32 planted victims spanning 263 to 20,666 events of history, the
-product of the p-value and the history length has median 1.15 and lies in [0.50, 7.22]: among
-novel events the ranking is close to sorting accounts by event count. Clearing the detector&#39;s
-realised cut needs of the order of 10⁵ events of history and the busiest planted victim had
-20,666, so <strong>no attack on an ordinary account could win an alert slot regardless of what it
-did</strong>. It is not straightforwardly fixable. The one principled correction tried — reserving
-unseen mass by Good–Turing rather than by a fixed concentration — <em>lost</em> detections, because
-large histories carry many singletons and the correction therefore judges a first-ever value
-unremarkable for exactly the accounts the working estimator ranks highest. The working
-configuration works for a reason the model does not state, and neutralising the covariate risks
-destroying the correlation the result rests on.</p>
+at any budget. Allocation is not supported either, and §2.3 states why independently of this
+corpus: the objective is linear in the allocation, so its optimum is a single arm. What §2.3 adds
+is that the corollary usually drawn — deploy the best arm — is also wrong. Both point at the same
+place: <strong>coverage, not allocation</strong>.</p>
+<h3 id="32-principal-limitations">3.2 Principal limitations<a class="anchor" href="#32-principal-limitations" aria-label="link to this section">#</a></h3>
+<p>Appendix F carries the full set with the measurement establishing each. Two dominate.</p>
+<p><strong>The <code>novelty</code> p-value is confounded with history length.</strong> For a first-ever value the estimate
+reduces to a/(n + a(K+1)) ≈ 1/n. Across 32 planted victims spanning 263 to 20,666 events of
+history, the product of the p-value and the history length has median 1.15 and lies in
+[0.50, 7.22]: among novel events the ranking is close to sorting accounts by event count. Clearing
+the arm&#39;s realised cut needs of the order of 10⁵ events of history and the busiest planted victim
+had 20,666, so <strong>no attack on an ordinary account could win an alert slot regardless of what it
+did</strong>. It is not straightforwardly fixable — reserving unseen mass by Good–Turing rather than by a
+fixed concentration <em>lost</em> detections, because large histories carry many singletons and the
+correction therefore judges a first-ever value unremarkable for exactly the accounts the working
+estimator ranks highest. The working configuration works for a reason the model does not state.</p>
 <p><strong>A sustained intrusion enlarges its own reference set.</strong> State is committed after scoring, so an
 event is judged against a history that excludes it — but the next event of the same campaign is
 not. Over a campaign persisting for days on one account the reference distribution drifts toward
-the attacker&#39;s behaviour. This is an untested alternative explanation for two of the paper&#39;s null
-results, the low-and-slow zero in particular, and cannot be separated from the stated mechanism
-without a run that freezes per-entity state across the campaign window.</p>
-<p><strong>Timing and volume are not evidence about per-entity conditioning in either direction</strong>, and
-§5.3&#39;s zeros for them should be read as unmeasured rather than as measured absences. Timing&#39;s
-tail mass was floored by its own 512-point grid at 1/(2 × 512) = 9.77 × 10⁻⁴, against a realised
-cut of 1.00 × 10⁻³ at 10 and 100 alerts a day: the detector could not alert whatever it observed.
-Volume&#39;s tail is misspecified in the opposite direction — 27,464 background events on <code>r11</code> fall
-below 10⁻¹² where a calibrated null predicts 4.2 × 10⁻⁶, and no labelled event goes below
-1.96 × 10⁻⁷, so its queue fills with background at every budget before a labelled event can
-compete. A per-entity abstention gate accounts for none of it: gating at five completed periods
-withholds 132 labelled events and removes only 10.6% of the pile, which is made of entities with
-established history, so the cause is the predictive being too narrow for their habitual variation
-rather than cold start. Volume&#39;s response to low-and-slow is in addition <strong>inverted</strong>, median p
-0.72 against 0.29 on the other mechanisms. §6.3 reports what repairs each.</p>
-<p>The remaining threats, each with the measurement establishing it and the direction it biases.</p>
-<div class="tablewrap"><table>
-<thead><tr><th>Threat</th><th>Measurement</th><th>Direction</th></tr></thead>
-<tbody>
-<tr><td>effective sample far below nominal</td><td>549 events on 104 accounts; 93.6% of label rows share one computer; 8 victims per planted mechanism</td><td><strong>every interval is optimistic</strong></td></tr>
-<tr><td>quantities chosen on the outcome</td><td>the best arm, the union&#39;s break-even rates, §5.5&#39;s split search, §5.6&#39;s optimum; 7 detectors × 5 rules × 3 budgets × 2 corpora, maxima reported</td><td>favours the framework; stated as oracle bounds, outer loop unadjusted</td></tr>
-<tr><td>not measured at full population</td><td>the one full run scored 42,218,530 events with 4 of 7 detectors; its composite detects nothing</td><td>a budget is far easier on a subset</td></tr>
-<tr><td>Brown&#39;s correction unavailable</td><td>Var[X²] = −27.5, which no joint distribution produces</td><td><strong>every composite figure is plain Fisher</strong></td></tr>
-<tr><td>entity-day aggregation flatters recall</td><td>65 of 108 entity-days at 100/day, but the count-normalised form takes 65 to 14</td><td>most of the gain is the confound</td></tr>
-<tr><td>§5.8 inherits its matrix&#39;s limits</td><td>event-level rates; <code>lof</code> from §5.7&#39;s 100× easier sample</td><td><code>lof</code> is an existence proof, not a matched row</td></tr>
-</tbody></table></div>
-<h3 id="63-what-is-repaired-and-what-a-deployable-version-needs">6.3 What is repaired, and what a deployable version needs<a class="anchor" href="#63-what-is-repaired-and-what-a-deployable-version-needs" aria-label="link to this section">#</a></h3>
-<p>Two statistics named above have replacements, both measured and neither yet reflected in §5.3.</p>
-<p>Timing&#39;s floored statistic is replaced by the event&#39;s ln U standardised by the mean and spread of
-the ln U this entity&#39;s own events have received, which has no floor. It costs two numbers of
-state per entity and abstains where the history is too short or, for a perfectly regular account,
-carries no spread — 4,847 events of 4,190,603. Detections rise from 0, 0 and 6 to 1, 2 and 7 on
-the real campaign and from 0, 1 and 12 to 2, 9 and 21 on the planted corpus, and the off-hours
+the attacker&#39;s behaviour. This is an untested alternative explanation for two null results, the
+low-and-slow zero in particular, and cannot be separated from the stated mechanism without a run
+that freezes per-entity state across the campaign window.</p>
+<h3 id="33-what-is-repaired-and-what-a-deployable-version-needs">3.3 What is repaired, and what a deployable version needs<a class="anchor" href="#33-what-is-repaired-and-what-a-deployable-version-needs" aria-label="link to this section">#</a></h3>
+<p>Two arms of §2.2 are <strong>not evidence about per-entity conditioning in either direction</strong>, and their
+zeros should be read as unmeasured. <code>timing</code>&#39;s tail mass was floored by its own 512-point grid at
+9.77 × 10⁻⁴ against a realised cut of 1.00 × 10⁻³ at 10 and 100 alerts a day: it could not alert
+whatever it observed. Standardising the event&#39;s ln U by the mean and spread of the ln U this
+entity&#39;s own events received removes the floor and takes detections from 0, 0 and 6 to 1, 2 and 7
+on the real campaign and from 0, 1 and 12 to 2, 9 and 21 on the planted corpus, and the off-hours
 response improves rather than being traded away: median p falls from 3.20 × 10⁻² to
 8.23 × 10⁻³, widening the separation from the nearest other mechanism from 5.7 to 18.6.</p>
-<p>Volume&#39;s inverted response is addressed by a statistic it does not contain rather than by a
-refit. An over-dispersed marginal test of one period cannot see a drift that is small in every
-period, however well calibrated, because the evidence is in the sequence. Page&#39;s one-sided
-cumulative sum over per-period counts [17] accumulates it instead: with baseline λ₀ and a target shift
-ρ the reference is k = λ₀(ρ − 1)/ln ρ and S_t = max(0, S_{t−1} + k_t − k), so a sustained shift
-grows S linearly in the number of periods while the spread of its null grows as the square root.
-The p-value is the upper tail of S standardised against the entity&#39;s own realised sums, as for
-timing above. On synthetic streams fitted on identical stationary history, <strong>the cumulative sum
-separates a sustained +30% shift from matched stationary variation by 57×, and equation (11)&#39;s
-predictive by 1.2×</strong>. <code>domain/drift</code> implements it; neither it nor the routing policy of §5.8 is
-scored on the corpus here, and correcting either changes every figure it appears in.</p>
+<p><code>volume</code> is misspecified in the opposite direction — 27,464 background events on <code>r11</code> fall below
+10⁻¹² where a calibrated null predicts 4.2 × 10⁻⁶ and no labelled event goes below
+1.96 × 10⁻⁷, so its queue fills with background before a labelled event can compete, and an
+abstention gate accounts for none of it. Its response to low-and-slow is in addition <strong>inverted</strong>,
+median p 0.72 against 0.29 elsewhere.</p>
+<p>That needs a statistic it does not contain rather than a refit: an over-dispersed marginal test of
+one period cannot see a drift small in every period, because the evidence is in the sequence.
+Page&#39;s one-sided cumulative sum [17] accumulates it — with baseline λ₀ and target shift ρ the
+reference is k = λ₀(ρ − 1)/ln ρ and S_t = max(0, S_{t−1} + k_t − k), so a sustained shift grows S
+linearly in the number of periods while the spread of its null grows as the square root — and the
+p-value is the upper tail of S standardised against the entity&#39;s own sums. On synthetic streams
+fitted on identical stationary history, <strong>it separates a sustained +30% shift from matched
+stationary variation by 237× where the volume predictive separates it by 1.2×</strong>.</p>
+<p>Two details earn that, and both are cases of a null that must not be allowed to follow the thing
+it measures. The running period is charged the whole reference value while contributing only the
+events seen so far, so the scored statistic is commensurable with a null built from closed periods.
+And the null over S is not discounted while the baseline rate is — a discounted reference
+distribution tracks the change it exists to detect, §3.2&#39;s second limitation in acute form, and
+undiscounting it is what takes the separation from 2× to 237×.</p>
+<blockquote>
+<p><strong>Pending measurement.</strong> The arm is wired into the replay and its corpus run
+(<code>lanl-inj-b1000-drift-d7-14-006</code>) is in flight as this draft is rendered, so §2.2&#39;s <code>drift</code> row
+and §2.3&#39;s third strategy set are not yet filled. One limitation is already known: a seven-day
+burn-in leaves an entity with seven closed periods at the boundary and the arm&#39;s null needs
+eight, so its first scored day is a column of abstentions. Lowering the gate to seven would
+recover that day and would be fitting a parameter to the length of one corpus&#39;s burn-in. The
+routing policy of §2.3 is implemented but not scored: its harness needs a per-entity burn-in
+pass and a choice about how alerts are charged, and choosing that against the evaluation labels
+is the defect Appendix F lists.</p>
+</blockquote>
 <p>One gap separates what is measured from what can be run: <strong>a fixed budget is a batch
-construction.</strong> Selecting the top <em>B</em> of a day requires the whole day, and an operator at 14:00
-does not know what arrives by 23:59; the same objection applies to a per-day Benjamini–Hochberg
-step-up. §4&#39;s objective does not have this defect, and §5.5&#39;s score is built to the same
-constraint — every quantity it reads is a property of the single alert or of state frozen before
-the window. What remains missing is a calibrated per-alert probability: §5.6&#39;s truncation uses
-labels to place alerts on one scale and is a bound rather than a rule.</p>
-<p>One direction is closed rather than open. Learning the allocation online is the adversarial
-bandit setting [20], whose regret is √(2TK ln K) — 89 detection-units against 10,481 available over a
-year at K = 6, which looks survivable. The bound assumes the reward is observed each round. It is
-not: labels are the object of the search, feedback is bandit-only, and separating the top two
-arms of §5.2 at 80% power needs about 41,000 labelled events per arm against the 549 available.
-<strong>A learner cannot converge to an equilibrium it lacks the samples to see</strong>, so the allocation
-must be stated rather than learned, which is what §5.8 does.</p>
+construction.</strong> Selecting the top <em>B</em> of a day requires the whole day, and an operator at 14:00 does
+not know what arrives by 23:59; the same objection applies to a per-day Benjamini–Hochberg step-up.
+§4.4&#39;s objective does not have this defect and Appendix D&#39;s score is built to the same constraint.
+What remains missing is a calibrated per-alert probability.</p>
+<p>One direction is closed rather than open. Learning the allocation online is the adversarial bandit
+setting [20], whose regret √(2TK ln K) looks survivable — 89 detection-units against 10,481
+available over a year at K = 6. The bound assumes the reward is observed each round, and it is not:
+labels are the object of the search, feedback is bandit-only, and separating the top two arms of
+§2.1 at 80% power needs about 41,000 labelled events per arm against 549. <strong>A learner cannot
+converge to an equilibrium it lacks the samples to see</strong>, so the allocation must be stated rather
+than learned.</p>
+<hr>
+<h2 id="4-method">4. Method<a class="anchor" href="#4-method" aria-label="link to this section">#</a></h2>
+<h3 id="41-the-entity-conditioned-null">4.1 The entity-conditioned null<a class="anchor" href="#41-the-entity-conditioned-null" aria-label="link to this section">#</a></h3>
+<p>Write an event as field–value pairs with an entity <em>e</em> and a time <em>t</em>. For each field the framework
+maintains a per-entity summary of <em>e</em>&#39;s history, decayed exponentially in event time with a
+seven-day half-life, and asks H₀: *this observation is exchangeable with e&#39;s own decayed history
+for this field.* Nothing is specific to authentication — what makes a question available is the
+inferred kind of the field, not its name.</p>
+<div class="tablewrap"><table>
+<thead><tr><th>Arm</th><th>Predictive</th></tr></thead>
+<tbody>
+<tr><td><code>novelty</code></td><td>Dirichlet–multinomial over decayed counts; a first-ever value receives the reserved mass a/(n + a(K+1))</td></tr>
+<tr><td><code>noveltyrate</code></td><td>Beta-binomial over <em>e</em>&#39;s own rate of producing first-ever values, on an hourly window</td></tr>
+<tr><td><code>pairing</code></td><td><code>novelty</code>&#39;s estimator on a synthetic composite field, so the question stays per-entity</td></tr>
+<tr><td><code>timing</code></td><td>von Mises KDE on the 24-hour circle, as a truncated Fourier series; bandwidth 1.5 h</td></tr>
+<tr><td><code>volume</code></td><td>Gamma–Poisson over <em>e</em>&#39;s completed periods, deliberately over-dispersed</td></tr>
+<tr><td><code>drift</code></td><td>Page&#39;s one-sided cumulative sum over per-period counts, standardised against <em>e</em>&#39;s own sums</td></tr>
+<tr><td><code>marginal</code></td><td>the same Dirichlet form over decayed <em>population</em> counts</td></tr>
+</tbody></table></div>
+<p>Two properties are load-bearing. <code>novelty</code>&#39;s reserved mass is ≈ 1/n, so <strong>the p-value for a
+first-ever value is set by the length of the account&#39;s history rather than by how surprising the
+value is</strong> (§3.2); <code>noveltyrate</code> exists because of that weakness and asks a scale-free question
+instead. And <code>volume</code>&#39;s over-dispersion makes it tolerant of ordinary bursts and blind to
+sustained small increases, which §2.2 confirms and §3.3 addresses.</p>
+<p>An arm may score several fields; it takes the most extreme, with a Šidák correction where it
+combines fields internally.</p>
+<p>Ordering is the leakage control: every arm scores against pre-event state, the combination is
+computed, and only then are observations committed. A first-ever value is therefore still novel
+when scored. The rule cuts the other way too, which is §3.2&#39;s second limitation.</p>
+<h3 id="42-field-inference-and-abstention">4.2 Field inference and abstention<a class="anchor" href="#42-field-inference-and-abstention" aria-label="link to this section">#</a></h3>
+<p>R2 requires that no component be told a field&#39;s type. A registry observes values as they arrive and
+settles each field into one of five kinds — categorical, boolean, discrete, continuous, identifier
+— after which arms iterate the registry rather than a list of names.</p>
+<p>The identifier kind carries the weight. A field whose values are almost all distinct — a session
+GUID, a request id — is unbounded by construction: every value is first-ever, so a novelty test on
+it fires on every event and, being the most extreme thing in the queue, consumes the whole budget.
+Arms decline such fields. Without that, the framework&#39;s headline arm is a random-number generator
+with a large p-value.</p>
+<p>R3 makes abstention an outcome: it reduces the number of tests combined rather than contributing a
+p-value of one. At this base rate that matters, because a neutral value entered into a combination
+over six tests is not neutral but evidence of ordinariness, and in Fisher&#39;s sum five such values
+bury one informative test.</p>
+<h3 id="43-combination-and-calibration">4.3 Combination and calibration<a class="anchor" href="#43-combination-and-calibration" aria-label="link to this section">#</a></h3>
+<div class="tablewrap"><table>
+<thead><tr><th>Rule</th><th>Statistic</th><th>What it asks</th></tr></thead>
+<tbody>
+<tr><td>composite</td><td>Fisher&#39;s X² = −2 Σ ln P_j on χ²(2J), with Brown&#39;s correction [3, 4]</td><td>is the evidence <em>jointly</em> unusual?</td></tr>
+<tr><td>corrected minimum</td><td>P = 1 − (1 − min_j P_j)^J, Šidák [5]</td><td>did <em>any</em> arm find <em>e</em> out of character?</td></tr>
+<tr><td>union, equal cost</td><td>best rank in any arm, truncated to the shared budget</td><td>the same, with the p-value scale removed</td></tr>
+<tr><td>union, equal depth</td><td>best rank in any arm, every arm keeping its own top <em>B</em></td><td>the same, paying for the depth</td></tr>
+</tbody></table></div>
+<p>Brown&#39;s correction requires a positive variance estimate for X² and does not get one here: with
+six arms the burn-in covariance implies Var[X²] = −27.5, which no joint distribution can produce.
+The correction is then not applied and the combination degrades to plain Fisher, so <strong>every
+composite figure in this paper is Fisher&#39;s statistic without Brown&#39;s correction</strong>; Appendix F reads
+the negative estimate.</p>
+<p>A fused rank is not calibrated against any of these nulls and carries no tail-probability
+interpretation; it reports a selection, and each alert still carries the p-value of the arm that
+raised it. Rank collisions are structural — every arm has a rank 1 — and break on event identity
+rather than on log P.</p>
+<p><strong>Conformal calibration</strong> [6] is applied optionally and orthogonally, replacing each arm&#39;s model
+tail with that value&#39;s rank in its own burn-in distribution, which is super-uniform whether or not
+the model is correct. Being monotone it cannot change any arm&#39;s own ordering, so per-arm figures
+are identical with and without it; what it changes is which arm supplies the minimum. It floors
+every p-value at 1/(n+1).</p>
+<h3 id="44-the-decision-problem">4.4 The decision problem<a class="anchor" href="#44-the-decision-problem" aria-label="link to this section">#</a></h3>
+<p>R6 states that alert volume follows from a stated exchange rate rather than a quota, because quotas
+are pathological: a system tuned to emit 100 alerts a day emits 100 on a quiet day too, all benign.
+If nothing happened, the right number of alerts is zero. We score an alerting configuration by
+U = v·TP − c·FP, with v what catching one incident is worth and c what one wasted investigation
+costs. Only v/c is identifiable from counts, so an operator supplies one number, and a queue is
+worth reading exactly when TP/FP &gt; c/v.</p>
+<p>Maximising a ratio does not work, and the failure is structural. TP/FP is precision under the
+monotone transform P/(1−P), and precision&#39;s maximiser is the smallest queue containing a true
+positive; forbidding TP = 0 moves that corner from &#34;alert on nothing&#34; to &#34;alert on one thing&#34;.
+<strong>Any objective that is a function of precision alone is scale-free, and a scale-free quantity
+cannot say how many rows to show.</strong> The same disposes of accuracy, balanced accuracy, F₁ and
+Youden&#39;s J — each an unstated exchange rate wearing a metric&#39;s clothes; alerting on nothing scores
+99.9987% accuracy.</p>
+<p>A budget is therefore a <strong>ceiling rather than a quota</strong>: within it the queue is truncated where
+marginal alerts stop paying. Appendix E measures what that costs and buys at v/c = 10, stated in
+advance.</p>
 <hr>
 <h2 id="references">References<a class="anchor" href="#references" aria-label="link to this section">#</a></h2>
 <ol>
@@ -1203,13 +929,170 @@ must be stated rather than learned, which is what §5.8 does.</p>
 <li>Auer, P., Cesa-Bianchi, N., Freund, Y. and Schapire, R. E. <em>The nonstochastic multiarmed bandit problem.</em> SIAM Journal on Computing 32(1), 2002.</li>
 </ol>
 <hr>
+<h2 id="appendix-a-data-and-evaluation-design">Appendix A. Data and evaluation design<a class="anchor" href="#appendix-a-data-and-evaluation-design" aria-label="link to this section">#</a></h2>
+<p>The Los Alamos comprehensive cyber-security events data set [2], released CC0: 1.05 billion
+authentication events over 58 days from 12,425 users and 17,684 computers, with a labelled red-team
+exercise embedded. A record carries nine fields; an uninterpretable value is written <code>?</code>, a
+distinct state from absence and treated as one throughout.</p>
+<p>The unit of analysis is a human account; machine accounts, <code>SYSTEM</code> and <code>ANONYMOUS LOGON</code> are
+excluded at no cost in labels, since all 104 accounts the red team touched are human. The label
+file carries 749 rows, 715 distinct, naming those 104, and is highly concentrated: 93.6% of rows
+share one source computer, and two of seven scored days carry 482 of the 700 post-boundary labels.
+It records what the red team did and is not an exhaustive annotation, so malicious activity it
+missed counts as a false positive and <strong>every precision figure in this paper is a lower bound</strong>.
+Failed authentications appear only for accounts that succeeded somewhere in the data set, so the
+failure population is conditioned on eventual success — a property of the archive rather than of a
+live stream, and one the arms score.</p>
+<p><strong>Windows.</strong> The first seven days are a burn-in window: events are scored, so state warms under
+exactly the code path scoring uses, but nothing is emitted or counted. Two quantities are fitted
+there and frozen at the boundary — a between-arm covariance and a conformal calibration (§4.3) —
+and neither is ever updated by an event it is later used to score. The window was fixed before any
+end-to-end measurement and costs the 49 labelled events inside it. Scoring runs over days 7–13.</p>
+<p><strong>Sampling.</strong> Three of four designs are entity samples, because a fixed alerts-per-day budget is a
+far harder target on 42.2 million events than on 4.2 million. Every labelled account is retained
+in every sample, which inflates the labelled share, so each base rate is stated.</p>
+<div class="tablewrap"><table>
+<thead><tr><th>Design</th><th>Selector</th><th>Scored events</th><th>Labelled</th><th>Base rate</th></tr></thead>
+<tbody>
+<tr><td>full</td><td>none</td><td>42,218,530</td><td>549</td><td>1.30 × 10⁻⁵</td></tr>
+<tr><td><code>r11</code></td><td>1 entity in 16, residue 11</td><td>4,190,603</td><td>549</td><td>1.31 × 10⁻⁴</td></tr>
+<tr><td><code>inj</code></td><td>1 entity in 16, residue 7, plus planted attacks</td><td>4,494,396</td><td>1,405</td><td>3.13 × 10⁻⁴</td></tr>
+<tr><td><code>holdout-r7</code></td><td>days 7–8 of the residue-7 corpus</td><td>1,427,225</td><td>262</td><td>1.84 × 10⁻⁴</td></tr>
+</tbody></table></div>
+<p>Because labelled accounts are exempt from sampling, the residue-7 and residue-11 corpora share
+their labelled events and differ only in background and window. A result reproduced across them is
+a check on sensitivity to background, not an independent replication.</p>
+<p><strong>Planted mechanisms.</strong> Six named kinds, eight victims each, entirely inside the scoring window.
+Victims are disjoint from every account the real labels name, so the account alone determines which
+ground truth an event belongs to.</p>
+<div class="tablewrap"><table>
+<thead><tr><th>Mechanism</th><th>Construction</th><th>Events</th><th>Premise isolated</th></tr></thead>
+<tbody>
+<tr><td>credential spray</td><td>many never-used destinations within ten minutes</td><td>320</td><td>categorical novelty and its rate</td></tr>
+<tr><td>lateral chain</td><td>connected hops, each sourced from the previous destination</td><td>40</td><td>novel <em>pairings</em> of real values</td></tr>
+<tr><td>off-hours</td><td>only familiar values, twelve hours from the account&#39;s window</td><td>64</td><td>the circular timing null alone</td></tr>
+<tr><td>privilege escalation</td><td>an authentication type absent from the account&#39;s history</td><td>24</td><td>novelty on a low-cardinality field</td></tr>
+<tr><td>low-and-slow</td><td>familiar values only, twelve extra events a day for three days</td><td>288</td><td>the volume null alone</td></tr>
+<tr><td>account takeover</td><td>destination, authentication type, logon type and hour all change</td><td>120</td><td>an upper bound: everything at once</td></tr>
+</tbody></table></div>
+<p>The decision that matters statistically is the choice of planted value: <strong>the most
+population-common value the victim has never used</strong>. Sampling the vocabulary uniformly instead
+plants population-rare values, and a population-rarity test then detects the plant for the wrong
+reason. Value choice is deterministic, so every victim of a kind receives the same planted values:
+the events of one kind are not independent draws and the effective sample size is nearer eight than
+the event count. Sensitivity against planted labels says whether a test responds to a mechanism,
+not whether it detects an intrusion, so the two ground truths are never summed.</p>
+<h2 id="appendix-b-the-structural-census">Appendix B. The structural census<a class="anchor" href="#appendix-b-the-structural-census" aria-label="link to this section">#</a></h2>
+<p>Before any arm, what property of a labelled event could a method exploit? We census five structural
+properties of an event relative to the history it was scored against, defined by facts about the
+event and the history and never by which arm produced the smallest p-value — a partition defined by
+our own arms would flatter the framework by construction. On <code>r11</code>, 4,190,603 scored events of
+which 549 are labelled:</p>
+<div class="tablewrap"><table>
+<thead><tr><th>Property</th><th>labelled</th><th>share</th><th>background</th><th>share</th><th>lift</th></tr></thead>
+<tbody>
+<tr><td>novel pairing for this entity</td><td>362</td><td>65.9%</td><td>19,841</td><td>0.473%</td><td><strong>139</strong></td></tr>
+<tr><td>novel value for this entity</td><td>215</td><td>39.2%</td><td>8,913</td><td>0.213%</td><td><strong>184</strong></td></tr>
+<tr><td>volume burst for this entity</td><td>199</td><td>36.2%</td><td>1,143,820</td><td>27.3%</td><td>1.3</td></tr>
+<tr><td>outside this entity&#39;s hours</td><td>181</td><td>33.0%</td><td>1,576,171</td><td>37.6%</td><td>0.9</td></tr>
+<tr><td>population-rare value</td><td>0</td><td>0.0%</td><td>4,835</td><td>0.115%</td><td><strong>0.0</strong></td></tr>
+</tbody></table></div>
+<p>The properties are not mutually exclusive and 92 labelled events exhibit none of them.</p>
+<p>Population rarity is not merely weaker, it is <strong>empty</strong>: not one labelled event holds a
+population-rare value while 4,835 background events do, so a population-rarity test here is a test
+of something the campaign does not exhibit. That is the strongest form this paper&#39;s central claim
+takes, and it is a statement about this campaign — §2.2 shows the property behaving differently on
+planted attacks. Volume bursts and out-of-hours activity are not enriched at all, which bounds what
+work on those two arms could recover; §3.3 gives the other half of each explanation.</p>
+<h2 id="appendix-c-requirements">Appendix C. Requirements<a class="anchor" href="#appendix-c-requirements" aria-label="link to this section">#</a></h2>
+<div class="tablewrap"><table>
+<thead><tr><th></th><th>Requirement</th></tr></thead>
+<tbody>
+<tr><td>R1</td><td>A verdict is a function of the event and of persisted state only, so scoring is reproducible from the record and independent of batching.</td></tr>
+<tr><td>R2</td><td>No component requires advance knowledge of a field&#39;s type, cardinality or value set. One field must be declared the entity, and one the timestamp; nothing else.</td></tr>
+<tr><td>R3</td><td>Abstention is an outcome. A component with no basis for an opinion says so, and does not contribute a neutral value.</td></tr>
+<tr><td>R4</td><td>Scoring is deterministic: no wall clock, no randomness, and a canonical total order before every floating-point reduction.</td></tr>
+<tr><td>R5</td><td>A verdict carries the evidence needed to reconstruct it.</td></tr>
+<tr><td>R6</td><td>Alert volume follows from a stated exchange rate between a missed intrusion and a wasted investigation, not from a quota.</td></tr>
+</tbody></table></div>
+<h2 id="appendix-d-the-likelihood-ratio-allocation-rule">Appendix D. The likelihood-ratio allocation rule<a class="anchor" href="#appendix-d-the-likelihood-ratio-allocation-rule" aria-label="link to this section">#</a></h2>
+<p>Two quantities are fitted per arm on burn-in and frozen: a null over that arm&#39;s own log p-value,
+and the single parameter <em>a</em> of a Beta(<em>a</em>, 1) density over the null quantiles its labelled burn-in
+events received. An alert at quantile <em>q</em> from an arm of weight <em>a</em> scores
+<em>s</em> = ln <em>a</em> + (<em>a</em> − 1) ln <em>q</em>, the log-likelihood ratio of its being labelled against its being
+background. Alerts from arms sharing no p-value scale are comparable on <em>s</em>, so the budget goes to
+the highest scores and no share parameter is chosen.</p>
+<p>A weight is retained only where twice its log-likelihood ratio against <em>a</em> = 1 exceeds 2.706, the
+5% one-sided point at the boundary of the range [10]; without that guard fifty uniform draws fit
+<em>a</em> ≈ 1 ± 0.14 and noise alone buys a large share of the queue. Labelled events an arm evaluated
+without surfacing enter right-censored.</p>
+<p>The fit separates the arms as intended — on <code>r11</code> the three per-entity arms are informative at
+<em>a</em> = 0.376, 0.414 and 0.491, while <code>timing</code>, <code>volume</code> and the <code>marginal</code> surface none of the 49
+labelled burn-in events and are fitted uninformative. §2.4 reports that it is not enough. One
+property survives and is why the implementation retains it: every quantity <em>s</em> reads is a property
+of the single alert or of state frozen before the window, so the same arithmetic that ranks a batch
+thresholds a stream.</p>
+<h2 id="appendix-e-truncation-at-a-stated-exchange-rate">Appendix E. Truncation at a stated exchange rate<a class="anchor" href="#appendix-e-truncation-at-a-stated-exchange-rate" aria-label="link to this section">#</a></h2>
+<p>At v/c = 10 as stated in §4.4, on the corrected-minimum arm:</p>
+<div class="tablewrap"><table>
+<thead><tr><th>Budget</th><th>Permitted</th><th>TP</th><th>Optimal</th><th>TP</th><th>Precision</th><th>Suppressed</th><th>TP forgone</th></tr></thead>
+<tbody>
+<tr><td>10/day</td><td>70</td><td>4</td><td><strong>30</strong></td><td>4</td><td>5.7% → <strong>13.3%</strong></td><td>40 (57%)</td><td><strong>0</strong></td></tr>
+<tr><td>100/day</td><td>700</td><td>47</td><td><strong>221</strong></td><td>47</td><td>6.7% → <strong>21.3%</strong></td><td>479 (68%)</td><td><strong>0</strong></td></tr>
+<tr><td>1000/day</td><td>7,000</td><td>162</td><td><strong>315</strong></td><td>74</td><td>2.3% → <strong>23.5%</strong></td><td>6,685 (95%)</td><td>88</td></tr>
+</tbody></table></div>
+<p>At the two tighter budgets the truncation is free. At 1000 it becomes a decision: the objective
+discards 6,685 alerts and 88 true positives with them, because at this rate those 88 do not pay for
+6,685 wasted investigations. For the composite the optimum is to emit nothing at any budget,
+including the one at which it finds 113 true positives — an objective declining to deploy a
+detector is a usable answer. The optimum is located using the labels, so this measures headroom
+rather than being a deployable rule.</p>
+<p>Reporting at a nominal false discovery rate is not available here. Benjamini–Hochberg [8] per day
+on the composite at q = 0.05 yields 5,352 discoveries of which 113 are labelled, a realised FDR of
+0.979 (0.975–0.982) with five of seven days saturated; Benjamini–Yekutieli [9] gives 0.978 at
+q = 0.001. The nominal level has no purchase because the p-values are not calibrated — a property
+of the composite rather than of the procedures.</p>
+<h2 id="appendix-f-threats-to-validity">Appendix F. Threats to validity<a class="anchor" href="#appendix-f-threats-to-validity" aria-label="link to this section">#</a></h2>
+<p>§3.2 carries the two that dominate. The rest, each with the measurement establishing it and the
+direction it biases:</p>
+<div class="tablewrap"><table>
+<thead><tr><th>Threat</th><th>Measurement</th><th>Direction</th></tr></thead>
+<tbody>
+<tr><td>effective sample far below nominal</td><td>549 events on 104 accounts; 93.6% of label rows share one computer; 8 victims per planted mechanism</td><td><strong>every interval is optimistic</strong></td></tr>
+<tr><td>quantities chosen on the outcome</td><td>the best arm, the union&#39;s break-even rates, §2.4&#39;s split search, Appendix E&#39;s optimum; 7 arms × 5 rules × 3 budgets × 2 corpora, maxima reported</td><td>favours the framework; stated as oracle bounds, outer loop unadjusted</td></tr>
+<tr><td>not measured at full population</td><td>the one full run scored 42,218,530 events with 4 of 7 arms; its composite detects nothing</td><td>a budget is far easier on a subset</td></tr>
+<tr><td>Brown&#39;s correction unavailable</td><td>Var[X²] = −27.5, which no joint distribution produces, so the estimate measures the marginals&#39; misspecification rather than the arms&#39; dependence</td><td><strong>every composite figure is plain Fisher</strong>; a corrected composite awaits calibrated marginals</td></tr>
+<tr><td>entity-day aggregation flatters recall</td><td>65 of 108 entity-days at 100/day against 47 of 549 events, but Fisher&#39;s statistic at entity scope grows with the event count and the count-normalised form takes 65 to 14</td><td>most of the gain is the confound</td></tr>
+<tr><td>§2.3 inherits its matrix&#39;s limits</td><td>event-level rates where the effective sample is nearer eight victims; <code>lof</code> from a 100× easier sample</td><td><code>lof</code> is an existence proof, not a matched row; the adversary knows the allocation but not the realised draw</td></tr>
+</tbody></table></div>
+<h2 id="appendix-g-adversary-cost-and-where-work-is-worth-spending">Appendix G. Adversary cost, and where work is worth spending<a class="anchor" href="#appendix-g-adversary-cost-and-where-work-is-worth-spending" aria-label="link to this section">#</a></h2>
+<p>A value-zero equilibrium assumes an uncovered mechanism is free to mount, and low-and-slow is slow
+by construction. Charging λ times a stated per-mechanism cost, with low-and-slow at twelve times
+credential spray, on the strategy set with <code>lof</code> admitted so the mechanism being priced is one some
+arm reaches:</p>
+<div class="tablewrap"><table>
+<thead><tr><th>λ</th><th>Value</th><th>Allocation</th><th>Adversary&#39;s reply</th></tr></thead>
+<tbody>
+<tr><td>0</td><td>0.019</td><td><code>lof</code> 0.47, <code>timing</code> 0.42, <code>noveltyrate</code> 0.12</td><td>low+slow 0.47, off-hrs 0.42, priv-esc 0.12</td></tr>
+<tr><td>0.005</td><td>0.043</td><td><code>timing</code> 0.80, <code>noveltyrate</code> 0.20</td><td>off-hrs 0.78, priv-esc 0.22</td></tr>
+<tr><td>0.02</td><td>0.061</td><td><code>timing</code> 0.87, <code>noveltyrate</code> 0.13</td><td>off-hrs 0.78, priv-esc 0.22</td></tr>
+<tr><td>0.05</td><td>0.092</td><td><code>timing</code> 0.89, <code>noveltyrate</code> 0.11</td><td>off-hrs 0.89, spray 0.11</td></tr>
+</tbody></table></div>
+<p>Any appreciable cost removes low-and-slow from the reply. The costs and λ are stated, never
+fitted: a cost fitted to the labels the allocation is scored against would make the equilibrium a
+restatement of the corpus. The solution concept is properly Stackelberg, the defender committing
+first; for zero-sum games it coincides with §2.3&#39;s, and once mechanism costs differ it does not.</p>
+<p><strong>Shadow prices.</strong> Every cell whose improvement by 0.10 raises the guarantee lies in low-and-slow,
+off-hours or privilege escalation — the mechanisms in the adversary&#39;s reply. The largest are
+<code>timing</code> on low-and-slow (+0.017), <code>lof</code> on off-hours (+0.014) and <code>noveltyrate</code> on low-and-slow
+(+0.012). Not one lies in the four columns §2.1 and §2.2 compare arms on, and the two arms
+carrying every positive shadow price are the two §3.3 reports as unmeasured.</p>
 <h2 id="data-and-code-availability">Data and code availability<a class="anchor" href="#data-and-code-availability" aria-label="link to this section">#</a></h2>
 <p>Every number here is read from a machine-generated result file committed alongside the source,
 each carrying its run identifier, corpus checksums, row counts, seeds and parameters. No figure is
-a plot of data: each is a diagram of a mechanism, so no figure can disagree with a result. §5.8&#39;s
-equilibria are solved from the recorded per-mechanism matrix by <code>cmd/robust</code> and need no corpus
-access, so they are reproducible from this repository alone. The corpus is third-party and is not
-redistributed; its provenance and licence are recorded with the code.</p>
+a plot of data: each is a diagram of a mechanism, so no figure can disagree with a result. §2.3&#39;s
+equilibria are solved from the recorded per-mechanism matrix by <code>cmd/robust</code> and need no corpus, so
+they reproduce from this repository alone. The corpus is third-party and is not redistributed.</p>
 
 <footer>Generated by <code>cmd/thesis</code> from <code>docs/PAPER.md</code>, which stays canonical for the prose: this page is never edited directly, so the two cannot disagree. Every quantitative claim traces to a recorded run in <code>results/</code>. Diagrams are hand-authored inline SVG with no external resources, and their two carrying colours are validated for contrast and colour-vision separation against both the light and dark surfaces.</footer>
 </main>
