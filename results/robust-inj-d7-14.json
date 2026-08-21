@@ -1,10 +1,12 @@
 {
   "schema_version": 1,
   "kind": "robust-allocation",
-  "run_id": "robust-inj-d7-14-001",
-  "source": {
-    "corpus": "data/lanl/auth-holdout-r7-d0-14.txt.gz",
-    "run_id": "lanl-inj-b1000-weighted-d7-14-005"
+  "run": {
+    "run_id": "robust-inj-d7-14-001",
+    "source_matrix": {
+      "corpus": "data/lanl/auth-holdout-r7-d0-14.txt.gz",
+      "run_id": "lanl-inj-b1000-weighted-d7-14-005"
+    }
   },
   "budget": 1000,
   "arms": [

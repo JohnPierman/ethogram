@@ -77,7 +77,7 @@ func main() {
 	}
 
 	if *outPath != "" {
-		analysis.RunID = *runID
+		analysis.Run["run_id"] = *runID
 		blob, err := json.MarshalIndent(analysis, "", "  ")
 		if err != nil {
 			log.Fatalf("encoding the result: %v", err)
@@ -158,16 +158,18 @@ func (d matrixDoc) budgets() []int {
 // ---------------------------------------------------------------------------
 
 // Analysis is the emitted result. Every field is derived from the recorded matrix named in
-// Source, so a reader can reproduce it without the corpus.
+// Run, so a reader can reproduce it without the corpus.
 type Analysis struct {
-	SchemaVersion int      `json:"schema_version"`
-	Kind          string   `json:"kind"`
-	RunID         string   `json:"run_id,omitempty"`
-	Source        any      `json:"source"`
-	Budget        int      `json:"budget"`
-	Arms          []string `json:"arms"`
-	Mechanisms    []string `json:"mechanisms"`
-	Caveats       []string `json:"caveats"`
+	SchemaVersion int    `json:"schema_version"`
+	Kind          string `json:"kind"`
+	// Run carries this analysis's own identifier and the matrix it was derived from. The
+	// results directory refuses a file without it, and rightly: a number whose provenance
+	// is not in the file is a number nobody can trace.
+	Run        map[string]any `json:"run"`
+	Budget     int            `json:"budget"`
+	Arms       []string       `json:"arms"`
+	Mechanisms []string       `json:"mechanisms"`
+	Caveats    []string       `json:"caveats"`
 
 	Rate    map[string]map[string]float64 `json:"detection_rate"`
 	Planted map[string]int                `json:"planted"`
@@ -272,7 +274,7 @@ func analyse(doc matrixDoc, rect rectangle, admit []string,
 	out := &Analysis{
 		SchemaVersion: 1,
 		Kind:          "robust-allocation",
-		Source:        doc.Run,
+		Run:           map[string]any{"source_matrix": doc.Run},
 		Budget:        rect.Budget,
 		Arms:          arms,
 		Mechanisms:    mechs,

@@ -9,6 +9,29 @@ Equation numbers `(1)`–`(20)`, requirements `R1`–`R6`, and evaluation hypoth
 
 ## [Unreleased]
 
+### Changed
+
+- **The paper is rewritten as a finished paper rather than a working notebook (#39, A7).** It was
+  21 pages against a 20-page ceiling and so failing its own gate; it is now 19, at 8,841 words
+  against 11,856, while gaining a whole results section. The cuts are verbosity, not evidence:
+  every measurement, interval and caveat is retained, and several passages that narrated a table
+  in prose became the table. The six planted mechanisms, the six detector nulls, the four
+  combination rules and six of the threats to validity are now tables where they were paragraphs;
+  section 5.3's three per-budget tables became one at the budget where the methods separate, with
+  the budget dependence stated in a sentence, because a reader given three tables of the same
+  shape has lost the sentence saying which budget each was
+- **Section 5.8 is new: allocation read as a two-person zero-sum game.** It states why section
+  5.5's corner result is forced rather than measured, reports that the portfolio's game value is
+  zero and why that is a coverage defect, gives the competitive-ratio equilibrium and its price,
+  distinguishes randomising from dividing and measures both, and locates every positive shadow
+  price in the two mechanisms the paper's headline does not compare arms on
+- **Section 6.3 now separates what is repaired from what is missing**, carrying the replaced
+  timing statistic and the new drift statistic that the threats section previously had to both
+  raise and answer
+- **Four references were added and are cited**: Page for the cumulative sum, von Neumann and
+  Dantzig for the equilibrium and its reduction to a linear programme, and Auer for the
+  adversarial bandit bound section 6.3 uses to close the online-learning direction
+
 ### Added
 
 - **`domain/drift`: a sequential change statistic for the mechanism the volume predictive
