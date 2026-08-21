@@ -35,6 +35,7 @@ import (
 	"github.com/JohnPierman/ethogram/domain/cooccurrence"
 	"github.com/JohnPierman/ethogram/domain/derive"
 	"github.com/JohnPierman/ethogram/domain/detector"
+	"github.com/JohnPierman/ethogram/domain/drift"
 	"github.com/JohnPierman/ethogram/domain/event"
 	"github.com/JohnPierman/ethogram/domain/marginal"
 	"github.com/JohnPierman/ethogram/domain/novelty"
@@ -83,6 +84,9 @@ func main() {
 		weightedOn    = flag.Bool("weighted", false, "add the weighted arm: score each alert by the log-likelihood ratio its own detector's fitted weight implies over that detector's frozen burn-in null, and give the day's budget to the highest scores. It divides a fixed budget by demonstrated quality where the union arm divides it by quota. Needs the burn-in mirror, so it costs what -ledger costs. Off by default until a recorded run justifies the flip; recorded in the result either way")
 		timStandard   = flag.Bool("timing-standardise", timing.DefaultStandardise, "score the timing arm by U standardised against the entity's own realised ln U, rather than by the level-set mass of equation (9). The mass is floored at 1/(2G) = 9.77e-04, which is at or above its own realised alert cut at the tighter budgets, so it cannot express a departure it has detected; the standardised form is unbounded below. Needs enough per-entity history to estimate the null, and abstains below it rather than mixing two statistics in one arm. Off by default until a recorded run justifies the flip; recorded in the result either way")
 		volMinPeriods = flag.Int64("volume-min-periods", volume.DefaultMinPeriods, "the fewest completed periods the volume arm will form an opinion on; below it the arm abstains under R3 rather than reporting the prior's tail as the entity's. Zero disables the gate, which is the pre-#25 behaviour and what the volume_gate_probe diagnostic needs in order to measure every candidate threshold from one pass. Recorded in the result")
+		driftOn       = flag.Bool("drift", false, "add the sequential-change arm: Page's one-sided cumulative sum over the entity's per-period counts, standardised against the sums its own closed periods produced. It answers a question equation (11) cannot -- an over-dispersed marginal test of one period cannot see a shift that is small in every period, because the evidence is in the sequence. Off by default until a recorded run justifies the flip; recorded in the result either way")
+		driftShift    = flag.Float64("drift-shift", drift.DefaultShift, "the multiplicative rate shift the cumulative sum's reference value is tuned for. A stated parameter, never fitted: tuning it on the labels the arm is scored against would make its sensitivity a restatement of the corpus. Recorded in the result")
+		driftMinPer   = flag.Int64("drift-min-periods", drift.DefaultMinPeriods, "the fewest closed periods the drift arm will form an opinion on; below it there is no null to standardise against and the arm abstains under R3. Recorded in the result")
 		ledgerPath    = flag.String("ledger", "", "write the alert ledger here: every per-detector arm's ranked queue per day, for both the burn-in and the scoring window, so budget-allocation rules can be screened offline instead of at eighty minutes a candidate. Also mirrors the per-arm ranking across burn-in, which roughly doubles burn-in cost. An intermediate artefact: never write it into results/, which holds measurements with provenance")
 	)
 	flag.Parse()
@@ -135,6 +139,7 @@ func main() {
 		burnInSec: *burnInSec, maxRows: *maxRows, skipHash: *skipHash,
 		halfLifeDays: *halfLifeDay, bandwidthHours: *bandwidth, alpha: *alphaFlag,
 		volMinPeriods: *volMinPeriods, timStandardise: *timStandard,
+		drift: *driftOn, driftShift: *driftShift, driftMinPeriods: *driftMinPer,
 		topK: *topK, budgets: budgets, entitySample: *entitySample, allowResampling: *allowResample,
 		exportGraph: *exportGraph, partitionIn: *partitionIn,
 		maxSeconds: *maxSeconds, shadowCells: *shadowCells, conformal: *conformalOn,
@@ -158,6 +163,9 @@ type runConfig struct {
 	halfLifeDays, bandwidthHours, alpha   float64
 	volMinPeriods                         int64
 	timStandardise                        bool
+	drift                                 bool
+	driftShift                            float64
+	driftMinPeriods                       int64
 	topK                                  int
 	budgets                               objective.Budgets
 	entitySample                          int
@@ -255,6 +263,7 @@ func run(cfg runConfig) error {
 	nrStore := memory.NewNoveltyRateStore()
 	timStore := memory.NewTimingStore()
 	volStore := memory.NewVolumeStore()
+	driStore := memory.NewDriftStore()
 	margStore := memory.NewMarginalStore(halfLife)
 	graph := cooccurrence.NewMemoryGraph(halfLife)
 
@@ -306,6 +315,18 @@ func run(cfg runConfig) error {
 		relationalDetector,
 		marginal.NewDetector(margStore, fieldRegistry, alpha,
 			minMarginalObservations, halfLife),
+	}
+	if cfg.drift {
+		// Its own state rather than the volume arm's. The baseline a change statistic
+		// measures against is the level *before* the change, and an estimator shared with
+		// an arm that updates on every event would let the drift being tested raise its
+		// own baseline.
+		driftDetector, driftErr := drift.NewDetector(
+			driStore, halfLife, cfg.driftShift, cfg.driftMinPeriods)
+		if driftErr != nil {
+			return driftErr
+		}
+		registered = append(registered, driftDetector)
 	}
 	if cfg.noveltyRate {
 		// It reads novelty's own value store rather than a copy: "has this entity seen
@@ -533,6 +554,7 @@ func run(cfg runConfig) error {
 			// comparable on the volume arm's figures, so it is recorded rather than
 			// inferred from the command line.
 			"volume": volumeRecord(cfg),
+			"drift":  driftRecord(cfg),
 			// Whether coarse fields were derived from inferred value structure. A run
 			// with derivation on scores strictly more fields than one without, so the two
 			// are not comparable on any per-field figure.
@@ -758,6 +780,34 @@ func noveltyRateRecord(cfg runConfig) map[string]any {
 			"window. Scale-free by construction: the comparison is against the same " +
 			"account's rate, never another account's volume. It sees ONLY novelty, so an " +
 			"attack departing in timing or volume alone is invisible to it by design",
+	}
+}
+
+// driftRecord describes the sequential-change arm's presence, so that a result states
+// whether the arm existed rather than leaving a reader to infer it from a missing key.
+func driftRecord(cfg runConfig) map[string]any {
+	if !cfg.drift {
+		return map[string]any{
+			"applied": false,
+			"note": "the sequential-change arm did not run. The volume arm is then the " +
+				"only rate test, and equation (11)'s predictive is structurally " +
+				"over-dispersed, so a modest shift sustained over many periods sits " +
+				"inside its null in every period; measured median p 0.72 on planted " +
+				"low-and-slow against 0.29 on the other mechanisms",
+		}
+	}
+	return map[string]any{
+		"applied":     true,
+		"shift":       cfg.driftShift,
+		"min_periods": cfg.driftMinPeriods,
+		"min_weight":  drift.MinWeight,
+		"statistic": "S_t = max(0, S_{t-1} + k_t - k) with k = lambda0(rho-1)/ln rho, " +
+			"Page's reference value; the p-value is the upper tail of S standardised " +
+			"against the sums this entity's own closed periods produced",
+		"note": "a shift accumulates linearly in the number of periods while the spread " +
+			"of its null grows as the square root, which is the alternative a marginal " +
+			"test of one period cannot see however well it is calibrated. The shift is " +
+			"stated, never fitted",
 	}
 }
 
