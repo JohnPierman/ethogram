@@ -69,6 +69,43 @@ The reason is that the arms are **substitutes, not complements**: 74.6% of `nove
 detections are also found by `novelty`. Splitting halves each arm's depth and the survivors
 coincide. Use the detectors directly; the paper works through it.
 
+**Read as a game, the corner result is a theorem and the conclusion usually drawn from it is
+wrong.** Rows are detectors, columns are the mechanism an adversary picks, entries are
+`P(detected | mechanism)`. Under any *known* attack mix the expected detection of a weighting
+is linear in that weighting, and a linear form on a simplex is maximised at a vertex -- so no
+mixture fitted to published industry base rates can beat the best single arm. That is not a
+property of this corpus. But the best single arm **guarantees nothing**: it is blind to some
+mechanism, and a rational adversary picks the blind spot.
+
+At 1000 alerts/day on the planted corpus. "Retained" is the share of what the *best* arm
+reaches on a mechanism that this rule reaches, on the mechanism where it does worst;
+`low_and_slow` is excluded throughout because no arm of this framework reaches it at all.
+
+| rule | found | alerts | worst mechanism's retained share |
+|---|---|---|---|
+| best single arm | **384** | 7,000 | **0** |
+| randomised over the two best arms | 344 | 7,000 | 0 |
+| corrected minimum | 234 | 7,000 | 0 |
+| composite (Fisher) | 227 | 7,000 | 0 |
+| union, all arms, equal cost | 221 | 7,000 | 0 |
+| randomised, competitive-ratio mixture | 189 | 7,000 | **0.421** |
+| union, all arms, equal depth | 535 | 31,505 (×4.5) | **1.000** |
+| *per-entity routing, oracle floor–ceiling* | *448–535* | *7,000* | *—* |
+
+Every rule this repository had tested guarantees **zero** against its worst mechanism. Two
+allocations do better, and the table prices both: the competitive-ratio mixture retains 42.1%
+of the achievable on *every* reachable mechanism at the same budget, for 42% of the expected
+detection; or buy the guarantee outright at 4.5× the alerts, where the equal-depth union
+reaches every arm's best on every mechanism. Coverage is available. It is not free, and it is
+not obtained by reweighting.
+
+`make robust` reproduces all of this from committed results, with no corpus. Two smaller
+findings fall out. **Randomising is not the same as dividing**, and only dividing had been
+tested -- one arm at full depth chosen by lottery finds 344 where the best combination rule
+finds 234 at the same alert spend. And every cell whose improvement raises the guarantee lies
+in a mechanism the headline table above does not compare arms on, so **improving `novelty`
+against `noveltyrate` has a shadow price of exactly zero**.
+
 The union does earn its keep in one place. Let every arm keep its own top *B* and emit the
 deduplicated union, and it matches the best arm on **every attack type at once** -- 533
 labelled events against the best single arm's 384 -- for 4.5x the alerts. Worth buying only
@@ -91,6 +128,7 @@ Each detector asks one question and returns a p-value under a stated null, or **
 | `marginal` | is this value rare across the whole population? | population | on, measured |
 | `pairing` | has *this account* combined these two values before? | per-entity | opt-in, measured |
 | `noveltyrate` | is it producing *new* values faster than it usually does? | per-entity | opt-in, **measured** |
+| `drift` | has this account's *rate* shifted upward and stayed there? | per-entity | opt-in, measured |
 
 `noveltyrate` exists because `novelty`'s p-value for a first-ever value is roughly one over
 the size of the account's history, which makes it structurally unable to alert on a small
@@ -119,7 +157,16 @@ real run, a 100/day budget can drop 68% of its queue and lose no detections.
   help, and neither does an oracle that reads the evaluation labels. On the real campaign the
   optimal split of a fixed budget *is* the best single arm. Where the arms genuinely do not
   overlap -- the population `marginal` against the per-entity arms on planted takeovers -- a
-  split does win, by 11 detections of 384.
+  split does win, by 11 detections of 384. Under a *known* attack mix that is forced rather
+  than measured: the objective is linear in the allocation, so its optimum is a vertex.
+- **The best single arm nonetheless guarantees nothing against a chosen mechanism**, and
+  neither does any rule previously here. `domain/robust` prices the alternatives: 42.1% of the
+  achievable on every reachable mechanism for 42% of the expected detection at the same
+  budget, or the full guarantee at 4.5x the alerts. Which of those an operator wants is a
+  decision this repository states rather than takes.
+- **Where the next unit of work is worth spending is not where the headline compares arms.**
+  Every cell whose improvement raises the worst-case guarantee is in `low_and_slow`,
+  `off_hours` or `privilege_escalation`.
 - **Detection by attack type depends on the budget.** At 100 alerts/day one of six planted
   types is reached; at 1000/day five of six are. `low_and_slow` (288 planted events) is
   reached by no arm of this framework at any budget -- though a local-outlier-factor baseline

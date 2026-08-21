@@ -365,6 +365,14 @@ method-table:
 # corpus, which is the defect section 5.5's oracle rows exist to bound.
 MATRIX_JSON   ?= $(RESULTS)/method-matrix-inj-d7-14.json
 ROBUST_JSON   ?= $(RESULTS)/robust-inj-d7-14.json
+# The same analysis with a low-and-slow-capable baseline admitted into the strategy set. Two
+# files rather than one because they answer different questions: the first is what this
+# framework's own arms guarantee, with the mechanism none of them reaches excluded as
+# unreachable; the second is what admitting an arm that does reach it costs, and its `lof` row
+# comes from the hundredfold easier sampled problem of section 5.7 rather than from a matched
+# comparison. Reporting only the second would lean the headline on a baseline; reporting only
+# the first would hide that the excluded column is purchasable.
+ROBUST_LOF_JSON ?= $(RESULTS)/robust-inj-lof-d7-14.json
 ROBUST_BUDGET ?= 1000
 ROBUST_ADMIT  ?= lof
 ROBUST_PRIOR  ?= credential_spray=0.30,lateral_chain=0.12,off_hours=0.08,privilege_escalation=0.05,low_and_slow=0.10,account_takeover=0.30,real campaign=0.05
@@ -376,7 +384,9 @@ matrix:
 
 .PHONY: robust
 robust: matrix
-	$(GO) run ./cmd/robust -matrix $(MATRIX_JSON) -budget $(ROBUST_BUDGET) 	  -admit $(ROBUST_ADMIT) -prior "$(ROBUST_PRIOR)" -attacker-cost "$(ROBUST_COST)" 	  -out $(ROBUST_JSON) -run-id robust-inj-d7-14-001
+	$(GO) run ./cmd/robust -matrix $(MATRIX_JSON) -budget $(ROBUST_BUDGET) 	  -prior "$(ROBUST_PRIOR)" -attacker-cost "$(ROBUST_COST)" 	  -out $(ROBUST_JSON) -run-id robust-inj-d7-14-002 >/dev/null
+	$(GO) run ./cmd/robust -matrix $(MATRIX_JSON) -budget $(ROBUST_BUDGET) 	  -admit $(ROBUST_ADMIT) -prior "$(ROBUST_PRIOR)" -attacker-cost "$(ROBUST_COST)" 	  -out $(ROBUST_LOF_JSON) -run-id robust-inj-lof-d7-14-001 >/dev/null
+	@echo "wrote $(ROBUST_JSON) and $(ROBUST_LOF_JSON)"
 
 .PHONY: clean
 clean:
