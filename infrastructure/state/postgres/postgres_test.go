@@ -311,10 +311,18 @@ func TestCrossImplementationEquivalence(t *testing.T) {
 		}
 		mustSameBits(t, fmt.Sprintf("volume a(%s)", en), mVol.Rate.A, pVol.Rate.A)
 		mustSameBits(t, fmt.Sprintf("volume b(%s)", en), mVol.Rate.B, pVol.Rate.B)
-		if mVol.PeriodIndex != pVol.PeriodIndex || mVol.PeriodCount != pVol.PeriodCount ||
-			mVol.WindowIndex != pVol.WindowIndex || mVol.WindowCount != pVol.WindowCount ||
-			mVol.LastSeen != pVol.LastSeen {
-			t.Fatalf("volume counters for %s: %+v (memory) != %+v (postgres)", en, mVol, pVol)
+		mustSameBits(t, fmt.Sprintf("volume dispersion_sum(%s)", en),
+			mVol.DispersionSum, pVol.DispersionSum)
+		mustSameBits(t, fmt.Sprintf("volume dispersion_windows(%s)", en),
+			mVol.DispersionWindows, pVol.DispersionWindows)
+		mustSameBits(t, fmt.Sprintf("volume window_expected(%s)", en),
+			mVol.WindowExpected, pVol.WindowExpected)
+		// Whole-struct equality rather than a list of fields. The list is how #33 survived:
+		// three fields of volume.State had no column, and a comparison naming only the
+		// persisted ones could not notice. volume.State is all scalars, so this covers any
+		// field added later without anyone remembering to extend the test.
+		if *mVol != *pVol {
+			t.Fatalf("volume state for %s: %+v (memory) != %+v (postgres)", en, mVol, pVol)
 		}
 	}
 }
@@ -372,8 +380,23 @@ func foldVolume(t *testing.T, ctx context.Context, repo volume.StateRepository, 
 	}
 	st.PeriodCount++
 	if hour != st.WindowIndex {
+		// The window closed: fold its Pearson residual against the expectation recorded when
+		// it opened, then open the next one. Mirrors the domain's own commit, and it is here
+		// because a fold that left these fields zero would compare two zeros and prove
+		// nothing -- which is exactly how #33 went unnoticed.
+		if st.WindowCount > 0 && st.WindowExpected > 0 {
+			windowDelta := math.Exp2(-float64(hour-st.WindowIndex) *
+				float64(event.Hour) / float64(testHalfLife))
+			residual := float64(st.WindowCount) - st.WindowExpected
+			st.DispersionSum = windowDelta*st.DispersionSum +
+				residual*residual/st.WindowExpected
+			st.DispersionWindows = windowDelta*st.DispersionWindows + 1
+		}
 		st.WindowIndex = hour
 		st.WindowCount = 0
+		// A deterministic non-zero expectation, so the accumulators above are exercised.
+		// Its exact value does not matter to an equivalence test; that it is not zero does.
+		st.WindowExpected = 1 + float64(hour%5)
 	}
 	st.WindowCount++
 	if at > st.LastSeen {

@@ -67,10 +67,25 @@ var migrations = []string{
 		completed_periods bigint NOT NULL DEFAULT 0,
 		window_index bigint NOT NULL,
 		window_count bigint NOT NULL,
+		window_expected float8 NOT NULL DEFAULT 0,
+		dispersion_windows float8 NOT NULL DEFAULT 0,
+		dispersion_sum float8 NOT NULL DEFAULT 0,
 		last_seen_us bigint NOT NULL,
 		PRIMARY KEY (source, entity)
 	)`,
 	`ALTER TABLE volume_state ADD COLUMN IF NOT EXISTS completed_periods bigint NOT NULL DEFAULT 0`,
+	// The dispersion accumulators and the open window's recorded expectation. Absent until
+	// #33: SaveState never wrote them and FindByEntity never read them, so a Postgres-backed
+	// run lost the measured width of every entity's null across a restart and silently
+	// resumed against equation (11) un-widened -- which since #42 also decides whether the
+	// arm abstains, so the loss changed a verdict's kind and not only its number.
+	//
+	// Defaulting to zero is the correct cold value: it is what a fresh `volume.State` carries,
+	// so an existing row migrates to "dispersion not yet measured" rather than to a fabricated
+	// one, and the arm re-measures from the next completed window.
+	`ALTER TABLE volume_state ADD COLUMN IF NOT EXISTS window_expected float8 NOT NULL DEFAULT 0`,
+	`ALTER TABLE volume_state ADD COLUMN IF NOT EXISTS dispersion_windows float8 NOT NULL DEFAULT 0`,
+	`ALTER TABLE volume_state ADD COLUMN IF NOT EXISTS dispersion_sum float8 NOT NULL DEFAULT 0`,
 	`CREATE TABLE IF NOT EXISTS graph_node (
 		source       text   NOT NULL,
 		field        text   NOT NULL,

@@ -9,6 +9,32 @@ Equation numbers `(1)`–`(20)`, requirements `R1`–`R6`, and evaluation hypoth
 
 ## [Unreleased]
 
+### Fixed
+
+- **The Postgres volume store no longer drops the dispersion state (#33).** `WindowExpected`,
+  `DispersionWindows` and `DispersionSum` had no columns, so `SaveState` never wrote them and
+  `FindByEntity` never read them: a Postgres-backed run lost the measured width of every entity's
+  null across a restart and silently resumed against equation (11) un-widened. Since the
+  dispersion gate now decides whether the arm abstains, that loss changed a verdict's *kind* and
+  not only its number. Three columns, three `ADD COLUMN IF NOT EXISTS` migrations defaulting to
+  zero -- which is what a fresh state carries, so an existing row migrates to "not yet measured"
+  rather than to a fabricated value
+
+### Added
+
+- **A schema-drift guard that needs no database.** The equivalence test that would have caught
+  #33 sits behind the `integration` tag and so never runs in CI, and it could not have caught it
+  anyway: it compared a hand-written list of fields naming only the ones already persisted. The
+  new guard reflects over each persisted state struct and requires every field's column to appear
+  in the DDL, the SELECT **and** the INSERT separately
+- **The equivalence test now compares whole structs and exercises the dispersion fold.** Field
+  lists are how #33 survived; `*mVol != *pVol` covers any field added later, and the fold sets a
+  non-zero window expectation so the accumulators are not two zeros being compared
+- **`TestPersistedArmsAreTheRecordedSet` records that four of the seven arms have no Postgres
+  store at all** -- `noveltyrate`, `drift` and `marginal` have no table, no accessor, nothing.
+  That costs no recorded measurement, since every run in `results/` uses the memory stores, but
+  it was previously discoverable only by grepping for a table that is not there
+
 ### Added
 
 - **`objective.CostRatio`, `Threshold` and `CostCurve` close the operating-point question
