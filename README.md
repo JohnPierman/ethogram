@@ -393,6 +393,100 @@ p-values are anti-conservative enough that the rule spends its wealth on false r
 back, and spends again. **No spending rule recovers a level from p-values that are not
 calibrated**, which is tracked as #55.
 
+### The sub-hourly inter-arrival arm (`-burst`)
+
+Every arm reaches 0 of 288 planted low-and-slow events at every budget, while an unsupervised
+local-outlier-factor baseline reaches 12 -- so the signal is there and the framework's instruments
+cannot see it. The plant is twelve events at ninety-second intervals, repeated on three days.
+`volume` tests an **hourly** window and averages a seventeen-minute burst against fifty-three
+minutes of nothing; `timing` tests time of day and the plant sits in the victim's usual hour; and
+nothing asks whether the events came too close together.
+
+The statistic is exact rather than asymptotic. Under a Gamma(k, θ) renewal null the span of *k*
+consecutive arrivals is Gamma((k−1)κ, θ), so a short span is a lower tail of the regularised
+incomplete gamma. The minimum over window sizes is a scan statistic, and treating it as one test is
+the mistake that disqualified two other arms, so it is corrected by Šidák over the windows examined
+-- which for nested, positively dependent windows over-states the multiplicity and is therefore
+conservative.
+
+**The calibration check came first, and the first null failed it.** That check is not a formality:
+it is what disqualified `volume` (24.7% of scored events below 1e−12) and the partitioned
+`cooccurrence` arm (99.0%). The obvious homogeneous-Poisson null is calibrated on its own process --
+on synthetic streams at one event a minute, ten minutes and an hour, 59,950 scans each, the fraction
+below p = 0.1 is 0.025 to 0.032 and nothing at all falls below 1e−12 -- and on real traffic it was
+worse than either arm it was meant to improve on. Two independent corrections were needed, both
+measured on the same 500,000-row prefix of `auth-r11`:
+
+| null | share of scored events below 1e−12 |
+|---|---:|
+| exponential gaps, ties floored at one second | **36.66%** |
+| Gamma(κ, θ) gaps fitted per entity, ties floored | 5.77% |
+| Gamma(κ, θ) gaps, tied timestamps collapsed | **0.021%** |
+
+against `timing`'s 0.056% on the same events.
+
+**Real authentication traffic is not a Poisson process.** Machine accounts authenticate in tight
+clusters, so short spans are ordinary and an exponential null finds the ordinary astronomically
+improbable. Fitting κ from the entity's own first and second gap moments widens the lower tail
+exactly where clustered traffic lives. κ is **capped at one**: a measured κ above one is
+under-dispersion, and honouring it would make the null *tighter* than Poisson, so a machine
+authenticating every sixty seconds would find a fifty-second gap wildly surprising. An entity whose
+dispersion cannot be measured abstains rather than falling back to the narrowest null available,
+which is the lesson `volume` learned the hard way.
+
+**The log's resolution is not evidence, and that was the larger correction.** LANL records to the
+whole second and one logical action emits several authentication rows, so entities routinely have
+many arrivals at one instant. Flooring such a window at one second was called conservative and is
+not -- thirty-two arrivals inside one second is astronomically improbable under *any* renewal null,
+however wide, so the log's own granularity became the most extreme evidence in the corpus. The scan
+buffer holds distinct instants and cannot testify about structure the log did not record.
+
+**What the widening costs is not uniform, and that is the per-entity null working as designed.** The
+same plant, twelve arrivals ninety seconds apart:
+
+| victim | fitted κ | plant |
+|---|---:|---:|
+| quiet, gaps averaging twenty minutes | 0.958 | **p = 2.5e−08** |
+| already bursty, pairs a minute apart | 0.338 | p = 6.3e−04 |
+
+For an account that routinely produces sixty-second gaps, a run of ninety-second gaps is close to
+what it does anyway. The reference set for an event is the account that produced it, so the plant
+genuinely is unremarkable there -- which bounds what this arm can deliver and is stated rather than
+averaged away.
+
+**On the corpus it does not fill the hole, and the measurement says why.** Over 4,494,396 scored
+events it reaches **0 of 288** low-and-slow plants at every budget, and 23 events at 1000 alerts a
+day — 18 credential-spray and 5 account-takeover, a mechanism it was not built for.
+
+| | low-and-slow plants | credential spray |
+|---|---:|---:|
+| abstentions | **0 of 288** | 0 of 320 |
+| most extreme p | **0.31** | **1.1e−08** |
+| 10th percentile | 0.978 | 5.0e−06 |
+| median | 1.000 | 0.994 |
+
+It abstained on none of them, so this is not a coverage gap: the arm looked at all 288 and found the
+plant unremarkable, while reaching 1.1e−08 on spray, so it is capable on this corpus.
+
+**The plant is slower than its victims' own bursts.** All eight low-and-slow victims are heavily
+clustered — fitted κ from **0.004 to 0.107**, median 0.017, against a mean gap of 425 s — so twelve
+arrivals ninety seconds apart sit inside their ordinary behaviour. An inter-arrival test can only
+find events arriving closer together than the account's own habit, and this plant is not that. The
+un-widened exponential null *would* have called them extreme, and would have called 36.7% of all
+background extreme too.
+
+The allocation equilibrium is unmoved: maximin value still exactly 0, competitive ratio still 0.421,
+the mixture unchanged, and `burst` at weight zero — the same outcome the sequential-change arm got,
+for the same reason. An arm that reaches nothing no other arm reaches cannot move an equilibrium
+(`robust-inj-burst-d7-14-001`).
+
+Per-entity state is 32 arrival instants plus four scalars, fixed size however long the entity is
+watched (§13.3). The abstention gate counts **undiscounted** gaps: a discounted count saturates at
+1/(1−δ), so a minimum above that ceiling is unsatisfiable forever rather than merely slow to reach.
+The arm reports how many entities cleared its gate, because "found nothing" and "was never able to
+speak" are different claims and only the second is a gap in coverage — here it is neither, and the
+report says so: 741 of 1,507 entities eligible, and none of the plants abstained on.
+
 ## The paper's length budget
 
 `docs/PAPER.md` is held to 20 pages, 15 of body plus 5 for figures and citations. What `make

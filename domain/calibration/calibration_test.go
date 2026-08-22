@@ -420,3 +420,69 @@ func TestStepUpDegenerateInputs(t *testing.T) {
 		}
 	}
 }
+
+// TestGammaLowerTailOverTheBurstArmsRegion covers the shape region the fitted inter-arrival null
+// opened up (#53) and the exponential one never reached.
+//
+// With a per-entity gap dispersion kappa the tail is evaluated at a = (k-1)*kappa, and kappa runs
+// down to 0.01 on clustered traffic, so a can be as small as 0.02 where before it was an integer
+// of at least two. Both branches of the implementation are exercised — the series below a+1 and the
+// continued fraction above it — and the region is where the branch boundary itself sits.
+//
+// Three properties, each of which a scoring path depends on: the result is a log-probability, it
+// increases with the span, and it is always representable. A non-finite value here is refused by
+// the verdict constructor and stops a replay that has already run for an hour.
+func TestGammaLowerTailOverTheBurstArmsRegion(t *testing.T) {
+	shapes := []float64{0.02, 0.09, 0.31, 0.9, 1, 2.79, 6, 31}
+	scaled := []float64{1e-9, 1e-6, 1e-3, 0.1, 0.5, 0.99, 1, 1.01, 2, 10, 100, 1e4}
+
+	for _, a := range shapes {
+		previous := math.Inf(-1)
+		for _, x := range scaled {
+			got := calibration.GammaLowerTailLog(a, x)
+			switch {
+			case math.IsNaN(got):
+				t.Errorf("a = %g, x = %g: NaN", a, x)
+			case math.IsInf(got, 1):
+				t.Errorf("a = %g, x = %g: +Inf, which is a probability above one", a, x)
+			case got > 0:
+				t.Errorf("a = %g, x = %g: ln P = %g, above zero", a, x, got)
+			case math.IsInf(got, -1):
+				t.Errorf("a = %g, x = %g: -Inf. A positive span has positive probability of "+
+					"being at least this short, and the verdict constructor refuses a "+
+					"non-finite p-value", a, x)
+			case got < previous:
+				t.Errorf("a = %g: ln P fell from %g to %g as x rose to %g; the lower tail is "+
+					"increasing in the span, and a scan that ranked a LONGER span as more "+
+					"surprising would invert the arm", a, previous, got, x)
+			}
+			previous = got
+		}
+		// At a large multiple of the mean the lower tail is essentially one.
+		if far := calibration.GammaLowerTailLog(a, 200*(a+1)); far < math.Log(0.99) {
+			t.Errorf("a = %g: ln P = %g far out in the upper tail, want essentially zero",
+				a, far)
+		}
+	}
+
+	// The two branches must agree across the boundary they share, or the statistic has a step
+	// in it that no data caused.
+	for _, a := range shapes {
+		below := calibration.GammaLowerTailLog(a, math.Nextafter(a+1, 0))
+		above := calibration.GammaLowerTailLog(a, math.Nextafter(a+1, 2*(a+1)))
+		if math.Abs(below-above) > 1e-9*math.Abs(below) {
+			t.Errorf("a = %g: the series gives ln P = %.12g just below x = a+1 and the "+
+				"continued fraction %.12g just above; the branches disagree by %.3g",
+				a, below, above, above-below)
+		}
+	}
+
+	// A shape of zero has no distribution, and a non-positive span is not a duration.
+	if got := calibration.GammaLowerTailLog(0, 1); got != 0 {
+		t.Errorf("a = 0 gave ln P = %g, want 0", got)
+	}
+	if got := calibration.GammaLowerTailLog(1, 0); !math.IsInf(got, -1) {
+		t.Errorf("x = 0 gave ln P = %g, want -Inf: a zero-length span has probability zero "+
+			"under a continuous null, which is why the burst arm never passes one", got)
+	}
+}

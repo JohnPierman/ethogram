@@ -23,6 +23,7 @@ import (
 
 	"github.com/jackc/pgx/v5/pgxpool"
 
+	"github.com/JohnPierman/ethogram/domain/burst"
 	"github.com/JohnPierman/ethogram/domain/cooccurrence"
 	"github.com/JohnPierman/ethogram/domain/drift"
 	"github.com/JohnPierman/ethogram/domain/marginal"
@@ -115,6 +116,19 @@ var migrations = []string{
 		last_seen_us  bigint NOT NULL,
 		PRIMARY KEY (source, entity)
 	)`,
+	// recent_us is bounded at burst.MaxWindow entries by the domain, so the row is fixed
+	// width; see BurstStore for why it is an array rather than a child table.
+	`CREATE TABLE IF NOT EXISTS burst_state (
+		source       text     NOT NULL,
+		entity       text     NOT NULL,
+		recent_us    bigint[] NOT NULL,
+		gaps         float8   NOT NULL,
+		gaps_squared float8   NOT NULL,
+		gap_count    float8   NOT NULL,
+		observed     bigint   NOT NULL,
+		last_seen_us bigint   NOT NULL,
+		PRIMARY KEY (source, entity)
+	)`,
 	`CREATE TABLE IF NOT EXISTS drift_state (
 		source            text   NOT NULL,
 		entity            text   NOT NULL,
@@ -181,6 +195,7 @@ type Store struct {
 	pool            *pgxpool.Pool
 	noveltyRepo     *NoveltyStore
 	noveltyRateRepo *NoveltyRateStore
+	burstRepo       *BurstStore
 	timingRepo      *TimingStore
 	volumeRepo      *VolumeStore
 	driftRepo       *DriftStore
@@ -208,6 +223,7 @@ func New(ctx context.Context, connString string, halfLife novelty.HalfLife) (*St
 		pool:            pool,
 		noveltyRepo:     &NoveltyStore{pool: pool, halfLife: halfLife},
 		noveltyRateRepo: &NoveltyRateStore{pool: pool},
+		burstRepo:       &BurstStore{pool: pool},
 		timingRepo:      &TimingStore{pool: pool},
 		volumeRepo:      &VolumeStore{pool: pool},
 		driftRepo:       &DriftStore{pool: pool},
@@ -249,6 +265,9 @@ func (s *Store) Volume() volume.StateRepository { return s.volumeRepo }
 
 // NoveltyRate returns the noveltyrate.StateRepository implementation.
 func (s *Store) NoveltyRate() noveltyrate.StateRepository { return s.noveltyRateRepo }
+
+// Burst returns the inter-arrival state repository (#53).
+func (s *Store) Burst() burst.StateRepository { return s.burstRepo }
 
 // Drift returns the drift.StateRepository implementation.
 func (s *Store) Drift() drift.StateRepository { return s.driftRepo }
@@ -319,6 +338,7 @@ func (s *Store) VolumeEntities(ctx context.Context) (int64, error) {
 var tables = []string{
 	"novelty_value_count",
 	"noveltyrate_state",
+	"burst_state",
 	"timing_state",
 	"volume_state",
 	"drift_state",

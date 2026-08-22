@@ -1,0 +1,355 @@
+{
+  "schema_version": 1,
+  "kind": "robust-allocation",
+  "run": {
+    "run_id": "robust-inj-burst-d7-14-001",
+    "source_matrix": {
+      "corpus": "C:\\Users\\JohnPierman\\Documents\\calibrated-anomaly-detection\\data\\lanl\\auth-holdout-r7-d0-14.txt.gz",
+      "run_id": "lanl-inj-b1000-burst-d7-14-001"
+    }
+  },
+  "budget": 1000,
+  "arms": [
+    "burst",
+    "novelty",
+    "noveltyrate",
+    "pairing",
+    "timing",
+    "volume",
+    "marginal"
+  ],
+  "mechanisms": [
+    "credential_spray",
+    "lateral_chain",
+    "off_hours",
+    "privilege_escalation",
+    "low_and_slow",
+    "account_takeover",
+    "real campaign"
+  ],
+  "caveats": [
+    "detection rates are event-level; each mechanism has eight victims and a deterministic choice of planted values, so the effective sample size is nearer eight than the event count and every value here is a coarse rate",
+    "the adversary is assumed to choose the mechanism knowing the allocation but not the realised draw, which is what makes a mixed strategy meaningful"
+  ],
+  "detection_rate": {
+    "burst": {
+      "account_takeover": 0.041666666666666664,
+      "credential_spray": 0.05625,
+      "lateral_chain": 0,
+      "low_and_slow": 0,
+      "off_hours": 0,
+      "privilege_escalation": 0,
+      "real campaign": 0
+    },
+    "marginal": {
+      "account_takeover": 1,
+      "credential_spray": 0,
+      "lateral_chain": 0,
+      "low_and_slow": 0,
+      "off_hours": 0,
+      "privilege_escalation": 0,
+      "real campaign": 0
+    },
+    "novelty": {
+      "account_takeover": 0.25,
+      "credential_spray": 0.25,
+      "lateral_chain": 0.375,
+      "low_and_slow": 0,
+      "off_hours": 0,
+      "privilege_escalation": 0,
+      "real campaign": 0.3242258652094718
+    },
+    "noveltyrate": {
+      "account_takeover": 0.5333333333333333,
+      "credential_spray": 0.365625,
+      "lateral_chain": 0.65,
+      "low_and_slow": 0,
+      "off_hours": 0,
+      "privilege_escalation": 0.16666666666666666,
+      "real campaign": 0.3151183970856102
+    },
+    "pairing": {
+      "account_takeover": 0.1,
+      "credential_spray": 0,
+      "lateral_chain": 0,
+      "low_and_slow": 0,
+      "off_hours": 0,
+      "privilege_escalation": 0,
+      "real campaign": 0.23679417122040072
+    },
+    "timing": {
+      "account_takeover": 0.09166666666666666,
+      "credential_spray": 0,
+      "lateral_chain": 0,
+      "low_and_slow": 0,
+      "off_hours": 0.046875,
+      "privilege_escalation": 0,
+      "real campaign": 0.012750455373406194
+    },
+    "volume": {
+      "account_takeover": 0,
+      "credential_spray": 0,
+      "lateral_chain": 0,
+      "low_and_slow": 0,
+      "off_hours": 0.015625,
+      "privilege_escalation": 0,
+      "real campaign": 0.007285974499089253
+    }
+  },
+  "planted": {
+    "account_takeover": 120,
+    "credential_spray": 320,
+    "lateral_chain": 40,
+    "low_and_slow": 288,
+    "off_hours": 64,
+    "privilege_escalation": 24,
+    "real campaign": 549
+  },
+  "unreachable": [
+    "low_and_slow"
+  ],
+  "maximin": {
+    "value": 0,
+    "mix": {
+      "burst": 1
+    },
+    "adversary_reply": {
+      "low_and_slow": 1
+    },
+    "support": [
+      "burst"
+    ],
+    "best_pure_arm": "burst",
+    "best_pure_value": 0,
+    "gain_from_mixing": 0
+  },
+  "competitive_ratio": {
+    "value": 0.42105263157894735,
+    "mix": {
+      "marginal": 0.15789473684210534,
+      "noveltyrate": 0.4210526315789473,
+      "timing": 0.4210526315789473
+    },
+    "adversary_reply": {
+      "account_takeover": 0.4210526315789474,
+      "credential_spray": 0.19649122807017547,
+      "off_hours": 0.38245614035087716
+    },
+    "support": [
+      "noveltyrate",
+      "timing",
+      "marginal"
+    ],
+    "best_pure_arm": "burst",
+    "best_pure_value": 0,
+    "gain_from_mixing": 0.42105263157894735,
+    "retained_fraction": {
+      "account_takeover": 0.42105263157894735,
+      "credential_spray": 0.42105263157894723,
+      "lateral_chain": 0.4210526315789473,
+      "off_hours": 0.4210526315789473,
+      "privilege_escalation": 0.4210526315789473,
+      "real campaign": 0.4257835600236545
+    },
+    "dropped_mechanisms": [
+      "low_and_slow"
+    ]
+  },
+  "price_of_robustness": {
+    "prior": {
+      "account_takeover": 0.3,
+      "credential_spray": 0.3,
+      "lateral_chain": 0.12,
+      "low_and_slow": 0.1,
+      "off_hours": 0.08,
+      "privilege_escalation": 0.05,
+      "real campaign": 0.05
+    },
+    "bayes_arm": "noveltyrate",
+    "bayes_expected_rate": 0.37177675318761383,
+    "bayes_worst_case_rate": 0,
+    "robust_expected_rate": 0.2173323267184354,
+    "robust_worst_case_rate": 0,
+    "expected_rate_given_up": 0.15444442646917844,
+    "worst_case_rate_bought": 0,
+    "fraction_of_expected_given_up": 0.41542249520706165
+  },
+  "attacker_cost": [
+    {
+      "lambda": 0,
+      "value": 0,
+      "mix": {
+        "burst": 1
+      },
+      "adversary_reply": {
+        "low_and_slow": 1
+      }
+    },
+    {
+      "lambda": 0.005,
+      "value": 0.04268292682926822,
+      "mix": {
+        "noveltyrate": 0.1960975609756109,
+        "timing": 0.803902439024389
+      },
+      "adversary_reply": {
+        "off_hours": 0.7804878048780488,
+        "privilege_escalation": 0.21951219512195108
+      }
+    },
+    {
+      "lambda": 0.01,
+      "value": 0.04878048780487809,
+      "mix": {
+        "noveltyrate": 0.17268292682926872,
+        "timing": 0.8273170731707314
+      },
+      "adversary_reply": {
+        "off_hours": 0.7804878048780489,
+        "privilege_escalation": 0.21951219512195114
+      }
+    },
+    {
+      "lambda": 0.02,
+      "value": 0.060975609756097615,
+      "mix": {
+        "noveltyrate": 0.12585365853658534,
+        "timing": 0.8741463414634146
+      },
+      "adversary_reply": {
+        "off_hours": 0.7804878048780486,
+        "privilege_escalation": 0.21951219512195147
+      }
+    },
+    {
+      "lambda": 0.05,
+      "value": 0.09154829545454546,
+      "mix": {
+        "noveltyrate": 0.11363636363636424,
+        "timing": 0.8863636363636357
+      },
+      "adversary_reply": {
+        "credential_spray": 0.11363636363636373,
+        "off_hours": 0.8863636363636362
+      }
+    }
+  ],
+  "shadow_prices": [
+    {
+      "arm": "timing",
+      "mechanism": "low_and_slow",
+      "current_rate": 0,
+      "gain_in_guarantee": 0.03658536585365857
+    },
+    {
+      "arm": "noveltyrate",
+      "mechanism": "low_and_slow",
+      "current_rate": 0,
+      "gain_in_guarantee": 0.03191489361702127
+    },
+    {
+      "arm": "volume",
+      "mechanism": "low_and_slow",
+      "current_rate": 0,
+      "gain_in_guarantee": 0.02941176470588247
+    },
+    {
+      "arm": "burst",
+      "mechanism": "low_and_slow",
+      "current_rate": 0,
+      "gain_in_guarantee": 0.02678571428571419
+    },
+    {
+      "arm": "marginal",
+      "mechanism": "low_and_slow",
+      "current_rate": 0,
+      "gain_in_guarantee": 0.02678571428571419
+    },
+    {
+      "arm": "novelty",
+      "mechanism": "low_and_slow",
+      "current_rate": 0,
+      "gain_in_guarantee": 0.02678571428571419
+    },
+    {
+      "arm": "pairing",
+      "mechanism": "low_and_slow",
+      "current_rate": 0,
+      "gain_in_guarantee": 0.02678571428571419
+    }
+  ],
+  "randomised_against_the_recorded_rules": [
+    {
+      "name": "best single arm (noveltyrate)",
+      "detected_total": 384,
+      "alerts": 7000,
+      "worst_case_retained_fraction": 0
+    },
+    {
+      "name": "composite (Fisher + Brown)",
+      "detected_total": 227,
+      "alerts": 7000,
+      "worst_case_retained_fraction": 0
+    },
+    {
+      "name": "corrected minimum (Šidák)",
+      "detected_total": 221,
+      "alerts": 7000,
+      "worst_case_retained_fraction": 0
+    },
+    {
+      "name": "union, per-entity arms (equal cost)",
+      "detected_total": 125,
+      "alerts": 7000,
+      "worst_case_retained_fraction": 0
+    },
+    {
+      "name": "union, per-entity arms (equal depth)",
+      "detected_total": 513,
+      "alerts": 31153,
+      "worst_case_retained_fraction": 0.6333333333333333,
+      "note": "spends 4.5x the permitted alerts"
+    },
+    {
+      "name": "union, all arms (equal cost)",
+      "detected_total": 218,
+      "alerts": 7000,
+      "worst_case_retained_fraction": 0
+    },
+    {
+      "name": "union, all arms (equal depth)",
+      "detected_total": 557,
+      "alerts": 36751,
+      "worst_case_retained_fraction": 1,
+      "note": "spends 5.3x the permitted alerts"
+    },
+    {
+      "name": "randomised, competitive-ratio mixture",
+      "detected_total": 189.47368421052627,
+      "alerts": 7000,
+      "worst_case_retained_fraction": 0.42105263157894723,
+      "note": "one arm at full depth, chosen by lottery; not a budget split"
+    },
+    {
+      "name": "per-entity routing, oracle floor",
+      "detected_total": 448,
+      "alerts": 7000,
+      "worst_case_retained_fraction": 0,
+      "note": "each mechanism to the arm that reaches it most; any per-entity policy matches this by construction"
+    },
+    {
+      "name": "per-entity routing, oracle ceiling",
+      "detected_total": 557,
+      "alerts": 7000,
+      "worst_case_retained_fraction": 0,
+      "note": "no routing can reach an event no arm reaches; the alert cost of attaining it is not accounted for here"
+    },
+    {
+      "name": "randomised, even over noveltyrate and novelty",
+      "detected_total": 343.5,
+      "alerts": 7000,
+      "worst_case_retained_fraction": 0,
+      "note": "the two highest-yielding arms, each at its own full depth"
+    }
+  ]
+}

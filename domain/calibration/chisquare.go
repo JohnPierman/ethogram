@@ -195,3 +195,66 @@ func upperGammaContinuedFractionLog(a, x float64) float64 {
 	logGamma, _ := math.Lgamma(a)
 	return math.Log(upperGammaContinuedFractionFactor(a, x)) + a*math.Log(x) - x - logGamma
 }
+
+// GammaLowerTailLog is ln P(a, x), the logarithm of the regularised LOWER incomplete gamma
+// P(a, x) = γ(a, x)/Γ(a).
+//
+// It exists because the lower tail is the one a burst test needs and the one 1 − Q cannot give.
+// A Gamma(a) waiting time falling far below its mean is a small lower tail, and computing it as
+// 1 − ChiSquareSurvival loses every digit of it: at P ≈ 1e−15 the subtraction is
+// 1 − (1 − 1e−15), which float64 rounds to zero. The power series for P converges fastest in
+// exactly that regime — x well below a + 1 — so it is evaluated directly and its logarithm taken.
+//
+// a ≤ 0 returns 0 (that is, P = 1): no waiting is required for no arrivals, so any span is
+// consistent with it. x ≤ 0 returns −Inf: a span of zero has probability zero under a continuous
+// law, and the logarithm says so rather than reporting a floor.
+//
+// Above the series' regime the continued fraction for Q is accurate and P is near one, where the
+// subtraction is harmless — so 1 − Q is used there and the branch is the same split at x = a + 1
+// that [regularisedUpperGamma] makes.
+func GammaLowerTailLog(a, x float64) float64 {
+	switch {
+	case a <= 0:
+		return 0
+	case x <= 0:
+		return math.Inf(-1)
+	case x < a+1:
+		return lowerGammaSeriesLog(a, x)
+	default:
+		return math.Log1p(-upperGammaContinuedFraction(a, x))
+	}
+}
+
+// GammaLowerTail is P(a, x) itself, for reading. It underflows where the logarithm does not,
+// which is why the logarithm is the one the scoring path uses.
+func GammaLowerTail(a, x float64) float64 {
+	return math.Exp(GammaLowerTailLog(a, x))
+}
+
+// lowerGammaSeriesLog is [lowerGammaSeries] with the prefactor added in log space rather than
+// multiplied in.
+//
+// The prefactor x^a e^{-x}/Gamma(a) is what collapses. At a = 31 and x = 0.001 it is about
+// 1e-127, and a tighter burst over more events takes it below float64 entirely -- whereupon
+// taking the logarithm of the product yields negative infinity for a p-value that is small but
+// perfectly well defined. Its logarithm is a sum of three ordinary numbers, so the series' own
+// sum, which is of order 1/a and never small, is the only thing multiplied.
+//
+// This is the same split [ChiSquareLogSurvival] makes for the upper tail, for the same reason and
+// with the same consequence: the deep tail comes out as an accurate large negative number rather
+// than as a floor every extreme event ties at.
+func lowerGammaSeriesLog(a, x float64) float64 {
+	logGamma, _ := math.Lgamma(a)
+	term := 1 / a
+	sum := term
+	factor := a
+	for range gammaMaxIterations {
+		factor++
+		term *= x / factor
+		sum += term
+		if math.Abs(term) < math.Abs(sum)*gammaRelativeTolerance {
+			break
+		}
+	}
+	return math.Log(sum) + a*math.Log(x) - x - logGamma
+}
