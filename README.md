@@ -275,6 +275,52 @@ It also measures the cost #3 is about. The open-vocabulary corpus replays at **5
 against LANL's ~1,900**, because equation (5)'s tail is a sum over the whole value set and that set
 never stops growing.
 
+### Bounded state for open vocabularies (`-max-values k`)
+
+Equation (4) sums over every value an entity has been seen with, so the state grows with the
+vocabulary for as long as the vocabulary keeps opening. `-max-values k` holds only the heaviest k
+per (entity, field) in a space-saving sketch, and the reason to prefer space-saving over simply
+dropping values is that **the error becomes a number the run reports**:
+
+- a held count never under-states the truth, and over-states it by at most the weight it
+  inherited;
+- an evicted value's true weight is at most the least weight held when it went;
+- the total is exact, because eviction moves weight rather than discarding it.
+
+Below the ceiling the sketch is exact and says so, so a field that never saturates carries no
+caveat it has not earned.
+
+**Bounding it naively destroys the thing it was supposed to make affordable.** On the
+open-vocabulary corpus above, at both a 64-value and a 256-value ceiling, `novelty` went from 864
+of 864 planted detections to **0** -- while the sketch did exactly what it claimed. Good-Turing
+reads the singleton rate, the singleton rate lives in the tail, and a heavy-hitters sketch evicts
+the tail one value at a time: the estimator was handed a distribution with its tail cut off and
+read a *closed* vocabulary where the truth is open, which is the exact confound the Good-Turing
+reserve exists to remove.
+
+That is also the half of the design that was missing -- "a heavy-hitters sketch for the head,
+**plus Good-Turing's count-of-counts for the tail**". With the evicted count-of-counts reported
+through `novelty.TailReporter`:
+
+| | unbounded | `-max-values 64` |
+|---|---|---|
+| novelty value rows held | 238,621 | **12,522** |
+| events per second | 534 | **780** |
+| `novelty` at 10/day | 0 | **30** |
+| `novelty` at 100/day | 144 | **300** |
+| `novelty` at 1000/day | 864 | 864 |
+| worst overstatement | -- | 16.6 on a per-entity total of 1,960 |
+
+**19x less state, 46% faster, and more detections at the tight budgets** -- 150 of 2,400 sets
+saturated, 274,361 evictions, and the 864 at the deepest budget unchanged. The gain at 10 and 100
+a day is a mechanism worth naming rather than a bonus: the evicted singleton count is *additional*
+evidence that a vocabulary is still opening, so the open accounts are suppressed harder than the
+held rows alone would suppress them, and the closed accounts' plants surface earlier.
+
+On a synthetic corpus, so it demonstrates a mechanism rather than establishing a rate. The
+unbounded store remains the default: it answers equation (4) exactly, and which of the two a run
+used is recorded.
+
 ### Per-entity routing (`-route policy`)
 
 Routing is not a global allocation: it chooses per entity, so in principle it can send an

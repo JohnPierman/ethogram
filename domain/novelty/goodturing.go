@@ -46,6 +46,24 @@ package novelty
 // system makes to keep decay lazy, and it degrades smoothly: a value decayed to 0.9 is
 // still nearly a singleton and is treated as one.
 func UnseenMass(history []ValueCount, alpha float64) (mass float64, usedGoodTuring bool) {
+	return UnseenMassWithTail(history, alpha, 0)
+}
+
+// UnseenMassWithTail is [UnseenMass] with singleton weight belonging to values the caller is no
+// longer holding (§13.3, issue #3).
+//
+// A bounded store evicts the tail one value at a time, and the singleton rate the estimate reads
+// lives there. Passing the evicted singleton weight back in is what lets a bounded store answer
+// the same question an unbounded one does: without it the estimator sees a closed vocabulary
+// where the truth is open, which took novelty's detections from 864 to 0 on the open-vocabulary
+// corpus before this parameter existed.
+//
+// tailSingletons is added to the singleton weight and *not* to the total, because the total
+// already counts every observation the evicted values contributed — eviction moves weight rather
+// than discarding it, so counting them again would understate the rate.
+func UnseenMassWithTail(history []ValueCount, alpha, tailSingletons float64) (
+	mass float64, usedGoodTuring bool) {
+
 	var (
 		total      float64
 		distinct   int
@@ -67,6 +85,9 @@ func UnseenMass(history []ValueCount, alpha float64) (mass float64, usedGoodTuri
 		return dirichlet, false
 	}
 
+	if tailSingletons > 0 {
+		singletons += tailSingletons
+	}
 	gt := singletons / total
 	switch {
 	case gt <= 0:

@@ -11,6 +11,24 @@ Equation numbers `(1)`–`(20)`, requirements `R1`–`R6`, and evaluation hypoth
 
 ### Added
 
+- **Bounded per-entity value counts, with a stateable error (#3).** Equation (4) sums over every
+  value an entity has been seen with, so the state grew with the vocabulary without limit.
+  `-max-values k` holds the heaviest k per (entity, field) in a space-saving sketch: a held count
+  never under-states the truth and over-states it by at most the weight it inherited, an evicted
+  value's true weight is at most the least weight held when it went, and the total is exact because
+  eviction moves weight rather than discarding it. Below the ceiling it is exact and says so.
+  Measured on the open-vocabulary corpus at k = 64: **238,621 value rows down to 12,522**, 534 to
+  **780 events a second**, and `novelty` from 0 / 144 / 864 to **30 / 300 / 864** at 10/100/1000
+  alerts a day -- 19x less state, 46% faster, and more detections where the budget is tight
+- **`novelty.TailReporter`, the count-of-counts an evicting store owes Good-Turing (#3).** The first
+  bounded measurement took `novelty` from 864 of 864 to **0**, at both k = 64 and k = 256, while the
+  sketch did exactly what it claimed. Good-Turing reads the singleton rate, the singleton rate lives
+  in the tail, and a heavy-hitters sketch evicts the tail one value at a time -- so the estimator was
+  handed a distribution with its tail cut off and read a *closed* vocabulary where the truth is
+  open, which is the confound the Good-Turing reserve exists to remove. Reporting the evicted
+  singleton weight is the "plus Good-Turing's count-of-counts for the tail" half of #3's own design,
+  and leaving it out is what made the first measurement fail
+
 - **Good-Turing is tested on a genuinely open-vocabulary corpus, and there it is the difference
   between nothing and everything (#4).** `cmd/openvocab` generates one -- 150 accounts whose
   destination is a brand-new host 80% of the time, 150 that revisit a fixed set of five, and the

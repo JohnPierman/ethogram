@@ -79,6 +79,11 @@ type stateStores struct {
 	// does about it.
 	graph *cooccurrence.MemoryGraph
 
+	// bounded is the per-(entity, field) value ceiling report (#3), or nil where the store
+	// holds every value. Reported rather than inferred from the flag, so a run says what its
+	// state actually cost.
+	bounded func() map[string]any
+
 	// counts reports the final store sizes for the run record.
 	//
 	// They belong in the equivalence comparison rather than masked out of it: a store size
@@ -99,16 +104,33 @@ type stateStores struct {
 // rather than on the repository interface. Substituting it would mean either moving the export
 // behind the interface or losing the partition, neither of which is what #48 is asking about.
 func newStateStores(ctx context.Context, kind storeKind, dsn string, truncate bool,
-	halfLife novelty.HalfLife) (*stateStores, error) {
+	maxValues int, halfLife novelty.HalfLife) (*stateStores, error) {
 
 	graph := cooccurrence.NewMemoryGraph(halfLife)
 
 	if kind == storeMemory {
-		nov := memory.NewNoveltyStore(halfLife)
 		tim := memory.NewTimingStore()
 		vol := memory.NewVolumeStore()
+
+		// The bounded store is a different claim rather than a tuned version of the same
+		// one: it answers equation (4) approximately and does not grow with the vocabulary,
+		// where the unbounded store answers it exactly and does. Which was used is recorded.
+		var (
+			nov         novelty.ValueCountRepository
+			rowCount    func() int64
+			boundReport func() map[string]any
+		)
+		if maxValues > 0 {
+			b := memory.NewBoundedNoveltyStore(halfLife, maxValues)
+			nov, rowCount, boundReport = b, b.Rows, b.Report
+		} else {
+			u := memory.NewNoveltyStore(halfLife)
+			nov, rowCount = u, u.Rows
+		}
+
 		return &stateStores{
 			kind:        storeMemory,
+			bounded:     boundReport,
 			novelty:     nov,
 			noveltyRate: memory.NewNoveltyRateStore(),
 			timing:      tim,
@@ -118,7 +140,7 @@ func newStateStores(ctx context.Context, kind storeKind, dsn string, truncate bo
 			graph:       graph,
 			counts: func(context.Context) map[string]any {
 				return map[string]any{
-					"novelty_rows":    nov.Rows(),
+					"novelty_rows":    rowCount(),
 					"timing_entities": tim.Entities(),
 					"volume_entities": vol.Entities(),
 				}
@@ -181,8 +203,17 @@ func newStateStores(ctx context.Context, kind storeKind, dsn string, truncate bo
 // choice appears in a result. A field that named the store anywhere else would make the two
 // files differ for a reason that is not a defect.
 func (s *stateStores) record() map[string]any {
+	values := map[string]any{
+		"bounded": false,
+		"note": "every value the entity has been seen with is held, so equation (4)'s " +
+			"reserved mass is exact and the state grows with the vocabulary (§13.3)",
+	}
+	if s.bounded != nil {
+		values = s.bounded()
+	}
 	return map[string]any{
-		"kind": string(s.kind),
+		"kind":         string(s.kind),
+		"value_counts": values,
 		"note": "the co-occurrence graph is in memory under both kinds: the burn-in edge " +
 			"export that computes the Leiden partition is a method on the memory graph " +
 			"rather than on the repository interface, and the arm it serves is reported " +
