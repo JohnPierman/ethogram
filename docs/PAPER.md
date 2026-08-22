@@ -5,8 +5,8 @@
 Anomaly detection on security telemetry is usually posed as outlier detection against a pooled
 population. We argue and then measure that this asks the wrong question: an account that is
 permanently unusual is not thereby suspicious, and one that has changed is suspicious whether or not
-it is unusual for the organisation. We condition each null on the entity that produced the event, so
-the reference set for an authentication is that account's own history.
+it is unusual for the organisation. We condition each null on the entity that produced the event, so an
+authentication's reference set is that account's own history.
 
 On the Los Alamos authentication corpus, where 549 labelled red-team events occur among 4.19
 million scored events, a per-entity novelty test attains 15.7% precision (95% CI 9.0–26.0) at
@@ -133,8 +133,7 @@ gives 2, 8, 15 and 21 at 10, 25, 50 and 100 alerts a day and the composite 0 eve
 
 ### 2.2 Detection by attack mechanism
 
-Planted attacks of six named kinds separate "cannot express this mechanism" from "cannot afford
-it": eight victims each, inside the scoring window, the planted value always the most
+Six planted kinds separate "cannot express this mechanism" from "cannot afford it": eight victims each, inside the scoring window, the planted value always the most
 population-common value the victim has never used, so population rarity is held out by construction
 (Appendix A). `lanl-inj-b1000-weighted-d7-14-005`.
 
@@ -144,8 +143,8 @@ at 1000 five of six are. For four of the six, "this framework does not detect it
 budget and true at another, and only the budget changed.
 
 **At 1000 alerts a day**, planted totals in the header. Every row spends the permitted 7,000 alerts
-except the equal-depth union at 31,505 (×4.5), and the baselines, measured at their own budgets on
-the sampled corpus of §2.5.
+except the equal-depth union at 31,505 (×4.5), and the baselines, at their own budgets on §2.5's
+sampled corpus.
 
 | Method | spray /320 | lateral /40 | off-hrs /64 | priv-esc /24 | low+slow /288 | takeover /120 | real /549 |
 |---|---|---|---|---|---|---|---|
@@ -165,7 +164,7 @@ the sampled corpus of §2.5.
 
 The `drift` row is the sequential-change arm §3.3 introduces, on
 `lanl-inj-b1000-drift-d7-14-006`. **It reaches 0 of 288 low-and-slow events**, the column it was
-built for, and its single detection is a real-campaign event; §3.3 diagnoses why. Adding it leaves
+built for, its single detection being a real-campaign event; §3.3 says why. Adding it leaves
 every other arm's row identical, and §2.4 measures what it does to the combinations.
 
 **No single method is best at more than one thing.** The `marginal` takes every planted takeover
@@ -212,15 +211,14 @@ worst-case *fraction retained*, dropping the column no arm reaches:
 | best single arm | **0** | **0.372** | any one arm — each is blind to some mechanism |
 | competitive ratio | **0.421 of achievable** | 0.217 | `noveltyrate` 0.42, `timing` 0.42, `marginal` 0.16 |
 
-**The measured policy does not reach that headroom, and the reason generalises.** Routing on the
-arms' declared preconditions sends **117 of the 129 labelled entities to one arm**, every attacked
+**The measured policy does not reach it, and the reason generalises.** Routing on the arms'
+declared preconditions sends **117 of the 129 labelled entities to one arm**, every attacked
 account having history, so it reproduces that arm almost exactly — 0/21/381 against 0/21/384 — and
-is beaten at every budget by whichever arm is best there (11/76/384). The disjointness that
-motivates routing is in *which events* each arm detects, and **history does not predict
-mechanism.**
+is beaten at every budget by whichever arm is best (11/76/384). The disjointness that motivates
+routing is in *which events* each arm detects, and **history does not predict mechanism.**
 
 Expected rate is under a prior weighted towards credential attacks and takeover. The optimum
-**equalises**, which is what makes one number mean something:
+**equalises**, which makes one number mean something:
 
 | spray | lateral | off-hrs | priv-esc | takeover | real |
 |---|---|---|---|---|---|
@@ -288,8 +286,7 @@ none of the columns §2.1 and §2.2 compare arms on. **Marginal improvement to `
 | union, all arms, equal depth | 11 | 74 | 278 | 32,134 (×4.5) |
 
 At equal cost the union is strictly dominated at every budget, with non-overlapping intervals at the
-widest: recall 17.5% (14.5–20.9) against 36.6% (32.7–40.7). No exchange rate rescues a dominated
-option. At equal depth it finds what no single arm does, 278 against 201, for 3.7 times the alerts.
+widest: recall 17.5% (14.5–20.9) against 36.6% (32.7–40.7). At equal depth it finds what no single arm does, 278 against 201, for 3.7 times the alerts.
 
 The two p-value rules fail for different reasons. **Fisher's sum averages an informative test with
 uninformative ones**: labelled events sit at the 0.07th percentile of `novelty`'s own distribution
@@ -333,7 +330,7 @@ complements the same search finds headroom, which is the control this argument n
 `marginal`'s 76 detections at 100 alerts a day overlap the per-entity arms' by **zero**, and the
 best split gives it 75 alerts and `novelty` 25, for 77 against 76; at 1000, 150 and 850 for 395
 against 384. Both optima sit on a plateau and both gains are inside sampling error.
-**Overlap decides whether dividing a budget can pay.**
+Overlap decides it.
 
 ### 2.5 Population-scope baselines
 
@@ -404,7 +401,7 @@ table and `timing`'s four floored strata. Calibrate first, weight second.
 
 ### 3.2 Principal limitations
 
-Appendix F carries the full set with its measurement. Two dominate.
+Appendix F carries the full set with its measurement; two dominate.
 
 **The `novelty` p-value is confounded with history length.** For a first-ever value the estimate
 reduces to a/(n + a(K+1)) ≈ 1/n. Across 32 planted victims spanning 263 to 20,666 events of
@@ -413,7 +410,7 @@ history, the product of the p-value and the history length has median 1.15 and l
 arm's realised cut needs of the order of 10⁵ events of history and the busiest planted victim had
 20,666, so **no attack on an ordinary account could win a slot whatever it did**. Reserving unseen mass by Good–Turing instead *lost* detections here, large histories carrying many
 singletons so the correction judges a first-ever value unremarkable for exactly the accounts the
-working estimator ranks highest — which works for a reason the model does not state. **That is a property of this corpus, not the correction**: on a synthetic corpus carrying
+working estimator ranks highest. **That is a property of this corpus, not the correction**: on a synthetic corpus carrying
 open-vocabulary traffic beside closed, where 16,800 innocent daily novelties fill the budget, the
 switch takes `novelty` from **0 of 864 plants to all 864** at 1000 a day.
 
@@ -479,14 +476,13 @@ events raise it, which raises the reference value and floors the sum.
 
 One gap separates what is measured from what can be run: **a fixed budget is a batch
 construction.** Selecting the top *B* of a day requires the whole day, and an operator at 14:00 does
-not know what arrives by 23:59 — as for a per-day Benjamini–Hochberg step-up. §4.4's objective,
-Appendix D's score and alpha-investing [26][27] are all built to the streaming constraint, and
-running the last of them closes that gap while leaving the other open: over 4,494,396 tests at
+not know what arrives by 23:59 — as for a per-day Benjamini–Hochberg step-up. §4.4's objective, Appendix D's score
+and alpha-investing [26][27] are all built to the streaming constraint, and running the last closes
+that gap while leaving the other open: over 4,494,396 tests at
 q = 0.1 its level reaches 1.1 × 10⁻¹² and `novelty` never clears it, **0 rejections**, while on the
-composite it rejects 79,286 at a realised rate of **0.995**. Valid error control at this scale
-demands a threshold the signal does not reach on the one arm worth calibrating, and concedes
-everything on the arm that is not. What is missing is not a streaming rule but a calibrated
-per-alert probability.
+composite it rejects 79,286 at a realised rate of **0.995**. Valid error control at this scale demands a
+threshold the signal does not reach on the one arm worth calibrating, and concedes everything on
+the arm that is not. What is missing is a calibrated per-alert probability, not a streaming rule.
 
 One direction is closed rather than open. Learning the allocation online is the adversarial bandit
 setting [20], whose regret √(2TK ln K) looks survivable — 89 detection-units against 10,481 over a
@@ -547,14 +543,16 @@ settles each field into one of five kinds — categorical, boolean, discrete, co
 
 The identifier kind carries the weight. A field whose values are almost all distinct — a session
 GUID, a request id — is unbounded by construction: every value is first-ever, so a novelty test on
-it fires on every event and, being the most extreme thing in the queue, consumes the whole budget.
-Arms decline such fields. Without that, the framework's headline arm is a random-number generator
-with a large p-value.
+it fires on every event and consumes the whole budget, so arms decline such fields: without that
+the headline arm is a random-number generator with a large p-value. A field merely *open* must still be
+scored, and a space-saving sketch bounds its state — 12,522 values against 238,621 — but only if it
+reports what it evicted: the Good–Turing reserve reads the singleton rate, which lives in the tail,
+and withholding it took novelty to **0**.
 
 R3 makes abstention an outcome: it reduces the number of tests combined rather than contributing a
 p-value of one. At this base rate that matters, because a neutral value entered into a combination
-over six tests is not neutral but evidence of ordinariness, and in Fisher's sum five such values
-bury one informative test.
+over six tests is not neutral but evidence of ordinariness, and in Fisher's sum five of them bury
+one informative test.
 
 ### 4.3 Combination and calibration
 
@@ -668,7 +666,7 @@ embedded. A record carries nine fields; an uninterpretable value is written `?`,
 absence throughout.
 
 The unit of analysis is a human account; machine accounts, `SYSTEM` and `ANONYMOUS LOGON` are
-excluded at no cost in labels, all 104 accounts the red team touched being human. The label file
+excluded at no cost, all 104 accounts the red team touched being human. The label file
 carries 749 rows, 715 distinct, naming those 104, and is concentrated: 93.6% of rows share one
 source computer, and two of seven scored days carry 482 of the 700 post-boundary labels.
 It records what the red team did and is not an exhaustive annotation, so activity it missed
@@ -801,7 +799,7 @@ of the composite rather than of the procedures.
 
 ## Appendix F. Threats to validity
 
-§3.2 carries the two that dominate. The rest:
+§3.2 carries the two dominant. The rest:
 
 | Threat | Measurement | Direction |
 |---|---|---|
