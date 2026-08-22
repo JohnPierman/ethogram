@@ -9,6 +9,22 @@ Equation numbers `(1)`–`(20)`, requirements `R1`–`R6`, and evaluation hypoth
 
 ## [Unreleased]
 
+### Changed
+
+- **The two per-entity arms are on by default and the population co-occurrence arm is off
+  (#1, #2).** Both flags said "off by default until a recorded run justifies the flip", and two
+  recorded corpora now do: `pairing` reaches 4/59/127 detections at 10/100/1000 alerts a day on
+  `r11` and 4/59/142 on the injected corpus, `noveltyrate` 0/22/185 and 0/21/384. The form
+  `pairing` replaces is measured *miscalibrated* -- 18.4% of scored events below 1e-12 with no
+  detections at any budget -- and the mechanism is the framework's own thesis turned against it:
+  an account that always uses NTLM and its own workstation has a near-zero observed co-occurrence
+  weight against an expectation in the hundreds, so the null collapses on every one of its events
+  for the account being consistently itself. That is the population-norm question section 1.1
+  disavows. `-pairing=false` still selects the population form for the ablation of section 12.3,
+  and it is not a configuration to deploy
+- Every `Makefile` replay target already passed both flags explicitly, so **no recorded result
+  changes** and every committed run still reproduces byte for byte
+
 ### Fixed
 
 - **The sample-size gate in all three arms counted a discounted weight, and now counts

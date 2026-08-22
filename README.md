@@ -124,18 +124,27 @@ Each detector asks one question and returns a p-value under a stated null, or **
 | `novelty` | has this account used this value before? | per-entity | on, **measured** |
 | `timing` | is this hour unusual for this account? | per-entity | on, measured |
 | `volume` | is this much activity unusual for this account? | per-entity | on, measured |
-| `cooccurrence` | do these two values co-occur as the population predicts? | population | on, measured |
+| `cooccurrence` | do these two values co-occur as the population predicts? | population | **off**, superseded |
 | `marginal` | is this value rare across the whole population? | population | on, measured |
-| `pairing` | has *this account* combined these two values before? | per-entity | opt-in, measured |
-| `noveltyrate` | is it producing *new* values faster than it usually does? | per-entity | opt-in, **measured** |
+| `pairing` | has *this account* combined these two values before? | per-entity | **on**, measured |
+| `noveltyrate` | is it producing *new* values faster than it usually does? | per-entity | **on, measured** |
 | `drift` | has this account's *rate* shifted upward and stayed there? | per-entity | opt-in, **measured: does not work here** |
 
 `noveltyrate` exists because `novelty`'s p-value for a first-ever value is roughly one over
 the size of the account's history, which makes it structurally unable to alert on a small
 account however anomalous it is. The rate question is scale-free instead. It is the broadest
-arm on planted attacks -- the only one reaching four of six types. Two corpora now agree that
-it works, which was the bar set for turning it on by default, so that is a decision waiting
-to be taken rather than evidence waiting to arrive.
+arm on planted attacks -- the only one reaching four of six types.
+
+**Both per-entity arms are now on by default, and the population co-occurrence arm is off.**
+Two recorded corpora were the stated bar and both clear it: `pairing` reaches 4/59/127
+detections at 10/100/1000 alerts a day on `r11` and 4/59/142 on the injected corpus, and
+`noveltyrate` 0/22/185 and 0/21/384. The form `pairing` replaces is measured *miscalibrated* --
+18.4% of scored events below 1e-12, with no detections at any budget -- and it asks whether a
+pairing is unusual for the *population*, which is the question section 1.2 disavows. An account
+that always uses NTLM and its own workstation has a near-zero observed co-occurrence weight
+against an expectation in the hundreds, so the null collapses on every one of its events for
+being consistently itself. `-pairing=false` still selects it, for the ablation, and it is not a
+configuration to deploy.
 
 Nothing names a field. The registry infers each field's kind — categorical, boolean,
 discrete, continuous, identifier — from the values it sees, so a new log source is
