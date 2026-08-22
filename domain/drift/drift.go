@@ -109,6 +109,18 @@ func ReachesMinWeight(delta float64) bool {
 	return delta >= MaxDiscount && delta < 1 || delta == 1
 }
 
+// CoverageHalfLifeDays is the shortest half-life at which this arm can ever form its null,
+// given one period a day: 1/log2(8/7) = 5.19 days. Below it the discounted weight saturates
+// under [MinWeight] and the arm abstains on every entity for all time.
+//
+// The framework's seven-day half-life clears it, at a ceiling of 10.6 against a minimum of 8,
+// but not by much -- which is why this is a function rather than a remark.
+func CoverageHalfLifeDays() float64 {
+	// The boundary is where MaximumGapForWeight(MinWeight, T) equals one period, so solving
+	// for T inverts to 1 / log2(MinWeight/(MinWeight-1)).
+	return 1 / math.Log2(MinWeight/(MinWeight-1))
+}
+
 // Reference returns Page's reference value for detecting a multiplicative shift of the given
 // factor away from a baseline rate.
 //

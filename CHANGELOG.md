@@ -9,6 +9,28 @@ Equation numbers `(1)`–`(20)`, requirements `R1`–`R6`, and evaluation hypoth
 
 ## [Unreleased]
 
+### Added
+
+- **`statistics.SaturatingWeight` names the trap that produced three separate defects (#37).**
+  Every per-entity accumulator here is discounted by 2^(-elapsed/halfLife), so a discounted count
+  does not grow without bound -- it saturates at 1/(1-delta). An arm requiring a minimum
+  discounted weight is therefore imposing a condition that, past a certain sparsity, is
+  **unsatisfiable however long the entity is observed**: the arm does not warm up slowly, it never
+  warms up. `MinimumWeightReachable` and `MaximumGapForWeight` make the claim checkable, and the
+  three arms now state their own coverage through them
+- **The timing arm's real coverage is stated: about 12.4 hours between events (#37).** Its weight
+  is discounted per event and saturates at 10.6 for a once-daily account against a minimum of 20,
+  so the standardised statistic is unavailable to any account sparser than that **permanently**.
+  That reframes #37: the issue attributes the arm's silence on regular accounts to a zero spread,
+  and the weight gate reaches a great deal further. Measured: a once-daily account abstains for
+  want of history after sixty days, and after six hundred
+- **The two timing abstention causes are now distinguishable**, which was #37's first
+  requirement. They point opposite ways -- too little history is a warm-up that passes, no spread
+  is a property of the account that never will -- and a single `abstained_unusable` total could
+  not tell them apart. `timing.AbstentionCause` carries which, the verdict's reason names it, and
+  a run records `abstain_causes` beside `status_counts` so the split is a number rather than a
+  guess
+
 ### Fixed
 
 - **The Postgres volume store no longer drops the dispersion state (#33).** `WindowExpected`,

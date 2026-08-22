@@ -142,14 +142,14 @@ const MinDispersionWindows = 5
 // is what it now does -- or estimate the dispersion on a timescale the entity actually acts
 // on. The second is the better repair and is not attempted here.
 func DispersionReachable(gapHours, halfLifeHours float64) bool {
-	if gapHours <= 0 || halfLifeHours <= 0 {
-		return true
-	}
-	delta := math.Exp2(-gapHours / halfLifeHours)
-	if delta >= 1 {
-		return true
-	}
-	return 1/(1-delta) >= MinDispersionWindows
+	return statistics.MinimumWeightReachable(MinDispersionWindows, gapHours, halfLifeHours)
+}
+
+// DispersionCoverageHours is the sparsest an entity's active windows may be and still permit a
+// dispersion estimate: about 55 hours at the seven-day half-life. Past it the arm abstains
+// permanently rather than warming up.
+func DispersionCoverageHours(halfLifeHours float64) float64 {
+	return statistics.MaximumGapForWeight(MinDispersionWindows, halfLifeHours)
 }
 
 // DispersionMeasurable reports whether the accumulated window weight supports an estimate.
