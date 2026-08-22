@@ -150,3 +150,25 @@ func (s *BoundedNoveltyStore) Report() map[string]any {
 			"values_admitted from above: a value evicted and re-admitted is counted twice",
 	}
 }
+
+// TailCountOfCounts implements novelty.TailReporter: the singleton weight belonging to values
+// this store has evicted for (source, entity, field).
+//
+// It reports the count of evicted entries that were carrying a single observation of their own,
+// which is the N₁ contribution eviction removed from the held rows. Without it a bounded store
+// hands the Good–Turing reserve a distribution with the tail cut off, and the estimator reads a
+// closed vocabulary where the truth is open — measured, that took novelty's detections on the
+// open-vocabulary corpus from 864 of 864 to 0.
+//
+// `saturated` is false for a set that has never evicted anything, so an unsaturated set is
+// reported as having no missing tail rather than a tail of zero weight. The two differ: the
+// first is exact and the second is an estimate that happens to be zero.
+func (s *BoundedNoveltyStore) TailCountOfCounts(_ context.Context, src event.SourceID,
+	en event.EntityID, f event.FieldPath) (singletons float64, saturated bool, err error) {
+
+	set := s.sets[fieldKey{entityKey{src, en}, f}]
+	if set == nil || !set.Saturated() {
+		return 0, false, nil
+	}
+	return float64(set.EvictedSingletons()), true, nil
+}

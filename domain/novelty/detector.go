@@ -209,7 +209,19 @@ func (d *Detector) evaluate(ctx context.Context, e *event.Event, entry *registry
 		}
 	}
 
-	est := d.estimator.Estimate(history, observed)
+	// A bounded store has evicted part of the tail, and the Good-Turing reserve reads the
+	// tail. Asking for what it dropped is what keeps a bounded store answering the same
+	// question an unbounded one does; a store that holds everything does not implement this
+	// and the weight stays zero.
+	var tailSingletons float64
+	if reporter, bounded := d.repository.(TailReporter); bounded {
+		w, saturated, tailErr := reporter.TailCountOfCounts(ctx, e.Source(), e.Entity(),
+			entry.Path)
+		if tailErr == nil && saturated {
+			tailSingletons = w
+		}
+	}
+	est := d.estimator.EstimateWithTail(history, observed, tailSingletons)
 
 	// §6.4: distinct values observed, decayed count of the observed value, total
 	// decayed count, first- and last-seen timestamps. The parameters α and T½ are

@@ -38,3 +38,40 @@ type ValueCountRepository interface {
 	// §6.2. Creates the row if absent with first_seen = at.
 	SaveObservation(ctx context.Context, source event.SourceID, entity event.EntityID, field event.FieldPath, value string, at event.Timestamp) error
 }
+
+// TailReporter is an optional capability a bounded value-count store may offer: the evidence
+// about values it is no longer holding (§13.3, issue #3).
+//
+// # Why it exists
+//
+// Good–Turing reads the singleton rate, and the singleton rate lives in the tail. A
+// heavy-hitters sketch evicts the tail one value at a time, so a store that only reports what
+// it currently holds hands the estimator a distribution with the tail cut off — and the
+// estimator then reads a *closed* vocabulary where the truth is an open one, which is the exact
+// confound the Good–Turing reserve was introduced to remove.
+//
+// Measured before this interface existed: on the open-vocabulary corpus, bounding the per-entity
+// counts took novelty's detections from 864 of 864 to **0**, at both a 64-value and a 256-value
+// ceiling. The sketch was doing its job — 23x less state, every heavy hitter kept, an error bound
+// of 16.6 — and the composition was still wrong, because the shape information the estimator
+// needs had been thrown away one eviction at a time.
+//
+// So an evicting store reports its count-of-counts. This is the "plus Good–Turing's
+// count-of-counts for the tail" half of the issue's own design, and leaving it out is what made
+// the first measurement fail.
+//
+// # Optional by design
+//
+// The unbounded and Postgres stores hold everything, so their tail is not missing and they do
+// not implement this. A caller type-asserts and proceeds without it when absent, which keeps the
+// capability out of the interface every store has to satisfy.
+type TailReporter interface {
+	// TailCountOfCounts returns the singleton weight belonging to values this store has
+	// evicted for (source, entity, field), and whether the bound has ever bound for it.
+	//
+	// Singleton weight rather than a count of evictions: what Good–Turing needs is N₁, the
+	// weight sitting on values seen exactly once, and an eviction whose victim carried more
+	// than one observation is not evidence that the vocabulary is opening.
+	TailCountOfCounts(ctx context.Context, source event.SourceID, entity event.EntityID,
+		field event.FieldPath) (singletons float64, saturated bool, err error)
+}

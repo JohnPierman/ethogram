@@ -84,6 +84,17 @@ type Estimator struct {
 //
 // history is not mutated; the caller's slice order is preserved.
 func (e Estimator) Estimate(history []ValueCount, observed string) Estimate {
+	return e.EstimateWithTail(history, observed, 0)
+}
+
+// EstimateWithTail is [Estimator.Estimate] with singleton weight belonging to values the caller
+// no longer holds, which a bounded store reports through [TailReporter].
+//
+// It changes nothing unless OpenVocabulary is on and the weight is positive: equation (4) reads
+// the totals, and the totals a bounded store reports are exact. Only the Good-Turing reserve
+// reads the shape, and the shape is what eviction damages.
+func (e Estimator) EstimateWithTail(history []ValueCount, observed string,
+	tailSingletons float64) Estimate {
 	sorted := slices.Clone(history)
 	slices.SortFunc(sorted, func(a, b ValueCount) int { return cmp.Compare(a.Value, b.Value) })
 
@@ -110,7 +121,7 @@ func (e Estimator) Estimate(history []ValueCount, observed string) Estimate {
 	// unit mass exactly: p̂(∅) + Σ_v p̂(v) = p̂(∅) + (1 − p̂(∅))·Σ_v n_v/N = 1.
 	observedScale := 0.0
 	if e.OpenVocabulary && total > 0 {
-		if mass, used := UnseenMass(sorted, e.Alpha); used {
+		if mass, used := UnseenMassWithTail(sorted, e.Alpha, tailSingletons); used {
 			pHatUnseen = mass
 			observedScale = (1 - mass) / total
 		}
