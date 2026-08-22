@@ -154,6 +154,22 @@ Alert volume is not capped. The objective is `U = v·TP − c·FP`: you supply w
 incident is worth relative to a wasted investigation, and the cut follows. Measured on a
 real run, a 100/day budget can drop 68% of its queue and lose no detections.
 
+## The paper's length budget
+
+`docs/PAPER.md` is held to 20 pages, 15 of body plus 5 for figures and citations. What `make
+paper` **enforces** is a word budget rather than a page count, and the distinction is not
+pedantry: a page count is a property of the renderer as well as of the source. Byte-identical
+source measured 20 pages under Windows Chrome and 21 under macOS Chrome 141, because font
+embedding differs and moves the line breaks that move the pages.
+
+So the enforced gate is 9,600 words — 20 pages at the 480 words a page this stylesheet was
+measured to run — which holds on any machine and runs in CI without a browser. The page count is
+reported everywhere and enforced only on `PAPER_PLATFORM`, the platform that renders the
+committed PDF. A gate that fails on a machine that did not build the artefact stops carrying
+information and starts being routed around.
+
+Only commit `docs/paper.pdf` from `PAPER_PLATFORM`; `make paper` says so when you are elsewhere.
+
 ## Honest limits
 
 - **Every figure above is from an entity subset**, where a fixed budget is easier to reach

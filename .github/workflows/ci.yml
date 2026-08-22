@@ -148,3 +148,11 @@ jobs:
       # difference here means the Markdown moved without the rendered document following.
       - name: paper page is current with its source
         run: make paper-check
+
+      # #35: CI ran paper-check and dashboard-check but never `make paper`, so the length
+      # budget was enforced only on whichever machine last built the PDF. The word budget is
+      # a property of the source, so it holds on any runner; the page count is renderer
+      # dependent and is reported rather than enforced here, which is why this step needs no
+      # browser and no pinned Chrome.
+      - name: paper is within its length budget
+        run: python3 cmd/thesis/budget.py docs/paper.pdf docs/PAPER.md windows
