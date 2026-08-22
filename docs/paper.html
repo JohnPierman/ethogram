@@ -866,6 +866,14 @@ first-ever value is set by the length of the account&#39;s history rather than b
 value is</strong> (§3.2); <code>noveltyrate</code> exists because of that weakness and asks a scale-free question
 instead. And <code>volume</code>&#39;s over-dispersion makes it tolerant of ordinary bursts and blind to
 sustained small increases, which §2.2 confirms and §3.3 addresses.</p>
+<p>A population-scope relational arm was measured and retired. It asks whether two values
+co-occur as often as the population&#39;s degree structure predicts, and on this corpus 18.4% of
+scored events fell below 10⁻¹² while it detected nothing at any budget — because an account that
+always uses NTLM and its own workstation has a near-zero observed co-occurrence weight against an
+expectation in the hundreds, so its null collapses on every event for the account being
+consistently itself. That is the population-norm question §1.1 disavows, reached by a different
+route, and <code>pairing</code> asks the per-entity form of it instead. The population form is retained for
+the ablation and is not part of the default configuration.</p>
 <p>An arm may score several fields; it takes the most extreme, with a Šidák correction where it
 combines fields internally.</p>
 <p>Ordering is the leakage control: every arm scores against pre-event state, the combination is

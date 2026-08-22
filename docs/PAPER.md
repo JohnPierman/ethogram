@@ -493,6 +493,15 @@ value is** (§3.2); `noveltyrate` exists because of that weakness and asks a sca
 instead. And `volume`'s over-dispersion makes it tolerant of ordinary bursts and blind to
 sustained small increases, which §2.2 confirms and §3.3 addresses.
 
+A population-scope relational arm was measured and retired. It asks whether two values
+co-occur as often as the population's degree structure predicts, and on this corpus 18.4% of
+scored events fell below 10⁻¹² while it detected nothing at any budget — because an account that
+always uses NTLM and its own workstation has a near-zero observed co-occurrence weight against an
+expectation in the hundreds, so its null collapses on every event for the account being
+consistently itself. That is the population-norm question §1.1 disavows, reached by a different
+route, and `pairing` asks the per-entity form of it instead. The population form is retained for
+the ablation and is not part of the default configuration.
+
 An arm may score several fields; it takes the most extreme, with a Šidák correction where it
 combines fields internally.
 
