@@ -85,6 +85,82 @@ type Hypothesis struct {
 	ID    string   `json:"id"`
 	Title string   `json:"title"`
 	Runs  []string `json:"runs"`
+
+	// Realised carries the measured error rate where the hypothesis is about one, so the
+	// scoreboard shows the number rather than only the claim and the runs bearing on it.
+	//
+	// #10 asked for this specifically: the realised-against-nominal comparison "is the number
+	// that says whether the error-rate control works at all". Listing the runs that measured
+	// it leaves a reader to open each and compute it, and a scoreboard row that cannot be read
+	// as pass or fail is a heading.
+	Realised *RealisedFDR `json:"realised_fdr,omitempty"`
+}
+
+// RealisedFDR is the measured false-discovery rate against the level that was asked for.
+type RealisedFDR struct {
+	RunID string `json:"run_id"`
+	// Nominal is the q the procedure was run at; Realised is what came back.
+	Nominal  float64 `json:"nominal_q"`
+	Realised float64 `json:"realised"`
+	Low      float64 `json:"low"`
+	High     float64 `json:"high"`
+	// Discoveries and TruePositives are the counts the rate is computed from, so the
+	// arithmetic is checkable from the row itself (R5).
+	Discoveries   int `json:"discoveries"`
+	TruePositives int `json:"true_positives"`
+	SaturatedDays int `json:"saturated_days"`
+	// Holds is false where the realised rate exceeds the nominal level, which on this corpus
+	// it does by a wide margin. Recorded as a field rather than left for the reader to compare,
+	// because the point of the row is that the control does not work here.
+	Holds bool   `json:"holds"`
+	Note  string `json:"note"`
+}
+
+// realisedFDRFrom reads the tightest nominal level a calibration block recorded, and what came
+// back at it.
+//
+// The tightest rather than the mean: the claim under test is that the realised rate tracks the
+// level asked for, and the level most likely to expose a failure is the strictest one. On this
+// corpus every level fails by a wide margin, so the choice does not flatter anything.
+func realisedFDRFrom(doc map[string]any) *RealisedFDR {
+	results := mapOf(doc, "results")
+	runID := strOf(mapOf(doc, "run"), "run_id")
+
+	var best *RealisedFDR
+	for _, key := range []string{"calibration_bh", "calibration_by"} {
+		for _, raw := range listOf(results, key) {
+			row, ok := raw.(map[string]any)
+			if !ok {
+				continue
+			}
+			q := floatOf(row, "nominal_q")
+			iv := mapOf(row, "realised_fdr")
+			if q <= 0 || len(iv) == 0 {
+				continue
+			}
+			candidate := &RealisedFDR{
+				RunID: runID, Nominal: q,
+				Realised:      floatOf(iv, "point"),
+				Low:           floatOf(iv, "low"),
+				High:          floatOf(iv, "high"),
+				Discoveries:   intOf(row, "discoveries"),
+				TruePositives: intOf(row, "true_positives"),
+				SaturatedDays: intOf(row, "saturated_days"),
+			}
+			candidate.Holds = candidate.Realised <= q
+			if candidate.Holds {
+				candidate.Note = "the realised rate is within the level asked for"
+			} else {
+				candidate.Note = "the realised rate exceeds the level asked for, so the " +
+					"nominal level has no purchase on this corpus: the p-values it is " +
+					"applied to are not calibrated"
+			}
+			if best == nil || candidate.Nominal < best.Nominal {
+				best = candidate
+			}
+		}
+	}
+	return best
 }
 
 // Category carries the taxonomy with each row, so the page needs no second document to
@@ -247,6 +323,17 @@ func intOf(node any, key string) int {
 	}
 	f, _ := m[key].(float64)
 	return int(f)
+}
+
+// floatOf reads a numeric field, zero where it is absent or not a number. Every number in a
+// result file arrives as a float64 through encoding/json, so there is no integer case here.
+func floatOf(node any, key string) float64 {
+	m, ok := node.(map[string]any)
+	if !ok {
+		return 0
+	}
+	f, _ := m[key].(float64)
+	return f
 }
 
 func strOf(node any, key string) string {

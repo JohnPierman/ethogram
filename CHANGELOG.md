@@ -9,6 +9,24 @@ Equation numbers `(1)`–`(20)`, requirements `R1`–`R6`, and evaluation hypoth
 
 ## [Unreleased]
 
+### Added
+
+- **The budget is now recorded as a capacity valve, and it is a finding when it binds (#10).**
+  The objection was that a fixed budget is the wrong *primary* control -- a system tuned to 100
+  alerts a day emits 100 on a quiet day too, all benign -- and that the error rate should be the
+  control. Section 4.4 already led with the objective; what was missing was the other half:
+  `cmd/analyse` now records, per budget, whether the operating point the stated exchange rate
+  implies asks for more alerts than the budget permits. On `r11` at v/c = 10 it asks for **863 a
+  day**, so at 10 and 100 the binding constraint is *analyst capacity* and the stated error rate
+  is not being honoured; at 1000 the budget is slack and the error rate binds, which is the
+  configuration the issue asks for. Truncating silently is what the issue objected to, and the
+  comparison is now in the run
+- **Realised-against-nominal FDR is surfaced on the dashboard (#10).** It was recorded per run
+  and the scoreboard row named the hypothesis without the number, leaving a reader to open each
+  run and compute it. The row now carries the strictest level any run measured, its interval, the
+  counts it is computed from, and a `holds` field: on this corpus the realised rate is **1.0
+  against a nominal 0.001**, so the row reads as the failure it is rather than as a heading
+
 ### Changed
 
 - **The two per-entity arms are on by default and the population co-occurrence arm is off

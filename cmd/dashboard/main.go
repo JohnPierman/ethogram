@@ -193,14 +193,37 @@ func scoreboard(documents []map[string]any) []Hypothesis {
 			}
 		}
 	}
+	// The measured error rate, for the hypothesis that is about one. #10 asked for this by
+	// name: the realised-against-nominal comparison "is the number that says whether the
+	// error-rate control works at all", and a scoreboard row listing only the runs that bear
+	// on it leaves a reader to open each and compute it. The strictest level any run recorded
+	// wins, because the claim under test is that the realised rate tracks the level asked for
+	// and the strictest level is the one most likely to expose a failure.
+	var fdr *RealisedFDR
+	for _, data := range documents {
+		if candidate := realisedFDRFrom(data); candidate != nil {
+			if fdr == nil || candidate.Nominal < fdr.Nominal {
+				fdr = candidate
+			}
+		}
+	}
+
 	out := make([]Hypothesis, 0, len(hypotheses))
 	for _, h := range hypotheses {
 		h.Runs = claims[h.ID]
 		sort.Strings(h.Runs)
+		if h.ID == fdrHypothesis {
+			h.Realised = fdr
+		}
 		out = append(out, h)
 	}
 	return out
 }
+
+// fdrHypothesis is the scoreboard row about the error rate, which is the one that carries a
+// measured figure. Named rather than matched on the title so a reworded title cannot silently
+// drop the number.
+const fdrHypothesis = "E3"
 
 // discoverBudgets collects every alert budget any result recorded, so the page offers
 // exactly the budgets that were measured rather than a hard-coded list that could
