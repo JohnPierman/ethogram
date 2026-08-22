@@ -29,6 +29,7 @@ package marginal
 import (
 	"cmp"
 	"context"
+	"fmt"
 	"math"
 	"slices"
 
@@ -414,4 +415,72 @@ type Repository interface {
 	// SaveNumeric folds one numeric observation of unit weight into the sketch for
 	// (source, field), creating the sketch if absent.
 	SaveNumeric(ctx context.Context, source event.SourceID, field event.FieldPath, x float64, at event.Timestamp) error
+}
+
+// SketchState is a sketch's whole content in a form a store can persist: the centroid bound
+// and the ascending (mean, weight) pairs.
+//
+// It exists because a value object that cannot be reconstructed cannot be persisted, and
+// #48's end-to-end claim needs the numeric half of the population marginal to survive a
+// round trip through a database like every other piece of state. Adding an accessor pair is
+// the alternative to a store reaching into unexported fields, which would put the sketch's
+// compression invariant in the hands of infrastructure.
+type SketchState struct {
+	MaxCentroids int
+	// Means and Weights are parallel and ascending by mean, which is the order
+	// [Sketch.Quantile] and [Sketch.CDF] both depend on.
+	Means   []float64
+	Weights []float64
+}
+
+// State returns the sketch's content, copied, so a caller holding it cannot advance the
+// sketch (§5.2).
+func (s *Sketch) State() SketchState {
+	out := SketchState{
+		MaxCentroids: s.maxCentroids,
+		Means:        make([]float64, len(s.centroids)),
+		Weights:      make([]float64, len(s.centroids)),
+	}
+	for i, c := range s.centroids {
+		out.Means[i] = c.mean
+		out.Weights[i] = c.weight
+	}
+	return out
+}
+
+// RestoreSketch rebuilds a sketch from persisted state.
+//
+// It reconstructs rather than replays: the centroids are taken as given, in the order given,
+// because that order is what the compression rule already produced and re-deriving it by
+// re-adding the means would compress a second time and give a different sketch. Mismatched
+// lengths, a non-finite mean and a non-positive weight are refused, since each would break
+// the ascending order the quantile interpolation depends on.
+//
+// The total weight is accumulated in the given order, so a restored sketch's weight is
+// bit-identical to the one that was saved.
+func RestoreSketch(state SketchState) (*Sketch, error) {
+	if len(state.Means) != len(state.Weights) {
+		return nil, fmt.Errorf(
+			"marginal: %d centroid means against %d weights", len(state.Means),
+			len(state.Weights))
+	}
+	s := NewSketch(state.MaxCentroids)
+	s.centroids = make([]centroid, 0, len(state.Means))
+	for i := range state.Means {
+		mean, weight := state.Means[i], state.Weights[i]
+		if math.IsNaN(mean) || math.IsInf(mean, 0) {
+			return nil, fmt.Errorf("marginal: centroid %d has a non-finite mean %g", i, mean)
+		}
+		if weight <= 0 || math.IsInf(weight, 0) || math.IsNaN(weight) {
+			return nil, fmt.Errorf("marginal: centroid %d has weight %g, want positive and "+
+				"finite", i, weight)
+		}
+		if i > 0 && mean < state.Means[i-1] {
+			return nil, fmt.Errorf("marginal: centroid %d has mean %g below its "+
+				"predecessor %g, so the sketch is not ascending", i, mean, state.Means[i-1])
+		}
+		s.centroids = append(s.centroids, centroid{mean: mean, weight: weight})
+		s.total += weight
+	}
+	return s, nil
 }

@@ -279,3 +279,89 @@ func TestEstimateCategoricalIsInvariantToInputOrder(t *testing.T) {
 		}
 	}
 }
+
+// TestASketchSurvivesARoundTrip is what makes the numeric half of the population marginal
+// persistable, and the property that matters is bit-identity rather than approximate
+// agreement: nothing in the scoring path is stochastic (R4), so a restored sketch that merely
+// nearly matches is a defect.
+func TestASketchSurvivesARoundTrip(t *testing.T) {
+	rng := rand.New(rand.NewPCG(48, 48))
+	original := marginal.NewSketch(0)
+	for i := 0; i < 5_000; i++ {
+		original.Add(rng.NormFloat64()*100+500, 1)
+	}
+
+	restored, err := marginal.RestoreSketch(original.State())
+	if err != nil {
+		t.Fatalf("restoring a saved sketch failed: %v", err)
+	}
+	if restored.Weight() != original.Weight() {
+		t.Errorf("weight is %v, want %v", restored.Weight(), original.Weight())
+	}
+	if restored.Centroids() != original.Centroids() {
+		t.Fatalf("centroid count is %d, want %d", restored.Centroids(), original.Centroids())
+	}
+	// Every quantile and every CDF value must agree exactly, since those are what the
+	// estimator reads.
+	for _, q := range []float64{0, 0.001, 0.01, 0.25, 0.5, 0.75, 0.99, 0.999, 1} {
+		if restored.Quantile(q) != original.Quantile(q) {
+			t.Errorf("quantile %g is %v, want %v", q, restored.Quantile(q),
+				original.Quantile(q))
+		}
+	}
+	for _, x := range []float64{0, 200, 450, 500, 550, 800, 1e6} {
+		if restored.CDF(x) != original.CDF(x) {
+			t.Errorf("CDF(%g) is %v, want %v", x, restored.CDF(x), original.CDF(x))
+		}
+	}
+
+	// A restored sketch must keep accepting observations and stay bounded.
+	before := restored.Centroids()
+	for i := 0; i < 1_000; i++ {
+		restored.Add(rng.NormFloat64()*100+500, 1)
+	}
+	if restored.Centroids() > before && restored.Centroids() > marginal.DefaultMaxCentroids {
+		t.Errorf("a restored sketch grew past its bound to %d centroids", restored.Centroids())
+	}
+
+	// An empty sketch round-trips to an empty sketch rather than to an error: a field with
+	// no numeric observations yet is a state of the data.
+	empty, err := marginal.RestoreSketch(marginal.NewSketch(0).State())
+	if err != nil {
+		t.Fatalf("an empty sketch was refused: %v", err)
+	}
+	if empty.Weight() != 0 || empty.Centroids() != 0 {
+		t.Errorf("an empty sketch restored to weight %v and %d centroids",
+			empty.Weight(), empty.Centroids())
+	}
+}
+
+// TestRestoreSketchRefusesWhatWouldBreakTheOrder pins the validation. Every rejected case
+// would silently corrupt the interpolation that Quantile and CDF depend on, which is worse
+// than a refused restore.
+func TestRestoreSketchRefusesWhatWouldBreakTheOrder(t *testing.T) {
+	for _, tc := range []struct {
+		name  string
+		state marginal.SketchState
+	}{
+		{"lengths disagree", marginal.SketchState{Means: []float64{1, 2}, Weights: []float64{1}}},
+		{"descending means", marginal.SketchState{Means: []float64{2, 1}, Weights: []float64{1, 1}}},
+		{"NaN mean", marginal.SketchState{Means: []float64{math.NaN()}, Weights: []float64{1}}},
+		{"infinite mean", marginal.SketchState{Means: []float64{math.Inf(1)}, Weights: []float64{1}}},
+		{"zero weight", marginal.SketchState{Means: []float64{1}, Weights: []float64{0}}},
+		{"negative weight", marginal.SketchState{Means: []float64{1}, Weights: []float64{-1}}},
+		{"NaN weight", marginal.SketchState{Means: []float64{1}, Weights: []float64{math.NaN()}}},
+	} {
+		if _, err := marginal.RestoreSketch(tc.state); err == nil {
+			t.Errorf("%s: accepted, want refused", tc.name)
+		}
+	}
+
+	// Equal adjacent means are legal: the compression rule can produce them and the
+	// interpolation handles them.
+	if _, err := marginal.RestoreSketch(marginal.SketchState{
+		MaxCentroids: 8, Means: []float64{1, 1, 2}, Weights: []float64{1, 2, 3},
+	}); err != nil {
+		t.Errorf("equal adjacent means were refused: %v", err)
+	}
+}

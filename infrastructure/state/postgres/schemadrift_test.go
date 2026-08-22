@@ -7,6 +7,8 @@ import (
 	"testing"
 	"unicode"
 
+	"github.com/JohnPierman/ethogram/domain/drift"
+	"github.com/JohnPierman/ethogram/domain/noveltyrate"
 	"github.com/JohnPierman/ethogram/domain/timing"
 	"github.com/JohnPierman/ethogram/domain/volume"
 )
@@ -152,6 +154,33 @@ func TestEveryPersistedFieldHasAColumn(t *testing.T) {
 				"Moments": {"c", "s", "w"},
 			},
 		},
+		{
+			name:  "noveltyrate.State",
+			table: "noveltyrate_state",
+			typ:   reflect.TypeOf(noveltyrate.State{}),
+			spelled: map[string]string{
+				"LastSeen": "last_seen_us",
+			},
+		},
+		{
+			name:  "drift.State",
+			table: "drift_state",
+			typ:   reflect.TypeOf(drift.State{}),
+			spelled: map[string]string{
+				"LastSeen": "last_seen_us",
+			},
+			flattened: map[string][]string{
+				// The arm's own Gamma posterior, two float columns as in volume_state --
+				// prefixed here because the table also carries the null's moments and an
+				// unprefixed `a` would collide with nothing but would read as if it might.
+				"Rate": {"rate_a", "rate_b"},
+				// The null's three moments plus the UNDISCOUNTED count behind them. All
+				// four are required, and the fourth is the one that matters: a discounted
+				// weight saturates at 1/(1-delta), so a schema carrying only null_w would
+				// silently reintroduce the #37 defect on the first restart.
+				"Null": {"null_sum", "null_sumsq", "null_w", "null_observed"},
+			},
+		},
 	} {
 		ddl, selects, inserts := statementsFor(text, tc.table)
 		if len(ddl) == 0 || len(selects) == 0 || len(inserts) == 0 {
@@ -198,28 +227,34 @@ func TestEveryPersistedFieldHasAColumn(t *testing.T) {
 	}
 }
 
-// TestPersistedArmsAreTheRecordedSet records which arms this store can carry across a restart,
-// and it is a short list.
+// TestPersistedArmsAreTheRecordedSet records which arms this store can carry across a restart.
 //
-// Four of the seven arms have no Postgres store at all -- no table, no accessor, nothing --
-// so a Postgres-backed deployment does not lose part of their state the way #33 described,
-// it has none of it. That costs no recorded measurement, because every run in `results/`
-// uses the memory stores; it is asserted so the gap is a decision with a date on it rather
-// than something a reader has to discover by grepping for a table that is not there.
+// It used to record an absence: four of the seven arms had no Postgres store at all, no table
+// and no accessor, so a Postgres-backed deployment did not lose part of their state the way
+// #33 described -- it had none of it. The list existed so that gap was a decision with a date
+// on it rather than something a reader discovered by grepping for a table that was not there.
 //
-// Whoever adds a store will find this test failing and update the list, which is the point.
+// #48 closed the gap, and this test is how: it failed when the three tables appeared, which is
+// exactly what it was written to do.
+//
+// Whoever adds or removes a store will find this failing and update the list.
 func TestPersistedArmsAreTheRecordedSet(t *testing.T) {
 	text := storeSQL(t)
 
 	for table, wantPresent := range map[string]bool{
-		"novelty_value_count": true, // serves novelty and, per-entity, pairing
-		"timing_state":        true,
-		"volume_state":        true,
-		"graph_node":          true, // co-occurrence
-		"graph_edge":          true,
-		"noveltyrate_state":   false,
-		"drift_state":         false,
-		"marginal_state":      false,
+		"novelty_value_count":  true, // serves novelty and, per-entity, pairing
+		"timing_state":         true,
+		"volume_state":         true,
+		"graph_node":           true, // co-occurrence
+		"graph_edge":           true,
+		"noveltyrate_state":    true,
+		"drift_state":          true,
+		"marginal_value_count": true, // the population marginal's categorical half
+		"marginal_sketch":      true, // and its numeric half
+		// The name the absent table used to carry. Kept as a negative so a future store
+		// cannot quietly reintroduce a second, differently-named marginal table beside the
+		// two above.
+		"marginal_state": false,
 	} {
 		got := strings.Contains(text, table)
 		if got == wantPresent {

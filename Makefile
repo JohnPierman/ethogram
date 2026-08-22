@@ -99,6 +99,15 @@ test-integration:
 test-corpus:
 	$(GO) test ./... -count=1 -tags corpus
 
+# The full-size statistical simulations, behind a tag because the coverage gate runs the whole
+# suite instrumented and Monte-Carlo at reporting size blew a ten-minute CI timeout. The default
+# suite keeps a smaller version of each, so a regression still fails there; this target is where
+# the reported numbers come from. No -race: these are pure functions over local slices, and the
+# detector's overhead is what made them unaffordable in the first place.
+.PHONY: simulation
+simulation:
+	$(GO) test ./domain/calibration/ -count=1 -tags simulation -v -timeout 30m 	  -run 'TestSimulation'
+
 # E8 gates every other hypothesis, so it has its own target and runs first in CI.
 .PHONY: e8
 e8:
@@ -417,3 +426,41 @@ robust: matrix
 clean:
 	rm -f $(COVER_PROFILE)
 	$(GO) clean -cache -testcache
+
+# The store-equivalence measurement (#48).
+#
+# Every file in results/ was produced with the in-memory stores, so the framework had no
+# recorded measurement that the persistent path produces the same numbers end to end. This is
+# the cheap settlement the issue itself asked for: the same corpus prefix replayed once per
+# store, with the two results required to agree exactly.
+#
+# The row cap is what makes it affordable and it is in the run id on purpose, so the claim is
+# "the two stores produced identical output over N events" with N stated rather than implied.
+# A full-corpus Postgres replay would test the database's throughput -- every scored event is a
+# find and a save per stateful arm, so the persistent path is bounded by round trips -- and the
+# framework claims nothing about that throughput.
+#
+# Needs `make db-up`. The burn-in is short so that the prefix actually reaches the scoring
+# window; a comparison over a prefix that is entirely burn-in compares two empty alert sets.
+STORE_EQ_ROWS   ?= 6000
+STORE_EQ_BURNIN ?= 300
+STORE_EQ_MEMORY   := $(RESULTS)/store-equivalence-memory-r$(STORE_EQ_ROWS).json
+STORE_EQ_POSTGRES := $(RESULTS)/store-equivalence-postgres-r$(STORE_EQ_ROWS).json
+STORE_EQ_DSN    ?= postgres://cad:cad_dev_only@127.0.0.1:55432/cad
+
+.PHONY: store-equivalence
+store-equivalence:
+	$(GO) run ./cmd/replay -auth $(INJECT_CORPUS) -redteam $(COMBINED_LABELS) \
+	  -out $(STORE_EQ_MEMORY) -run-id store-equivalence-memory-r$(STORE_EQ_ROWS)-001 \
+	  -store memory -maxrows $(STORE_EQ_ROWS) -burnin $(STORE_EQ_BURNIN) \
+	  -topk 100 -budgets 10,100 -conformal -pairing -novelty-rate -drift
+	$(GO) run ./cmd/replay -auth $(INJECT_CORPUS) -redteam $(COMBINED_LABELS) \
+	  -out $(STORE_EQ_POSTGRES) -run-id store-equivalence-postgres-r$(STORE_EQ_ROWS)-001 \
+	  -store postgres -dsn "$(STORE_EQ_DSN)" -store-truncate \
+	  -maxrows $(STORE_EQ_ROWS) -burnin $(STORE_EQ_BURNIN) \
+	  -topk 100 -budgets 10,100 -conformal -pairing -novelty-rate -drift
+	$(GO) run ./cmd/storeequivalence -first $(STORE_EQ_MEMORY) -second $(STORE_EQ_POSTGRES)
+
+.PHONY: store-equivalence-check
+store-equivalence-check:
+	$(GO) run ./cmd/storeequivalence -first $(STORE_EQ_MEMORY) -second $(STORE_EQ_POSTGRES)

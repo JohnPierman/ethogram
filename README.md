@@ -187,6 +187,115 @@ The general lesson is worth more than the flag: **Storey's null-proportion estim
 departure from uniformity, so on an arm whose null is wrong it reweights the miscalibration.**
 Calibrate first, weight second.
 
+### Aggregating to the entity-day, four ways
+
+The framework's premise is that the unit of analysis is the individual, while the budget is spent
+on events. `entity_days` in every result aggregates the same evidence to the unit an analyst
+actually triages, four ways, on `lanl-inj-b1000-online-d7-14-010`:
+
+| rule | 10/day | 100/day | 1000/day |
+|---|---|---|---|
+| Fisher's sum over the day | **10** | **74** | 172 |
+| count-normalised (`standardised_x2`) | **10** | 43 | 172 |
+| Higher Criticism | 9 | 69 | 172 |
+| Bonferroni-corrected minimum | 8 | 67 | 172 |
+| *the event ranking, for comparison* | *0 of 25 entity-days* | *3 of 138* | *28 of 585* |
+
+Of 172 labelled entity-days out of 4,944. The 1000/day column is saturated -- 4,944 entity-days
+over seven days is 706 a day, below the budget -- so every rule alerts on everything and the
+column measures nothing.
+
+**The unit change is the result, and it is large.** At 70 alerts a day the entity-day ranking finds
+10 labelled accounts where the event ranking at 700 alerts finds 3 across 138 accounts. Changing
+the denominator from millions of events to thousands of entity-days is what pays.
+
+**The choice of aggregate is not.** Fisher's sum leads at both informative budgets, and Higher
+Criticism -- which is normalised so its null barely moves with the event count, and which beats
+Fisher 200-0 on a synthetic sparse alternative -- comes second. This is the same shape as the
+Good-Turing result: the principled statistic loses because the unprincipled one's bias happens to
+point at the right accounts on this corpus, where the busiest entity-days are also the labelled
+ones. Reported rather than buried, because "we replaced it with the normalised form" would read as
+an improvement and it is not one here.
+
+Higher Criticism needs order statistics rather than a fixed-size summary, so each entity-day keeps
+its 32 smallest log p-values. That bound reorders the tail of the ranking and not its head:
+recomputing at shallower depths from the recorded tails, the full order matches on 936 of 4,944
+entity-days at k=8, while **the top 10 per day is identical at every depth** and the top 100
+differs by 5 of 700 at k=8 and by none from k=24. What a budget surfaces does not depend on the
+bound.
+
+### Per-entity routing (`-route policy`)
+
+Routing is not a global allocation: it chooses per entity, so in principle it can send an
+established account to a per-entity null and a cold one to the population null and collect both.
+That is why it was the one construction with headroom left -- the population `marginal`'s 76
+detections at 100 alerts a day overlap the per-entity arms' by **zero**, and an oracle bracket put
+routing at 448-536 against the best single arm's 384.
+
+Two decisions were fixed before the run, because choosing either against the evaluation labels
+would make the number an oracle wearing a policy's clothes:
+
+- **one queue, ranked by the routed arm's conformal quantile** -- a rank in that arm's own burn-in
+  distribution, which is the one scale every arm shares. Putting model p-values from different
+  nulls in one queue is the cross-scale comparison the corrected minimum was already measured
+  failing on; giving each arm a budget share makes the shares a free parameter.
+- **a preference order taken from the arms' own declared abstention thresholds** --
+  `noveltyrate`'s MinHistory = 50, `drift`'s eight closed periods, `timing`'s need for spread --
+  with the per-entity arms before the population `marginal`. A test asserts that correspondence so
+  a threshold cannot drift into being a fitted parameter.
+
+**It loses at every budget, and the reason generalises.** On
+`lanl-inj-b1000-route-d7-14-011`:
+
+| | 10/day | 100/day | 1000/day |
+|---|---|---|---|
+| per-entity routing | 0 | 21 | 381 |
+| `noveltyrate` alone | 0 | 21 | 384 |
+| the best arm at that budget | **11** | **76** | **384** |
+| oracle bracket | -- | -- | *448-536* |
+
+Of 1,286 profiled entities the policy sent 684 to `noveltyrate`, 482 to `marginal`, 119 to
+`novelty` and 1 to `timing`, declining none. But **117 of the 129 labelled entities went to a single
+arm** -- every attacked account has history, median 3,392 burn-in events -- so routing reproduces
+that arm almost exactly and inherits its weakness at the tight budgets.
+
+The disjointness that motivated routing is disjointness in *which events* each arm detects, not in
+*which entities* each arm suits. A policy conditioned on history cannot exploit it, because
+**history does not predict mechanism**. Reaching the oracle bracket would need a router
+conditioned on something correlated with the mechanism an account is under attack by, which is not
+knowable at routing time -- so this is a bound on the construction rather than a tuning problem.
+
+Every entity's decision and every also-admissible arm is recorded in the result, so a different
+preference order can be evaluated without a second replay.
+
+### Online error control (`-online lord`)
+
+Benjamini-Hochberg needs the whole batch: an operator at 14:00 cannot use a threshold that depends
+on how many events arrive by 23:59. LORD++ needs only the prefix, and alpha-investing gives it a
+property a fixed-q batch rule lacks -- it spends error budget on each test and earns it back on
+each rejection, so a barren stretch decays the alerting rate without ending it. Measured in
+simulation: after one rejection and 500,000 barren tests the level is 2.8e-10, six orders down and
+still strictly positive, and one rejection lifts it again. Realised FDR at q = 0.1 over 1,000 streams
+of 10,000 hypotheses is 0.006, 0.009, 0.043 and 0.087 at non-null fractions of 0, 0.001, 0.01
+and 0.1.
+
+**On the corpus it detects nothing, and that is the finding.** Over 4,494,396 tests at q = 0.1:
+
+| stream | rejections | true positives | realised FDR | final level |
+|---|---|---|---|---|
+| `novelty` | **0** | 0 | -- | 1.1e-12 |
+| composite (negative control) | 79,286 | 366 | **0.995** | 8.9e-04 |
+
+Valid error control at this scale demands a level near 1e-12, and `novelty`'s labelled events do
+not reach it -- where the fixed budget's realised cut is 8.5e-06, six orders looser, and detects 60
+of them. The two are not competing rules; they are a control and a capacity, and the gap between
+them is what a calibrated per-alert probability would close.
+
+The composite is the negative control #16 asked for, and it behaves exactly as predicted: its
+p-values are anti-conservative enough that the rule spends its wealth on false rejections, earns it
+back, and spends again. **No spending rule recovers a level from p-values that are not
+calibrated**, which is tracked as #55.
+
 ## The paper's length budget
 
 `docs/PAPER.md` is held to 20 pages, 15 of body plus 5 for figures and citations. What `make

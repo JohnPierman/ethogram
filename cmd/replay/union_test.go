@@ -206,7 +206,7 @@ func TestExclusiveTruePositives(t *testing.T) {
 // The entity-scope grouping is chosen on the design's argument and not on the labels, so
 // it must be exactly the arms that are not population-scope.
 func TestUnionArmIDsExcludesPopulationScope(t *testing.T) {
-	a := newAccumulator(nil, 10, objective.Budgets{}, false, weightingNone)
+	a := newAccumulator(nil, 10, objective.Budgets{}, false, weightingNone, onlineNone, "", mustRouter(t))
 	for _, id := range []detector.ID{
 		novelty.DetectorID, pairing.DetectorID, marginal.DetectorID,
 		cooccurrence.DetectorID,
@@ -229,7 +229,7 @@ func TestUnionArmIDsExcludesPopulationScope(t *testing.T) {
 // The two accountings must differ in exactly the documented way: equal cost never exceeds
 // the budget, equal depth never falls below it while the arms have alerts to give.
 func TestUnionGroupingAccountings(t *testing.T) {
-	a := newAccumulator(nil, 10, objective.Budgets{}, false, weightingNone)
+	a := newAccumulator(nil, 10, objective.Budgets{}, false, weightingNone, onlineNone, "", mustRouter(t))
 	a.detectorPerDay[novelty.DetectorID] = map[int64]*dayAlerts{
 		7: mkDay(mkAlert(1, "U1", -9, true), mkAlert(2, "U2", -8, false)),
 	}

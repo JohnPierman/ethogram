@@ -21,6 +21,7 @@ import (
 	"os"
 	"os/exec"
 	"os/signal"
+	"reflect"
 	"runtime"
 	"runtime/debug"
 	"runtime/pprof"
@@ -58,7 +59,22 @@ func main() {
 		outPath     = flag.String("out", "", "result JSON path (required)")
 		runID       = flag.String("run-id", "", "run identifier (required)")
 		burnInSec   = flag.Int64("burnin", 604800, "burn-in end, seconds on the corpus epoch")
-		weighting   = flag.String("weighting", "none",
+		store       = flag.String("store", "memory",
+			"the state backing store: memory or postgres (#48)")
+		dsn = flag.String("dsn", "postgres://cad:cad_dev_only@127.0.0.1:55432/cad",
+			"connection string, read only when -store postgres")
+		storeTruncate = flag.Bool("store-truncate", false,
+			"empty this store's own tables before the run. For the -store equivalence "+
+				"harness, which compares against a memory store that necessarily starts "+
+				"empty; it destroys persisted state, so it is off by default")
+		route = flag.String("route", "none",
+			"score per-entity routing beside the arms: none or policy (#41)")
+		online = flag.String("online", "none",
+			"run an online error-control rule beside the per-day step-up: none or lord (#16)")
+		onlineArm = flag.String("online-arm", "novelty",
+			"the detector whose stream the online rule reports as its headline; the "+
+				"composite is always carried beside it as the negative control")
+		weighting = flag.String("weighting", "none",
 			"reweight the selection by a covariate: none, history or asset (#15)")
 		maxRows       = flag.Int64("maxrows", 0, "stop after this many admitted events (0 = all); partial coverage is recorded")
 		maxSeconds    = flag.Int64("maxseconds", 0, "stop at this corpus timestamp, seconds (0 = all); partial coverage is recorded in corpus time")
@@ -136,6 +152,18 @@ func main() {
 		defer pprof.StopCPUProfile()
 	}
 
+	onlineRule, err := parseOnline(*online)
+	if err != nil {
+		log.Fatal(err)
+	}
+	backingStore, err := parseStore(*store)
+	if err != nil {
+		log.Fatal(err)
+	}
+	routeMode, err := parseRouting(*route)
+	if err != nil {
+		log.Fatal(err)
+	}
 	mode, err := parseWeighting(*weighting)
 	if err != nil {
 		log.Fatal(err)
@@ -144,8 +172,14 @@ func main() {
 	if err := run(runConfig{
 		authPath: *authPath, redteamPath: *redteamPath, outPath: *outPath, runID: *runID,
 		burnInSec: *burnInSec, maxRows: *maxRows, skipHash: *skipHash,
-		weighting:    mode,
-		halfLifeDays: *halfLifeDay, bandwidthHours: *bandwidth, alpha: *alphaFlag,
+		online:        onlineRule,
+		onlineArm:     detector.ID(*onlineArm),
+		store:         backingStore,
+		dsn:           *dsn,
+		storeTruncate: *storeTruncate,
+		route:         routeMode,
+		weighting:     mode,
+		halfLifeDays:  *halfLifeDay, bandwidthHours: *bandwidth, alpha: *alphaFlag,
 		volMinPeriods: *volMinPeriods, timStandardise: *timStandard,
 		drift: *driftOn, driftShift: *driftShift, driftMinPeriods: *driftMinPer,
 		topK: *topK, budgets: budgets, entitySample: *entitySample, allowResampling: *allowResample,
@@ -167,6 +201,19 @@ func main() {
 type runConfig struct {
 	authPath, redteamPath, outPath, runID string
 	burnInSec, maxRows                    int64
+	// online selects the online error-control rule (#16), and onlineArm the detector whose
+	// stream it reports as its headline. The default runs no rule.
+	online    onlineMode
+	onlineArm detector.ID
+	// store selects the state backing store and dsn its connection string (#48). The
+	// default is memory, which is what every earlier run used.
+	store storeKind
+	dsn   string
+	// storeTruncate empties the persistent store before the run, for the equivalence
+	// harness. Off by default: it destroys state.
+	storeTruncate bool
+	// route scores per-entity routing beside the arms (#41). Off by default.
+	route routingMode
 	// weighting selects the covariate the selection is reweighted by (#15). The default
 	// is none, which is the unweighted ranking every earlier run used.
 	weighting                           weightingMode
@@ -197,6 +244,11 @@ type runConfig struct {
 }
 
 func run(cfg runConfig) error {
+	// One context for the whole run, shared by the state store and the corpus execution:
+	// they are the same unit of work, and a store outliving the replay it backed would be a
+	// leak rather than a feature.
+	ctx := context.Background()
+
 	authPath, redteamPath, outPath, runID := cfg.authPath, cfg.redteamPath, cfg.outPath, cfg.runID
 	burnInSec, maxRows, skipHash := cfg.burnInSec, cfg.maxRows, cfg.skipHash
 	halfLifeDays, bandwidthHours, alpha, topK := cfg.halfLifeDays, cfg.bandwidthHours, cfg.alpha, cfg.topK
@@ -270,13 +322,18 @@ func run(cfg runConfig) error {
 	reader := corpus.NewReader(zr, schema)
 
 	fieldRegistry := registry.New(registry.DefaultPolicy())
-	novStore := memory.NewNoveltyStore(halfLife)
-	nrStore := memory.NewNoveltyRateStore()
-	timStore := memory.NewTimingStore()
-	volStore := memory.NewVolumeStore()
-	driStore := memory.NewDriftStore()
-	margStore := memory.NewMarginalStore(halfLife)
-	graph := cooccurrence.NewMemoryGraph(halfLife)
+	stores, err := newStateStores(ctx, cfg.store, cfg.dsn, cfg.storeTruncate, halfLife)
+	if err != nil {
+		return err
+	}
+	defer stores.close()
+	novStore := stores.novelty
+	nrStore := stores.noveltyRate
+	timStore := stores.timing
+	volStore := stores.volume
+	driStore := stores.drift
+	margStore := stores.marginal
+	graph := stores.graph
 
 	var part *cooccurrence.Partition
 	partitionMode := "fallback: single-block degeneration (15), recorded per \u00a78.4"
@@ -372,7 +429,12 @@ func run(cfg runConfig) error {
 		shadows = append(shadows, coocPartitioned)
 	}
 
-	acc := newAccumulator(labels, topK, cfg.budgets, cfg.pairing, cfg.weighting)
+	routed, err := newRouter(cfg.route)
+	if err != nil {
+		return err
+	}
+	acc := newAccumulator(labels, topK, cfg.budgets, cfg.pairing, cfg.weighting,
+		cfg.online, cfg.onlineArm, routed)
 	acc.volGate = newVolumeGateProbe(topK, cfg.volMinPeriods)
 	var rowsSeen int64
 	src := &cappedSource{reader: reader, max: maxRows, seen: &rowsSeen,
@@ -417,13 +479,16 @@ func run(cfg runConfig) error {
 		// buys nothing for a run that is not screening an allocation rule.
 		cmd.BurnInSink = acc.observeBurnIn
 	}
-	if acc.weighting.on() {
-		// History weighting needs its own burn-in pass, and a much cheaper one: no
-		// ranking, one decimated sample per arm. Composed with the ledger's mirror rather
-		// than replacing it, so asking for both does both.
+	if acc.weighting.on() || acc.routed.on() {
+		// History weighting needs its own burn-in pass, and a much cheaper one than the
+		// ledger's: no ranking, one decimated sample per arm. Routing needs a per-entity
+		// profile pass over the same events. Both are composed with the ledger's mirror
+		// rather than replacing it, so asking for any combination does all of them.
 		ledgerSink := cmd.BurnInSink
 		cmd.BurnInSink = func(se application.ScoredEvent) error {
-			acc.weighting.observeBurnInEvent(string(se.Event.Entity()), se.Verdicts)
+			entity := string(se.Event.Entity())
+			acc.weighting.observeBurnInEvent(entity, se.Verdicts)
+			acc.routed.observeBurnIn(entity, se.Verdicts)
 			if ledgerSink != nil {
 				return ledgerSink(se)
 			}
@@ -490,12 +555,16 @@ func run(cfg runConfig) error {
 	// before the first scored one, which is what makes them independent of every p-value
 	// they rank. Registered last so it wraps the graph export above rather than being
 	// overwritten by it, and both still run.
-	if acc.weighting.on() {
+	if acc.weighting.on() || acc.routed.on() {
 		alsoAtBoundary := cmd.OnBurnInComplete
 		cmd.OnBurnInComplete = func() error {
 			if fitErr := acc.weighting.freeze(); fitErr != nil {
 				return fitErr
 			}
+			// The conformal model is frozen by the caller before this hook runs, which is
+			// what lets the routed queue rank on it: a rank in an arm's own burn-in
+			// distribution, fitted on no event it scores.
+			acc.routed.freeze(cmd.ConformalModel())
 			if alsoAtBoundary != nil {
 				return alsoAtBoundary()
 			}
@@ -518,7 +587,7 @@ func run(cfg runConfig) error {
 		}
 	}()
 
-	report, err := cmd.Execute(context.Background())
+	report, err := cmd.Execute(ctx)
 	close(done)
 	if err != nil {
 		return fmt.Errorf("replay: %w", err)
@@ -622,17 +691,16 @@ func run(cfg runConfig) error {
 		"conformal":  conformalRecord(cmd.ConformalModel()),
 		"results":    acc.results(),
 		"runtime": map[string]any{
-			"wall_seconds":    finished.Sub(started).Seconds(),
-			"events_per_sec":  float64(report.EventsWarmed+report.EventsScored) / finished.Sub(started).Seconds(),
-			"heap_alloc_mb":   float64(mem.HeapAlloc) / (1 << 20),
-			"heap_sys_mb":     float64(mem.HeapSys) / (1 << 20),
-			"novelty_rows":    novStore.Rows(),
-			"timing_entities": timStore.Entities(),
-			"volume_entities": volStore.Entities(),
-			"graph_nodes":     graph.Nodes(),
-			"graph_edges":     graph.Edges(),
-			"gc_percent":      400,
+			"wall_seconds":   finished.Sub(started).Seconds(),
+			"events_per_sec": float64(report.EventsWarmed+report.EventsScored) / finished.Sub(started).Seconds(),
+			"heap_alloc_mb":  float64(mem.HeapAlloc) / (1 << 20),
+			"heap_sys_mb":    float64(mem.HeapSys) / (1 << 20),
+			"graph_nodes":    graph.Nodes(),
+			"graph_edges":    graph.Edges(),
+			"gc_percent":     400,
 		},
+		"store":               stores.record(),
+		"store_sizes":         stores.counts(ctx),
 		"provenance_complete": !skipHash,
 	}
 
@@ -1477,6 +1545,13 @@ type accumulator struct {
 	// whose labels all fall after the boundary -- there is nothing to fit a weight on.
 	burnInFitDays map[int64]bool
 
+	// online runs the alpha-investing rules beside the per-day step-up (#16). Never nil:
+	// the none mode is a live object that runs nothing, so no call site needs a guard.
+	online *onlineControl
+
+	// routed scores the per-entity routing policy (#41). Never nil, for the same reason.
+	routed *router
+
 	// weighting carries the history-length covariate and the weight tables frozen at the
 	// burn-in boundary (#15). Never nil: the none mode is a live object that reweights
 	// nothing, so no call site needs a guard.
@@ -1525,14 +1600,66 @@ type entityDay struct {
 	// RedTeamEvents is how many of the day's events were labelled, so an entity-day is a
 	// true positive when it is non-zero.
 	RedTeamEvents int64 `json:"red_team_events"`
+
+	// Tail is the entityDayTailDepth smallest log p-values of the day, ascending.
+	//
+	// Higher Criticism needs order statistics rather than a fixed-size summary, which is the
+	// one thing an entity-day was built not to keep. A bounded tail is the compromise, and
+	// the bound is a measurement rather than a taste: see entityDayTailDepth.
+	Tail []float64 `json:"-"`
+	// TailJSON is Tail in a form JSON can carry; see logProbability.
+	TailJSON []logProbability `json:"tail"`
+}
+
+// entityDayTailDepth is how many of an entity-day's smallest log p-values are retained.
+//
+// Higher Criticism takes its maximum over the smallest p-values, and under the sparse
+// alternative it is attained at small rank -- so a bounded tail reproduces the full-data
+// statistic exactly, provided the bound is large enough. How large is measured, in
+// domain/calibration's TestTopKReproducesTheFullStatisticOnASparseSignal: over 300 synthetic
+// days of 5,000 events carrying 20 planted ones,
+//
+//	k    days agreeing exactly with the full statistic
+//	 8    25 of 300
+//	16    42 of 300
+//	32   300 of 300
+//	64   300 of 300
+//
+// So 8 and 16 are not enough and 32 is, on the sparsity a campaign presents. 32 rather than
+// 64 because the extra 32 buy nothing measurable and every entity-day pays for them.
+//
+// Where a bounded tail is not enough -- a day whose signal is dense rather than sparse --
+// the statistic reports itself as truncated, so a bounded maximum is never presented as a
+// complete one.
+const entityDayTailDepth = 32
+
+// observeTail files one log p-value into the retained tail, keeping it ascending and bounded.
+//
+// A sorted insert rather than keeping everything and sorting once: the slice is at most 32
+// long, and the alternative is the unbounded per-entity-day state this design exists to
+// avoid.
+func (ed *entityDay) observeTail(logP float64) {
+	if len(ed.Tail) >= entityDayTailDepth && logP >= ed.Tail[len(ed.Tail)-1] {
+		return
+	}
+	at := sort.SearchFloat64s(ed.Tail, logP)
+	ed.Tail = append(ed.Tail, 0)
+	copy(ed.Tail[at+1:], ed.Tail[at:])
+	ed.Tail[at] = logP
+	if len(ed.Tail) > entityDayTailDepth {
+		ed.Tail = ed.Tail[:entityDayTailDepth]
+	}
 }
 
 func newAccumulator(labels *redTeamLabels, topK int, budgets objective.Budgets,
-	pairingRelational bool, weighting weightingMode) *accumulator {
+	pairingRelational bool, weighting weightingMode, online onlineMode,
+	onlineArm detector.ID, routed *router) *accumulator {
 
 	return &accumulator{
 		labels:                labels,
 		weighting:             newHistoryWeighting(weighting),
+		online:                newOnlineControl(online, onlineArm),
+		routed:                routed,
 		topK:                  topK,
 		budgets:               budgets,
 		pairingRelational:     pairingRelational,
@@ -1583,6 +1710,14 @@ func (a *accumulator) observeDetectorArms(se application.ScoredEvent, day int64,
 	}
 	sort.Slice(ids, func(i, j int) bool { return ids[i] < ids[j] })
 
+	// The routed arm reads the same per-arm minimum the arms rank on, so the two cannot
+	// disagree about what an arm said on this event. It ranks on the conformal quantile of
+	// that value rather than on the value itself; see routing.go.
+	a.routed.observe(scoredForRouting{
+		entity: entity, key: key, srcComp: srcComp, dstComp: dstComp,
+		tSeconds: tSeconds, isRed: isRed, categories: cats, byArm: best,
+	}, a.topK)
+
 	for _, id := range ids {
 		modelLogP := best[id]
 		logP := a.weighting.adjust(id, entity, modelLogP)
@@ -1606,6 +1741,9 @@ func (a *accumulator) observeDetectorArms(se application.ScoredEvent, day int64,
 			Entity: entity, SrcComp: srcComp, DstComp: dstComp,
 			IsRedTeam: isRed, J: 1, MinDetector: string(id), Categories: cats,
 		}, a.topK)
+		// Error control is a statement about the detector's own evidence, so the rule reads
+		// the arm's model log p-value.
+		a.online.observe(string(id), day, logP, isRed)
 		if isRed {
 			a.detectorRedTeamScored[id] = append(a.detectorRedTeamScored[id], redTeamScore{
 				Key: key, P: math.Exp(logP), LogP: logP, ModelLogP: modelLogP,
@@ -1685,6 +1823,7 @@ func (a *accumulator) observeEntityDay(entity string, day int64, logP float64, i
 	}
 	// Fisher's statistic is Ã¢Ë†â€™2 ln P summed; LogP is already ln P.
 	ed.SumX2 += -2 * logP
+	ed.observeTail(logP)
 	if isRed {
 		ed.RedTeamEvents++
 	}
@@ -1775,6 +1914,7 @@ func (a *accumulator) observe(se application.ScoredEvent) error {
 
 	day := tSeconds / 86400
 	a.scoredPerDay[day]++
+	a.online.observe(onlineNegative, day, se.Combined.LogP, isRed)
 	a.observeEntityDay(string(se.Event.Entity()), day, se.Combined.LogP, isRed)
 	a.observeDetectorArms(se, day, tSeconds, string(se.Event.Entity()),
 		srcComp, dstComp, key, isRed, catNames)
@@ -2065,6 +2205,41 @@ type entityDayRow struct {
 	// entity's events to be independent, and one entity's own event stream is the least
 	// independent data in the corpus.
 	StandardisedX2 float64 `json:"standardised_x2"`
+
+	// HigherCriticism is the third aggregation, and the only one of the three normalised so
+	// that its scale does not grow with the entity's event count. See
+	// domain/calibration/highercriticism.go for why that is the property that matters here.
+	HigherCriticism entityDayHigherCriticism `json:"higher_criticism"`
+}
+
+// entityDayHigherCriticism is one entity-day's Higher Criticism statistic, flattened for the
+// result file so the ranking is recomputable from the row alone (R5).
+type entityDayHigherCriticism struct {
+	// LogStatistic is what the ranking is taken on, because the statistic itself overflows
+	// float64 on this corpus while its logarithm does not.
+	//
+	// A pointer, and null in JSON where the statistic is not positive: the logarithm of a
+	// non-positive number does not exist, the domain returns negative infinity for it, and
+	// JSON has no infinity. Writing it as a float64 is what made the first corpus run of
+	// this code fail at the moment it wrote its result, after the whole replay.
+	LogStatistic *float64 `json:"log_statistic"`
+	// Statistic is the reading of it, and is null in JSON where it overflowed.
+	Statistic *float64       `json:"statistic"`
+	Positive  bool           `json:"positive"`
+	Rank      int            `json:"rank"`
+	PValueLog logProbability `json:"rank_log_p"`
+	// Considered is how many ranks fell inside the alpha0 cap, and Truncated says whether
+	// the retained tail was shorter than that -- so a bounded maximum is distinguishable
+	// from a complete one.
+	Considered int  `json:"considered"`
+	Truncated  bool `json:"truncated"`
+	// NullScale is sqrt(2 ln ln n), the order of the statistic under the global null. The
+	// statistic has no fixed critical value and grows very slowly with n, so a reader
+	// comparing two days of different sizes needs this beside them.
+	NullScale float64 `json:"null_scale"`
+	// Error is the reason the statistic is absent, where it is. An entity-day with no
+	// retained tail has none, which is a state of the data rather than a fault.
+	Error string `json:"error,omitempty"`
 }
 
 // entityDayResults ranks entity-days two ways and reports detection at entity-level
@@ -2085,6 +2260,8 @@ func (a *accumulator) entityDayResults(budgets []int) map[string]any {
 		n := float64(ed.Events)
 		row.CorrectedLogP = ed.MinLogP + math.Log(n)
 		row.StandardisedX2 = (ed.SumX2 - 2*n) / (2 * math.Sqrt(n))
+		row.HigherCriticism = higherCriticismOf(ed)
+		row.TailJSON = logProbabilities(ed.Tail)
 		rows = append(rows, row)
 		if ed.RedTeamEvents > 0 {
 			labelled++
@@ -2121,6 +2298,31 @@ func (a *accumulator) entityDayResults(budgets []int) map[string]any {
 		return grouped
 	}
 
+	// Higher Criticism cannot be ranked by a single float: the comparison is on the
+	// logarithm where the statistic is positive and on the raw value where it is not, since
+	// a day quieter than uniform has a negative statistic whose logarithm does not exist.
+	// So it gets a comparator rather than a score, and [calibration.MoreExtreme] is the
+	// total order.
+	byDayLess := func(less func(a, b entityDayRow) bool) map[int64][]entityDayRow {
+		grouped := map[int64][]entityDayRow{}
+		for _, r := range rows {
+			grouped[r.Day] = append(grouped[r.Day], r)
+		}
+		for day := range grouped {
+			g := grouped[day]
+			sort.SliceStable(g, func(i, j int) bool {
+				if less(g[i], g[j]) {
+					return true
+				}
+				if less(g[j], g[i]) {
+					return false
+				}
+				return g[i].Entity < g[j].Entity
+			})
+		}
+		return grouped
+	}
+
 	detectionsFor := func(grouped map[int64][]entityDayRow) map[string]any {
 		out := make(map[string]any, len(budgets))
 		for _, b := range budgets {
@@ -2149,6 +2351,9 @@ func (a *accumulator) entityDayResults(budgets []int) map[string]any {
 	corrected := byDay(func(r entityDayRow) float64 { return r.CorrectedLogP }, true)
 	fisher := byDay(func(r entityDayRow) float64 { return r.SumX2 }, false)
 	standardised := byDay(func(r entityDayRow) float64 { return r.StandardisedX2 }, false)
+	criticism := byDayLess(func(a, b entityDayRow) bool {
+		return calibration.MoreExtreme(a.HigherCriticism.result(), b.HigherCriticism.result())
+	})
 
 	// The top of each ranking, for reading; the full population stays in the counts.
 	const topN = 25
@@ -2170,8 +2375,9 @@ func (a *accumulator) entityDayResults(budgets []int) map[string]any {
 			"these are the same evidence aggregated to the unit the premise names, and to " +
 			"the unit an analyst actually triages. No score here is a calibrated p-value at " +
 			"entity scope: an entity's own events are not independent",
-		"total_entity_days":    len(rows),
-		"labelled_entity_days": labelled,
+		"total_entity_days":     len(rows),
+		"labelled_entity_days":  labelled,
+		"from_the_event_budget": a.entityDaysFromEventBudget(budgets, labelled),
 		"corrected_minimum": map[string]any{
 			"score":                "min_log_p + ln(events), ascending",
 			"detections_at_budget": detectionsFor(corrected), "top": head(corrected),
@@ -2189,6 +2395,33 @@ func (a *accumulator) entityDayResults(budgets []int) map[string]any {
 				"entity's accumulated evidence exceeds what its event count alone predicts " +
 				"under chi-square(2n)",
 			"detections_at_budget": detectionsFor(standardised), "top": head(standardised),
+		},
+		"higher_criticism": map[string]any{
+			"score": "max over the smallest ranks of sqrt(n)(i/n - p_(i))/sqrt(p_(i)(1-p_(i))), " +
+				"descending, from the retained tail of the day's log p-values. Unlike the " +
+				"other two it is normalised so its null distribution barely moves with the " +
+				"event count -- measured, the 95th percentile grows 17% between days of 100 " +
+				"and 10,000 events where Fisher's sum grows a hundredfold -- so two " +
+				"entity-days of very different size can be ranked against each other. It is " +
+				"built for a sparse cluster of moderate anomalies in an otherwise ordinary " +
+				"day, which is what a campaign is and what Fisher's sum dilutes",
+			"alpha0":               calibration.DefaultAlpha0,
+			"tail_depth":           entityDayTailDepth,
+			"detections_at_budget": detectionsFor(criticism), "top": head(criticism),
+			"truncated_entity_days": func() int {
+				truncated := 0
+				for _, r := range rows {
+					if r.HigherCriticism.Truncated {
+						truncated++
+					}
+				}
+				return truncated
+			}(),
+			"truncation_note": "an entity-day is truncated when its event count put the " +
+				"alpha0 cap beyond the retained tail, so its maximum was taken over a " +
+				"prefix. Counted rather than hidden: on a sparse signal the maximum is " +
+				"attained at small rank and truncation costs nothing, and where it would " +
+				"cost something this is how a reader knows",
 		},
 		// Every entity-day, not a sample: 1,777 rows on the sampled corpus and bounded by
 		// entities times days, so the file stays small while any re-ranking becomes a
@@ -2270,6 +2503,9 @@ func (a *accumulator) results() map[string]any {
 			"counts":           categories,
 		},
 		"detections_at_budget": detections,
+		"routed_arm":           a.routed.record(budgets),
+		"online_control":       a.online.record(),
+		"online_never_silent":  a.online.neverSilent(),
 		"min_p_arm":            a.minPArmResults(budgets),
 		"detector_arms":        a.detectorArmResults(budgets),
 		"history_weighting":    a.weighting.record(),
@@ -2454,7 +2690,23 @@ func gitDirty() bool {
 	return len(strings.TrimSpace(string(out))) > 0
 }
 
+// writeJSON encodes a result to disk, first naming any value JSON cannot carry.
+//
+// The naming is the point. `json: unsupported value: -Inf` is what encoding/json says on its
+// own, and it says nothing about which field: an eighty-minute replay ended twice on that
+// message, once for a log statistic and once for a retained tail, and each time the field had
+// to be found by elimination. A path costs one walk of a map that is already in memory.
+//
+// It refuses rather than sanitising. An infinity in a result means a quantity was computed
+// that the file cannot express, and quietly writing a substitute would put a number in a
+// measurement where the truth was "unrepresentable".
 func writeJSON(path string, v any) error {
+	if bad := nonFinite(v); len(bad) > 0 {
+		return fmt.Errorf("result contains %d value(s) JSON cannot carry, at %s: an "+
+			"infinity or NaN in a result means a quantity was computed that the file "+
+			"cannot express, so it is refused rather than substituted",
+			len(bad), strings.Join(bad, ", "))
+	}
 	if err := os.MkdirAll(dirOf(path), 0o755); err != nil {
 		return err
 	}
@@ -2479,4 +2731,92 @@ func dirOf(path string) string {
 		return "."
 	}
 	return path[:idx]
+}
+
+// nonFinitePathCap bounds how many paths are reported, so a systematically broken field names
+// itself without printing a hundred thousand entity-days.
+const nonFinitePathCap = 12
+
+// nonFinite walks a value about to be encoded and returns the paths of any float JSON cannot
+// carry.
+//
+// It walks the same shapes encoding/json will: maps, slices, structs and pointers, plus the
+// float kinds. A type implementing json.Marshaler is trusted to handle its own infinities,
+// which is what logProbability does, so those are not walked.
+func nonFinite(v any) []string {
+	if v == nil {
+		return nil
+	}
+	if _, ok := v.(json.Marshaler); ok {
+		return nil
+	}
+	return nonFiniteValue(reflect.ValueOf(v), "", 0)
+}
+
+func nonFiniteValue(rv reflect.Value, path string, depth int) []string {
+	// A depth cap so a cyclic structure cannot spin. Nothing here is cyclic; the cap is
+	// insurance against a future field that is.
+	if depth > 24 || !rv.IsValid() {
+		return nil
+	}
+	if rv.CanInterface() {
+		if _, ok := rv.Interface().(json.Marshaler); ok {
+			return nil
+		}
+	}
+
+	var out []string
+	switch rv.Kind() {
+	case reflect.Float32, reflect.Float64:
+		f := rv.Float()
+		if math.IsInf(f, 0) || math.IsNaN(f) {
+			return []string{path}
+		}
+	case reflect.Interface, reflect.Ptr:
+		if !rv.IsNil() {
+			out = append(out, nonFiniteValue(rv.Elem(), path, depth+1)...)
+		}
+	case reflect.Map:
+		keys := make([]string, 0, rv.Len())
+		byKey := map[string]reflect.Value{}
+		for _, k := range rv.MapKeys() {
+			name := fmt.Sprint(k.Interface())
+			keys = append(keys, name)
+			byKey[name] = rv.MapIndex(k)
+		}
+		sort.Strings(keys)
+		for _, k := range keys {
+			out = append(out, nonFiniteValue(byKey[k], path+"/"+k, depth+1)...)
+			if len(out) >= nonFinitePathCap {
+				return out[:nonFinitePathCap]
+			}
+		}
+	case reflect.Slice, reflect.Array:
+		for i := 0; i < rv.Len(); i++ {
+			out = append(out, nonFiniteValue(rv.Index(i), fmt.Sprintf("%s[%d]", path, i), depth+1)...)
+			if len(out) >= nonFinitePathCap {
+				return out[:nonFinitePathCap]
+			}
+		}
+	case reflect.Struct:
+		t := rv.Type()
+		for i := 0; i < rv.NumField(); i++ {
+			field := t.Field(i)
+			if !field.IsExported() {
+				continue
+			}
+			name := field.Name
+			if tag := field.Tag.Get("json"); tag != "" && tag != "-" {
+				name = strings.Split(tag, ",")[0]
+			} else if tag == "-" {
+				// Not encoded, so it cannot break the encoding.
+				continue
+			}
+			out = append(out, nonFiniteValue(rv.Field(i), path+"/"+name, depth+1)...)
+			if len(out) >= nonFinitePathCap {
+				return out[:nonFinitePathCap]
+			}
+		}
+	}
+	return out
 }
