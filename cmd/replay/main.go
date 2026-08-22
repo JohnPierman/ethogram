@@ -21,6 +21,7 @@ import (
 	"os"
 	"os/exec"
 	"os/signal"
+	"reflect"
 	"runtime"
 	"runtime/debug"
 	"runtime/pprof"
@@ -71,6 +72,8 @@ func main() {
 		onlineArm = flag.String("online-arm", "novelty",
 			"the detector whose stream the online rule reports as its headline; the "+
 				"composite is always carried beside it as the negative control")
+		weighting = flag.String("weighting", "none",
+			"reweight the selection by a covariate: none, history or asset (#15)")
 		maxRows       = flag.Int64("maxrows", 0, "stop after this many admitted events (0 = all); partial coverage is recorded")
 		maxSeconds    = flag.Int64("maxseconds", 0, "stop at this corpus timestamp, seconds (0 = all); partial coverage is recorded in corpus time")
 		skipHash      = flag.Bool("skip-hash", false, "skip corpus SHA-256 (smoke runs only; recorded as unhashed)")
@@ -155,6 +158,10 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	mode, err := parseWeighting(*weighting)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	if err := run(runConfig{
 		authPath: *authPath, redteamPath: *redteamPath, outPath: *outPath, runID: *runID,
@@ -164,6 +171,7 @@ func main() {
 		store:         backingStore,
 		dsn:           *dsn,
 		storeTruncate: *storeTruncate,
+		weighting:     mode,
 		halfLifeDays:  *halfLifeDay, bandwidthHours: *bandwidth, alpha: *alphaFlag,
 		volMinPeriods: *volMinPeriods, timStandardise: *timStandard,
 		drift: *driftOn, driftShift: *driftShift, driftMinPeriods: *driftMinPer,
@@ -196,7 +204,10 @@ type runConfig struct {
 	dsn   string
 	// storeTruncate empties the persistent store before the run, for the equivalence
 	// harness. Off by default: it destroys state.
-	storeTruncate                       bool
+	storeTruncate bool
+	// weighting selects the covariate the selection is reweighted by (#15). The default
+	// is none, which is the unweighted ranking every earlier run used.
+	weighting                           weightingMode
 	skipHash                            bool
 	halfLifeDays, bandwidthHours, alpha float64
 	volMinPeriods                       int64
@@ -409,7 +420,8 @@ func run(cfg runConfig) error {
 		shadows = append(shadows, coocPartitioned)
 	}
 
-	acc := newAccumulator(labels, topK, cfg.budgets, cfg.pairing, cfg.online, cfg.onlineArm)
+	acc := newAccumulator(labels, topK, cfg.budgets, cfg.pairing, cfg.weighting,
+		cfg.online, cfg.onlineArm)
 	acc.volGate = newVolumeGateProbe(topK, cfg.volMinPeriods)
 	var rowsSeen int64
 	src := &cappedSource{reader: reader, max: maxRows, seen: &rowsSeen,
@@ -453,6 +465,19 @@ func run(cfg runConfig) error {
 		// for, because it costs a second ranking over tens of millions of events and
 		// buys nothing for a run that is not screening an allocation rule.
 		cmd.BurnInSink = acc.observeBurnIn
+	}
+	if acc.weighting.on() {
+		// History weighting needs its own burn-in pass, and a much cheaper one: no
+		// ranking, one decimated sample per arm. Composed with the ledger's mirror rather
+		// than replacing it, so asking for both does both.
+		ledgerSink := cmd.BurnInSink
+		cmd.BurnInSink = func(se application.ScoredEvent) error {
+			acc.weighting.observeBurnInEvent(string(se.Event.Entity()), se.Verdicts)
+			if ledgerSink != nil {
+				return ledgerSink(se)
+			}
+			return nil
+		}
 	}
 	if cfg.exportGraph != "" || cfg.leidenPy != "" {
 		graphPath := cfg.exportGraph
@@ -506,6 +531,23 @@ func run(cfg runConfig) error {
 			partitionMode = fmt.Sprintf("leiden seed=%d checksum=%s resolution=%g (E4 arm, "+
 				"computed at the burn-in boundary from burn-in state only)",
 				loaded.Seed, loaded.GraphChecksum[:12], loaded.Resolution)
+			return nil
+		}
+	}
+
+	// Fitting the weights happens here and nowhere else: after every burn-in event and
+	// before the first scored one, which is what makes them independent of every p-value
+	// they rank. Registered last so it wraps the graph export above rather than being
+	// overwritten by it, and both still run.
+	if acc.weighting.on() {
+		alsoAtBoundary := cmd.OnBurnInComplete
+		cmd.OnBurnInComplete = func() error {
+			if fitErr := acc.weighting.freeze(); fitErr != nil {
+				return fitErr
+			}
+			if alsoAtBoundary != nil {
+				return alsoAtBoundary()
+			}
 			return nil
 		}
 	}
@@ -1334,6 +1376,12 @@ type redTeamScore struct {
 	Entity    string  `json:"entity"`
 	J         int     `json:"j"`
 
+	// HistoryN is the entity's history length when this event was scored: the covariate
+	// of #15, recorded per labelled event so p x n can be recomputed by hand from the
+	// result rather than taken on trust from a summary (R5). Zero when no weighting mode
+	// asked for the covariate to be tracked.
+	HistoryN int64 `json:"history_n,omitempty"`
+
 	// Detectors is each detector's own model p-value for this labelled event.
 	//
 	// It answers the question the combined score cannot: calibration and discrimination
@@ -1481,6 +1529,11 @@ type accumulator struct {
 	// the none mode is a live object that runs nothing, so no call site needs a guard.
 	online *onlineControl
 
+	// weighting carries the history-length covariate and the weight tables frozen at the
+	// burn-in boundary (#15). Never nil: the none mode is a live object that reweights
+	// nothing, so no call site needs a guard.
+	weighting *historyWeighting
+
 	// entityDays accumulates one record per (entity, corpus day).
 	//
 	// The framework's premise is that the unit of analysis is the individual Ã¢â‚¬â€ a verdict
@@ -1576,10 +1629,12 @@ func (ed *entityDay) observeTail(logP float64) {
 }
 
 func newAccumulator(labels *redTeamLabels, topK int, budgets objective.Budgets,
-	pairingRelational bool, online onlineMode, onlineArm detector.ID) *accumulator {
+	pairingRelational bool, weighting weightingMode, online onlineMode,
+	onlineArm detector.ID) *accumulator {
 
 	return &accumulator{
 		labels:                labels,
+		weighting:             newHistoryWeighting(weighting),
 		online:                newOnlineControl(online, onlineArm),
 		topK:                  topK,
 		budgets:               budgets,
@@ -1632,7 +1687,8 @@ func (a *accumulator) observeDetectorArms(se application.ScoredEvent, day int64,
 	sort.Slice(ids, func(i, j int) bool { return ids[i] < ids[j] })
 
 	for _, id := range ids {
-		logP := best[id]
+		modelLogP := best[id]
+		logP := a.weighting.adjust(id, entity, modelLogP)
 		// One evaluation by this arm on this day. It is the denominator of a within-arm
 		// rank, which is the only cross-arm quantity §3.4's diagnosis leaves admissible:
 		// rank 100 of 600,000 and rank 100 of 900 are not the same evidence, and an
@@ -1649,7 +1705,7 @@ func (a *accumulator) observeDetectorArms(se application.ScoredEvent, day int64,
 			byDay[day] = da
 		}
 		da.push(alert{
-			P: math.Exp(logP), LogP: logP, ModelLogP: logP, TSeconds: tSeconds,
+			P: math.Exp(logP), LogP: logP, ModelLogP: modelLogP, TSeconds: tSeconds,
 			Entity: entity, SrcComp: srcComp, DstComp: dstComp,
 			IsRedTeam: isRed, J: 1, MinDetector: string(id), Categories: cats,
 		}, a.topK)
@@ -1658,8 +1714,9 @@ func (a *accumulator) observeDetectorArms(se application.ScoredEvent, day int64,
 		a.online.observe(string(id), day, logP, isRed)
 		if isRed {
 			a.detectorRedTeamScored[id] = append(a.detectorRedTeamScored[id], redTeamScore{
-				Key: key, P: math.Exp(logP), LogP: logP, ModelLogP: logP,
+				Key: key, P: math.Exp(logP), LogP: logP, ModelLogP: modelLogP,
 				TSeconds: tSeconds, Entity: entity, J: 1, Categories: cats,
+				HistoryN: a.weighting.entityEvents[entity],
 			})
 		}
 	}
@@ -1814,6 +1871,7 @@ func (a *accumulator) observe(se application.ScoredEvent) error {
 			Entity: string(se.Event.Entity()), J: se.Combined.J,
 			Detectors:  perDetector,
 			Categories: catNames,
+			HistoryN:   a.weighting.entityEvents[string(se.Event.Entity())],
 		})
 		for _, c := range allCategories() {
 			if cats[c] {
@@ -1838,6 +1896,10 @@ func (a *accumulator) observe(se application.ScoredEvent) error {
 		minPDay = &dayAlerts{}
 		a.minPPerDay[day] = minPDay
 	}
+	// Unweighted, and it cannot be otherwise: no combined score exists before the burn-in
+	// boundary, because the covariance and conformal models are not frozen until it, so
+	// there is no sample on which a combined arm's weights could be fitted without
+	// reading the p-values they would then rank. See history.go.
 	minPDay.push(alert{
 		P: math.Exp(se.Combined.MinPLogP), LogP: se.Combined.MinPLogP,
 		ModelLogP: se.Combined.MinPLogP, TSeconds: tSeconds,
@@ -1852,6 +1914,7 @@ func (a *accumulator) observe(se application.ScoredEvent) error {
 			ModelLogP: se.Combined.MinPLogP, TSeconds: tSeconds,
 			Entity: string(se.Event.Entity()), J: se.Combined.J,
 			Categories: catNames,
+			HistoryN:   a.weighting.entityEvents[string(se.Event.Entity())],
 		})
 	}
 	da, ok := a.perDay[day]
@@ -1859,6 +1922,7 @@ func (a *accumulator) observe(se application.ScoredEvent) error {
 		da = &dayAlerts{}
 		a.perDay[day] = da
 	}
+	// Unweighted, for the reason given at the min-p arm above.
 	da.push(alert{
 		P: se.Combined.P, LogP: se.Combined.LogP, ModelLogP: se.Combined.ModelLogP,
 		TSeconds: tSeconds,
@@ -1867,6 +1931,11 @@ func (a *accumulator) observe(se application.ScoredEvent) error {
 		Categories: catNames,
 	}, a.topK)
 	a.tracked = int64(len(a.perDay))
+
+	// The event now belongs to its entity's history. Counted here, after every reader of
+	// the covariate above, so a covariate is always history strictly before the event it
+	// weighted (#15).
+	a.weighting.seen(string(se.Event.Entity()))
 
 	// Night-activity counters for the E9 midnight-straddler split.
 	nc, ok := a.entityNight[string(se.Event.Entity())]
@@ -2406,16 +2475,24 @@ func (a *accumulator) results() map[string]any {
 		"online_never_silent":  a.online.neverSilent(),
 		"min_p_arm":            a.minPArmResults(budgets),
 		"detector_arms":        a.detectorArmResults(budgets),
-		"union_arm":            a.unionArmResults(budgets),
-		"weighted_arm":         a.weightedResults(budgets),
-		"entity_days":          a.entityDayResults(budgets),
-		"alerts_per_day":       perDay,
-		"scored_per_day":       scoredPerDay,
-		"red_team_scored":      a.redTeamScored,
-		"p_histograms":         hists,
-		"status_counts":        a.statusCounts,
-		"abstain_causes":       a.abstainCauses,
-		"volume_gate_probe":    a.volumeGateResults(budgets),
+		"history_weighting":    a.weighting.record(),
+		"labelled_history_product": map[string]any{
+			"composite": historyOfLabelled(a.redTeamScored),
+			"note": "p x n over the labelled events, the statistic #15's premise rests " +
+				"on. Recomputed under whatever ranking this run used, so whether the 1/n " +
+				"dependence actually moved is read off the result rather than assumed " +
+				"from the fact that a weighting was applied",
+		},
+		"union_arm":         a.unionArmResults(budgets),
+		"weighted_arm":      a.weightedResults(budgets),
+		"entity_days":       a.entityDayResults(budgets),
+		"alerts_per_day":    perDay,
+		"scored_per_day":    scoredPerDay,
+		"red_team_scored":   a.redTeamScored,
+		"p_histograms":      hists,
+		"status_counts":     a.statusCounts,
+		"abstain_causes":    a.abstainCauses,
+		"volume_gate_probe": a.volumeGateResults(budgets),
 	}
 
 	if len(a.coocPerDay) > 0 {
@@ -2580,7 +2657,23 @@ func gitDirty() bool {
 	return len(strings.TrimSpace(string(out))) > 0
 }
 
+// writeJSON encodes a result to disk, first naming any value JSON cannot carry.
+//
+// The naming is the point. `json: unsupported value: -Inf` is what encoding/json says on its
+// own, and it says nothing about which field: an eighty-minute replay ended twice on that
+// message, once for a log statistic and once for a retained tail, and each time the field had
+// to be found by elimination. A path costs one walk of a map that is already in memory.
+//
+// It refuses rather than sanitising. An infinity in a result means a quantity was computed
+// that the file cannot express, and quietly writing a substitute would put a number in a
+// measurement where the truth was "unrepresentable".
 func writeJSON(path string, v any) error {
+	if bad := nonFinite(v, ""); len(bad) > 0 {
+		return fmt.Errorf("result contains %d value(s) JSON cannot carry, at %s: an "+
+			"infinity or NaN in a result means a quantity was computed that the file "+
+			"cannot express, so it is refused rather than substituted",
+			len(bad), strings.Join(bad, ", "))
+	}
 	if err := os.MkdirAll(dirOf(path), 0o755); err != nil {
 		return err
 	}
@@ -2605,4 +2698,92 @@ func dirOf(path string) string {
 		return "."
 	}
 	return path[:idx]
+}
+
+// nonFinitePathCap bounds how many paths are reported, so a systematically broken field names
+// itself without printing a hundred thousand entity-days.
+const nonFinitePathCap = 12
+
+// nonFinite walks a value about to be encoded and returns the paths of any float JSON cannot
+// carry.
+//
+// It walks the same shapes encoding/json will: maps, slices, structs and pointers, plus the
+// float kinds. A type implementing json.Marshaler is trusted to handle its own infinities,
+// which is what logProbability does, so those are not walked.
+func nonFinite(v any, path string) []string {
+	if v == nil {
+		return nil
+	}
+	if _, ok := v.(json.Marshaler); ok {
+		return nil
+	}
+	return nonFiniteValue(reflect.ValueOf(v), path, 0)
+}
+
+func nonFiniteValue(rv reflect.Value, path string, depth int) []string {
+	// A depth cap so a cyclic structure cannot spin. Nothing here is cyclic; the cap is
+	// insurance against a future field that is.
+	if depth > 24 || !rv.IsValid() {
+		return nil
+	}
+	if rv.CanInterface() {
+		if _, ok := rv.Interface().(json.Marshaler); ok {
+			return nil
+		}
+	}
+
+	var out []string
+	switch rv.Kind() {
+	case reflect.Float32, reflect.Float64:
+		f := rv.Float()
+		if math.IsInf(f, 0) || math.IsNaN(f) {
+			return []string{path}
+		}
+	case reflect.Interface, reflect.Ptr:
+		if !rv.IsNil() {
+			out = append(out, nonFiniteValue(rv.Elem(), path, depth+1)...)
+		}
+	case reflect.Map:
+		keys := make([]string, 0, rv.Len())
+		byKey := map[string]reflect.Value{}
+		for _, k := range rv.MapKeys() {
+			name := fmt.Sprint(k.Interface())
+			keys = append(keys, name)
+			byKey[name] = rv.MapIndex(k)
+		}
+		sort.Strings(keys)
+		for _, k := range keys {
+			out = append(out, nonFiniteValue(byKey[k], path+"/"+k, depth+1)...)
+			if len(out) >= nonFinitePathCap {
+				return out[:nonFinitePathCap]
+			}
+		}
+	case reflect.Slice, reflect.Array:
+		for i := 0; i < rv.Len(); i++ {
+			out = append(out, nonFiniteValue(rv.Index(i), fmt.Sprintf("%s[%d]", path, i), depth+1)...)
+			if len(out) >= nonFinitePathCap {
+				return out[:nonFinitePathCap]
+			}
+		}
+	case reflect.Struct:
+		t := rv.Type()
+		for i := 0; i < rv.NumField(); i++ {
+			field := t.Field(i)
+			if !field.IsExported() {
+				continue
+			}
+			name := field.Name
+			if tag := field.Tag.Get("json"); tag != "" && tag != "-" {
+				name = strings.Split(tag, ",")[0]
+			} else if tag == "-" {
+				// Not encoded, so it cannot break the encoding.
+				continue
+			}
+			out = append(out, nonFiniteValue(rv.Field(i), path+"/"+name, depth+1)...)
+			if len(out) >= nonFinitePathCap {
+				return out[:nonFinitePathCap]
+			}
+		}
+	}
+	return out
 }

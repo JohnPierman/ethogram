@@ -367,3 +367,77 @@ func TestEveryEntityDayIsJSONSerialisable(t *testing.T) {
 		}
 	}
 }
+
+// TestNonFiniteNamesTheFieldItFound is the guard on the guard. An eighty-minute replay ended
+// twice on `json: unsupported value: -Inf`, which names no field, and each time the field had to
+// be found by elimination. A reporter that misses a shape is worse than none, because it turns a
+// known failure mode into a trusted absence.
+func TestNonFiniteNamesTheFieldItFound(t *testing.T) {
+	type inner struct {
+		Good float64 `json:"good"`
+		Bad  float64 `json:"bad"`
+		Skip float64 `json:"-"`
+	}
+
+	for _, tc := range []struct {
+		name  string
+		value any
+		want  []string
+	}{
+		{"a clean map", map[string]any{"a": 1.0, "b": "x"}, nil},
+		{"an infinity in a map", map[string]any{"a": math.Inf(1)}, []string{"/a"}},
+		{"a NaN in a map", map[string]any{"a": math.NaN()}, []string{"/a"}},
+		{"nested in a map", map[string]any{"a": map[string]any{"b": math.Inf(-1)}},
+			[]string{"/a/b"}},
+		{"in a slice", map[string]any{"a": []any{1.0, math.Inf(-1)}}, []string{"/a[1]"}},
+		{"in a slice of floats", map[string]any{"a": []float64{1, math.Inf(-1)}},
+			[]string{"/a[1]"}},
+		{"a struct field, named by its json tag",
+			map[string]any{"row": inner{Good: 1, Bad: math.Inf(-1)}}, []string{"/row/bad"}},
+		{"a field json skips is not reported",
+			map[string]any{"row": inner{Skip: math.Inf(-1)}}, nil},
+		{"through a pointer",
+			map[string]any{"row": &inner{Bad: math.NaN()}}, []string{"/row/bad"}},
+		{"a nil pointer", map[string]any{"row": (*inner)(nil)}, nil},
+		{"a type that marshals its own infinities",
+			map[string]any{"tail": logProbabilities([]float64{math.Inf(-1)})}, nil},
+	} {
+		got := nonFinite(tc.value, "")
+		if len(got) != len(tc.want) {
+			t.Errorf("%s: got %v, want %v", tc.name, got, tc.want)
+			continue
+		}
+		for i := range tc.want {
+			if got[i] != tc.want[i] {
+				t.Errorf("%s: path %d is %q, want %q", tc.name, i, got[i], tc.want[i])
+			}
+		}
+	}
+
+	// Whatever it reports must be exactly what encoding/json refuses, in both directions.
+	for _, tc := range []struct {
+		name  string
+		value any
+	}{
+		{"clean", map[string]any{"a": 1.0, "b": []float64{2, 3}}},
+		{"infinite", map[string]any{"a": math.Inf(1)}},
+		{"self-marshalling", map[string]any{"a": logProbabilities([]float64{math.Inf(-1)})}},
+	} {
+		_, err := json.Marshal(tc.value)
+		reported := len(nonFinite(tc.value, "")) > 0
+		if (err != nil) != reported {
+			t.Errorf("%s: encoding/json error=%v but the reporter said %v",
+				tc.name, err, reported)
+		}
+	}
+
+	// And the cap holds, so a systematically broken field names itself without printing a
+	// hundred thousand rows.
+	many := map[string]any{}
+	for i := 0; i < nonFinitePathCap*4; i++ {
+		many[string(rune('a'+i%26))+string(rune('a'+i/26))] = math.Inf(1)
+	}
+	if got := len(nonFinite(many, "")); got > nonFinitePathCap {
+		t.Errorf("reported %d paths, above the cap of %d", got, nonFinitePathCap)
+	}
+}

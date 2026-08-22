@@ -21,7 +21,7 @@ func feed(a *accumulator, entity string, day int64, logPs []float64, redTeam int
 var testBudgets = objective.Budgets{10, 25, 50, 100}
 
 func TestEntityDayAccumulatesTheEvidenceEventRankingDiscards(t *testing.T) {
-	a := newAccumulator(&redTeamLabels{keys: map[string]struct{}{}}, 200, testBudgets, false, onlineNone, "")
+	a := newAccumulator(&redTeamLabels{keys: map[string]struct{}{}}, 200, testBudgets, false, weightingNone, onlineNone, "")
 
 	// The shape LANL day 8 actually has: one account with many moderately unusual
 	// events, against a background account with a single more extreme one.
@@ -66,7 +66,7 @@ func TestEntityDayAccumulatesTheEvidenceEventRankingDiscards(t *testing.T) {
 // TestEntityDayCorrectionPenalisesManyChances: an entity with more events has more
 // chances at an extreme one, and the corrected minimum must charge it for them.
 func TestEntityDayCorrectionPenalisesManyChances(t *testing.T) {
-	a := newAccumulator(&redTeamLabels{keys: map[string]struct{}{}}, 200, testBudgets, false, onlineNone, "")
+	a := newAccumulator(&redTeamLabels{keys: map[string]struct{}{}}, 200, testBudgets, false, weightingNone, onlineNone, "")
 	feed(a, "quiet@DOM1", 3, []float64{-30}, 0)
 	noisy := make([]float64, 1000)
 	for i := range noisy {
@@ -106,7 +106,7 @@ func TestEntityDayCorrectionPenalisesManyChances(t *testing.T) {
 // TestEntityDayDetectionCountsLabelledDays: an entity-day is a true positive when any of
 // its events was labelled, which is the entity-scope analogue of the event-level table.
 func TestEntityDayDetectionCountsLabelledDays(t *testing.T) {
-	a := newAccumulator(&redTeamLabels{keys: map[string]struct{}{}}, 200, testBudgets, false, onlineNone, "")
+	a := newAccumulator(&redTeamLabels{keys: map[string]struct{}{}}, 200, testBudgets, false, weightingNone, onlineNone, "")
 	// One labelled entity-day that is genuinely extreme, and three benign ones that are
 	// not, so a budget of one must find it.
 	feed(a, "attacker@DOM1", 5, []float64{-90, -88}, 2)
@@ -141,7 +141,7 @@ func TestEntityDayDetectionCountsLabelledDays(t *testing.T) {
 // rank identically, and ties must break on a stated key rather than on map order (R4).
 func TestEntityDayRankingIsDeterministic(t *testing.T) {
 	build := func() []entityDayRow {
-		a := newAccumulator(&redTeamLabels{keys: map[string]struct{}{}}, 200, testBudgets, false, onlineNone, "")
+		a := newAccumulator(&redTeamLabels{keys: map[string]struct{}{}}, 200, testBudgets, false, weightingNone, onlineNone, "")
 		for i := range 50 {
 			// Deliberate ties: every entity has the identical single event.
 			feed(a, string(rune('a'+i%26))+"@DOM1", 1, []float64{-20}, 0)

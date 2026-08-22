@@ -369,9 +369,10 @@ func analyse(cfg analysisConfig) error {
 				"true negative class (§12.5), so realised FDR is an upper bound",
 		},
 		"results": map[string]any{
-			"calibration_bh": calibrationBH,
-			"calibration_by": calibrationBY,
-			"detection":      detection,
+			"calibration_bh":  calibrationBH,
+			"history_product": historyProduct(results),
+			"calibration_by":  calibrationBY,
+			"detection":       detection,
 			// Every arm the run recorded, with an interval on each proportion. The
 			// primary detection table above covers one arm; a paper comparing arms
 			// needs the interval on each of them, and a bare integer invites a
