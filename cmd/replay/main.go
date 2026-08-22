@@ -1473,6 +1473,53 @@ type entityDay struct {
 	// RedTeamEvents is how many of the day's events were labelled, so an entity-day is a
 	// true positive when it is non-zero.
 	RedTeamEvents int64 `json:"red_team_events"`
+
+	// Tail is the entityDayTailDepth smallest log p-values of the day, ascending.
+	//
+	// Higher Criticism needs order statistics rather than a fixed-size summary, which is the
+	// one thing an entity-day was built not to keep. A bounded tail is the compromise, and
+	// the bound is a measurement rather than a taste: see entityDayTailDepth.
+	Tail []float64 `json:"tail"`
+}
+
+// entityDayTailDepth is how many of an entity-day's smallest log p-values are retained.
+//
+// Higher Criticism takes its maximum over the smallest p-values, and under the sparse
+// alternative it is attained at small rank -- so a bounded tail reproduces the full-data
+// statistic exactly, provided the bound is large enough. How large is measured, in
+// domain/calibration's TestTopKReproducesTheFullStatisticOnASparseSignal: over 300 synthetic
+// days of 5,000 events carrying 20 planted ones,
+//
+//	k    days agreeing exactly with the full statistic
+//	 8    25 of 300
+//	16    42 of 300
+//	32   300 of 300
+//	64   300 of 300
+//
+// So 8 and 16 are not enough and 32 is, on the sparsity a campaign presents. 32 rather than
+// 64 because the extra 32 buy nothing measurable and every entity-day pays for them.
+//
+// Where a bounded tail is not enough -- a day whose signal is dense rather than sparse --
+// the statistic reports itself as truncated, so a bounded maximum is never presented as a
+// complete one.
+const entityDayTailDepth = 32
+
+// observeTail files one log p-value into the retained tail, keeping it ascending and bounded.
+//
+// A sorted insert rather than keeping everything and sorting once: the slice is at most 32
+// long, and the alternative is the unbounded per-entity-day state this design exists to
+// avoid.
+func (ed *entityDay) observeTail(logP float64) {
+	if len(ed.Tail) >= entityDayTailDepth && logP >= ed.Tail[len(ed.Tail)-1] {
+		return
+	}
+	at := sort.SearchFloat64s(ed.Tail, logP)
+	ed.Tail = append(ed.Tail, 0)
+	copy(ed.Tail[at+1:], ed.Tail[at:])
+	ed.Tail[at] = logP
+	if len(ed.Tail) > entityDayTailDepth {
+		ed.Tail = ed.Tail[:entityDayTailDepth]
+	}
 }
 
 func newAccumulator(labels *redTeamLabels, topK int, budgets objective.Budgets, pairingRelational bool) *accumulator {
@@ -1628,6 +1675,7 @@ func (a *accumulator) observeEntityDay(entity string, day int64, logP float64, i
 	}
 	// Fisher's statistic is Ã¢Ë†â€™2 ln P summed; LogP is already ln P.
 	ed.SumX2 += -2 * logP
+	ed.observeTail(logP)
 	if isRed {
 		ed.RedTeamEvents++
 	}
@@ -1996,6 +2044,36 @@ type entityDayRow struct {
 	// entity's events to be independent, and one entity's own event stream is the least
 	// independent data in the corpus.
 	StandardisedX2 float64 `json:"standardised_x2"`
+
+	// HigherCriticism is the third aggregation, and the only one of the three normalised so
+	// that its scale does not grow with the entity's event count. See
+	// domain/calibration/highercriticism.go for why that is the property that matters here.
+	HigherCriticism entityDayHigherCriticism `json:"higher_criticism"`
+}
+
+// entityDayHigherCriticism is one entity-day's Higher Criticism statistic, flattened for the
+// result file so the ranking is recomputable from the row alone (R5).
+type entityDayHigherCriticism struct {
+	// LogStatistic is what the ranking is taken on, because the statistic itself overflows
+	// float64 on this corpus while its logarithm does not.
+	LogStatistic float64 `json:"log_statistic"`
+	// Statistic is the reading of it, and is null in JSON where it overflowed.
+	Statistic *float64 `json:"statistic"`
+	Positive  bool     `json:"positive"`
+	Rank      int      `json:"rank"`
+	PValueLog float64  `json:"rank_log_p"`
+	// Considered is how many ranks fell inside the alpha0 cap, and Truncated says whether
+	// the retained tail was shorter than that -- so a bounded maximum is distinguishable
+	// from a complete one.
+	Considered int  `json:"considered"`
+	Truncated  bool `json:"truncated"`
+	// NullScale is sqrt(2 ln ln n), the order of the statistic under the global null. The
+	// statistic has no fixed critical value and grows very slowly with n, so a reader
+	// comparing two days of different sizes needs this beside them.
+	NullScale float64 `json:"null_scale"`
+	// Error is the reason the statistic is absent, where it is. An entity-day with no
+	// retained tail has none, which is a state of the data rather than a fault.
+	Error string `json:"error,omitempty"`
 }
 
 // entityDayResults ranks entity-days two ways and reports detection at entity-level
@@ -2016,6 +2094,7 @@ func (a *accumulator) entityDayResults(budgets []int) map[string]any {
 		n := float64(ed.Events)
 		row.CorrectedLogP = ed.MinLogP + math.Log(n)
 		row.StandardisedX2 = (ed.SumX2 - 2*n) / (2 * math.Sqrt(n))
+		row.HigherCriticism = higherCriticismOf(ed)
 		rows = append(rows, row)
 		if ed.RedTeamEvents > 0 {
 			labelled++
@@ -2052,6 +2131,31 @@ func (a *accumulator) entityDayResults(budgets []int) map[string]any {
 		return grouped
 	}
 
+	// Higher Criticism cannot be ranked by a single float: the comparison is on the
+	// logarithm where the statistic is positive and on the raw value where it is not, since
+	// a day quieter than uniform has a negative statistic whose logarithm does not exist.
+	// So it gets a comparator rather than a score, and [calibration.MoreExtreme] is the
+	// total order.
+	byDayLess := func(less func(a, b entityDayRow) bool) map[int64][]entityDayRow {
+		grouped := map[int64][]entityDayRow{}
+		for _, r := range rows {
+			grouped[r.Day] = append(grouped[r.Day], r)
+		}
+		for day := range grouped {
+			g := grouped[day]
+			sort.SliceStable(g, func(i, j int) bool {
+				if less(g[i], g[j]) {
+					return true
+				}
+				if less(g[j], g[i]) {
+					return false
+				}
+				return g[i].Entity < g[j].Entity
+			})
+		}
+		return grouped
+	}
+
 	detectionsFor := func(grouped map[int64][]entityDayRow) map[string]any {
 		out := make(map[string]any, len(budgets))
 		for _, b := range budgets {
@@ -2080,6 +2184,9 @@ func (a *accumulator) entityDayResults(budgets []int) map[string]any {
 	corrected := byDay(func(r entityDayRow) float64 { return r.CorrectedLogP }, true)
 	fisher := byDay(func(r entityDayRow) float64 { return r.SumX2 }, false)
 	standardised := byDay(func(r entityDayRow) float64 { return r.StandardisedX2 }, false)
+	criticism := byDayLess(func(a, b entityDayRow) bool {
+		return calibration.MoreExtreme(a.HigherCriticism.result(), b.HigherCriticism.result())
+	})
 
 	// The top of each ranking, for reading; the full population stays in the counts.
 	const topN = 25
@@ -2101,8 +2208,9 @@ func (a *accumulator) entityDayResults(budgets []int) map[string]any {
 			"these are the same evidence aggregated to the unit the premise names, and to " +
 			"the unit an analyst actually triages. No score here is a calibrated p-value at " +
 			"entity scope: an entity's own events are not independent",
-		"total_entity_days":    len(rows),
-		"labelled_entity_days": labelled,
+		"total_entity_days":     len(rows),
+		"labelled_entity_days":  labelled,
+		"from_the_event_budget": a.entityDaysFromEventBudget(budgets, labelled),
 		"corrected_minimum": map[string]any{
 			"score":                "min_log_p + ln(events), ascending",
 			"detections_at_budget": detectionsFor(corrected), "top": head(corrected),
@@ -2120,6 +2228,33 @@ func (a *accumulator) entityDayResults(budgets []int) map[string]any {
 				"entity's accumulated evidence exceeds what its event count alone predicts " +
 				"under chi-square(2n)",
 			"detections_at_budget": detectionsFor(standardised), "top": head(standardised),
+		},
+		"higher_criticism": map[string]any{
+			"score": "max over the smallest ranks of sqrt(n)(i/n - p_(i))/sqrt(p_(i)(1-p_(i))), " +
+				"descending, from the retained tail of the day's log p-values. Unlike the " +
+				"other two it is normalised so its null distribution barely moves with the " +
+				"event count -- measured, the 95th percentile grows 17% between days of 100 " +
+				"and 10,000 events where Fisher's sum grows a hundredfold -- so two " +
+				"entity-days of very different size can be ranked against each other. It is " +
+				"built for a sparse cluster of moderate anomalies in an otherwise ordinary " +
+				"day, which is what a campaign is and what Fisher's sum dilutes",
+			"alpha0":               calibration.DefaultAlpha0,
+			"tail_depth":           entityDayTailDepth,
+			"detections_at_budget": detectionsFor(criticism), "top": head(criticism),
+			"truncated_entity_days": func() int {
+				truncated := 0
+				for _, r := range rows {
+					if r.HigherCriticism.Truncated {
+						truncated++
+					}
+				}
+				return truncated
+			}(),
+			"truncation_note": "an entity-day is truncated when its event count put the " +
+				"alpha0 cap beyond the retained tail, so its maximum was taken over a " +
+				"prefix. Counted rather than hidden: on a sparse signal the maximum is " +
+				"attained at small rank and truncation costs nothing, and where it would " +
+				"cost something this is how a reader knows",
 		},
 		// Every entity-day, not a sample: 1,777 rows on the sampled corpus and bounded by
 		// entities times days, so the file stays small while any re-ranking becomes a
