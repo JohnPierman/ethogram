@@ -24,7 +24,10 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 
 	"github.com/JohnPierman/ethogram/domain/cooccurrence"
+	"github.com/JohnPierman/ethogram/domain/drift"
+	"github.com/JohnPierman/ethogram/domain/marginal"
 	"github.com/JohnPierman/ethogram/domain/novelty"
+	"github.com/JohnPierman/ethogram/domain/noveltyrate"
 	"github.com/JohnPierman/ethogram/domain/timing"
 	"github.com/JohnPierman/ethogram/domain/volume"
 )
@@ -96,6 +99,55 @@ var migrations = []string{
 	// existing row to "not yet measured", which is what a fresh state carries, so the arm
 	// re-measures from the next completed window rather than resuming on a fabricated count.
 	`ALTER TABLE volume_state ADD COLUMN IF NOT EXISTS dispersion_observed bigint NOT NULL DEFAULT 0`,
+	// The three tables below complete the persistent path. Before them, `noveltyrate`,
+	// `drift` and `marginal` had no Postgres store at all, which the schema-drift guard
+	// recorded as an absence -- and which made #48's end-to-end equivalence claim
+	// impossible to state honestly, since three of the seven arms would have run in memory
+	// on both sides of the comparison.
+	`CREATE TABLE IF NOT EXISTS noveltyrate_state (
+		source        text   NOT NULL,
+		entity        text   NOT NULL,
+		history_novel float8 NOT NULL,
+		history_total float8 NOT NULL,
+		window_index  bigint NOT NULL,
+		window_novel  bigint NOT NULL,
+		window_total  bigint NOT NULL,
+		last_seen_us  bigint NOT NULL,
+		PRIMARY KEY (source, entity)
+	)`,
+	`CREATE TABLE IF NOT EXISTS drift_state (
+		source            text   NOT NULL,
+		entity            text   NOT NULL,
+		rate_a            float8 NOT NULL,
+		rate_b            float8 NOT NULL,
+		cusum             float8 NOT NULL,
+		null_sum          float8 NOT NULL,
+		null_sumsq        float8 NOT NULL,
+		null_w            float8 NOT NULL,
+		null_observed     bigint NOT NULL DEFAULT 0,
+		period_index      bigint NOT NULL,
+		period_count      bigint NOT NULL,
+		completed_periods bigint NOT NULL DEFAULT 0,
+		last_seen_us      bigint NOT NULL,
+		PRIMARY KEY (source, entity)
+	)`,
+	`CREATE TABLE IF NOT EXISTS marginal_value_count (
+		source       text   NOT NULL,
+		field        text   NOT NULL,
+		value        text   NOT NULL,
+		count        float8 NOT NULL,
+		last_seen_us bigint NOT NULL,
+		PRIMARY KEY (source, field, value)
+	)`,
+	`CREATE TABLE IF NOT EXISTS marginal_sketch (
+		source        text     NOT NULL,
+		field         text     NOT NULL,
+		max_centroids int      NOT NULL,
+		means         float8[] NOT NULL,
+		weights       float8[] NOT NULL,
+		last_seen_us  bigint   NOT NULL,
+		PRIMARY KEY (source, field)
+	)`,
 	`CREATE TABLE IF NOT EXISTS graph_node (
 		source       text   NOT NULL,
 		field        text   NOT NULL,
@@ -126,11 +178,14 @@ var migrations = []string{
 // locks serialise concurrent writers on existing rows, but the store makes no further
 // concurrency promises the memory implementations do not make.
 type Store struct {
-	pool        *pgxpool.Pool
-	noveltyRepo *NoveltyStore
-	timingRepo  *TimingStore
-	volumeRepo  *VolumeStore
-	graphRepo   *GraphStore
+	pool            *pgxpool.Pool
+	noveltyRepo     *NoveltyStore
+	noveltyRateRepo *NoveltyRateStore
+	timingRepo      *TimingStore
+	volumeRepo      *VolumeStore
+	driftRepo       *DriftStore
+	marginalRepo    *MarginalStore
+	graphRepo       *GraphStore
 }
 
 // New connects to connString, applies the embedded migrations, and returns the store.
@@ -150,11 +205,14 @@ func New(ctx context.Context, connString string, halfLife novelty.HalfLife) (*St
 		return nil, fmt.Errorf("postgres: migrate: %w", err)
 	}
 	return &Store{
-		pool:        pool,
-		noveltyRepo: &NoveltyStore{pool: pool, halfLife: halfLife},
-		timingRepo:  &TimingStore{pool: pool},
-		volumeRepo:  &VolumeStore{pool: pool},
-		graphRepo:   &GraphStore{pool: pool, halfLife: halfLife},
+		pool:            pool,
+		noveltyRepo:     &NoveltyStore{pool: pool, halfLife: halfLife},
+		noveltyRateRepo: &NoveltyRateStore{pool: pool},
+		timingRepo:      &TimingStore{pool: pool},
+		volumeRepo:      &VolumeStore{pool: pool},
+		driftRepo:       &DriftStore{pool: pool},
+		marginalRepo:    &MarginalStore{pool: pool, halfLife: halfLife},
+		graphRepo:       &GraphStore{pool: pool, halfLife: halfLife},
 	}, nil
 }
 
@@ -189,8 +247,112 @@ func (s *Store) Timing() timing.StateRepository { return s.timingRepo }
 // Volume returns the volume.StateRepository implementation.
 func (s *Store) Volume() volume.StateRepository { return s.volumeRepo }
 
+// NoveltyRate returns the noveltyrate.StateRepository implementation.
+func (s *Store) NoveltyRate() noveltyrate.StateRepository { return s.noveltyRateRepo }
+
+// Drift returns the drift.StateRepository implementation.
+func (s *Store) Drift() drift.StateRepository { return s.driftRepo }
+
+// Marginal returns the marginal.Repository implementation.
+func (s *Store) Marginal() marginal.Repository { return s.marginalRepo }
+
 // Graph returns the cooccurrence.GraphRepository implementation.
 func (s *Store) Graph() cooccurrence.GraphRepository { return s.graphRepo }
 
 // Close releases the connection pool.
 func (s *Store) Close() { s.pool.Close() }
+
+// Rows counts the persisted novelty value-count rows.
+//
+// It exists for the run record, and for one reason beyond reporting: the final store size is
+// deterministic, so it belongs in the equivalence comparison of #48 rather than being masked
+// out of it. Two runs that produce identical scores from different-sized stores would be a
+// defect the score comparison alone could miss.
+func (s *NoveltyStore) Rows(ctx context.Context) (int64, error) {
+	var rows int64
+	if err := s.pool.QueryRow(ctx,
+		`SELECT count(*) FROM novelty_value_count`).Scan(&rows); err != nil {
+		return 0, fmt.Errorf("postgres: novelty row count: %w", err)
+	}
+	return rows, nil
+}
+
+// Entities counts the persisted timing states.
+func (s *TimingStore) Entities(ctx context.Context) (int64, error) {
+	var rows int64
+	if err := s.pool.QueryRow(ctx,
+		`SELECT count(*) FROM timing_state`).Scan(&rows); err != nil {
+		return 0, fmt.Errorf("postgres: timing entity count: %w", err)
+	}
+	return rows, nil
+}
+
+// Entities counts the persisted volume states.
+func (s *VolumeStore) Entities(ctx context.Context) (int64, error) {
+	var rows int64
+	if err := s.pool.QueryRow(ctx,
+		`SELECT count(*) FROM volume_state`).Scan(&rows); err != nil {
+		return 0, fmt.Errorf("postgres: volume entity count: %w", err)
+	}
+	return rows, nil
+}
+
+// NoveltyRows, TimingEntities and VolumeEntities expose the per-table counts through the
+// store, so a caller holding a *Store does not need the concrete repository types.
+func (s *Store) NoveltyRows(ctx context.Context) (int64, error) {
+	return s.noveltyRepo.Rows(ctx)
+}
+
+func (s *Store) TimingEntities(ctx context.Context) (int64, error) {
+	return s.timingRepo.Entities(ctx)
+}
+
+func (s *Store) VolumeEntities(ctx context.Context) (int64, error) {
+	return s.volumeRepo.Entities(ctx)
+}
+
+// tables is every table this store owns, in the order Truncate empties them.
+//
+// Listed explicitly rather than discovered from the catalogue, so that truncating cannot
+// reach a table this store did not create. The database it connects to is shared with the
+// integration suite and with whatever else a developer has put there.
+var tables = []string{
+	"novelty_value_count",
+	"noveltyrate_state",
+	"timing_state",
+	"volume_state",
+	"drift_state",
+	"marginal_value_count",
+	"marginal_sketch",
+	"graph_edge",
+	"graph_node",
+}
+
+// Truncate empties this store's tables, in one transaction.
+//
+// It exists for the equivalence harness of #48 and for nothing else. The comparison is
+// between a memory store, which necessarily starts empty, and a persistent one, which does
+// not: the first run of that comparison disagreed in 5,062 places because the database had
+// five hours of earlier runs in it, and the Postgres side saw 4.5 times as many observations
+// per detector pair as a result. That was a defect in the harness rather than in either
+// store, and this is the repair.
+//
+// It names its own tables rather than truncating the schema, because the database is shared.
+func (s *Store) Truncate(ctx context.Context) error {
+	tx, err := s.pool.Begin(ctx)
+	if err != nil {
+		return fmt.Errorf("postgres: truncate begin: %w", err)
+	}
+	defer func() { _ = tx.Rollback(ctx) }()
+
+	for _, table := range tables {
+		// The identifiers are the constants above, never caller input.
+		if _, err := tx.Exec(ctx, "TRUNCATE TABLE "+table); err != nil {
+			return fmt.Errorf("postgres: truncate %s: %w", table, err)
+		}
+	}
+	if err := tx.Commit(ctx); err != nil {
+		return fmt.Errorf("postgres: truncate commit: %w", err)
+	}
+	return nil
+}

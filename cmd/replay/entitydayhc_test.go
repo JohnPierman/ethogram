@@ -1,6 +1,8 @@
 package main
 
 import (
+	"bytes"
+	"encoding/json"
 	"math"
 	"math/rand"
 	"sort"
@@ -116,8 +118,12 @@ func TestHigherCriticismOfAnEntityDayRecordsFailuresRatherThanDroppingRows(t *te
 		t.Errorf("the statistic is reported as %g, but at ln P = -4000 it overflows and "+
 			"JSON has no infinity", *got.Statistic)
 	}
-	if math.IsInf(got.LogStatistic, 0) || got.LogStatistic < 1000 {
-		t.Errorf("the log statistic is %g, want a large finite number", got.LogStatistic)
+	if got.LogStatistic == nil {
+		t.Fatal("the log statistic is absent, but at ln P = -4000 it is a large finite " +
+			"number and is the only field that survived")
+	}
+	if math.IsInf(*got.LogStatistic, 0) || *got.LogStatistic < 1000 {
+		t.Errorf("the log statistic is %g, want a large finite number", *got.LogStatistic)
 	}
 	if got.NullScale <= 0 {
 		t.Errorf("the null scale is %g, want positive for 400 events", got.NullScale)
@@ -316,5 +322,48 @@ func TestTheOnlineTrajectoryIsRecordedPerDay(t *testing.T) {
 	}
 	if silent["strictly_positive"] != true {
 		t.Errorf("the never-silent record says %v", silent["strictly_positive"])
+	}
+}
+
+// TestEveryEntityDayIsJSONSerialisable is the guard on the defect that cost a two-hour corpus
+// run. Higher Criticism returns negative infinity for a day quieter than uniform, positive
+// infinity for a p-value that underflowed to zero, and JSON encodes neither -- so the failure
+// arrived at the moment the run wrote its result, after all the work was done.
+//
+// A unit test over the shapes a corpus produces is a hundredth of a second and would have
+// caught it.
+func TestEveryEntityDayIsJSONSerialisable(t *testing.T) {
+	for _, tc := range []struct {
+		name string
+		day  *entityDay
+	}{
+		{"quieter than uniform", &entityDay{
+			Events: 400, Tail: []float64{math.Log(0.98), math.Log(0.99)},
+		}},
+		{"an underflowed p-value", &entityDay{
+			Events: 400, Tail: []float64{math.Inf(-1), math.Log(0.5)},
+		}},
+		{"a deep but representable tail", &entityDay{
+			Events: 400, Tail: []float64{-4000, math.Log(0.5)},
+		}},
+		{"ordinary", &entityDay{
+			Events: 400, Tail: []float64{math.Log(1e-6), math.Log(0.5)},
+		}},
+		{"no retained tail", &entityDay{Events: 3}},
+		{"a single event", &entityDay{Events: 1, Tail: []float64{math.Log(0.4)}}},
+	} {
+		row := entityDayRow{
+			Entity: "u1", Day: 1, entityDay: *tc.day,
+			HigherCriticism: higherCriticismOf(tc.day),
+		}
+		row.CorrectedLogP = tc.day.MinLogP + math.Log(math.Max(1, float64(tc.day.Events)))
+		encoded, err := json.Marshal(row)
+		if err != nil {
+			t.Errorf("%s: %v", tc.name, err)
+			continue
+		}
+		if bytes.Contains(encoded, []byte("Inf")) || bytes.Contains(encoded, []byte("NaN")) {
+			t.Errorf("%s: encoded to %s, which no JSON reader accepts", tc.name, encoded)
+		}
 	}
 }

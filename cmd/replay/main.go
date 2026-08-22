@@ -58,7 +58,15 @@ func main() {
 		outPath     = flag.String("out", "", "result JSON path (required)")
 		runID       = flag.String("run-id", "", "run identifier (required)")
 		burnInSec   = flag.Int64("burnin", 604800, "burn-in end, seconds on the corpus epoch")
-		online      = flag.String("online", "none",
+		store       = flag.String("store", "memory",
+			"the state backing store: memory or postgres (#48)")
+		dsn = flag.String("dsn", "postgres://cad:cad_dev_only@127.0.0.1:55432/cad",
+			"connection string, read only when -store postgres")
+		storeTruncate = flag.Bool("store-truncate", false,
+			"empty this store's own tables before the run. For the -store equivalence "+
+				"harness, which compares against a memory store that necessarily starts "+
+				"empty; it destroys persisted state, so it is off by default")
+		online = flag.String("online", "none",
 			"run an online error-control rule beside the per-day step-up: none or lord (#16)")
 		onlineArm = flag.String("online-arm", "novelty",
 			"the detector whose stream the online rule reports as its headline; the "+
@@ -143,13 +151,20 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	backingStore, err := parseStore(*store)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	if err := run(runConfig{
 		authPath: *authPath, redteamPath: *redteamPath, outPath: *outPath, runID: *runID,
 		burnInSec: *burnInSec, maxRows: *maxRows, skipHash: *skipHash,
-		online:       onlineRule,
-		onlineArm:    detector.ID(*onlineArm),
-		halfLifeDays: *halfLifeDay, bandwidthHours: *bandwidth, alpha: *alphaFlag,
+		online:        onlineRule,
+		onlineArm:     detector.ID(*onlineArm),
+		store:         backingStore,
+		dsn:           *dsn,
+		storeTruncate: *storeTruncate,
+		halfLifeDays:  *halfLifeDay, bandwidthHours: *bandwidth, alpha: *alphaFlag,
 		volMinPeriods: *volMinPeriods, timStandardise: *timStandard,
 		drift: *driftOn, driftShift: *driftShift, driftMinPeriods: *driftMinPer,
 		topK: *topK, budgets: budgets, entitySample: *entitySample, allowResampling: *allowResample,
@@ -173,8 +188,15 @@ type runConfig struct {
 	burnInSec, maxRows                    int64
 	// online selects the online error-control rule (#16), and onlineArm the detector whose
 	// stream it reports as its headline. The default runs no rule.
-	online                              onlineMode
-	onlineArm                           detector.ID
+	online    onlineMode
+	onlineArm detector.ID
+	// store selects the state backing store and dsn its connection string (#48). The
+	// default is memory, which is what every earlier run used.
+	store storeKind
+	dsn   string
+	// storeTruncate empties the persistent store before the run, for the equivalence
+	// harness. Off by default: it destroys state.
+	storeTruncate                       bool
 	skipHash                            bool
 	halfLifeDays, bandwidthHours, alpha float64
 	volMinPeriods                       int64
@@ -202,6 +224,11 @@ type runConfig struct {
 }
 
 func run(cfg runConfig) error {
+	// One context for the whole run, shared by the state store and the corpus execution:
+	// they are the same unit of work, and a store outliving the replay it backed would be a
+	// leak rather than a feature.
+	ctx := context.Background()
+
 	authPath, redteamPath, outPath, runID := cfg.authPath, cfg.redteamPath, cfg.outPath, cfg.runID
 	burnInSec, maxRows, skipHash := cfg.burnInSec, cfg.maxRows, cfg.skipHash
 	halfLifeDays, bandwidthHours, alpha, topK := cfg.halfLifeDays, cfg.bandwidthHours, cfg.alpha, cfg.topK
@@ -275,13 +302,18 @@ func run(cfg runConfig) error {
 	reader := corpus.NewReader(zr, schema)
 
 	fieldRegistry := registry.New(registry.DefaultPolicy())
-	novStore := memory.NewNoveltyStore(halfLife)
-	nrStore := memory.NewNoveltyRateStore()
-	timStore := memory.NewTimingStore()
-	volStore := memory.NewVolumeStore()
-	driStore := memory.NewDriftStore()
-	margStore := memory.NewMarginalStore(halfLife)
-	graph := cooccurrence.NewMemoryGraph(halfLife)
+	stores, err := newStateStores(ctx, cfg.store, cfg.dsn, cfg.storeTruncate, halfLife)
+	if err != nil {
+		return err
+	}
+	defer stores.close()
+	novStore := stores.novelty
+	nrStore := stores.noveltyRate
+	timStore := stores.timing
+	volStore := stores.volume
+	driStore := stores.drift
+	margStore := stores.marginal
+	graph := stores.graph
 
 	var part *cooccurrence.Partition
 	partitionMode := "fallback: single-block degeneration (15), recorded per \u00a78.4"
@@ -493,7 +525,7 @@ func run(cfg runConfig) error {
 		}
 	}()
 
-	report, err := cmd.Execute(context.Background())
+	report, err := cmd.Execute(ctx)
 	close(done)
 	if err != nil {
 		return fmt.Errorf("replay: %w", err)
@@ -597,17 +629,16 @@ func run(cfg runConfig) error {
 		"conformal":  conformalRecord(cmd.ConformalModel()),
 		"results":    acc.results(),
 		"runtime": map[string]any{
-			"wall_seconds":    finished.Sub(started).Seconds(),
-			"events_per_sec":  float64(report.EventsWarmed+report.EventsScored) / finished.Sub(started).Seconds(),
-			"heap_alloc_mb":   float64(mem.HeapAlloc) / (1 << 20),
-			"heap_sys_mb":     float64(mem.HeapSys) / (1 << 20),
-			"novelty_rows":    novStore.Rows(),
-			"timing_entities": timStore.Entities(),
-			"volume_entities": volStore.Entities(),
-			"graph_nodes":     graph.Nodes(),
-			"graph_edges":     graph.Edges(),
-			"gc_percent":      400,
+			"wall_seconds":   finished.Sub(started).Seconds(),
+			"events_per_sec": float64(report.EventsWarmed+report.EventsScored) / finished.Sub(started).Seconds(),
+			"heap_alloc_mb":  float64(mem.HeapAlloc) / (1 << 20),
+			"heap_sys_mb":    float64(mem.HeapSys) / (1 << 20),
+			"graph_nodes":    graph.Nodes(),
+			"graph_edges":    graph.Edges(),
+			"gc_percent":     400,
 		},
+		"store":               stores.record(),
+		"store_sizes":         stores.counts(ctx),
 		"provenance_complete": !skipHash,
 	}
 
@@ -1499,7 +1530,9 @@ type entityDay struct {
 	// Higher Criticism needs order statistics rather than a fixed-size summary, which is the
 	// one thing an entity-day was built not to keep. A bounded tail is the compromise, and
 	// the bound is a measurement rather than a taste: see entityDayTailDepth.
-	Tail []float64 `json:"tail"`
+	Tail []float64 `json:"-"`
+	// TailJSON is Tail in a form JSON can carry; see logProbability.
+	TailJSON []logProbability `json:"tail"`
 }
 
 // entityDayTailDepth is how many of an entity-day's smallest log p-values are retained.
@@ -2083,12 +2116,17 @@ type entityDayRow struct {
 type entityDayHigherCriticism struct {
 	// LogStatistic is what the ranking is taken on, because the statistic itself overflows
 	// float64 on this corpus while its logarithm does not.
-	LogStatistic float64 `json:"log_statistic"`
+	//
+	// A pointer, and null in JSON where the statistic is not positive: the logarithm of a
+	// non-positive number does not exist, the domain returns negative infinity for it, and
+	// JSON has no infinity. Writing it as a float64 is what made the first corpus run of
+	// this code fail at the moment it wrote its result, after the whole replay.
+	LogStatistic *float64 `json:"log_statistic"`
 	// Statistic is the reading of it, and is null in JSON where it overflowed.
-	Statistic *float64 `json:"statistic"`
-	Positive  bool     `json:"positive"`
-	Rank      int      `json:"rank"`
-	PValueLog float64  `json:"rank_log_p"`
+	Statistic *float64       `json:"statistic"`
+	Positive  bool           `json:"positive"`
+	Rank      int            `json:"rank"`
+	PValueLog logProbability `json:"rank_log_p"`
 	// Considered is how many ranks fell inside the alpha0 cap, and Truncated says whether
 	// the retained tail was shorter than that -- so a bounded maximum is distinguishable
 	// from a complete one.
@@ -2122,6 +2160,7 @@ func (a *accumulator) entityDayResults(budgets []int) map[string]any {
 		row.CorrectedLogP = ed.MinLogP + math.Log(n)
 		row.StandardisedX2 = (ed.SumX2 - 2*n) / (2 * math.Sqrt(n))
 		row.HigherCriticism = higherCriticismOf(ed)
+		row.TailJSON = logProbabilities(ed.Tail)
 		rows = append(rows, row)
 		if ed.RedTeamEvents > 0 {
 			labelled++

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"math"
 	"sort"
@@ -28,8 +29,7 @@ import (
 // dropped such rows would be reporting a population it had quietly filtered.
 func higherCriticismOf(ed *entityDay) entityDayHigherCriticism {
 	out := entityDayHigherCriticism{
-		LogStatistic: math.Inf(-1),
-		NullScale:    calibration.NullScale(int(ed.Events)),
+		NullScale: calibration.NullScale(int(ed.Events)),
 	}
 	if len(ed.Tail) == 0 || ed.Events <= 0 {
 		out.Error = "no retained tail, so there are no order statistics to take a maximum over"
@@ -42,10 +42,13 @@ func higherCriticismOf(ed *entityDay) entityDayHigherCriticism {
 		return out
 	}
 
-	out.LogStatistic = hc.LogStatistic
+	if hc.Positive && !math.IsInf(hc.LogStatistic, 0) && !math.IsNaN(hc.LogStatistic) {
+		logStatistic := hc.LogStatistic
+		out.LogStatistic = &logStatistic
+	}
 	out.Positive = hc.Positive
 	out.Rank = hc.Rank
-	out.PValueLog = hc.PValueLog
+	out.PValueLog = logProbability(hc.PValueLog)
 	out.Considered = hc.Considered
 	out.Truncated = hc.Truncated
 	// JSON carries no infinity, so an overflowed statistic is reported as absent rather
@@ -66,12 +69,22 @@ func (h entityDayHigherCriticism) result() calibration.HigherCriticismResult {
 	if h.Statistic != nil {
 		statistic = *h.Statistic
 	}
+	// An absent logarithm means the statistic was not positive, which the domain represents
+	// as negative infinity; an absent one on a POSITIVE statistic means it was +Inf, which
+	// only an exactly-zero p-value produces. Both map back to the value that ranks correctly.
+	logStatistic := math.Inf(-1)
+	if h.Positive {
+		logStatistic = math.Inf(1)
+	}
+	if h.LogStatistic != nil {
+		logStatistic = *h.LogStatistic
+	}
 	return calibration.HigherCriticismResult{
-		LogStatistic: h.LogStatistic,
+		LogStatistic: logStatistic,
 		Statistic:    statistic,
 		Positive:     h.Positive,
 		Rank:         h.Rank,
-		PValueLog:    h.PValueLog,
+		PValueLog:    float64(h.PValueLog),
 		N:            0,
 		Considered:   h.Considered,
 		Truncated:    h.Truncated,
@@ -132,5 +145,50 @@ func (a *accumulator) entityDaysFromEventBudget(budgets []int, labelled int) map
 		"nothing. The two budgets are not the same unit: an event budget of 100 buys 100 " +
 		"events, which may name as few as one account, and this is how many accounts it " +
 		"actually named"
+	return out
+}
+
+// logProbability is a log p-value that JSON can carry.
+//
+// A p-value that underflowed to exactly zero has a logarithm of negative infinity, and JSON
+// encodes no infinity. Clamping it would alter recorded data; dropping the field would lose
+// the most extreme observations in the file. So it marshals as null, which reads as "more
+// extreme than any number here can express" -- and that is exactly what the value means.
+//
+// This is the second time the same defect has been fixed in one change: the statistic itself
+// overflows, its logarithm underflows, and both had to be made representable before a corpus
+// run could write its own result. The unit test covering it runs in a hundredth of a second
+// and the run that found it took two hours.
+type logProbability float64
+
+// MarshalJSON emits null for an infinite value and the number otherwise.
+func (l logProbability) MarshalJSON() ([]byte, error) {
+	if math.IsInf(float64(l), 0) || math.IsNaN(float64(l)) {
+		return []byte("null"), nil
+	}
+	return json.Marshal(float64(l))
+}
+
+// UnmarshalJSON reads null back as negative infinity, so a round trip through the result file
+// preserves the ordering the domain gives such a value.
+func (l *logProbability) UnmarshalJSON(b []byte) error {
+	if string(b) == "null" {
+		*l = logProbability(math.Inf(-1))
+		return nil
+	}
+	var f float64
+	if err := json.Unmarshal(b, &f); err != nil {
+		return err
+	}
+	*l = logProbability(f)
+	return nil
+}
+
+// logProbabilities converts a retained tail for serialisation.
+func logProbabilities(values []float64) []logProbability {
+	out := make([]logProbability, len(values))
+	for i, v := range values {
+		out[i] = logProbability(v)
+	}
 	return out
 }
