@@ -104,6 +104,25 @@ test-corpus:
 # suite keeps a smaller version of each, so a regression still fails there; this target is where
 # the reported numbers come from. No -race: these are pure functions over local slices, and the
 # detector's overhead is what made them unaffordable in the first place.
+# The open-vocabulary experiment (#4).
+#
+# Good-Turing's reserved unseen mass is measured on LANL and it COSTS discrimination there, for a
+# stated reason: LANL's per-entity vocabularies are fairly closed, so the correction correctly
+# dampens the very signal the attack produces. What was untested is the case the estimator exists
+# for -- an open vocabulary, where equation (4) reserves the same mass whatever the shape.
+#
+# This generates a corpus that has both kinds of account, plants the attacks on the closed ones,
+# and replays it twice. The corpus is synthetic and says so: it demonstrates a mechanism and
+# cannot establish a rate.
+OPENVOCAB_CORPUS ?= $(DATA)/openvocab-corpus.txt.gz
+OPENVOCAB_LABELS ?= $(DATA)/openvocab-labels.txt.gz
+
+.PHONY: openvocab
+openvocab:
+	$(GO) run ./cmd/openvocab -out $(OPENVOCAB_CORPUS) -labels $(OPENVOCAB_LABELS)
+	$(GO) run ./cmd/replay -auth $(OPENVOCAB_CORPUS) -redteam $(OPENVOCAB_LABELS) 	  -out $(RESULTS)/openvocab-dirichlet-d7-14.json 	  -run-id openvocab-dirichlet-d7-14-001 	  -topk 1000 -budgets 10,100,1000 -conformal -pairing -novelty-rate
+	$(GO) run ./cmd/replay -auth $(OPENVOCAB_CORPUS) -redteam $(OPENVOCAB_LABELS) 	  -out $(RESULTS)/openvocab-goodturing-d7-14.json 	  -run-id openvocab-goodturing-d7-14-001 	  -topk 1000 -budgets 10,100,1000 -conformal -pairing -novelty-rate -open-vocabulary
+
 .PHONY: simulation
 simulation:
 	$(GO) test ./domain/calibration/ -count=1 -tags simulation -v -timeout 30m 	  -run 'TestSimulation'

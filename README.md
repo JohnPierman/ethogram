@@ -224,6 +224,57 @@ entity-days at k=8, while **the top 10 per day is identical at every depth** and
 differs by 5 of 700 at k=8 and by none from k=24. What a budget surfaces does not depend on the
 bound.
 
+### Open vocabularies (`-open-vocabulary`)
+
+Equation (4) reserves `alpha / (n + alpha(K+1))` for values never seen, which depends on the total
+count and the number of distinct values and **never on how the mass is spread across them**:
+
+| an account's history | true P(new) | equation (4) |
+|---|---|---|
+| 3 addresses, 1,000 visits each | ~ 0 | 0.00033 |
+| 500 addresses, seen once each | ~ 1 | 0.001 |
+
+Two histories differing by everything get nearly the same answer, and the second is what a
+compromised account looks like. `-open-vocabulary` reserves the mass by Good-Turing instead --
+`P(new) = N1 / n`, the singleton rate -- which reads the shape directly and needs only the
+count-of-counts.
+
+**On LANL it costs discrimination**, novelty's median labelled percentile moving 0.07% to 0.18%.
+That is the estimator being honest: LANL's per-entity vocabularies are fairly closed, the attack
+signal *is* "used a value never used before", and plenty of ordinary accounts carry singletons, so
+Good-Turing correctly raises `P(new)` for them and dampens the very signal the attack produces.
+
+**On a corpus with open vocabularies it is the difference between nothing and everything.**
+`make openvocab` generates one -- 150 accounts whose destination is a brand-new host 80% of the
+time, 150 that revisit a fixed set of five, and the attacks planted on the *closed* ones -- and
+replays it twice:
+
+| arm | 10/day | 100/day | 1000/day |
+|---|---|---|---|
+| `novelty`, equation (4) | 0 | 0 | 0 |
+| `novelty`, Good-Turing | 0 | **144** | **864 of 864** |
+| `pairing`, equation (4) | 0 | 0 | 0 |
+| `pairing`, Good-Turing | 0 | **144** | **864 of 864** |
+| `noveltyrate`, either | 30 | 72 | 72 |
+| composite, equation (4) | 0 | 1 | 1 |
+| composite, Good-Turing | **6** | **72** | **75** |
+
+Under equation (4) the 150 open accounts produce about **16,800 innocent first-ever values a day**,
+each scoring the same `1/n` as a planted one, so they fill the budget and `novelty` detects nothing
+at all. Good-Turing gives those accounts `P(new) ~ 0.8` and the closed accounts a tiny reserve, and
+the plants become the extreme events they are.
+
+`noveltyrate` is the control and it does not move: it compares an account's novelty rate against
+its *own* history, so it was never confounded and the estimator change cannot help it.
+
+**The corpus is synthetic and built to have exactly this property**, so it demonstrates a mechanism
+and cannot establish a rate. What it settles is where the LANL result comes from: the correction is
+not weaker than equation (4), it is answering a question LANL does not ask.
+
+It also measures the cost #3 is about. The open-vocabulary corpus replays at **525 events a second
+against LANL's ~1,900**, because equation (5)'s tail is a sum over the whole value set and that set
+never stops growing.
+
 ### Per-entity routing (`-route policy`)
 
 Routing is not a global allocation: it chooses per entity, so in principle it can send an

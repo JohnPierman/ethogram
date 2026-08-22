@@ -199,13 +199,13 @@ beats the best single arm; over 20,000 random priors, none does. The equilibria 
 solutions [18] by Dantzig's reduction [19]: `robust-inj-d7-14-002`, and
 `robust-inj-lof-d7-14-001` for the variant admitting a baseline.
 
-**The game's value is exactly zero.** Every arm scores 0 on low-and-slow, so the saddle point is
-(any arm, low-and-slow) and a rational adversary wins with certainty. No reweighting of rows changes
+**The game's value is exactly zero.** Every arm scores 0 on low-and-slow, so the saddle point is (any
+arm, low-and-slow) and a rational adversary wins outright. No reweighting of rows changes
 a column of zeros: the defect is coverage, not allocation, which is why §2.4's negative result
 cannot be repaired by a better rule, and maximin is degenerate at 0 for every allocation.
 
 What is well posed is to normalise each mechanism by the best rate any arm reaches and maximise the
-worst-case *fraction retained*, dropping the mechanism no arm reaches:
+worst-case *fraction retained*, dropping the column no arm reaches:
 
 | Objective | Guarantee | Expected rate | Allocation |
 |---|---|---|---|
@@ -252,8 +252,8 @@ Two further readings. **Randomising is not dividing, and only dividing had been 
 measures unions and splits, which give every arm a fraction of its depth, where a mixed strategy
 runs one arm at full depth by lottery. And **routing is not a global allocation** — it chooses per
 entity, so it can send an established account to a per-entity null and a cold one to the population
-null and collect both, which is what gives it headroom the global rules do not have. Its floor
-is what any per-entity policy matches by construction, its ceiling the union at full
+null and collect both, which is what gives it headroom the global rules do not have. Its floor is
+what any per-entity policy matches, its ceiling the union at full
 depth; both are oracles charging no alert cost.
 
 Admitting a low-and-slow-capable arm prices the excluded column. With `lof` from §2.5 admitted
@@ -404,25 +404,25 @@ table and `timing`'s four floored strata. Calibrate first, weight second.
 
 ### 3.2 Principal limitations
 
-Appendix F carries the full set with the measurement establishing each. Two dominate.
+Appendix F carries the full set with its measurement. Two dominate.
 
 **The `novelty` p-value is confounded with history length.** For a first-ever value the estimate
 reduces to a/(n + a(K+1)) ≈ 1/n. Across 32 planted victims spanning 263 to 20,666 events of
 history, the product of the p-value and the history length has median 1.15 and lies in
-[0.50, 7.22]: among novel events the ranking is close to sorting accounts by event count. Clearing
-the arm's realised cut needs of the order of 10⁵ events of history and the busiest planted victim
-had 20,666, so **no attack on an ordinary account could win an alert slot regardless of what it
-did**. It is not straightforwardly fixable — reserving unseen mass by Good–Turing rather than by a
-fixed concentration *lost* detections, because large histories carry many singletons and the
-correction therefore judges a first-ever value unremarkable for exactly the accounts the working
-estimator ranks highest. The working configuration works for a reason the model does not state.
+[0.50, 7.22]: among novel events the ranking is close to sorting accounts by event count. Clearing the
+arm's realised cut needs of the order of 10⁵ events of history and the busiest planted victim had
+20,666, so **no attack on an ordinary account could win a slot whatever it did**. Reserving unseen mass by Good–Turing instead *lost* detections here, large histories carrying many
+singletons so the correction judges a first-ever value unremarkable for exactly the accounts the
+working estimator ranks highest — which works for a reason the model does not state. **That is a property of this corpus, not the correction**: on a synthetic corpus carrying
+open-vocabulary traffic beside closed, where 16,800 innocent daily novelties fill the budget, the
+switch takes `novelty` from **0 of 864 plants to all 864** at 1000 a day.
 
 **A sustained intrusion enlarges its own reference set.** State is committed after scoring, so an
-event is judged against a history that excludes it — but the next event of the same campaign is
-not. Over a campaign persisting for days on one account the reference distribution drifts toward
-the attacker's behaviour. This is an untested alternative explanation for two null results, the
-low-and-slow zero in particular, and cannot be separated from the stated mechanism without a run
-that freezes per-entity state across the campaign window.
+event is judged against a history excluding it — but the next event of the same campaign is not. Over
+a campaign persisting for days the reference distribution drifts toward the attacker's behaviour. It
+is an untested alternative explanation for two null results, the low-and-slow zero in particular,
+and cannot be separated from the stated mechanism without a run that freezes per-entity state across
+the campaign window.
 
 ### 3.3 What is repaired, and what a deployable version needs
 
@@ -662,30 +662,30 @@ advance.
 
 ## Appendix A. Data and evaluation design
 
-The Los Alamos comprehensive cyber-security events data set [2], released CC0: 1.05 billion
-authentication events over 58 days from 12,425 users and 17,684 computers, with a labelled red-team
-exercise embedded. A record carries nine fields; an uninterpretable value is written `?`, a distinct
-state from absence throughout.
+The Los Alamos comprehensive cyber-security events data set [2], CC0: 1.05 billion authentication
+events over 58 days from 12,425 users and 17,684 computers, with a labelled red-team exercise
+embedded. A record carries nine fields; an uninterpretable value is written `?`, distinct from
+absence throughout.
 
 The unit of analysis is a human account; machine accounts, `SYSTEM` and `ANONYMOUS LOGON` are
-excluded at no cost in labels, since all 104 accounts the red team touched are human. The label
-file carries 749 rows, 715 distinct, naming those 104, and is highly concentrated: 93.6% of rows
-share one source computer, and two of seven scored days carry 482 of the 700 post-boundary labels.
-It records what the red team did and is not an exhaustive annotation, so malicious activity it
-missed counts as a false positive and **every precision figure in this paper is a lower bound**.
+excluded at no cost in labels, all 104 accounts the red team touched being human. The label file
+carries 749 rows, 715 distinct, naming those 104, and is concentrated: 93.6% of rows share one
+source computer, and two of seven scored days carry 482 of the 700 post-boundary labels.
+It records what the red team did and is not an exhaustive annotation, so activity it missed
+counts as a false positive and **every precision figure here is a lower bound**.
 Failed authentications appear only for accounts that succeeded somewhere in the data set, so the
 failure population is conditioned on eventual success — a property of the archive rather than of a
 live stream, and one the arms score.
 
-**Windows.** The first seven days are a burn-in window: events are scored, so state warms under the
-code path scoring uses, but nothing is emitted. Two quantities are fitted there and frozen at the
-boundary — a between-arm covariance and a conformal calibration (§4.3) — and neither is ever updated
-by an event it is later used to score. The window was fixed before any end-to-end measurement and
-costs the 49 labelled events inside it. Scoring runs over days 7–13.
+**Windows.** The first seven days are burn-in: events are scored, so state warms under the code path
+scoring uses, but nothing is emitted. Two quantities are fitted there and frozen at the boundary — a
+between-arm covariance and a conformal calibration (§4.3) — and neither is ever updated by an event
+it is later used to score. The window was fixed before any end-to-end measurement and costs the 49
+labelled events inside it. Scoring runs over days 7–13.
 
-**Sampling.** Three of four designs are entity samples, because a fixed alerts-per-day budget is a
-far harder target on 42.2 million events than on 4.2 million. Every labelled account is retained
-in every sample, which inflates the labelled share, so each base rate is stated.
+**Sampling.** Three of four designs are entity samples, a fixed alerts-per-day budget being a far
+harder target on 42.2 million events than on 4.2 million. Every labelled account is retained in
+every sample, which inflates the labelled share, so each base rate is stated.
 
 | Design | Selector | Scored events | Labelled | Base rate |
 |---|---|---|---|---|
@@ -694,11 +694,11 @@ in every sample, which inflates the labelled share, so each base rate is stated.
 | `inj` | 1 entity in 16, residue 7, plus planted attacks | 4,494,396 | 1,405 | 3.13 × 10⁻⁴ |
 | `holdout-r7` | days 7–8 of the residue-7 corpus | 1,427,225 | 262 | 1.84 × 10⁻⁴ |
 
-Because labelled accounts are exempt from sampling, the residue-7 and residue-11 corpora share
-their labelled events and differ only in background and window. A result reproduced across them is
-a check on sensitivity to background, not an independent replication.
+Labelled accounts being exempt from sampling, the residue-7 and residue-11 corpora share their
+labelled events and differ only in background and window: a result reproduced across them checks
+sensitivity to background, not independent replication.
 
-**Planted mechanisms.** Six named kinds, eight victims each, entirely inside the scoring window.
+**Planted mechanisms.** Six named kinds, eight victims each, inside the scoring window.
 Victims are disjoint from every account the real labels name, so the account alone determines which
 ground truth an event belongs to.
 
@@ -815,9 +815,8 @@ of the composite rather than of the procedures.
 ## Appendix G. Adversary cost, and where work is worth spending
 
 A value-zero equilibrium assumes an uncovered mechanism is free to mount, and low-and-slow is slow
-by construction. Charging λ times a stated per-mechanism cost, with low-and-slow at twelve times
-credential spray, on the strategy set with `lof` admitted so the mechanism being priced is one some
-arm reaches:
+by construction. Charging λ times a stated per-mechanism cost, low-and-slow at twelve times credential
+spray, on the strategy set with `lof` admitted so the priced mechanism is one some arm reaches:
 
 | λ | Value | Allocation | Adversary's reply |
 |---|---|---|---|
@@ -832,9 +831,9 @@ restatement of the corpus. The concept is properly Stackelberg, the defender com
 which coincides with §2.3's for zero-sum games and not once mechanism costs differ.
 
 **Shadow prices.** Every cell whose improvement by 0.10 raises the guarantee lies in low-and-slow,
-off-hours or privilege escalation — the mechanisms in the adversary's reply. The largest are
-`timing` on low-and-slow (+0.017), `lof` on off-hours (+0.014) and `noveltyrate` on low-and-slow
-(+0.012). Not one lies in the four columns §2.1 and §2.2 compare arms on.
+off-hours or privilege escalation — the mechanisms in the adversary's reply. The largest are `timing`
+on low-and-slow (+0.017), `lof` on off-hours (+0.014) and `noveltyrate` on low-and-slow (+0.012),
+and not one lies in the four columns §2.1 and §2.2 compare arms on.
 
 ## Data and code availability
 
