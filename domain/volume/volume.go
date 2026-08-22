@@ -115,10 +115,46 @@ func UpperTail(a, b, rho float64, kObs int) float64 {
 }
 
 // MinDispersionWindows is the number of completed windows below which a measured
-// dispersion is not trusted and the detector falls back to equation (11) exactly.
-// Five is the smallest sample from which a variance-to-mean ratio says anything at
-// all; below it the estimate is dominated by whichever window happened to be first.
+// dispersion is not trusted. Five is the smallest sample from which a variance-to-mean
+// ratio says anything at all; below it the estimate is dominated by whichever window
+// happened to be first.
+//
+// Below it the detector ABSTAINS. It previously fell back to equation (11) exactly, which
+// was the wrong direction to fail in: (11) un-widened is the narrowest null the arm has, so
+// an entity whose dispersion could not be measured was scored against the null least able
+// to tolerate its ordinary variation. See [DispersionReachable] for who that hit.
 const MinDispersionWindows = 5
+
+// DispersionReachable reports whether an entity whose active windows are gapHours apart can
+// ever accumulate [MinDispersionWindows] of discounted weight, given the window half-life.
+//
+// It can not, past a certain sparsity, and that was the defect behind the sub-1e-12 pile.
+// The accumulator is discounted by elapsed calendar hours, so its weight saturates at
+// 1/(1-delta) with delta = 2^(-gapHours/halfLifeHours) -- and for gaps of about three days
+// or more at a seven-day half-life the ceiling falls below five. Such an entity could never
+// measure its own dispersion however long it was observed, was therefore scored under the
+// un-widened null forever, and a single ordinary burst then scored many orders of magnitude
+// into the tail. Measured on synthetic benign accounts: a burst every four days put 31.6% of
+// its own events below 1e-12, and every seven days 41.7%, with p reaching 1e-45.
+//
+// This is not a tuning constant to be lowered until the symptom goes. A minimum above the
+// reachable ceiling is unsatisfiable by construction, so the arm must either abstain -- which
+// is what it now does -- or estimate the dispersion on a timescale the entity actually acts
+// on. The second is the better repair and is not attempted here.
+func DispersionReachable(gapHours, halfLifeHours float64) bool {
+	if gapHours <= 0 || halfLifeHours <= 0 {
+		return true
+	}
+	delta := math.Exp2(-gapHours / halfLifeHours)
+	if delta >= 1 {
+		return true
+	}
+	return 1/(1-delta) >= MinDispersionWindows
+}
+
+// DispersionMeasurable reports whether the accumulated window weight supports an estimate.
+// The detector consults it to decide between scoring and abstaining.
+func DispersionMeasurable(windows float64) bool { return windows >= MinDispersionWindows }
 
 // Dispersion returns the entity's measured Pearson dispersion φ̂, the discounted mean
 // of (k − m)² / m over completed windows, where m is the count equation (11) expected
