@@ -25,6 +25,19 @@ PAPER_MD   := $(ROOT)/docs/PAPER.md
 PAPER_HTML := $(ROOT)/docs/paper.html
 PAPER_PDF  := $(ROOT)/docs/paper.pdf
 
+# python3 on macOS and most Linux distributions; `python` on Windows, where python3 is
+# often a Store shim that is not the interpreter. Overridable.
+PY ?= $(shell command -v python3 || command -v python)
+
+# The platform whose renderer produced the committed docs/paper.pdf.
+#
+# The page count is a property of the renderer as well as the source: byte-identical source
+# measured 20 pages under Windows Chrome and 21 under macOS Chrome 141, because font
+# embedding differs and moves the line breaks that move the pages. So the page ceiling is
+# ENFORCED only here and REPORTED everywhere, and the enforced gate everywhere is the word
+# budget, which no renderer can move. See cmd/thesis/budget.py.
+PAPER_PLATFORM ?= windows
+
 # The synthetic-attack corpus. The corpus is not in the repository — it is 100 MB of LANL
 # data — and in a git worktree it is not under the repository root either, so DATA is
 # overridable and every path below derives from it: `make inject DATA=/path/to/lanl`.
@@ -324,8 +337,20 @@ paper-check:
 .PHONY: paper
 paper:
 	$(GO) run ./cmd/thesis -in $(PAPER_MD) -out $(PAPER_HTML)
-	@chrome=$$(command -v chrome || command -v google-chrome 	  || echo "/c/Program Files/Google/Chrome/Application/chrome.exe"); 	"$$chrome" --headless --disable-gpu --no-pdf-header-footer 	  --print-to-pdf="$(PAPER_PDF)" "file:///$(PAPER_HTML)" 2>/dev/null
-	@python -c "import sys;b=open(sys.argv[1],'rb').read();n=b.count(b'/Type /Page')-b.count(b'/Type /Pages');w=len(open(sys.argv[2],encoding='utf-8').read().split());print('wrote %s: %d pages, %d words'%(sys.argv[1],n,w));sys.exit(1 if n>20 else 0)" 	  "$(PAPER_PDF)" "$(PAPER_MD)" 	  || { echo "OVER BUDGET: the paper ceiling is 20 pages (15 body + 5 figures and citations)"; exit 1; }
+	@chrome=$$(command -v chrome || command -v google-chrome || command -v chromium \
+	  || command -v chromium-browser \
+	  || ls "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" 2>/dev/null \
+	  || ls "/c/Program Files/Google/Chrome/Application/chrome.exe" 2>/dev/null \
+	  || ls "/mnt/c/Program Files/Google/Chrome/Application/chrome.exe" 2>/dev/null); \
+	if [ -z "$$chrome" ]; then \
+	  echo "no Chrome found: looked for chrome, google-chrome, chromium," \
+	       "chromium-browser, the macOS bundle and the Windows install."; \
+	  echo "docs/paper.html is written and current; only the PDF needs a browser."; \
+	  exit 1; \
+	fi; \
+	"$$chrome" --headless --disable-gpu --no-pdf-header-footer \
+	  --print-to-pdf="$(PAPER_PDF)" "file:///$(PAPER_HTML)" 2>/dev/null
+	@$(PY) $(ROOT)/cmd/thesis/budget.py "$(PAPER_PDF)" "$(PAPER_MD)" "$(PAPER_PLATFORM)"
 
 # The paper's headline comparison: one row per method, one column per attack type, at
 # each of the alert budgets the run measured.
