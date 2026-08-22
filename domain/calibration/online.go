@@ -23,10 +23,11 @@ import (
 // a fixed-q batch run that stops rejecting has no mechanism to start again. It has no memory
 // of having been right.
 //
-// Alpha-investing [78] answers exactly that. The procedure holds a wealth of error budget,
+// Alpha-investing (Foster and Stine 2008) answers exactly that. The procedure holds a wealth of error budget,
 // spends from it on every test, and earns back on every rejection, so a productive period
 // buys a higher alerting rate and a barren one decays towards silence without ever reaching
-// it. [LORD] is the modern member of the family used here [79].
+// it. [LORD] is the modern member of the family used here
+// (Ramdas, Yang, Wainwright and Jordan 2017).
 //
 // The refund is also where analyst feedback belongs. A confirmed true positive is the event
 // that should buy more budget, and this is the first place in the framework with somewhere
@@ -183,7 +184,7 @@ const lordRuns = 512
 // rejectionRun is a maximal contiguous block of rejected tests, inclusive at both ends.
 type rejectionRun struct{ from, to int }
 
-// LORD is the LORD++ procedure of Ramdas et al. [79].
+// LORD is the LORD++ procedure of Ramdas et al. (2017).
 //
 // The level for test t is
 //

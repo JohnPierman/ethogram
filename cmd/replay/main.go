@@ -2668,7 +2668,7 @@ func gitDirty() bool {
 // that the file cannot express, and quietly writing a substitute would put a number in a
 // measurement where the truth was "unrepresentable".
 func writeJSON(path string, v any) error {
-	if bad := nonFinite(v, ""); len(bad) > 0 {
+	if bad := nonFinite(v); len(bad) > 0 {
 		return fmt.Errorf("result contains %d value(s) JSON cannot carry, at %s: an "+
 			"infinity or NaN in a result means a quantity was computed that the file "+
 			"cannot express, so it is refused rather than substituted",
@@ -2710,14 +2710,14 @@ const nonFinitePathCap = 12
 // It walks the same shapes encoding/json will: maps, slices, structs and pointers, plus the
 // float kinds. A type implementing json.Marshaler is trusted to handle its own infinities,
 // which is what logProbability does, so those are not walked.
-func nonFinite(v any, path string) []string {
+func nonFinite(v any) []string {
 	if v == nil {
 		return nil
 	}
 	if _, ok := v.(json.Marshaler); ok {
 		return nil
 	}
-	return nonFiniteValue(reflect.ValueOf(v), path, 0)
+	return nonFiniteValue(reflect.ValueOf(v), "", 0)
 }
 
 func nonFiniteValue(rv reflect.Value, path string, depth int) []string {

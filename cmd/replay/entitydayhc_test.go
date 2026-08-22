@@ -402,7 +402,7 @@ func TestNonFiniteNamesTheFieldItFound(t *testing.T) {
 		{"a type that marshals its own infinities",
 			map[string]any{"tail": logProbabilities([]float64{math.Inf(-1)})}, nil},
 	} {
-		got := nonFinite(tc.value, "")
+		got := nonFinite(tc.value)
 		if len(got) != len(tc.want) {
 			t.Errorf("%s: got %v, want %v", tc.name, got, tc.want)
 			continue
@@ -424,7 +424,7 @@ func TestNonFiniteNamesTheFieldItFound(t *testing.T) {
 		{"self-marshalling", map[string]any{"a": logProbabilities([]float64{math.Inf(-1)})}},
 	} {
 		_, err := json.Marshal(tc.value)
-		reported := len(nonFinite(tc.value, "")) > 0
+		reported := len(nonFinite(tc.value)) > 0
 		if (err != nil) != reported {
 			t.Errorf("%s: encoding/json error=%v but the reporter said %v",
 				tc.name, err, reported)
@@ -437,7 +437,7 @@ func TestNonFiniteNamesTheFieldItFound(t *testing.T) {
 	for i := 0; i < nonFinitePathCap*4; i++ {
 		many[string(rune('a'+i%26))+string(rune('a'+i/26))] = math.Inf(1)
 	}
-	if got := len(nonFinite(many, "")); got > nonFinitePathCap {
+	if got := len(nonFinite(many)); got > nonFinitePathCap {
 		t.Errorf("reported %d paths, above the cap of %d", got, nonFinitePathCap)
 	}
 }

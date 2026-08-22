@@ -19,7 +19,7 @@ import (
 // same disease as the history-length dependence one level up, a statistic whose scale is
 // set by traffic volume rather than by evidence.
 //
-// Higher Criticism [77] is built for the opposite regime: a sparse signal among many tests,
+// Higher Criticism (Donoho and Jin 2004) is built for the opposite regime: a sparse signal among many tests,
 // normalised so that the statistic does not inflate with the number of tests, and adaptively
 // optimal without the sparsity having to be specified. A campaign is a sparse cluster of
 // moderate anomalies inside an otherwise ordinary day, which is exactly the alternative
