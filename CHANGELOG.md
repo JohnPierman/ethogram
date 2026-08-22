@@ -19,13 +19,21 @@ Equation numbers `(1)`–`(20)`, requirements `R1`–`R6`, and evaluation hypoth
   **17%** between days of 100 and 10,000 events where Fisher's sum over the same range grows a
   hundredfold; and on a 2,000-event day carrying 25 planted events against an 8,000-event day
   carrying none, it ranks the signal first in **200 of 200** replicates where Fisher's sum does so
-  in **0 of 200**
+  in **0 of 200**. On the corpus it does not win: over 4,944 entity-days at 100 alerts a day
+  Fisher's sum reaches 74 of 172 labelled entity-days, Higher Criticism 69, the corrected minimum
+  67 and the count-normalised form 43 -- the same shape as the Good-Turing result, where the
+  principled statistic loses because the unprincipled one's bias points at the right accounts on
+  this corpus. **What does pay is the unit change**: at 70 alerts a day the entity-day ranking finds
+  10 labelled accounts where the event ranking at 700 alerts finds 3 across 138
 - **A bounded per-entity-day tail, with the bound measured rather than chosen (#17).** An
   entity-day keeps its 32 smallest log p-values. Over 300 synthetic sparse days, top-k agrees
   exactly with the full-data statistic on 25 of 300 at k=8, 42 of 300 at k=16, and **300 of 300**
   at both k=32 and k=64 -- so 8 and 16 are not enough, 32 is, and 64 buys nothing measurable.
   Where a bounded tail cannot reach the alpha0 cap the result says `truncated`, and the count of
-  such entity-days is recorded, so a bounded maximum is never presented as a complete one
+  such entity-days is recorded, so a bounded maximum is never presented as a complete one. On the
+  corpus the bound reorders the tail of the ranking and not its head: recomputed at shallower
+  depths from the recorded tails, the full order matches on 936 of 4,944 entity-days at k=8, while
+  **the top 10 per day is identical at every depth** and the top 100 differs by 5 of 700
 - **LORD++ online error control, so the threshold survives a stream and cannot go silent forever
   (#16).** Benjamini-Hochberg needs the whole batch; an operator at 14:00 cannot use a threshold
   that depends on how many events arrive by 23:59. Alpha-investing spends on every test and earns
@@ -33,7 +41,12 @@ Equation numbers `(1)`–`(20)`, requirements `R1`–`R6`, and evaluation hypoth
   decays without reaching zero: measured, after one rejection and 500,000 barren tests the level
   is **2.8e-10** -- six orders of magnitude down and still strictly positive -- and one rejection
   lifts it again. Realised FDR at q = 0.1 over 200 streams of 10,000 hypotheses: 0.000, 0.015,
-  0.047 and 0.086 at non-null fractions of 0, 0.001, 0.01 and 0.1
+  0.047 and 0.086 at non-null fractions of 0, 0.001, 0.01 and 0.1. On the corpus it detects nothing
+  and that is the finding: over 4,494,396 tests at q = 0.1 the level reaches 1.1e-12 and `novelty`
+  never clears it, **0 rejections**, where the fixed budget's realised cut is 8.5e-06 -- six orders
+  looser -- and finds 60. On the composite, the negative control, it rejects 79,286 at a realised
+  rate of **0.995**, because no spending rule recovers a level from p-values that are not
+  calibrated (#55)
 - **`-online {none,lord}` and `-online-arm` on `cmd/replay`**, recording the per-day trajectory:
   tests, rejections, true positives, realised rate, and the level and wealth at each day's end. Two
   streams rather than eight, which is #16's own instruction -- the headline arm and the composite

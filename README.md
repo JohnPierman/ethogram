@@ -187,6 +187,71 @@ The general lesson is worth more than the flag: **Storey's null-proportion estim
 departure from uniformity, so on an arm whose null is wrong it reweights the miscalibration.**
 Calibrate first, weight second.
 
+### Aggregating to the entity-day, four ways
+
+The framework's premise is that the unit of analysis is the individual, while the budget is spent
+on events. `entity_days` in every result aggregates the same evidence to the unit an analyst
+actually triages, four ways, on `lanl-inj-b1000-online-d7-14-010`:
+
+| rule | 10/day | 100/day | 1000/day |
+|---|---|---|---|
+| Fisher's sum over the day | **10** | **74** | 172 |
+| count-normalised (`standardised_x2`) | **10** | 43 | 172 |
+| Higher Criticism | 9 | 69 | 172 |
+| Bonferroni-corrected minimum | 8 | 67 | 172 |
+| *the event ranking, for comparison* | *0 of 25 entity-days* | *3 of 138* | *28 of 585* |
+
+Of 172 labelled entity-days out of 4,944. The 1000/day column is saturated -- 4,944 entity-days
+over seven days is 706 a day, below the budget -- so every rule alerts on everything and the
+column measures nothing.
+
+**The unit change is the result, and it is large.** At 70 alerts a day the entity-day ranking finds
+10 labelled accounts where the event ranking at 700 alerts finds 3 across 138 accounts. Changing
+the denominator from millions of events to thousands of entity-days is what pays.
+
+**The choice of aggregate is not.** Fisher's sum leads at both informative budgets, and Higher
+Criticism -- which is normalised so its null barely moves with the event count, and which beats
+Fisher 200-0 on a synthetic sparse alternative -- comes second. This is the same shape as the
+Good-Turing result: the principled statistic loses because the unprincipled one's bias happens to
+point at the right accounts on this corpus, where the busiest entity-days are also the labelled
+ones. Reported rather than buried, because "we replaced it with the normalised form" would read as
+an improvement and it is not one here.
+
+Higher Criticism needs order statistics rather than a fixed-size summary, so each entity-day keeps
+its 32 smallest log p-values. That bound reorders the tail of the ranking and not its head:
+recomputing at shallower depths from the recorded tails, the full order matches on 936 of 4,944
+entity-days at k=8, while **the top 10 per day is identical at every depth** and the top 100
+differs by 5 of 700 at k=8 and by none from k=24. What a budget surfaces does not depend on the
+bound.
+
+### Online error control (`-online lord`)
+
+Benjamini-Hochberg needs the whole batch: an operator at 14:00 cannot use a threshold that depends
+on how many events arrive by 23:59. LORD++ needs only the prefix, and alpha-investing gives it a
+property a fixed-q batch rule lacks -- it spends error budget on each test and earns it back on
+each rejection, so a barren stretch decays the alerting rate without ending it. Measured in
+simulation: after one rejection and 500,000 barren tests the level is 2.8e-10, six orders down and
+still strictly positive, and one rejection lifts it again. Realised FDR at q = 0.1 over 200 streams
+of 10,000 hypotheses is 0.000, 0.015, 0.047 and 0.086 at non-null fractions of 0, 0.001, 0.01
+and 0.1.
+
+**On the corpus it detects nothing, and that is the finding.** Over 4,494,396 tests at q = 0.1:
+
+| stream | rejections | true positives | realised FDR | final level |
+|---|---|---|---|---|
+| `novelty` | **0** | 0 | -- | 1.1e-12 |
+| composite (negative control) | 79,286 | 366 | **0.995** | 8.9e-04 |
+
+Valid error control at this scale demands a level near 1e-12, and `novelty`'s labelled events do
+not reach it -- where the fixed budget's realised cut is 8.5e-06, six orders looser, and detects 60
+of them. The two are not competing rules; they are a control and a capacity, and the gap between
+them is what a calibrated per-alert probability would close.
+
+The composite is the negative control #16 asked for, and it behaves exactly as predicted: its
+p-values are anti-conservative enough that the rule spends its wealth on false rejections, earns it
+back, and spends again. **No spending rule recovers a level from p-values that are not
+calibrated**, which is tracked as #55.
+
 ## The paper's length budget
 
 `docs/PAPER.md` is held to 20 pages, 15 of body plus 5 for figures and citations. What `make
