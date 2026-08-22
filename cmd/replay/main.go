@@ -53,11 +53,16 @@ import (
 
 func main() {
 	var (
-		authPath      = flag.String("auth", "data/lanl/auth.txt.gz", "path to auth.txt.gz")
-		redteamPath   = flag.String("redteam", "data/lanl/redteam.txt.gz", "path to redteam.txt.gz")
-		outPath       = flag.String("out", "", "result JSON path (required)")
-		runID         = flag.String("run-id", "", "run identifier (required)")
-		burnInSec     = flag.Int64("burnin", 604800, "burn-in end, seconds on the corpus epoch")
+		authPath    = flag.String("auth", "data/lanl/auth.txt.gz", "path to auth.txt.gz")
+		redteamPath = flag.String("redteam", "data/lanl/redteam.txt.gz", "path to redteam.txt.gz")
+		outPath     = flag.String("out", "", "result JSON path (required)")
+		runID       = flag.String("run-id", "", "run identifier (required)")
+		burnInSec   = flag.Int64("burnin", 604800, "burn-in end, seconds on the corpus epoch")
+		online      = flag.String("online", "none",
+			"run an online error-control rule beside the per-day step-up: none or lord (#16)")
+		onlineArm = flag.String("online-arm", "novelty",
+			"the detector whose stream the online rule reports as its headline; the "+
+				"composite is always carried beside it as the negative control")
 		maxRows       = flag.Int64("maxrows", 0, "stop after this many admitted events (0 = all); partial coverage is recorded")
 		maxSeconds    = flag.Int64("maxseconds", 0, "stop at this corpus timestamp, seconds (0 = all); partial coverage is recorded in corpus time")
 		skipHash      = flag.Bool("skip-hash", false, "skip corpus SHA-256 (smoke runs only; recorded as unhashed)")
@@ -134,9 +139,16 @@ func main() {
 		defer pprof.StopCPUProfile()
 	}
 
+	onlineRule, err := parseOnline(*online)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	if err := run(runConfig{
 		authPath: *authPath, redteamPath: *redteamPath, outPath: *outPath, runID: *runID,
 		burnInSec: *burnInSec, maxRows: *maxRows, skipHash: *skipHash,
+		online:       onlineRule,
+		onlineArm:    detector.ID(*onlineArm),
 		halfLifeDays: *halfLifeDay, bandwidthHours: *bandwidth, alpha: *alphaFlag,
 		volMinPeriods: *volMinPeriods, timStandardise: *timStandard,
 		drift: *driftOn, driftShift: *driftShift, driftMinPeriods: *driftMinPer,
@@ -159,30 +171,34 @@ func main() {
 type runConfig struct {
 	authPath, redteamPath, outPath, runID string
 	burnInSec, maxRows                    int64
-	skipHash                              bool
-	halfLifeDays, bandwidthHours, alpha   float64
-	volMinPeriods                         int64
-	timStandardise                        bool
-	drift                                 bool
-	driftShift                            float64
-	driftMinPeriods                       int64
-	topK                                  int
-	budgets                               objective.Budgets
-	entitySample                          int
-	allowResampling                       bool
-	exportGraph, partitionIn              string
-	maxSeconds                            int64
-	shadowCells                           bool
-	conformal                             bool
-	openVocabulary                        bool
-	pairing                               bool
-	noveltyRate                           bool
-	derive                                bool
-	schemaPath                            string
-	leidenPy                              string
-	leidenSeed                            int64
-	ledgerPath                            string
-	weighted                              bool
+	// online selects the online error-control rule (#16), and onlineArm the detector whose
+	// stream it reports as its headline. The default runs no rule.
+	online                              onlineMode
+	onlineArm                           detector.ID
+	skipHash                            bool
+	halfLifeDays, bandwidthHours, alpha float64
+	volMinPeriods                       int64
+	timStandardise                      bool
+	drift                               bool
+	driftShift                          float64
+	driftMinPeriods                     int64
+	topK                                int
+	budgets                             objective.Budgets
+	entitySample                        int
+	allowResampling                     bool
+	exportGraph, partitionIn            string
+	maxSeconds                          int64
+	shadowCells                         bool
+	conformal                           bool
+	openVocabulary                      bool
+	pairing                             bool
+	noveltyRate                         bool
+	derive                              bool
+	schemaPath                          string
+	leidenPy                            string
+	leidenSeed                          int64
+	ledgerPath                          string
+	weighted                            bool
 }
 
 func run(cfg runConfig) error {
@@ -361,7 +377,7 @@ func run(cfg runConfig) error {
 		shadows = append(shadows, coocPartitioned)
 	}
 
-	acc := newAccumulator(labels, topK, cfg.budgets, cfg.pairing)
+	acc := newAccumulator(labels, topK, cfg.budgets, cfg.pairing, cfg.online, cfg.onlineArm)
 	acc.volGate = newVolumeGateProbe(topK, cfg.volMinPeriods)
 	var rowsSeen int64
 	src := &cappedSource{reader: reader, max: maxRows, seen: &rowsSeen,
@@ -1430,6 +1446,10 @@ type accumulator struct {
 	// whose labels all fall after the boundary -- there is nothing to fit a weight on.
 	burnInFitDays map[int64]bool
 
+	// online runs the alpha-investing rules beside the per-day step-up (#16). Never nil:
+	// the none mode is a live object that runs nothing, so no call site needs a guard.
+	online *onlineControl
+
 	// entityDays accumulates one record per (entity, corpus day).
 	//
 	// The framework's premise is that the unit of analysis is the individual Ã¢â‚¬â€ a verdict
@@ -1522,9 +1542,12 @@ func (ed *entityDay) observeTail(logP float64) {
 	}
 }
 
-func newAccumulator(labels *redTeamLabels, topK int, budgets objective.Budgets, pairingRelational bool) *accumulator {
+func newAccumulator(labels *redTeamLabels, topK int, budgets objective.Budgets,
+	pairingRelational bool, online onlineMode, onlineArm detector.ID) *accumulator {
+
 	return &accumulator{
 		labels:                labels,
+		online:                newOnlineControl(online, onlineArm),
 		topK:                  topK,
 		budgets:               budgets,
 		pairingRelational:     pairingRelational,
@@ -1597,6 +1620,9 @@ func (a *accumulator) observeDetectorArms(se application.ScoredEvent, day int64,
 			Entity: entity, SrcComp: srcComp, DstComp: dstComp,
 			IsRedTeam: isRed, J: 1, MinDetector: string(id), Categories: cats,
 		}, a.topK)
+		// Error control is a statement about the detector's own evidence, so the rule reads
+		// the arm's model log p-value.
+		a.online.observe(string(id), day, logP, isRed)
 		if isRed {
 			a.detectorRedTeamScored[id] = append(a.detectorRedTeamScored[id], redTeamScore{
 				Key: key, P: math.Exp(logP), LogP: logP, ModelLogP: logP,
@@ -1765,6 +1791,7 @@ func (a *accumulator) observe(se application.ScoredEvent) error {
 
 	day := tSeconds / 86400
 	a.scoredPerDay[day]++
+	a.online.observe(onlineNegative, day, se.Combined.LogP, isRed)
 	a.observeEntityDay(string(se.Event.Entity()), day, se.Combined.LogP, isRed)
 	a.observeDetectorArms(se, day, tSeconds, string(se.Event.Entity()),
 		srcComp, dstComp, key, isRed, catNames)
@@ -2336,6 +2363,8 @@ func (a *accumulator) results() map[string]any {
 			"counts":           categories,
 		},
 		"detections_at_budget": detections,
+		"online_control":       a.online.record(),
+		"online_never_silent":  a.online.neverSilent(),
 		"min_p_arm":            a.minPArmResults(budgets),
 		"detector_arms":        a.detectorArmResults(budgets),
 		"union_arm":            a.unionArmResults(budgets),

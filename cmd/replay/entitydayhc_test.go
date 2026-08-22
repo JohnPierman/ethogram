@@ -7,6 +7,8 @@ import (
 	"testing"
 
 	"github.com/JohnPierman/ethogram/domain/calibration"
+	"github.com/JohnPierman/ethogram/domain/novelty"
+	"github.com/JohnPierman/ethogram/domain/volume"
 )
 
 // TestTheRetainedTailIsTheSmallestAndStaysBounded pins the one property that makes an
@@ -189,5 +191,130 @@ func TestTruncationIsReportedNotHidden(t *testing.T) {
 	}
 	if higherCriticismOf(quiet).Truncated {
 		t.Error("a day whose every event is retained was reported as truncated")
+	}
+}
+
+// TestParseOnlinePinsWhatIsSupported fixes the flag's contract, including that `saffron` is
+// refused rather than aliased to LORD++. A run whose provenance names a procedure it did not
+// run is worse than a run that does not start.
+func TestParseOnlinePinsWhatIsSupported(t *testing.T) {
+	for _, tc := range []struct {
+		in      string
+		want    onlineMode
+		wantErr bool
+	}{
+		{"none", onlineNone, false},
+		{"lord", onlineLORD, false},
+		{"saffron", "", true},
+		{"addis", "", true},
+		{"", "", true},
+		{"LORD", "", true},
+	} {
+		got, err := parseOnline(tc.in)
+		if tc.wantErr {
+			if err == nil {
+				t.Errorf("%q: accepted as %q, want refused", tc.in, got)
+			}
+			continue
+		}
+		if err != nil {
+			t.Errorf("%q: refused with %v", tc.in, err)
+		}
+		if got != tc.want {
+			t.Errorf("%q: got %q, want %q", tc.in, got, tc.want)
+		}
+	}
+}
+
+// TestTheOnlineControlWatchesTwoStreamsAndOnlyTwo pins the scope decision. #16 asks for the
+// rule on the best calibrated detector with the composite as a negative control, and running
+// it on every arm would cost minutes of replay for no additional finding.
+func TestTheOnlineControlWatchesTwoStreamsAndOnlyTwo(t *testing.T) {
+	o := newOnlineControl(onlineLORD, novelty.DetectorID)
+	if !o.watches(string(novelty.DetectorID)) {
+		t.Error("the headline arm is not watched")
+	}
+	if !o.watches(onlineNegative) {
+		t.Error("the negative control is not watched")
+	}
+	if o.watches(string(volume.DetectorID)) {
+		t.Error("an unnamed arm is watched, which costs a replay minutes for no finding")
+	}
+
+	off := newOnlineControl(onlineNone, novelty.DetectorID)
+	if off.on() || off.watches(onlineNegative) {
+		t.Error("the none mode watches something")
+	}
+	if rec := off.record(); rec["mode"] != string(onlineNone) {
+		t.Errorf("the none mode records mode %v", rec["mode"])
+	}
+	if off.neverSilent() != nil {
+		t.Error("the none mode reported a level it never issued")
+	}
+}
+
+// TestTheOnlineTrajectoryIsRecordedPerDay covers the shape that is the finding: a productive
+// day buys a higher level and a barren one lowers it without reaching zero.
+func TestTheOnlineTrajectoryIsRecordedPerDay(t *testing.T) {
+	o := newOnlineControl(onlineLORD, novelty.DetectorID)
+	stream := string(novelty.DetectorID)
+
+	// Day 1 carries signal, day 2 carries none.
+	for i := 0; i < 2_000; i++ {
+		logP := math.Log(0.5)
+		isRed := false
+		if i%50 == 0 {
+			logP = -30
+			isRed = true
+		}
+		o.observe(stream, 1, logP, isRed)
+	}
+	levelAfterProductiveDay := o.rules[stream].Level()
+
+	for i := 0; i < 2_000; i++ {
+		o.observe(stream, 2, math.Log(0.9), false)
+	}
+	levelAfterBarrenDay := o.rules[stream].Level()
+
+	if !(levelAfterBarrenDay < levelAfterProductiveDay) {
+		t.Errorf("the level is %.3e after a barren day against %.3e after a productive "+
+			"one; a barren stretch must lower the alerting rate",
+			levelAfterBarrenDay, levelAfterProductiveDay)
+	}
+	if !(levelAfterBarrenDay > 0) {
+		t.Errorf("the level reached %g after one barren day, so the rule has gone silent",
+			levelAfterBarrenDay)
+	}
+
+	rec := o.record()
+	streams, ok := rec["streams"].(map[string]any)
+	if !ok {
+		t.Fatalf("the record carries no streams: %v", rec)
+	}
+	entry, ok := streams[stream].(map[string]any)
+	if !ok {
+		t.Fatalf("the record carries no entry for %s", stream)
+	}
+	trajectory, ok := entry["per_day_trajectory"].([]map[string]any)
+	if !ok || len(trajectory) != 2 {
+		t.Fatalf("the trajectory has %v entries, want one per corpus day", entry["per_day_trajectory"])
+	}
+	if trajectory[0]["day"] != int64(1) || trajectory[1]["day"] != int64(2) {
+		t.Errorf("the trajectory is not in day order: %v then %v",
+			trajectory[0]["day"], trajectory[1]["day"])
+	}
+	if tp, _ := trajectory[0]["true_positives"].(int64); tp == 0 {
+		t.Error("the productive day recorded no true positive")
+	}
+	if rejections, _ := trajectory[1]["rejections"].(int64); rejections != 0 {
+		t.Errorf("the barren day recorded %d rejections at p = 0.9", rejections)
+	}
+
+	silent, ok := o.neverSilent()[stream].(map[string]any)
+	if !ok {
+		t.Fatalf("the never-silent record carries no entry for %s", stream)
+	}
+	if silent["strictly_positive"] != true {
+		t.Errorf("the never-silent record says %v", silent["strictly_positive"])
 	}
 }
