@@ -11,6 +11,25 @@ Equation numbers `(1)`–`(20)`, requirements `R1`–`R6`, and evaluation hypoth
 
 ### Added
 
+- **The sub-hourly inter-arrival arm (#53).** Every arm reached 0 of 288 planted low-and-slow
+  events at every budget while an unsupervised local-outlier-factor baseline reached 12, so the
+  signal was present and the framework's instruments could not see it. The plant is twelve events at
+  ninety-second intervals: `volume` tests an **hourly** window and averages a seventeen-minute burst
+  against fifty-three minutes of nothing, `timing` tests time of day and the plant sits in the
+  victim's usual hour, and nothing asked whether the events came too close together. `-burst` does:
+  under a Gamma(kappa, theta) renewal null the span of k consecutive arrivals is
+  Gamma((k-1)kappa, theta), so a short span is an exact lower tail, and the minimum over window
+  sizes is corrected by Sidak -- which for nested, positively dependent windows over-states the
+  multiplicity and is therefore conservative. Per-entity state is 32 arrival instants plus four
+  scalars, fixed size however long the entity is watched (13.3), and the abstention gate counts
+  **undiscounted** gaps so it cannot become unsatisfiable the way #37's did
+- **`burst.Summariser`, one implementation of the eligibility report that both stores feed (#53).**
+  The first store-equivalence run over this arm disagreed in exactly five keys -- the scores were
+  identical over 4,491 events and only the report differed, because the memory store computed it and
+  the Postgres store did not. Reimplementing it in SQL would have agreed by coincidence at best:
+  `percentile_cont` interpolates where the domain's median takes the upper of two middle values, so
+  an even entity count would have disagreed again and the difference would have read as a defect in
+  the arm rather than in the report
 - **Bounded per-entity value counts, with a stateable error (#3).** Equation (4) sums over every
   value an entity has been seen with, so the state grew with the vocabulary without limit.
   `-max-values k` holds the heaviest k per (entity, field) in a space-saving sketch: a held count
@@ -1068,6 +1087,39 @@ Equation numbers `(1)`–`(20)`, requirements `R1`–`R6`, and evaluation hypoth
 
 ### Fixed
 
+- **The inter-arrival arm's first null was worse than the two arms it was meant to improve on
+  (#53).** The calibration check that comes before any detection claim -- the one that disqualified
+  `volume` at 24.7% of scored events below 1e-12 and the partitioned `cooccurrence` arm at 99.0% --
+  put the homogeneous-Poisson null at **36.66%**. It is calibrated on its own process (on synthetic
+  streams at one event a minute, ten minutes and an hour, 59,950 scans each, the fraction below
+  p = 0.1 is 0.025 to 0.032 and nothing falls below 1e-12) and real authentication traffic is not
+  that process. Two independent corrections, both needed, on the same 500,000-row prefix: fitting
+  the gap dispersion per entity took it to **5.77%**, and collapsing tied timestamps took it to
+  **0.021%** -- below `timing`'s 0.056% on the same events
+- **Machine accounts are clustered, so an exponential null finds the ordinary improbable (#53).**
+  kappa is fitted from the entity's own decayed first and second gap moments and **capped at one**:
+  a measured kappa above one is under-dispersion, and honouring it would make the null *tighter*
+  than Poisson, so a machine authenticating every sixty seconds would find a fifty-second gap wildly
+  surprising. theta is derived from kappa*theta = mean so the identity survives both clamps, and an
+  entity whose dispersion cannot be measured **abstains** rather than falling back to the narrowest
+  null available, which is #45's lesson in `volume`. The floor on kappa was measured and is not
+  binding -- 0.01 and 0.0001 give the identical 5.77% -- which is what showed the residual was model
+  misfit and pointed at the ties
+- **A tied timestamp is the log's resolution, not evidence, and this was the larger correction
+  (#53).** LANL records to the whole second and one logical action emits several authentication
+  rows, so entities routinely have many arrivals at one instant. Flooring such a window at one
+  second was called conservative and is not: thirty-two arrivals inside one second is
+  astronomically improbable under any renewal null however wide, so the log's own granularity became
+  the most extreme evidence in the corpus. The scan buffer now holds **distinct** instants and
+  cannot testify about structure the log did not record
+- **An R5 test that could pass without exercising the arithmetic (#53).** It recomputed the p-value
+  from a rate and still passed against the fitted null, because its fixture happened to be
+  under-dispersed and kappa landed on the cap where the two forms coincide exactly. The fixture is
+  now over-dispersed, the test asserts kappa below the cap, and the evidence card carries
+  `gap_shape` and `gap_scale_seconds` so it can actually reproduce the number it reports
+- **`gaps_squared` was missing from `burst_state` (#53).** Losing the second moment across a restart
+  is not losing resolution; it silently reverts the arm to the exponential null. Added to the schema
+  and to both schema guards, each verified by deletion
 - **`writeJSON` names the field JSON cannot carry (#16, #17).** `json: unsupported value: -Inf`
   names no field, and two eighty-minute replays ended on it -- once for a Higher Criticism log
   statistic, once for a retained tail of log p-values -- each found by elimination. The result is
