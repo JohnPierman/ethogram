@@ -95,15 +95,21 @@
 //
 // # Bounded state (§13.3)
 //
-// Per entity: the last [MaxWindow] arrival timestamps, a decayed gap sum, a decayed gap count, and
-// an undiscounted gap count. Fixed size regardless of how long the entity is watched.
+// Per entity: the last [MaxWindow] DISTINCT arrival instants, a decayed gap sum, a decayed sum of
+// squared gaps, a decayed gap count, and an undiscounted gap count. Fixed size regardless of how
+// long the entity is watched. The squared sum is the second moment the shape is fitted from, and it
+// is the difference between this arm and the Poisson version of it.
 //
 // # R3, and the gate that is not on a discounted weight
 //
-// Below [MinGaps] observed gaps the rate estimate is not worth having and the arm abstains. The
+// Below [MinGaps] observed gaps the null's parameters are not worth having and the arm abstains. The
 // gate counts the *undiscounted* gaps, which is the defect #37 fixed in three arms at once: a
 // discounted count saturates at 1/(1−δ), so a minimum above that ceiling is unsatisfiable
 // forever rather than merely slow to reach.
+//
+// An entity whose gap dispersion cannot be estimated abstains too, rather than falling back to the
+// exponential null. That null is the narrowest this arm has, and falling back to the narrowest
+// available null is the defect #45 found in the volume arm.
 package burst
 
 import (
