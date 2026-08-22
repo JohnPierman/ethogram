@@ -11,6 +11,45 @@ Equation numbers `(1)`–`(20)`, requirements `R1`–`R6`, and evaluation hypoth
 
 ### Added
 
+- **Higher Criticism at entity scope, normalised where the other two aggregations are not
+  (#17).** Fisher's sum over an entity's day grows linearly in the event count, so the busiest
+  accounts sort to the top by arithmetic -- 71 of 172 real entity-days against 1 of 8 planted.
+  Higher Criticism is built for the opposite regime, a sparse cluster of moderate anomalies inside
+  an ordinary day. Measured over 400 replicates per size, its 95th percentile under the null grows
+  **17%** between days of 100 and 10,000 events where Fisher's sum over the same range grows a
+  hundredfold; and on a 2,000-event day carrying 25 planted events against an 8,000-event day
+  carrying none, it ranks the signal first in **200 of 200** replicates where Fisher's sum does so
+  in **0 of 200**
+- **A bounded per-entity-day tail, with the bound measured rather than chosen (#17).** An
+  entity-day keeps its 32 smallest log p-values. Over 300 synthetic sparse days, top-k agrees
+  exactly with the full-data statistic on 25 of 300 at k=8, 42 of 300 at k=16, and **300 of 300**
+  at both k=32 and k=64 -- so 8 and 16 are not enough, 32 is, and 64 buys nothing measurable.
+  Where a bounded tail cannot reach the alpha0 cap the result says `truncated`, and the count of
+  such entity-days is recorded, so a bounded maximum is never presented as a complete one
+- **LORD++ online error control, so the threshold survives a stream and cannot go silent forever
+  (#16).** Benjamini-Hochberg needs the whole batch; an operator at 14:00 cannot use a threshold
+  that depends on how many events arrive by 23:59. Alpha-investing spends on every test and earns
+  back on every rejection, so a productive period buys a higher alerting rate and a barren one
+  decays without reaching zero: measured, after one rejection and 500,000 barren tests the level
+  is **2.8e-10** -- six orders of magnitude down and still strictly positive -- and one rejection
+  lifts it again. Realised FDR at q = 0.1 over 200 streams of 10,000 hypotheses: 0.000, 0.015,
+  0.047 and 0.086 at non-null fractions of 0, 0.001, 0.01 and 0.1
+- **`-online {none,lord}` and `-online-arm` on `cmd/replay`**, recording the per-day trajectory:
+  tests, rejections, true positives, realised rate, and the level and wealth at each day's end. Two
+  streams rather than eight, which is #16's own instruction -- the headline arm and the composite
+  as the negative control
+- **Postgres stores for `noveltyrate`, `drift` and `marginal`, and a `-store` seam under the
+  replay (#48).** Three of the seven arms had no Postgres store at all, which the schema-drift
+  guard recorded as absent tables; `cmd/replay` had no Postgres path to switch to either.
+  Persisting the population marginal's numeric half needed a round trip the domain did not have,
+  so `marginal.Sketch` gains `State` and `RestoreSketch` -- bit-identical, checked on every
+  quantile and CDF value rather than approximately
+- **`make store-equivalence` and `cmd/storeequivalence` (#48).** Over 4,491 scored events the two
+  stores produced **identical output**: zero differences once the run id, the wall-clock and memory
+  figures and the block naming the store are masked, and nothing else is. The final store sizes are
+  compared rather than masked, since a store size is deterministic. Memory 5 seconds against
+  Postgres 584 -- the round-trip bound that makes this a matched prefix rather than a full corpus
+
 - **The selection can be reweighted by history length, and the measurement says where that helps
   (#15).** `novelty`'s p-value for a first-ever value is about one over the account's history
   length, so among novel events the ranking nearly sorts accounts by size. `-weighting history`
@@ -959,6 +998,30 @@ Equation numbers `(1)`–`(20)`, requirements `R1`–`R6`, and evaluation hypoth
   activity fraction rather than a volume signal
 
 ### Fixed
+
+- **`writeJSON` names the field JSON cannot carry (#16, #17).** `json: unsupported value: -Inf`
+  names no field, and two eighty-minute replays ended on it -- once for a Higher Criticism log
+  statistic, once for a retained tail of log p-values -- each found by elimination. The result is
+  now walked before it is written and the paths reported. It refuses rather than sanitising, since
+  an infinity means a quantity was computed that the file cannot express, and it runs before the
+  file is created, so a failure no longer leaves a truncated result behind. The walker is tested
+  against `encoding/json` in both directions
+- **`noveltyrate` and `pairing` no longer vanish from a weighted result (#15).** A degenerate fit
+  falls back to uniform per-test weights, but the pooled report still carried the raw zeros and
+  the table read those literally -- every stratum at a log weight of minus infinity
+- **A zero-weighted stratum ranks last instead of dropping its events (#15).** `marginal`'s
+  longest-history stratum clamped to pi0 = 1 and grouped Benjamini-Hochberg gave it weight zero,
+  which silenced **231,060** scored events. Correct for a threshold procedure and wrong for a
+  top-B selection, where a budget is a capacity to fill: zero weights are floored at the
+  estimator's own resolution, pi0 = 1 - 1/(2n)
+- **The equivalence harness starts the persistent store empty (#48).** The first comparison
+  disagreed in **5,062** places and the shape said why before the cause did -- the Postgres side
+  had seen 4.5 times as many observations per detector pair, because the database held five hours
+  of earlier runs. A defect in the harness rather than in either store
+- **The population marginal's categorical fold is done in the domain, not in SQL (#48).** A SQL
+  `power(2, -(at - last_seen)/T)` inflates the count whenever an event arrives at or before a row's
+  last_seen, and moves last_seen backwards. `DecayFactor` absorbs a non-positive interval by
+  returning 1, and LANL's one-second resolution guarantees ties
 
 - **The paper contradicted itself about `low_and_slow` and now does not (#15, #42).** Section 3.3
   still predicted that "the fix for this column is repairing `volume`'s tail, not adding a

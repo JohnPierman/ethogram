@@ -177,13 +177,11 @@ takes the real campaign. A reader looking for one row to deploy will not find on
 §2.3 formalises.
 
 **Low-and-slow is reached by no arm at any budget** — 0 of 288, 0 of 8 victims — and the reason is
-now measured rather than predicted. `volume` is the arm whose null the mechanism was built to
-evade, and repairing that null (§3.3) took its sub-10⁻¹² background from 13,618 events to 10,827
-and its detections from nothing to five, without moving the low-and-slow column at all. Its
-median p-value there is **0.72** against 0.31 to 0.49 on the other mechanisms: the response is not
-weak, it is *inverted*.
-
-§3.3 gives the mechanism, and it is a property of the plant as much as of the arm.
+measured rather than predicted. Repairing the null the mechanism was built to evade took `volume`'s
+sub-10⁻¹² background from 13,618 events to 10,827 and its detections from nothing to five, without
+moving this column at all; its median p-value here is **0.72** against 0.31 to 0.49 elsewhere, so
+the response is not weak but *inverted*. §3.3 gives the mechanism, which is a property of the plant
+as much as of the arm.
 
 The `marginal`'s 120 of 120 needs explaining, since population rarity is held out by construction.
 Its median p-value is 0.59 on spray and lateral movement, which substitute the destination

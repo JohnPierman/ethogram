@@ -67,6 +67,8 @@ func main() {
 			"empty this store's own tables before the run. For the -store equivalence "+
 				"harness, which compares against a memory store that necessarily starts "+
 				"empty; it destroys persisted state, so it is off by default")
+		route = flag.String("route", "none",
+			"score per-entity routing beside the arms: none or policy (#41)")
 		online = flag.String("online", "none",
 			"run an online error-control rule beside the per-day step-up: none or lord (#16)")
 		onlineArm = flag.String("online-arm", "novelty",
@@ -158,6 +160,10 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	routeMode, err := parseRouting(*route)
+	if err != nil {
+		log.Fatal(err)
+	}
 	mode, err := parseWeighting(*weighting)
 	if err != nil {
 		log.Fatal(err)
@@ -171,6 +177,7 @@ func main() {
 		store:         backingStore,
 		dsn:           *dsn,
 		storeTruncate: *storeTruncate,
+		route:         routeMode,
 		weighting:     mode,
 		halfLifeDays:  *halfLifeDay, bandwidthHours: *bandwidth, alpha: *alphaFlag,
 		volMinPeriods: *volMinPeriods, timStandardise: *timStandard,
@@ -205,6 +212,8 @@ type runConfig struct {
 	// storeTruncate empties the persistent store before the run, for the equivalence
 	// harness. Off by default: it destroys state.
 	storeTruncate bool
+	// route scores per-entity routing beside the arms (#41). Off by default.
+	route routingMode
 	// weighting selects the covariate the selection is reweighted by (#15). The default
 	// is none, which is the unweighted ranking every earlier run used.
 	weighting                           weightingMode
@@ -420,8 +429,12 @@ func run(cfg runConfig) error {
 		shadows = append(shadows, coocPartitioned)
 	}
 
+	routed, err := newRouter(cfg.route)
+	if err != nil {
+		return err
+	}
 	acc := newAccumulator(labels, topK, cfg.budgets, cfg.pairing, cfg.weighting,
-		cfg.online, cfg.onlineArm)
+		cfg.online, cfg.onlineArm, routed)
 	acc.volGate = newVolumeGateProbe(topK, cfg.volMinPeriods)
 	var rowsSeen int64
 	src := &cappedSource{reader: reader, max: maxRows, seen: &rowsSeen,
@@ -466,13 +479,16 @@ func run(cfg runConfig) error {
 		// buys nothing for a run that is not screening an allocation rule.
 		cmd.BurnInSink = acc.observeBurnIn
 	}
-	if acc.weighting.on() {
-		// History weighting needs its own burn-in pass, and a much cheaper one: no
-		// ranking, one decimated sample per arm. Composed with the ledger's mirror rather
-		// than replacing it, so asking for both does both.
+	if acc.weighting.on() || acc.routed.on() {
+		// History weighting needs its own burn-in pass, and a much cheaper one than the
+		// ledger's: no ranking, one decimated sample per arm. Routing needs a per-entity
+		// profile pass over the same events. Both are composed with the ledger's mirror
+		// rather than replacing it, so asking for any combination does all of them.
 		ledgerSink := cmd.BurnInSink
 		cmd.BurnInSink = func(se application.ScoredEvent) error {
-			acc.weighting.observeBurnInEvent(string(se.Event.Entity()), se.Verdicts)
+			entity := string(se.Event.Entity())
+			acc.weighting.observeBurnInEvent(entity, se.Verdicts)
+			acc.routed.observeBurnIn(entity, se.Verdicts)
 			if ledgerSink != nil {
 				return ledgerSink(se)
 			}
@@ -539,12 +555,16 @@ func run(cfg runConfig) error {
 	// before the first scored one, which is what makes them independent of every p-value
 	// they rank. Registered last so it wraps the graph export above rather than being
 	// overwritten by it, and both still run.
-	if acc.weighting.on() {
+	if acc.weighting.on() || acc.routed.on() {
 		alsoAtBoundary := cmd.OnBurnInComplete
 		cmd.OnBurnInComplete = func() error {
 			if fitErr := acc.weighting.freeze(); fitErr != nil {
 				return fitErr
 			}
+			// The conformal model is frozen by the caller before this hook runs, which is
+			// what lets the routed queue rank on it: a rank in an arm's own burn-in
+			// distribution, fitted on no event it scores.
+			acc.routed.freeze(cmd.ConformalModel())
 			if alsoAtBoundary != nil {
 				return alsoAtBoundary()
 			}
@@ -1529,6 +1549,9 @@ type accumulator struct {
 	// the none mode is a live object that runs nothing, so no call site needs a guard.
 	online *onlineControl
 
+	// routed scores the per-entity routing policy (#41). Never nil, for the same reason.
+	routed *router
+
 	// weighting carries the history-length covariate and the weight tables frozen at the
 	// burn-in boundary (#15). Never nil: the none mode is a live object that reweights
 	// nothing, so no call site needs a guard.
@@ -1630,12 +1653,13 @@ func (ed *entityDay) observeTail(logP float64) {
 
 func newAccumulator(labels *redTeamLabels, topK int, budgets objective.Budgets,
 	pairingRelational bool, weighting weightingMode, online onlineMode,
-	onlineArm detector.ID) *accumulator {
+	onlineArm detector.ID, routed *router) *accumulator {
 
 	return &accumulator{
 		labels:                labels,
 		weighting:             newHistoryWeighting(weighting),
 		online:                newOnlineControl(online, onlineArm),
+		routed:                routed,
 		topK:                  topK,
 		budgets:               budgets,
 		pairingRelational:     pairingRelational,
@@ -1685,6 +1709,14 @@ func (a *accumulator) observeDetectorArms(se application.ScoredEvent, day int64,
 		ids = append(ids, id)
 	}
 	sort.Slice(ids, func(i, j int) bool { return ids[i] < ids[j] })
+
+	// The routed arm reads the same per-arm minimum the arms rank on, so the two cannot
+	// disagree about what an arm said on this event. It ranks on the conformal quantile of
+	// that value rather than on the value itself; see routing.go.
+	a.routed.observe(scoredForRouting{
+		entity: entity, key: key, srcComp: srcComp, dstComp: dstComp,
+		tSeconds: tSeconds, isRed: isRed, categories: cats, byArm: best,
+	}, a.topK)
 
 	for _, id := range ids {
 		modelLogP := best[id]
@@ -2471,6 +2503,7 @@ func (a *accumulator) results() map[string]any {
 			"counts":           categories,
 		},
 		"detections_at_budget": detections,
+		"routed_arm":           a.routed.record(budgets),
 		"online_control":       a.online.record(),
 		"online_never_silent":  a.online.neverSilent(),
 		"min_p_arm":            a.minPArmResults(budgets),

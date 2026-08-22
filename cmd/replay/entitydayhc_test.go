@@ -441,3 +441,15 @@ func TestNonFiniteNamesTheFieldItFound(t *testing.T) {
 		t.Errorf("reported %d paths, above the cap of %d", got, nonFinitePathCap)
 	}
 }
+
+// mustRouter is an off router for the tests that build an accumulator. Off rather than nil: the
+// none mode is a live object that routes nothing, which is what lets every call site in the
+// scoring path be a single guard instead of a nil check.
+func mustRouter(t *testing.T) *router {
+	t.Helper()
+	r, err := newRouter(routingOff)
+	if err != nil {
+		t.Fatalf("newRouter: %v", err)
+	}
+	return r
+}

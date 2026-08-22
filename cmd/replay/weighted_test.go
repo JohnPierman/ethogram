@@ -18,7 +18,7 @@ func mkWeightedAcc(t *testing.T, labelled bool) *accumulator {
 	acc := newAccumulator(&redTeamLabels{
 		keys: map[string]struct{}{}, users: map[string]struct{}{},
 		days: map[int64]bool{1: true},
-	}, 50, objective.Budgets{10}, true, weightingNone, onlineNone, "")
+	}, 50, objective.Budgets{10}, true, weightingNone, onlineNone, "", mustRouter(t))
 
 	// A burn-in null for each detector: 400 observations spread over several decades, and
 	// 40,000 evaluations, so a retained observation is genuinely in the tail.
