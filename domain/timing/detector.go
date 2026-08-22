@@ -22,6 +22,17 @@ type State struct {
 	Moments  *Moments
 	LastSeen event.Timestamp
 
+	// Observed is the UNDISCOUNTED count of scored events folded into LogUSum and
+	// LogUSumSq. It exists because the sample-size question and the recency question are
+	// different questions, and answering the first with a discounted weight was a defect.
+	//
+	// The discount makes the ESTIMATE follow the entity's recent behaviour, which is right.
+	// It must not decide whether an estimate EXISTS, because a discounted count saturates at
+	// 1/(1-delta): at the seven-day half-life a once-daily account saturates at 10.6 against
+	// a minimum of 20, so it could never be standardised however long it was watched. Not a
+	// slow warm-up -- no warm-up. See statistics.SaturatingWeight.
+	Observed int64
+
 	// LogUSum and LogUSumSq accumulate ln U over the entity's own scored events, under
 	// the same discount as the moments, so that U can be standardised against what this
 	// entity's clock actually produces rather than against what an order-H density says
@@ -62,13 +73,12 @@ const DefaultStandardise = true
 // for a mean and a spread to mean anything, and the detector abstains rather than
 // standardising against noise -- the abstention question #26 anticipates.
 //
-// It is also a statement about which accounts this arm can ever serve, which is not obvious
-// from the number. The weight is discounted per event, so it saturates at 1/(1-delta) and this
-// minimum is unsatisfiable past a certain sparsity however long the entity is watched:
-// [StandardiseCoverageHours] is that boundary, about 12.4 hours at the seven-day half-life. An
-// account active less often than that abstains permanently rather than warming up, which is
-// half of #37 and the half the issue does not name -- it attributes the silence to a zero
-// spread, and the weight gate reaches a great deal further.
+// It is counted on [State.Observed], the undiscounted number of the entity's own scored
+// events, and not on the discounted moment weight. Gating on the discounted weight was the
+// defect: it saturates at 1/(1-delta), so past about 12.4 hours between events the minimum was
+// unsatisfiable however long the entity was watched, and the arm abstained on sparse accounts
+// permanently rather than warming up. [StandardiseCoverageHours] reports that old boundary, and
+// is retained so the constraint the fix removes stays visible and testable.
 const MinStandardiseWeight = 20
 
 // StandardiseCoverageHours is the sparsest an account's events may average and still be
@@ -117,8 +127,12 @@ func (c AbstentionCause) String() string {
 // standardise reports the per-entity mean and standard deviation of ln U, whether they rest
 // on enough weight to use, and where they do not, which of the two causes applies.
 func (s *State) standardise() (mean, sd float64, ok bool, cause AbstentionCause) {
+	// The gate is on the undiscounted count; the estimate below is still discounted.
+	if s.Observed < MinStandardiseWeight {
+		return 0, 0, false, CauseTooLittleHistory
+	}
 	w := s.Moments.W
-	if w < MinStandardiseWeight {
+	if w <= 0 {
 		return 0, 0, false, CauseTooLittleHistory
 	}
 	mean = s.LogUSum / w
@@ -385,6 +399,9 @@ func (o *observation) Commit(ctx context.Context) error {
 	state.Moments.Observe(o.phi, delta)
 	state.LogUSum = delta*state.LogUSum + o.logU
 	state.LogUSumSq = delta*state.LogUSumSq + o.logU*o.logU
+	// Undiscounted, because it answers "how many observations" and not "how recent". See
+	// State.Observed.
+	state.Observed++
 	if o.at > state.LastSeen {
 		state.LastSeen = o.at
 	}

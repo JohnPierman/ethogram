@@ -68,23 +68,20 @@ func TestAbstentionCausesAreDistinguishable(t *testing.T) {
 		t.Errorf("with four events the reason is %q, want the history cause", reason)
 	}
 
-	// A once-daily account, sixty days of it. This is the case that reframes #37: the issue
-	// attributes the arm's silence on regular accounts to a zero spread, and the dominant
-	// cause here is the weight gate, which such an account can never clear. Its discounted
-	// weight saturates at 10.6 against a minimum of 20, so it abstains for want of HISTORY
-	// forever -- after sixty days, after six hundred.
+	// A once-daily account, sixty days of it. This is the case that reframes #37 and the one
+	// the gate fix serves. Its DISCOUNTED weight saturates at 10.6 against a minimum of 20,
+	// so while the gate counted that weight it abstained for want of history forever -- after
+	// sixty days, after six hundred. Counting undiscounted observations, sixty days is sixty
+	// observations and the account is standardisable.
 	var daily []event.Timestamp
 	for i := 0; i < 60; i++ {
 		daily = append(daily,
 			event.Timestamp(int64(i)*int64(event.Day)+10*int64(event.Hour)))
 	}
 	reason, evaluated = abstentionReason(t, daily)
-	if evaluated {
-		t.Fatal("a once-daily account was standardised; the weight ceiling has moved")
-	}
-	if !strings.Contains(reason, "too little") {
-		t.Errorf("a once-daily account abstained for %q; the weight gate should bite first",
-			reason)
+	if !evaluated && strings.Contains(reason, "too little") {
+		t.Errorf("a once-daily account with sixty observations still abstains for want of" +
+			" history; the sample-size gate is still counting the discount")
 	}
 
 	// The no-spread cause needs an account dense enough to clear the weight gate while
