@@ -9,6 +9,29 @@ Equation numbers `(1)`–`(20)`, requirements `R1`–`R6`, and evaluation hypoth
 
 ## [Unreleased]
 
+### Fixed
+
+- **The paper's length gate is now renderer-independent, so it means the same thing everywhere
+  (#35).** It enforced a page count from a PDF headless Chrome produced, and that count is a
+  property of the renderer as well as the source: byte-identical source measured 20 pages under
+  Windows Chrome and 21 under macOS Chrome 141. The gate therefore reported OVER BUDGET on
+  in-budget source for anyone not on the machine that built the committed PDF, so it stopped
+  carrying information and started being routed around. What is enforced now is a **word** budget
+  -- 9,600 words, 20 pages at the 480 words a page this stylesheet was measured to run -- which
+  no renderer can move. The page count is reported everywhere and enforced only on
+  `PAPER_PLATFORM`
+- **CI checks the budget.** The `provenance` job ran `paper-check` and `dashboard-check` and never
+  `make paper`, so the ceiling was enforced only on whichever machine last built the PDF. The new
+  step needs no browser, because the gate it runs is a property of the source
+- **`make paper` resolves Chrome on macOS and Linux**, not only on Windows: it now tries `chrome`,
+  `google-chrome`, `chromium`, `chromium-browser`, the macOS bundle path, the Windows install and
+  the WSL mount, and says which it looked for when it finds none -- noting that the HTML is
+  already written and only the PDF needs a browser
+- **`make paper` calls `python3` where it exists**, via a `PY` variable, since macOS provides no
+  `python`
+- **`cmd/thesis`'s staleness message named `make thesis`, a target that does not exist.** It now
+  names `make paper`
+
 ### Changed
 
 - **The two per-entity arms are on by default and the population co-occurrence arm is off

@@ -57,12 +57,12 @@ func main() {
 	if *check {
 		committed, err := os.ReadFile(*outPath)
 		if err != nil {
-			log.Fatalf("thesis: %s does not exist; run `make thesis` and commit it: %v",
+			log.Fatalf("thesis: %s does not exist; run `make paper` and commit it: %v",
 				*outPath, err)
 		}
 		if !bytes.Equal(committed, page) {
 			log.Fatalf("thesis: %s is stale — it does not match %s. "+
-				"Run `make thesis` and commit the result", *outPath, *inPath)
+				"Run `make paper` and commit the result", *outPath, *inPath)
 		}
 		fmt.Printf("thesis: %s is current with %s\n", *outPath, *inPath)
 		return
