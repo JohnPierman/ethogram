@@ -23,7 +23,14 @@
 //
 //   - the run id, which names the store by construction, so the two runs can be told apart;
 //   - wall-clock timings, memory figures and rates, which are properties of the machine;
-//   - the `store` provenance block, which exists to say which store was used.
+//   - the `store` provenance block, which exists to say which store was used;
+//   - the working tree's dirty flag, which the FIRST run makes true by writing its own result
+//     into the tree the second run then stamps. On a clean checkout this target could therefore
+//     never pass, and the failure said `git_dirty: false against true` rather than anything
+//     about scores. It went unnoticed because during development the tree is already dirty when
+//     the target is invoked, so both halves stamped true and agreed. Masking it is consistent
+//     with `git_sha`, which is already masked; what actually guarantees the two halves share
+//     their code is that one Make target runs both.
 //
 // Nothing else. In particular the final store SIZES are compared rather than masked: a store
 // size is deterministic, and two runs producing identical scores from different-sized stores
@@ -48,6 +55,7 @@ var masked = []string{
 	"/run/started_at",
 	"/run/finished_at",
 	"/run/git_sha",
+	"/run/git_dirty",
 	"/runtime/wall_seconds",
 	"/runtime/events_per_sec",
 	"/runtime/heap_alloc_mb",
