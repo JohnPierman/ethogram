@@ -11,6 +11,24 @@ Equation numbers `(1)`–`(20)`, requirements `R1`–`R6`, and evaluation hypoth
 
 ### Added
 
+- **The selection can be reweighted by history length, and the measurement says where that helps
+  (#15).** `novelty`'s p-value for a first-ever value is about one over the account's history
+  length, so among novel events the ranking nearly sorts accounts by size. `-weighting history`
+  learns a grouped Benjamini-Hochberg weight per history-length stratum on burn-in and freezes it
+  at the boundary, which keeps the weights independent of every p-value they rank and keeps the
+  transform deployable. On `lanl-inj-b1000-histw-d7-14-009`, detections at 1000 alerts a day:
+  `novelty` **303 to 410**, `timing` 21 to 34, `volume` 5 to 7, and `marginal` **120 down to 60**.
+  `novelty`'s p x n median moves 3.3 to 16.2 on the same events, so the 1/n dependence moved
+  rather than the detections improving by luck. Off by default, and every earlier run reproduces:
+  checked by running this binary and `origin/main`'s over the same 594,704 scored events, where the
+  only differences were two provenance keys, timestamps and heap figures
+- **`WeightedBenjaminiHochberg` and `StratifiedWeights` in `domain/calibration`.** Equal weights of
+  any magnitude reduce to `BenjaminiHochberg` exactly, over 10,000 randomised inputs including
+  exact ties, zeros and ones
+- **`cmd/analyse` reports p x n per weighted arm**, computed from one recorded run rather than two:
+  the weighting is a deterministic per-stratum multiplier and the table is in the result, so both
+  columns are two rankings of the same events
+
 - **The budget is now recorded as a capacity valve, and it is a finding when it binds (#10).**
   The objection was that a fixed budget is the wrong *primary* control -- a system tuned to 100
   alerts a day emits 100 on a quiet day too, all benign -- and that the error rate should be the
@@ -941,6 +959,17 @@ Equation numbers `(1)`–`(20)`, requirements `R1`–`R6`, and evaluation hypoth
   activity fraction rather than a volume signal
 
 ### Fixed
+
+- **The paper contradicted itself about `low_and_slow` and now does not (#15, #42).** Section 3.3
+  still predicted that "the fix for this column is repairing `volume`'s tail, not adding a
+  sequential statistic" while the same section already reported that the repair was measured and
+  did not move the column. Replaced with what the measurement supports: the mechanism needs a
+  sub-hourly test neither arm contains, which is now tracked as #53
+- **Storey's null-proportion estimator reads miscalibration as signal, which bounds where covariate
+  weighting is usable (#15).** With four of five strata clamping to pi0 = 1, `timing` and `volume`
+  have effectively stopped alerting on all but their shortest-history accounts, so their p x n
+  moving four orders of magnitude reports miscalibration rather than a corrected scale. Recorded
+  as a limitation with the order of operations it implies: calibrate first, weight second
 
 - **The paper's length gate is now renderer-independent, so it means the same thing everywhere
   (#35).** It enforced a page count from a PDF headless Chrome produced, and that count is a

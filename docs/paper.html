@@ -170,6 +170,7 @@ footer{margin-top:3.5rem;padding-top:1rem;border-top:1px solid var(--rule-2);
 <a class="h3" href="#23-allocation-under-an-adversarial-mix">2.3 Allocation under an adversarial mix</a>
 <a class="h3" href="#24-why-combination-and-allocation-do-not-help">2.4 Why combination and allocation do not help</a>
 <a class="h3" href="#25-population-scope-baselines">2.5 Population-scope baselines</a>
+<a class="h3" href="#26-reweighting-the-selection-by-history-length">2.6 Reweighting the selection by history length</a>
 <a class="h2" href="#3-discussion">3. Discussion</a>
 <a class="h3" href="#31-what-the-evidence-supports">3.1 What the evidence supports</a>
 <a class="h3" href="#32-principal-limitations">3.2 Principal limitations</a>
@@ -204,17 +205,19 @@ million scored events, a per-entity novelty test attains 15.7% precision (95% CI
 structural census locates the mechanism: the properties per-entity tests express are enriched
 139- and 184-fold among labelled events, while the property a population-rarity test expresses
 contains none of them.</p>
-<p>Five negative results are of independent interest. Combining the arms&#39; p-values never exceeds the
-best single component; alerting whenever any arm ranks an event highly is dominated at equal cost
-and superior at equal depth, at 3.7 times the volume; and dividing the budget by demonstrated
-quality fails too, bounded rather than observed, since an exhaustive search over splits chosen
-with the labels in hand finds the optimum at the corner. What decides whether a division pays is the overlap between two arms&#39;
+<p>Several negative results are of independent interest. Combining the arms&#39; p-values never exceeds
+the best single component; alerting whenever any arm ranks an event highly is dominated at equal
+cost and superior at equal depth, at 3.7 times the volume; and dividing the budget by demonstrated
+quality fails too, since an exhaustive search over splits chosen with the labels in hand finds the
+optimum at the corner. What decides whether a division pays is the overlap between two arms&#39;
 detections — 74.6% between the two strongest, 0% where a split does win. Read as a zero-sum game
-against an adversary choosing the mechanism, that corner result is a theorem rather than a
-measurement, and the conclusion usually drawn from it is also wrong: the best single arm
-guarantees nothing at all. Adding a seventh arm reaching one labelled event in 4.49 million costs
-the composite a quarter of its detections and the corrected minimum two thirds, on both corpora,
-while leaving every single arm untouched.
+against an adversary choosing the mechanism, that corner is a theorem rather than a measurement,
+and the conclusion usually drawn from it is also wrong: the best single arm guarantees nothing.
+Adding a seventh arm reaching one labelled event in 4.49 million costs the composite a quarter of
+its detections and the corrected minimum two thirds, while leaving every single arm untouched.
+One positive result runs the other way: reweighting the selection by an account&#39;s history length
+raises the best arm&#39;s detections 35% at the deepest budget, while on arms whose nulls are
+misspecified the same construction reweights their miscalibration instead.
 Every result points the same way: what limits this framework is coverage, not allocation.</p>
 <p><strong>Keywords:</strong> anomaly detection; multiple testing; conditional inference; game theory;
 intrusion detection; decision theory.</p>
@@ -585,7 +588,7 @@ allocation ties at zero there:</p>
 <tr><td>0.421</td><td>0.421</td><td>0.421</td><td>0.421</td><td>0.421</td><td>0.426</td></tr>
 </tbody></table></div>
 <p>Five of six sit exactly at the guarantee; the real campaign is not binding, and low-and-slow is
-absent because excluded rather than covered.</p>
+excluded rather than covered.</p>
 <p><strong>Coverage is purchasable, and not by reweighting.</strong> Labelled events found on the planted corpus
 at 1000 alerts a day, against the worst mechanism&#39;s retained fraction:</p>
 <div class="tablewrap"><table>
@@ -603,12 +606,12 @@ at 1000 alerts a day, against the worst mechanism&#39;s retained fraction:</p>
 <p><strong>No rule in §2.4 guarantees anything at all.</strong> Two allocations do, and the table prices both:
 retain 42.1% of the achievable on every reachable mechanism at the same budget for 42% of the
 expected detection, or buy the guarantee outright at 4.5 times the alerts.</p>
-<p>Two further readings. <strong>Randomising is not dividing, and only dividing had been tested</strong> — §2.4
-measures unions and splits, which give every arm a fraction of its depth, whereas a mixed strategy
-runs one arm at full depth chosen by lottery and is exactly evaluable from detections already
-recorded. And <strong>routing is not a global allocation</strong>: it chooses per entity, so it can send an
-established account to a per-entity null and a cold one to the population null and collect both,
-which makes it the only construction here able to exceed the best single arm at equal cost. Its
+<p>Two further readings. <strong>Randomising is not dividing, and only dividing had been tested</strong>: §2.4
+measures unions and splits, which give every arm a fraction of its depth, where a mixed strategy
+runs one arm at full depth chosen by lottery. And <strong>routing is not a global allocation</strong> — it
+chooses per entity, so it can send an established account to a per-entity null and a cold one to
+the population null and collect both, which makes it the only construction here able to exceed the
+best single arm at equal cost. Its
 floor is what any per-entity policy matches by construction and its ceiling is the union at full
 depth; both are oracles charging no alert cost.</p>
 <p>Admitting a low-and-slow-capable arm prices the excluded column. With <code>lof</code> from §2.5 admitted
@@ -743,11 +746,36 @@ scikit-learn [16], plus an uncalibrated per-entity EWMA z-score.</p>
 <p>On the matched comparison all six population models detect <strong>0 at every budget</strong>, which Appendix
 B&#39;s census explains. On the planted corpus the exception is the interesting one — one-class SVM
 reaches 33 of 120 takeovers and <strong>local outlier factor 12 of 288 low-and-slow events, the one
-mechanism no arm of this framework reaches at any budget</strong>. A sustained small departure is what
-<code>volume</code>&#39;s over-dispersion tolerates and what a density estimate does not: a capability this
-framework lacks, and why the two scopes are complementary rather than ordered. Both figures come
-from an easier problem in the way that dominates — a 1-in-100 sample of 45,071 rows rather than
-4.49 million events, raising the labelled share from 0.031% to 3.1%.</p>
+mechanism no arm of this framework reaches at any budget</strong>. A burst is what <code>volume</code>&#39;s
+over-dispersion tolerates and a density estimate does not: a capability this framework lacks, and
+why the two scopes are complementary rather than ordered. Both figures come from an easier problem
+in the way that dominates — a 1-in-100 sample of 45,071 rows, raising the labelled share from
+0.031% to 3.1%.</p>
+<h3 id="26-reweighting-the-selection-by-history-length">2.6 Reweighting the selection by history length<a class="anchor" href="#26-reweighting-the-selection-by-history-length" aria-label="link to this section">#</a></h3>
+<p>For a first-ever value equation (4) reduces to about 1/n, so among novel events the ranking nearly
+sorts accounts by event count: history length sets the p-value&#39;s scale while being no part of the
+question asked. Weights learned per history-length stratum on burn-in and frozen at the boundary
+[21][22][23] give, on the matched injected corpus:</p>
+<div class="tablewrap"><table>
+<thead><tr><th>arm</th><th style="text-align:right">10/day</th><th style="text-align:right">100/day</th><th style="text-align:right">1000/day</th><th style="text-align:right">p × n, median</th><th style="text-align:right">strata floored</th></tr></thead>
+<tbody>
+<tr><td><code>novelty</code></td><td style="text-align:right">11 → 11</td><td style="text-align:right">60 → <strong>63</strong></td><td style="text-align:right">303 → <strong>410</strong></td><td style="text-align:right">3.3 → 16.2</td><td style="text-align:right">0</td></tr>
+<tr><td><code>timing</code></td><td style="text-align:right">2 → 2</td><td style="text-align:right">9 → <strong>15</strong></td><td style="text-align:right">21 → <strong>34</strong></td><td style="text-align:right">2,840 → 1.6 × 10⁸</td><td style="text-align:right">4</td></tr>
+<tr><td><code>volume</code></td><td style="text-align:right">0 → 0</td><td style="text-align:right">1 → 1</td><td style="text-align:right">5 → <strong>7</strong></td><td style="text-align:right">1,790 → 8.1 × 10⁷</td><td style="text-align:right">4</td></tr>
+<tr><td><code>marginal</code></td><td style="text-align:right">0 → <strong>7</strong></td><td style="text-align:right">76 → <strong>30</strong></td><td style="text-align:right">120 → <strong>60</strong></td><td style="text-align:right">1,440 → 6.1 × 10⁷</td><td style="text-align:right">2</td></tr>
+<tr><td><code>pairing</code></td><td style="text-align:right">4 → 4</td><td style="text-align:right">59 → 59</td><td style="text-align:right">142 → 142</td><td style="text-align:right">45 → 45</td><td style="text-align:right">—</td></tr>
+<tr><td><code>noveltyrate</code></td><td style="text-align:right">0 → 0</td><td style="text-align:right">21 → 21</td><td style="text-align:right">384 → 384</td><td style="text-align:right">319 → 319</td><td style="text-align:right">—</td></tr>
+</tbody></table></div>
+<p><strong>It works where it was aimed.</strong> <code>novelty</code> gains 107 labelled events at 1000 a day, 35% more, its
+fitted weight falling about twentyfold from the shortest history stratum to the longest — the
+direction 1/n requires — and p × n moves 3.3 → 16.2 on the same events.</p>
+<p><strong>The rest are not covariate corrections, and the last column says so.</strong> A stratum whose estimated
+null proportion clamps to one earns weight zero, and a top-B selection cannot drop those events
+without leaving budget unspent, so they are floored and rank last: with four of five strata floored,
+<code>timing</code> and <code>volume</code> have stopped alerting on all but their shortest histories, and p × n moving
+four orders of magnitude reports that rather than a corrected scale. <code>pairing</code> and <code>noveltyrate</code> clamped in
+every stratum, so nothing was learned and their weights fell back to uniform. The composite is
+unweighted, having no score before the boundary to fit on.</p>
 <hr>
 <h2 id="3-discussion">3. Discussion<a class="anchor" href="#3-discussion" aria-label="link to this section">#</a></h2>
 <h3 id="31-what-the-evidence-supports">3.1 What the evidence supports<a class="anchor" href="#31-what-the-evidence-supports" aria-label="link to this section">#</a></h3>
@@ -762,6 +790,10 @@ at any budget. Allocation is not supported either, and §2.3 states why independ
 corpus: the objective is linear in the allocation, so its optimum is a single arm. What §2.3 adds
 is that the corollary usually drawn — deploy the best arm — is also wrong. Both point at the same
 place: <strong>coverage, not allocation</strong>.</p>
+<p><strong>Storey&#39;s estimator [24] reads miscalibration as signal, which bounds where covariate weighting is
+usable.</strong> The estimated null proportion measures departure from uniformity — signal where the null
+is sound, misspecification where it is not — which is the difference between <code>novelty</code>&#39;s smooth
+table and <code>timing</code>&#39;s four floored strata. Calibrate first, weight second.</p>
 <h3 id="32-principal-limitations">3.2 Principal limitations<a class="anchor" href="#32-principal-limitations" aria-label="link to this section">#</a></h3>
 <p>Appendix F carries the full set with the measurement establishing each. Two dominate.</p>
 <p><strong>The <code>novelty</code> p-value is confounded with history length.</strong> For a first-ever value the estimate
@@ -782,83 +814,71 @@ low-and-slow zero in particular, and cannot be separated from the stated mechani
 that freezes per-entity state across the campaign window.</p>
 <h3 id="33-what-is-repaired-and-what-a-deployable-version-needs">3.3 What is repaired, and what a deployable version needs<a class="anchor" href="#33-what-is-repaired-and-what-a-deployable-version-needs" aria-label="link to this section">#</a></h3>
 <p>Two arms of §2.2 were <strong>not evidence about per-entity conditioning in either direction</strong>, and both
-are now repaired. <code>timing</code>&#39;s zeros were a ceiling rather than blindness: its tail mass was floored
-by its own 512-point grid at or above its realised alert cut, so it could not alert whatever it
-observed, and raising the grid would not have helped because a tail mass over density levels
-saturates. Standardising the event&#39;s ln U against the mean and spread of the ln U this entity&#39;s own
-events received removes the floor and takes detections from 0, 0 and 6 to 1, 2 and 7 on the real
-campaign and from 0, 1 and 12 to 2, 9 and 21 on the planted corpus.</p>
-<p><code>volume</code> was misspecified in the opposite direction — 27,464 background events on <code>r11</code> fell below
-10⁻¹² where a calibrated null predicts 4.2 × 10⁻⁶ — and the cause was a gate rather than the model.
-The width of its null is measured from the entity&#39;s own completed windows, and that measurement was
-gated on a <em>discounted</em> weight, which saturates at 1/(1−δ). An entity whose active windows are more
+are now repaired. <code>timing</code>&#39;s zeros were a ceiling rather than blindness: its tail mass was floored by its own
+512-point grid at or above its realised alert cut, so it could not alert whatever it observed, and
+raising the grid would not help because a tail mass over density levels saturates. Standardising the
+event&#39;s ln U against the mean and spread of the ln U this entity&#39;s own events received removes the
+floor, which is what §2.2&#39;s row records.</p>
+<p><code>volume</code> was misspecified in the opposite direction — 27,464 background events on <code>r11</code> below 10⁻¹²
+where a calibrated null predicts 4.2 × 10⁻⁶ — and the cause was a gate rather than the model. The
+width of its null is measured from the entity&#39;s own completed windows, and that measurement was
+gated on a <em>discounted</em> weight, which saturates at 1/(1−δ): an entity whose active windows are more
 than about 55 hours apart could never measure its own dispersion however long it was watched, and
-fell back to the un-widened null — the narrowest the arm has — for exactly the entities it had no
-evidence about. On synthetic benign accounts a burst every four days put 31.6% of its own events
-below 10⁻¹², reaching 10⁻⁴⁵. Gating on undiscounted observations instead takes the sub-10⁻¹²
-background to 10,827 and the arm&#39;s detections from none to five.</p>
+fell back to the un-widened null for exactly the entities it had no evidence about. On synthetic
+benign accounts a burst every four days put 31.6% of its own events below 10⁻¹², reaching 10⁻⁴⁵.
+Gating on undiscounted observations instead gives §2.2&#39;s repair.</p>
 <p><strong>A discounted weight answers how recent, not how many, and gating a sample size on it makes the
 gate unsatisfiable rather than slow.</strong> The same defect had the same shape in two other arms:
 <code>timing</code>&#39;s standardisation required a discounted weight of 20, which a once-daily account
 saturating at 10.6 could never reach, so the statistic was unavailable to sparse accounts
 permanently.</p>
-<p>The repair does not reach low-and-slow, and two things account for that, neither a defect in the
-arm. The plant is twelve events at ninety-second intervals — a seventeen-minute burst, three times
-— and <code>volume</code>&#39;s null is deliberately over-dispersed so an ordinary burst does not alert, so
-removing its false alarms and detecting this mechanism pull in opposite directions. And the burst
-is placed in the victim&#39;s <em>usual</em> hour, where the expected count is highest and twelve extra events
-least surprising; the one mechanism <code>volume</code> does reach, off-hours, is placed twelve hours from
-that, where the expectation is lowest — so that detection is a timing signal reaching it through
-the activity fraction ρ rather than a volume signal.</p>
+<p>The repair does not reach low-and-slow, for two reasons that are not defects in the arm. The plant
+is a seventeen-minute burst, three times, and <code>volume</code>&#39;s null is deliberately over-dispersed so an
+ordinary burst does not alert: removing its false alarms and detecting this pull in opposite
+directions. And the burst sits in the victim&#39;s <em>usual</em> hour, where the expected count is highest;
+off-hours, the one mechanism <code>volume</code> reaches, sits twelve hours away where it is lowest — so that
+detection arrives through the activity fraction ρ, as timing rather than volume.</p>
 <p>That needs a statistic it does not contain rather than a refit: an over-dispersed marginal test of
 one period cannot see a drift small in every period, because the evidence is in the sequence.
-Page&#39;s one-sided cumulative sum [17] accumulates it — with baseline λ₀ and target shift ρ the
-reference is k = λ₀(ρ − 1)/ln ρ and S_t = max(0, S_{t−1} + k_t − k), so a sustained shift grows S
-linearly in the number of periods while the spread of its null grows as the square root — and the
-p-value is the upper tail of S standardised against the entity&#39;s own sums. On synthetic streams
-fitted on identical stationary history, <strong>it separates a sustained +30% shift from matched
-stationary variation by 237× where the volume predictive separates it by 1.2×</strong>.</p>
-<p>Two details earn that, and both are cases of a null that must not be allowed to follow the thing
-it measures. The running period is charged the whole reference value while contributing only the
-events seen so far, so the scored statistic is commensurable with a null built from closed periods.
-And the null over S is not discounted while the baseline rate is — a discounted reference
-distribution tracks the change it exists to detect, §3.2&#39;s second limitation in acute form, and
-undiscounting it is what takes the separation from 2× to 237×.</p>
-<p><strong>On the corpus it does not work, and the reason is instructive.</strong> The arm reaches 0 of 288
-planted low-and-slow events; its median p-value there is 0.77 against 0.62 on the real campaign,
-so like the arm it was built to replace its response is <em>inverted</em> rather than merely weak. Three
-things account for it, and only the first is a defect in the statistic.</p>
-<p>The planted mechanism is not what its name says: each victim receives twelve events at
-ninety-second intervals on each of three days — three bursts of about seventeen minutes, not a
-sustained elevation. A cumulative sum over daily periods is the wrong instrument, and the right one
-is an hourly-window test, which is what <code>volume</code> already is and what the local-outlier-factor
-baseline reaching 12 of 288 (§2.5) confirms is reachable. <strong>The fix for this column is repairing
-<code>volume</code>&#39;s tail, not adding a sequential statistic.</strong></p>
+Page&#39;s one-sided cumulative sum [17] accumulates it, growing linearly in the number of periods
+while the spread of its null grows as the square root, with the p-value the upper tail of S
+standardised against the entity&#39;s own sums. On synthetic streams fitted on identical stationary
+history, <strong>it separates a sustained +30% shift from matched stationary variation by 237× where the
+volume predictive separates it by 1.2×</strong>.</p>
+<p>Two details earn that, both cases of a null that must not follow what it measures: the running
+period is charged the whole reference value while contributing only the events seen so far, and the
+null over S is undiscounted while the baseline rate is — which alone takes the separation from 2× to
+237×.</p>
+<p><strong>On the corpus it does not work, and the reason is instructive.</strong> The arm reaches 0 of 288 planted
+low-and-slow events, median p 0.77 there against 0.62 on the real campaign — so like the arm it
+replaces its response is <em>inverted</em>, not merely weak. Three things account for it, only the first a
+defect in the statistic.</p>
+<p>The planted mechanism is not what its name says: three bursts of about seventeen minutes, not a
+sustained elevation, so a cumulative sum over daily periods is the wrong instrument. This paper
+predicted the right one was repairing <code>volume</code>&#39;s tail; measured, that repair did not move the
+column, so what the mechanism needs is a <strong>sub-hourly</strong> test neither arm contains — which the
+local-outlier-factor baseline reaching 12 of 288 (§2.5) shows is reachable.</p>
 <p>The plant is also shorter than the arm&#39;s warm-up: its null needs eight closed periods, a seven-day
-burn-in supplies seven, so the arm is silent on the first scored day and accumulates at most two
-periods of a three-day plant. Lowering the gate to seven would be fitting a parameter to the length
-of one corpus&#39;s burn-in.</p>
-<p>And the inversion has a mechanism, which is §3.2&#39;s second limitation by another route. The null over
-S is undiscounted precisely so a campaign cannot inflate it — but the <em>baseline rate</em> is discounted,
-and the planted events raise it, which raises the reference value and floors the sum. Protecting one
-estimator from the change left the other exposed. The arm is retained because the alternative it
-tests is one no corpus here contains, so this is a null result about the corpus as much as the
-statistic, and its one use here is as the noise injection §2.4 measures.</p>
+burn-in supplies seven, and lowering the gate would be fitting a parameter to one corpus.</p>
+<p>And the inversion has a mechanism, §3.2&#39;s second limitation by another route: the null over S is
+undiscounted so a campaign cannot inflate it, but the <em>baseline rate</em> is discounted and the planted
+events raise it, which raises the reference value and floors the sum. Protecting one estimator from
+the change left the other exposed. The arm is retained because the alternative it tests is one no
+corpus here contains, so this is a null result about the corpus as much as the statistic.</p>
 <p>The routing policy of §2.3 is implemented but not scored: its harness needs a per-entity burn-in
-pass and a choice about how alerts are charged, and choosing that against the evaluation labels is
-the defect Appendix F lists.</p>
+pass and a rule for charging alerts, and choosing that against the evaluation labels is the defect
+Appendix F lists.</p>
 <p>One gap separates what is measured from what can be run: <strong>a fixed budget is a batch
 construction.</strong> Selecting the top <em>B</em> of a day requires the whole day, and an operator at 14:00 does
-not know what arrives by 23:59; the same objection applies to a per-day Benjamini–Hochberg step-up.
-§4.4&#39;s objective does not have this defect and Appendix D&#39;s score is built to the same constraint.
-What remains missing is a calibrated per-alert probability.</p>
+not know what arrives by 23:59 — as for a per-day Benjamini–Hochberg step-up. §4.4&#39;s objective and
+Appendix D&#39;s score are built to the streaming constraint; what remains missing is a calibrated
+per-alert probability.</p>
 <p>One direction is closed rather than open. Learning the allocation online is the adversarial bandit
-setting [20], whose regret √(2TK ln K) looks survivable — 89 detection-units against 10,481
-available over a year at K = 6. The bound assumes the reward is observed each round, and it is not:
-labels are the object of the search, feedback is bandit-only, and separating the top two arms of
-§2.1 at 80% power needs about 41,000 labelled events per arm against 549. <strong>A learner cannot
-converge to an equilibrium it lacks the samples to see</strong>, so the allocation must be stated rather
-than learned.</p>
+setting [20], whose regret √(2TK ln K) looks survivable — 89 detection-units against 10,481 over a
+year at K = 6. But the bound assumes the reward is observed each round and it is not: labels are the
+object of the search, and separating the top two arms of §2.1 at 80% power needs about 41,000
+labelled events per arm against 549. <strong>A learner cannot converge to an equilibrium it lacks the
+samples to see</strong>, so the allocation must be stated.</p>
 <hr>
 <h2 id="4-method">4. Method<a class="anchor" href="#4-method" aria-label="link to this section">#</a></h2>
 <h3 id="41-the-entity-conditioned-null">4.1 The entity-conditioned null<a class="anchor" href="#41-the-entity-conditioned-null" aria-label="link to this section">#</a></h3>
@@ -972,13 +992,17 @@ advance.</p>
 <li>von Neumann, J. <em>Zur Theorie der Gesellschaftsspiele.</em> Mathematische Annalen 100(1), 1928.</li>
 <li>Dantzig, G. B. <em>A proof of the equivalence of the programming problem and the game problem.</em> In Koopmans, T. C. (ed.), <em>Activity Analysis of Production and Allocation,</em> Wiley, 1951.</li>
 <li>Auer, P., Cesa-Bianchi, N., Freund, Y. and Schapire, R. E. <em>The nonstochastic multiarmed bandit problem.</em> SIAM Journal on Computing 32(1), 2002.</li>
+<li>Genovese, C. R., Roeder, K. and Wasserman, L. <em>False discovery control with p-value weighting.</em> Biometrika 93(3), 2006.</li>
+<li>Ignatiadis, N. and Huber, W. <em>Covariate powered cross-weighted multiple testing.</em> Journal of the Royal Statistical Society Series B 83(4), 2021.</li>
+<li>Hu, J. X., Zhao, H. and Zhou, H. H. <em>False discovery rate control with groups.</em> Journal of the American Statistical Association 105(491), 2010.</li>
+<li>Storey, J. D. <em>A direct approach to false discovery rates.</em> Journal of the Royal Statistical Society Series B 64(3), 2002.</li>
 </ol>
 <hr>
 <h2 id="appendix-a-data-and-evaluation-design">Appendix A. Data and evaluation design<a class="anchor" href="#appendix-a-data-and-evaluation-design" aria-label="link to this section">#</a></h2>
 <p>The Los Alamos comprehensive cyber-security events data set [2], released CC0: 1.05 billion
 authentication events over 58 days from 12,425 users and 17,684 computers, with a labelled red-team
-exercise embedded. A record carries nine fields; an uninterpretable value is written <code>?</code>, a
-distinct state from absence and treated as one throughout.</p>
+exercise embedded. A record carries nine fields; an uninterpretable value is written <code>?</code>, a distinct
+state from absence throughout.</p>
 <p>The unit of analysis is a human account; machine accounts, <code>SYSTEM</code> and <code>ANONYMOUS LOGON</code> are
 excluded at no cost in labels, since all 104 accounts the red team touched are human. The label
 file carries 749 rows, 715 distinct, naming those 104, and is highly concentrated: 93.6% of rows

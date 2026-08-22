@@ -154,6 +154,39 @@ Alert volume is not capped. The objective is `U = v·TP − c·FP`: you supply w
 incident is worth relative to a wasted investigation, and the cut follows. Measured on a
 real run, a 100/day budget can drop 68% of its queue and lose no detections.
 
+### Reweighting the selection by history length (`-weighting history`)
+
+`novelty`'s p-value for a first-ever value is about one over the account's history length, so
+among novel events the ranking nearly sorts accounts by size. `-weighting history` learns a
+weight per history-length stratum on the burn-in window and freezes it at the boundary, which is
+what keeps the weights independent of every p-value they rank and keeps the transform deployable
+-- every quantity it reads is a property of the single event or of frozen state.
+
+Measured on the injected corpus, detections at 10/100/1000 alerts a day:
+
+| arm | unweighted | weighted | p × n, median | strata floored |
+|---|---|---|---|---|
+| `novelty` | 11 / 60 / 303 | 11 / **63** / **410** | 3.3 → 16.2 | 0 |
+| `timing` | 2 / 9 / 21 | 2 / **15** / **34** | 2,840 → 1.6e8 | 4 |
+| `volume` | 0 / 1 / 5 | 0 / 1 / **7** | 1,790 → 8.1e7 | 4 |
+| `marginal` | 0 / 76 / 120 | **7** / **30** / **60** | 1,440 → 6.1e7 | 2 |
+| `pairing` | 4 / 59 / 142 | unchanged | 45 → 45 | -- |
+| `noveltyrate` | 0 / 21 / 384 | unchanged | 319 → 319 | -- |
+
+**It is off by default and it is not a uniform win.** It works on the arm it was aimed at --
+`novelty` gains 35% at the deepest budget, and p × n moving 3.3 → 16.2 says the 1/n dependence
+actually moved rather than the detections improving by luck. Elsewhere the last column is the
+thing to read: a stratum whose estimated null proportion clamps to 1 earns weight zero, and since
+a top-B selection cannot drop those events without leaving budget unspent they are floored and
+rank last. With four of five strata floored, `timing` and `volume` have effectively stopped
+alerting on all but their shortest-history accounts. `pairing` and `noveltyrate` clamped in every
+stratum, so nothing was learned and their weights fell back to uniform -- the right answer to no
+evidence, and reported as `degenerate` rather than hidden.
+
+The general lesson is worth more than the flag: **Storey's null-proportion estimator measures
+departure from uniformity, so on an arm whose null is wrong it reweights the miscalibration.**
+Calibrate first, weight second.
+
 ## The paper's length budget
 
 `docs/PAPER.md` is held to 20 pages, 15 of body plus 5 for figures and citations. What `make

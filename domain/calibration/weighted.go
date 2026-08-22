@@ -23,7 +23,7 @@ import (
 //
 // History length is therefore informative about the p-value's scale while being no part of
 // the question being asked, which is the setting covariate-weighted multiple testing was
-// built for [73][74].
+// built for (Genovese, Roeder and Wasserman 2006; Ignatiadis and Huber 2021).
 //
 // # Why this operates on the selection rather than inside the null
 //
@@ -48,7 +48,7 @@ import (
 var ErrWeightLength = errors.New("calibration: weights and p-values differ in length")
 
 // WeightedBenjaminiHochberg is the weighted step-up procedure of Genovese, Roeder and
-// Wasserman [73]: Benjamini–Hochberg applied to the weighted p-values p_i/w_i,
+// Wasserman (2006): Benjamini–Hochberg applied to the weighted p-values p_i/w_i,
 //
 //	p_(i)/w_(i) ≤ (i/m)·q,   Σ w_i = m,
 //
@@ -241,12 +241,12 @@ type StratifiedReport struct {
 // # The construction
 //
 // Bin the covariate into equal-count strata. Within a stratum, estimate the proportion of
-// true nulls by Storey's estimator [75]
+// true nulls by Storey's estimator (2002)
 //
 //	π̂₀ = #{p_i > λ} / ((1−λ)·n_g),
 //
 // clamped to (0, 1], and set the stratum's raw weight to (1−π̂₀)/π̂₀ — the grouped
-// Benjamini–Hochberg weight of Hu, Zhao and Zhou [76]. A stratum that looks entirely null
+// Benjamini–Hochberg weight of Hu, Zhao and Zhou (2010). A stratum that looks entirely null
 // gets weight zero and a stratum rich in signal gets a large one; the vector is then
 // renormalised by [WeightedBenjaminiHochberg] to sum to m.
 //
@@ -273,7 +273,7 @@ type StratifiedReport struct {
 // What cross-fitting does not buy is a finite-sample proof. The Genovese–Roeder–Wasserman
 // guarantee is for weights fixed independently of *all* the p-values, and here the weight
 // vector as a whole still depends on the whole sample even though each fold's weights avoid
-// its own. This is the position of Ignatiadis and Huber [74], whose guarantee is asymptotic
+// its own. This is the position of Ignatiadis and Huber (2021), whose guarantee is asymptotic
 // and whose finite-sample evidence is simulation; the simulation in this package's tests is
 // the same kind of evidence and is reported as such.
 //
