@@ -454,11 +454,38 @@ what it does anyway. The reference set for an event is the account that produced
 genuinely is unremarkable there -- which bounds what this arm can deliver and is stated rather than
 averaged away.
 
+**On the corpus it does not fill the hole, and the measurement says why.** Over 4,494,396 scored
+events it reaches **0 of 288** low-and-slow plants at every budget, and 23 events at 1000 alerts a
+day — 18 credential-spray and 5 account-takeover, a mechanism it was not built for.
+
+| | low-and-slow plants | credential spray |
+|---|---:|---:|
+| abstentions | **0 of 288** | 0 of 320 |
+| most extreme p | **0.31** | **1.1e−08** |
+| 10th percentile | 0.978 | 5.0e−06 |
+| median | 1.000 | 0.994 |
+
+It abstained on none of them, so this is not a coverage gap: the arm looked at all 288 and found the
+plant unremarkable, while reaching 1.1e−08 on spray, so it is capable on this corpus.
+
+**The plant is slower than its victims' own bursts.** All eight low-and-slow victims are heavily
+clustered — fitted κ from **0.004 to 0.107**, median 0.017, against a mean gap of 425 s — so twelve
+arrivals ninety seconds apart sit inside their ordinary behaviour. An inter-arrival test can only
+find events arriving closer together than the account's own habit, and this plant is not that. The
+un-widened exponential null *would* have called them extreme, and would have called 36.7% of all
+background extreme too.
+
+The allocation equilibrium is unmoved: maximin value still exactly 0, competitive ratio still 0.421,
+the mixture unchanged, and `burst` at weight zero — the same outcome the sequential-change arm got,
+for the same reason. An arm that reaches nothing no other arm reaches cannot move an equilibrium
+(`robust-inj-burst-d7-14-001`).
+
 Per-entity state is 32 arrival instants plus four scalars, fixed size however long the entity is
 watched (§13.3). The abstention gate counts **undiscounted** gaps: a discounted count saturates at
 1/(1−δ), so a minimum above that ceiling is unsatisfiable forever rather than merely slow to reach.
 The arm reports how many entities cleared its gate, because "found nothing" and "was never able to
-speak" are different claims and only the second is a gap in coverage.
+speak" are different claims and only the second is a gap in coverage — here it is neither, and the
+report says so: 741 of 1,507 entities eligible, and none of the plants abstained on.
 
 ## The paper's length budget
 

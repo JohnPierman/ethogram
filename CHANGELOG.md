@@ -23,6 +23,19 @@ Equation numbers `(1)`–`(20)`, requirements `R1`–`R6`, and evaluation hypoth
   multiplicity and is therefore conservative. Per-entity state is 32 arrival instants plus four
   scalars, fixed size however long the entity is watched (13.3), and the abstention gate counts
   **undiscounted** gaps so it cannot become unsatisfiable the way #37's did
+- **The inter-arrival arm does not fill the low-and-slow hole, and the run says why (#53).** Over
+  4,494,396 scored events on the injected corpus it reaches **0 of 288** low-and-slow plants at every
+  budget, and 23 events at 1000 alerts a day -- 18 credential-spray and 5 account-takeover, a
+  mechanism it was not built for. It abstained on **none** of the 288, so this is not a coverage gap:
+  the most extreme scores p = **0.31** and the median is 1.000, while the same arm reaches
+  **1.1e-08** on credential spray, so it is capable on this corpus and finds the plant unremarkable.
+  The reason is measured rather than inferred: all eight low-and-slow victims are heavily clustered,
+  fitted kappa from **0.004 to 0.107** against a mean gap of 425 s, so twelve arrivals ninety seconds
+  apart are *slower* than their own short gaps. An inter-arrival test can only find events arriving
+  closer together than the account's own habit. The allocation equilibrium is unmoved -- maximin
+  value still exactly 0, competitive ratio still 0.421, mixture unchanged, `burst` at weight zero --
+  which is the sequential-change arm's outcome for the same reason
+  (`robust-inj-burst-d7-14-001`). Deep-tail share on this corpus 0.028%, against `volume`'s 0.242%
 - **`burst.Summariser`, one implementation of the eligibility report that both stores feed (#53).**
   The first store-equivalence run over this arm disagreed in exactly five keys -- the scores were
   identical over 4,491 events and only the report differed, because the memory store computed it and
