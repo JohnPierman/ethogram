@@ -290,7 +290,8 @@ none of the columns §2.1 and §2.2 compare arms on. **Marginal improvement to `
 | union, all arms, equal depth | 11 | 74 | 278 | 32,134 (×4.5) |
 
 At equal cost the union is strictly dominated at every budget, with non-overlapping intervals at the
-widest: recall 17.5% (14.5–20.9) against 36.6% (32.7–40.7). At equal depth it finds what no single arm does, 278 against 201, for 3.7 times the alerts.
+widest: 17.5% (14.5–20.9) against 36.6% (32.7–40.7). At equal depth it finds what no single arm
+does, 278 against 201, for 3.7 times the alerts.
 
 The two p-value rules fail for different reasons. **Fisher's sum averages an informative test with
 uninformative ones**: labelled events sit at the 0.07th percentile of `novelty`'s own distribution
@@ -301,14 +302,13 @@ p-values across tests sharing no scale**: `novelty` supplies 5,979 of the 7,000 
 `volume` never supplies the minimum. Removing the scale mismatch made the `marginal`'s signal
 reachable and the equal-cost result got *worse*, so it was not the binding defect.
 
-The dilution is not only inferred from where labelled events sit; adding an arm tests it directly.
-The seventh arm of §2.2 reaches one labelled event in 4.49 million and abstains on two thirds of
-them, so it is close to a controlled injection of noise. Adding it at 1000 alerts a day, every
-single arm's count unchanged, takes the corrected minimum from 234 detections to **134** on the
-planted corpus and 162 to **59** on the real campaign, and the composite 227 to **171** and 113 to
-**60** — a quarter to two thirds of what each rule had
-(`lanl-inj-b1000-drift-d7-14-006`, `lanl-r11-b1000-drift-d7-14-006`). The loss is larger on the real
-campaign than on the planted corpus: where the signal is sparsest, dilution is worst.
+Adding an arm tests the dilution directly. The seventh arm of §2.2 reaches one labelled event in
+4.49 million and abstains on two thirds of them, so it is close to a controlled injection of noise.
+Adding it at 1000 alerts a day, every single arm's count unchanged, takes the corrected minimum from
+234 detections to **134** on the planted corpus and 162 to **59** on the real campaign, and the
+composite 227 to **171** and 113 to **60**
+(`lanl-inj-b1000-drift-d7-14-006`, `lanl-r11-b1000-drift-d7-14-006`). The loss is larger where the
+signal is sparsest.
 
 Dividing by demonstrated quality fails too, and the failure is bounded. A per-alert likelihood
 ratio fitted per arm on burn-in (Appendix D) loses at every budget on both corpora:
@@ -321,19 +321,17 @@ ratio fitted per arm on burn-in (Appendix D) loses at every budget on both corpo
 
 Refitting the weights on the evaluation labels — an oracle — separates the arms properly, 0.19,
 0.22 and 0.23 for the per-entity arms against 0.71 for `timing` and 1.0 for `volume`, and the rule
-still loses. **The construction fails, not the fit.** An exhaustive search over two-arm splits,
-again oracular, finds the optimum on the real campaign at the corner at both budgets, and diverting
-5% costs 13 detections at 1000 a day, so the derivative is negative *at* the corner. §2.3 reaches the
-same bound without an oracle: the objective is linear in the allocation, so its optimum is a vertex
-whatever the weights are fitted on.
+still loses. **The construction fails, not the fit.** An oracular search over two-arm splits finds
+the real campaign's optimum at the corner at both budgets, and diverting 5% costs 13 detections at
+1000 a day, so the derivative is negative *at* the corner. §2.3 reaches the same bound without an
+oracle: the objective is linear, so its optimum is a vertex whatever the weights are fitted on.
 
-The mechanism is that **the arms are substitutes rather than complements** — 74.6% of
-`noveltyrate`'s detections are also found by `novelty` and 78.7% of `pairing`'s are, so splitting
-halves each arm's depth and what survives largely coincides. Where the arms genuinely are
-complements the same search finds headroom, which is the control this argument needs: the
-`marginal`'s 76 detections at 100 alerts a day overlap the per-entity arms' by **zero**, and the
-best split gives it 75 alerts and `novelty` 25, for 77 against 76; at 1000, 150 and 850 for 395
-against 384. Both optima sit on a plateau and both gains are inside sampling error.
+The mechanism is that **the arms are substitutes rather than complements** — `novelty` also finds
+74.6% of `noveltyrate`'s detections and 78.7% of `pairing`'s, so splitting halves each arm's depth
+and what survives largely coincides. Where the arms genuinely are complements the same search finds
+headroom, the control this argument needs: the `marginal`'s 76 detections at 100 alerts a day
+overlap the per-entity arms' by **zero**, and the best split gives it 75 alerts and `novelty` 25,
+for 77 against 76; at 1000, 150 and 850 for 395 against 384. Both gains are inside sampling error.
 Overlap decides it.
 
 ### 2.5 Population-scope baselines
@@ -353,10 +351,9 @@ way that dominates — a 1-in-100 sample of 45,071 rows, raising the labelled sh
 
 ### 2.6 Reweighting the selection by history length
 
-For a first-ever value equation (4) reduces to about 1/n, so among novel events the ranking nearly
-sorts accounts by event count: history length sets the p-value's scale while being no part of the
-question asked. Weights learned per history-length stratum on burn-in and frozen at the boundary
-[21][22][23] give, on the matched injected corpus:
+For a first-ever value equation (4) reduces to about 1/n, so history length sets the p-value's scale
+while being no part of the question asked. Weights learned per history-length stratum on burn-in and
+frozen at the boundary [21][22][23] give, on the matched injected corpus:
 
 | arm | 10/day | 100/day | 1000/day | p × n, median | strata floored |
 |---|---:|---:|---:|---:|---:|
@@ -369,15 +366,14 @@ question asked. Weights learned per history-length stratum on burn-in and frozen
 
 **It works where it was aimed.** `novelty` gains 107 labelled events at 1000 a day, 35% more, its
 fitted weight falling about twentyfold from the shortest history stratum to the longest — the
-direction 1/n requires — and p × n moves 3.3 → 16.2 on the same events.
+direction 1/n requires.
 
 **The rest are not covariate corrections, and the last column says so.** A stratum whose estimated
-null proportion clamps to one earns weight zero, and a top-B selection cannot drop those events
-without leaving budget unspent, so they are floored and rank last: with four of five strata floored,
-`timing` and `volume` have stopped alerting on all but their shortest histories, and p × n moving
-four orders of magnitude reports that rather than a corrected scale. `pairing` and `noveltyrate` clamped in
-every stratum, so nothing was learned and their weights fell back to uniform. The composite is
-unweighted, having no score before the boundary to fit on.
+null proportion clamps to one earns weight zero, and a top-B selection cannot drop those events, so
+they are floored and rank last: with four of five strata floored, `timing` and `volume` alert only
+on their shortest histories, and p × n moving four orders of magnitude reports that rather than a
+corrected scale. `pairing` and `noveltyrate` clamped everywhere, so their weights fell back to
+uniform. The composite is unweighted, having no score before the boundary to fit on.
 
 ---
 
@@ -408,22 +404,22 @@ table and `timing`'s four floored strata. Calibrate first, weight second.
 Appendix F carries the full set with its measurement; two dominate.
 
 **The `novelty` p-value is confounded with history length.** For a first-ever value the estimate
-reduces to a/(n + a(K+1)) ≈ 1/n. Across 32 planted victims spanning 263 to 20,666 events of
-history, the product of the p-value and the history length has median 1.15 and lies in
-[0.50, 7.22]: among novel events the ranking is close to sorting accounts by event count. Clearing the
-arm's realised cut needs of the order of 10⁵ events of history and the busiest planted victim had
-20,666, so **no attack on an ordinary account could win a slot whatever it did**. Reserving unseen mass by Good–Turing instead *lost* detections here, large histories carrying many
-singletons so the correction judges a first-ever value unremarkable for exactly the accounts the
-working estimator ranks highest. **That is a property of this corpus, not the correction**: on a synthetic corpus carrying
-open-vocabulary traffic beside closed, where 16,800 innocent daily novelties fill the budget, the
-switch takes `novelty` from **0 of 864 plants to all 864** at 1000 a day.
+reduces to a/(n + a(K+1)) ≈ 1/n. Across 32 planted victims spanning 263 to 20,666 events of history,
+the product of the p-value and the history length has median 1.15 and lies in [0.50, 7.22]: among
+novel events the ranking is close to sorting accounts by event count. Clearing the arm's realised cut
+needs of the order of 10⁵ events of history and the busiest planted victim had 20,666, so **no attack
+on an ordinary account could win a slot whatever it did**. Reserving unseen mass by Good–Turing
+instead *lost* detections here, large histories carrying many singletons so the correction judges a
+first-ever value unremarkable for exactly the accounts the working estimator ranks highest. **That is
+a property of this corpus, not the correction**: on a synthetic corpus where 16,800 innocent daily
+novelties fill the budget, the switch takes `novelty` from **0 of 864 plants to all 864** at 1000 a
+day.
 
 **A sustained intrusion enlarges its own reference set.** State is committed after scoring, so an
-event is judged against a history excluding it — but the next event of the same campaign is not. Over
-a campaign persisting for days the reference distribution drifts toward the attacker's behaviour. It
-is an untested alternative explanation for two null results, the low-and-slow zero in particular,
-and cannot be separated from the stated mechanism without a run that freezes per-entity state across
-the campaign window.
+event is judged against a history excluding it — but the next event of the same campaign is not, so
+over days the reference distribution drifts toward the attacker. It is an untested alternative
+explanation for two null results, the low-and-slow zero in particular, and cannot be separated from
+the stated mechanism without a run that freezes per-entity state across the campaign window.
 
 ### 3.3 What is repaired, and what a deployable version needs
 
@@ -787,17 +783,26 @@ At v/c = 10 as stated in §4.4, on the corrected-minimum arm:
 | 1000/day | 7,000 | 162 | **315** | 74 | 2.3% → **23.5%** | 6,685 (95%) | 88 |
 
 At the two tighter budgets the truncation is free. At 1000 it becomes a decision: the objective
-discards 6,685 alerts and 88 true positives with them, because at this rate those 88 do not pay for
-6,685 wasted investigations. For the composite the optimum is to emit nothing at any budget,
-including the one at which it finds 113 true positives — an objective declining to deploy a
-detector is a usable answer. The optimum is located using the labels, so this measures headroom
+discards 6,685 alerts and 88 true positives, because at this rate those 88 do not pay for 6,685
+wasted investigations. For the composite the optimum is to emit nothing at any budget — an objective
+declining to deploy a detector is a usable answer. It uses the labels, so this measures headroom
 rather than being a deployable rule.
 
-Reporting at a nominal false discovery rate is not available here. Benjamini–Hochberg [8] per day
-on the composite at q = 0.05 yields 5,352 discoveries of which 113 are labelled, a realised FDR of
-0.979 (0.975–0.982) with five of seven days saturated; Benjamini–Yekutieli [9] gives 0.978 at
-q = 0.001. The nominal level has no purchase because the p-values are not calibrated — a property
-of the composite rather than of the procedures.
+Reporting at a nominal false discovery rate is not available here. Benjamini–Hochberg [8] per day on
+the composite at q = 0.05 yields 5,352 discoveries of which 113 are labelled, a realised FDR of
+0.979 (0.975–0.982), five of seven days saturated; Benjamini–Yekutieli [9] gives 0.978 at q = 0.001.
+The defect is in the composite, not the procedures — §10.1 calibrates each detector's **marginal**
+and a step-up reads a function of several of them.
+
+Brown corrects only the variance, since c·f = 2J identically, and over 4.19 million events the
+empirical effective degrees of freedom are 4.4–11.3 against a nominal 24–34: twelve to seventeen
+arms carry about six, and the correction credits them with thirty.
+
+Calibrating the composite against its own burn-in distribution repairs the level. As a within-run
+control — identical events, inputs, covariance and split — the uncalibrated form rejects 732 events
+at q = 0.001 and moves by 0.023 across the grid; the calibrated one rejects nothing until q = 0.1,
+at 0/5/**111** true positives against 0/6/**113**. Where it does reject the realised rate is still
+0.978: this repairs the control, not the evidence.
 
 ## Appendix F. Threats to validity
 

@@ -1,0 +1,2173 @@
+{
+ "corpus": {
+  "burn_in": {
+   "end_seconds": 604800,
+   "fixed_at_commit": "24c5a53"
+  },
+  "coverage": {
+   "entity_population": "source users matching U*@ (human accounts); see DATA.md burn-in section",
+   "kind": "full",
+   "max_rows": 0,
+   "max_seconds": 0,
+   "statement": "full corpus scored from day 7.00"
+  },
+  "events_scored": 4190603,
+  "events_skipped": 0,
+  "events_warmed": 3808702,
+  "files": [
+   {
+    "path": "data/lanl/auth-r11-d0-14.txt.gz",
+    "sha256": "77d2897145ce4fd1d66e2534ae4a8e52310ea4f915edc6c6750d8d826131961f"
+   },
+   {
+    "path": "C:/Users/JohnPierman/documents/calibrated-anomaly-detection/data/lanl/redteam.txt.gz",
+    "sha256": "606635837c684ad11e464075ecf97bc5df325ff7d7f64614d2d8c8af18051669"
+   }
+  ],
+  "no_opinion": 0,
+  "row_errors": 0,
+  "rows_prefiltered": 8031091,
+  "rows_read": 16030396
+ },
+ "hypothesis": [
+  "E1",
+  "E2",
+  "E3"
+ ],
+ "kind": "analysis",
+ "paper_refs": {
+  "equations": [
+   18
+  ],
+  "sections": [
+   "§10.2",
+   "§10.3",
+   "§12.3",
+   "§12.4",
+   "§12.5"
+  ]
+ },
+ "parameters": {
+  "bh_denominator": "exact per-day scored-event counts recorded by the run",
+  "bootstrap_resamples": 2000,
+  "bootstrap_seed": 20260814,
+  "budgets": [
+   10,
+   100,
+   1000
+  ],
+  "ground_truth_caveat": "unlabelled events count as negatives; the corpus has no true negative class (§12.5), so realised FDR is an upper bound",
+  "objective": {
+   "form": "U = v*TP - c*FP, scored in units of c",
+   "minimum_precision": 0.09090909090909091,
+   "scored": true,
+   "units": "one false positive",
+   "value_ratio": 10
+  },
+  "q_grid": [
+   0.001,
+   0.005,
+   0.01,
+   0.05,
+   0.1,
+   0.25
+  ],
+  "top_k_per_day": 1000
+ },
+ "provenance_complete": true,
+ "results": {
+  "ablations": {},
+  "arm_detection": [
+   {
+    "arm": "marginal",
+    "group": "population detector",
+    "budget_per_day": 10,
+    "alerts": 70,
+    "true_positives": 0,
+    "false_positives": 70,
+    "red_team_scored": 549,
+    "scored_events": 4190603,
+    "recall_wilson": {
+     "point": 0,
+     "low": 0,
+     "high": 0.0069485722523209776,
+     "n": 549,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "precision_wilson": {
+     "point": 0,
+     "low": 0,
+     "high": 0.05202306241026692,
+     "n": 70,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "false_alarm_rate": 0.000016704039967517802
+   },
+   {
+    "arm": "marginal",
+    "group": "population detector",
+    "budget_per_day": 100,
+    "alerts": 700,
+    "true_positives": 0,
+    "false_positives": 700,
+    "red_team_scored": 549,
+    "scored_events": 4190603,
+    "recall_wilson": {
+     "point": 0,
+     "low": 0,
+     "high": 0.0069485722523209776,
+     "n": 549,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "precision_wilson": {
+     "point": 0,
+     "low": 0,
+     "high": 0.005457846753060832,
+     "n": 700,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "false_alarm_rate": 0.00016704039967517802
+   },
+   {
+    "arm": "marginal",
+    "group": "population detector",
+    "budget_per_day": 1000,
+    "alerts": 7000,
+    "true_positives": 0,
+    "false_positives": 7000,
+    "red_team_scored": 549,
+    "scored_events": 4190603,
+    "recall_wilson": {
+     "point": 0,
+     "low": 0,
+     "high": 0.0069485722523209776,
+     "n": 549,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "precision_wilson": {
+     "point": 0,
+     "low": 0,
+     "high": 0.0005484788374037452,
+     "n": 7000,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "false_alarm_rate": 0.00167040399675178
+   },
+   {
+    "arm": "novelty",
+    "group": "per-entity detector",
+    "budget_per_day": 10,
+    "alerts": 70,
+    "true_positives": 11,
+    "false_positives": 59,
+    "red_team_scored": 549,
+    "scored_events": 4190603,
+    "recall_wilson": {
+     "point": 0.020036429872495445,
+     "low": 0.011224160327876539,
+     "high": 0.03551882250814014,
+     "n": 549,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "precision_wilson": {
+     "point": 0.15714285714285714,
+     "low": 0.09007620559861788,
+     "high": 0.2598824657684223,
+     "n": 70,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "false_alarm_rate": 0.000014079119401193575
+   },
+   {
+    "arm": "novelty",
+    "group": "per-entity detector",
+    "budget_per_day": 100,
+    "alerts": 700,
+    "true_positives": 60,
+    "false_positives": 640,
+    "red_team_scored": 549,
+    "scored_events": 4190603,
+    "recall_wilson": {
+     "point": 0.1092896174863388,
+     "low": 0.08585526939792845,
+     "high": 0.13815372422000546,
+     "n": 549,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "precision_wilson": {
+     "point": 0.08571428571428572,
+     "low": 0.06717083696274383,
+     "high": 0.10877995034693516,
+     "n": 700,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "false_alarm_rate": 0.00015272265113159132
+   },
+   {
+    "arm": "novelty",
+    "group": "per-entity detector",
+    "budget_per_day": 1000,
+    "alerts": 7000,
+    "true_positives": 201,
+    "false_positives": 6799,
+    "red_team_scored": 549,
+    "scored_events": 4190603,
+    "recall_wilson": {
+     "point": 0.366120218579235,
+     "low": 0.3268825484648925,
+     "high": 0.40721843536223185,
+     "n": 549,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "precision_wilson": {
+     "point": 0.028714285714285713,
+     "low": 0.025053111574946982,
+     "high": 0.03289244033493729,
+     "n": 7000,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "false_alarm_rate": 0.0016224395391307648
+   },
+   {
+    "arm": "noveltyrate",
+    "group": "per-entity detector",
+    "budget_per_day": 10,
+    "alerts": 70,
+    "true_positives": 0,
+    "false_positives": 70,
+    "red_team_scored": 530,
+    "scored_events": 4190603,
+    "recall_wilson": {
+     "point": 0,
+     "low": 0,
+     "high": 0.00719587952044839,
+     "n": 530,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "precision_wilson": {
+     "point": 0,
+     "low": 0,
+     "high": 0.05202306241026692,
+     "n": 70,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "false_alarm_rate": 0.000016704039967517802
+   },
+   {
+    "arm": "noveltyrate",
+    "group": "per-entity detector",
+    "budget_per_day": 100,
+    "alerts": 700,
+    "true_positives": 22,
+    "false_positives": 678,
+    "red_team_scored": 530,
+    "scored_events": 4190603,
+    "recall_wilson": {
+     "point": 0.04150943396226415,
+     "low": 0.027569675976903227,
+     "high": 0.06204767769656453,
+     "n": 530,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "precision_wilson": {
+     "point": 0.03142857142857143,
+     "low": 0.02084512690655483,
+     "high": 0.04712679805059933,
+     "n": 700,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "false_alarm_rate": 0.00016179055854252956
+   },
+   {
+    "arm": "noveltyrate",
+    "group": "per-entity detector",
+    "budget_per_day": 1000,
+    "alerts": 7000,
+    "true_positives": 185,
+    "false_positives": 6815,
+    "red_team_scored": 530,
+    "scored_events": 4190603,
+    "recall_wilson": {
+     "point": 0.3490566037735849,
+     "low": 0.3096928127930835,
+     "high": 0.39059273574139136,
+     "n": 530,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "precision_wilson": {
+     "point": 0.02642857142857143,
+     "low": 0.022922696747097297,
+     "high": 0.03045393392318654,
+     "n": 7000,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "false_alarm_rate": 0.0016262576054090546
+   },
+   {
+    "arm": "pairing",
+    "group": "per-entity detector",
+    "budget_per_day": 10,
+    "alerts": 70,
+    "true_positives": 4,
+    "false_positives": 66,
+    "red_team_scored": 549,
+    "scored_events": 4190603,
+    "recall_wilson": {
+     "point": 0.007285974499089253,
+     "low": 0.0028369152122424946,
+     "high": 0.01858235179778601,
+     "n": 549,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "precision_wilson": {
+     "point": 0.05714285714285714,
+     "low": 0.022443779100711252,
+     "high": 0.13791950474838227,
+     "n": 70,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "false_alarm_rate": 0.000015749523397945354
+   },
+   {
+    "arm": "pairing",
+    "group": "per-entity detector",
+    "budget_per_day": 100,
+    "alerts": 700,
+    "true_positives": 59,
+    "false_positives": 641,
+    "red_team_scored": 549,
+    "scored_events": 4190603,
+    "recall_wilson": {
+     "point": 0.10746812386156648,
+     "low": 0.08423535078565048,
+     "high": 0.13615596914285655,
+     "n": 549,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "precision_wilson": {
+     "point": 0.08428571428571428,
+     "low": 0.06590532249255343,
+     "high": 0.10720391580784859,
+     "n": 700,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "false_alarm_rate": 0.00015296128027398443
+   },
+   {
+    "arm": "pairing",
+    "group": "per-entity detector",
+    "budget_per_day": 1000,
+    "alerts": 7000,
+    "true_positives": 127,
+    "false_positives": 6873,
+    "red_team_scored": 549,
+    "scored_events": 4190603,
+    "recall_wilson": {
+     "point": 0.23132969034608378,
+     "low": 0.19799636106639384,
+     "high": 0.26839676974314114,
+     "n": 549,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "precision_wilson": {
+     "point": 0.01814285714285714,
+     "low": 0.015270223133115598,
+     "high": 0.021544068043616638,
+     "n": 7000,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "false_alarm_rate": 0.001640098095667855
+   },
+   {
+    "arm": "timing",
+    "group": "per-entity detector",
+    "budget_per_day": 10,
+    "alerts": 70,
+    "true_positives": 1,
+    "false_positives": 69,
+    "red_team_scored": 533,
+    "scored_events": 4190603,
+    "recall_wilson": {
+     "point": 0.001876172607879925,
+     "low": 0.0003312673432401593,
+     "high": 0.010549894543038786,
+     "n": 533,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "precision_wilson": {
+     "point": 0.014285714285714285,
+     "low": 0.0025262464578903045,
+     "high": 0.07658187131208327,
+     "n": 70,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "false_alarm_rate": 0.000016465410825124688
+   },
+   {
+    "arm": "timing",
+    "group": "per-entity detector",
+    "budget_per_day": 100,
+    "alerts": 700,
+    "true_positives": 2,
+    "false_positives": 698,
+    "red_team_scored": 533,
+    "scored_events": 4190603,
+    "recall_wilson": {
+     "point": 0.00375234521575985,
+     "low": 0.0010296322539566222,
+     "high": 0.013577024314483231,
+     "n": 533,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "precision_wilson": {
+     "point": 0.002857142857142857,
+     "low": 0.0007838816213942036,
+     "high": 0.010357063150220568,
+     "n": 700,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "false_alarm_rate": 0.0001665631413903918
+   },
+   {
+    "arm": "timing",
+    "group": "per-entity detector",
+    "budget_per_day": 1000,
+    "alerts": 7000,
+    "true_positives": 7,
+    "false_positives": 6993,
+    "red_team_scored": 533,
+    "scored_events": 4190603,
+    "recall_wilson": {
+     "point": 0.013133208255159476,
+     "low": 0.006375975810767807,
+     "high": 0.026858154168476586,
+     "n": 533,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "precision_wilson": {
+     "point": 0.001,
+     "low": 0.0004844906553167263,
+     "high": 0.0020628912244122113,
+     "n": 7000,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "false_alarm_rate": 0.0016687335927550284
+   },
+   {
+    "arm": "volume",
+    "group": "per-entity detector",
+    "budget_per_day": 10,
+    "alerts": 70,
+    "true_positives": 0,
+    "false_positives": 70,
+    "red_team_scored": 530,
+    "scored_events": 4190603,
+    "recall_wilson": {
+     "point": 0,
+     "low": 0,
+     "high": 0.00719587952044839,
+     "n": 530,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "precision_wilson": {
+     "point": 0,
+     "low": 0,
+     "high": 0.05202306241026692,
+     "n": 70,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "false_alarm_rate": 0.000016704039967517802
+   },
+   {
+    "arm": "volume",
+    "group": "per-entity detector",
+    "budget_per_day": 100,
+    "alerts": 700,
+    "true_positives": 0,
+    "false_positives": 700,
+    "red_team_scored": 530,
+    "scored_events": 4190603,
+    "recall_wilson": {
+     "point": 0,
+     "low": 0,
+     "high": 0.00719587952044839,
+     "n": 530,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "precision_wilson": {
+     "point": 0,
+     "low": 0,
+     "high": 0.005457846753060832,
+     "n": 700,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "false_alarm_rate": 0.00016704039967517802
+   },
+   {
+    "arm": "volume",
+    "group": "per-entity detector",
+    "budget_per_day": 1000,
+    "alerts": 7000,
+    "true_positives": 0,
+    "false_positives": 7000,
+    "red_team_scored": 530,
+    "scored_events": 4190603,
+    "recall_wilson": {
+     "point": 0,
+     "low": 0,
+     "high": 0.00719587952044839,
+     "n": 530,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "precision_wilson": {
+     "point": 0,
+     "low": 0,
+     "high": 0.0005484788374037452,
+     "n": 7000,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "false_alarm_rate": 0.00167040399675178
+   },
+   {
+    "arm": "corrected minimum",
+    "group": "combination",
+    "budget_per_day": 10,
+    "alerts": 70,
+    "true_positives": 4,
+    "false_positives": 66,
+    "red_team_scored": 549,
+    "scored_events": 4190603,
+    "recall_wilson": {
+     "point": 0.007285974499089253,
+     "low": 0.0028369152122424946,
+     "high": 0.01858235179778601,
+     "n": 549,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "precision_wilson": {
+     "point": 0.05714285714285714,
+     "low": 0.022443779100711252,
+     "high": 0.13791950474838227,
+     "n": 70,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "false_alarm_rate": 0.000015749523397945354
+   },
+   {
+    "arm": "corrected minimum",
+    "group": "combination",
+    "budget_per_day": 100,
+    "alerts": 700,
+    "true_positives": 54,
+    "false_positives": 646,
+    "red_team_scored": 549,
+    "scored_events": 4190603,
+    "recall_wilson": {
+     "point": 0.09836065573770492,
+     "low": 0.07617091082678276,
+     "high": 0.12613204065458986,
+     "n": 549,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "precision_wilson": {
+     "point": 0.07714285714285714,
+     "low": 0.059604324056733035,
+     "high": 0.09929716919728414,
+     "n": 700,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "false_alarm_rate": 0.00015415442598594998
+   },
+   {
+    "arm": "corrected minimum",
+    "group": "combination",
+    "budget_per_day": 1000,
+    "alerts": 7000,
+    "true_positives": 139,
+    "false_positives": 6861,
+    "red_team_scored": 549,
+    "scored_events": 4190603,
+    "recall_wilson": {
+     "point": 0.25318761384335153,
+     "low": 0.2186148330212101,
+     "high": 0.2911903820614475,
+     "n": 549,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "precision_wilson": {
+     "point": 0.019857142857142858,
+     "low": 0.01684264018150187,
+     "high": 0.023398341924930698,
+     "n": 7000,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "false_alarm_rate": 0.0016372345459591377
+   },
+   {
+    "arm": "composite",
+    "group": "combination",
+    "budget_per_day": 10,
+    "alerts": 70,
+    "true_positives": 0,
+    "false_positives": 70,
+    "red_team_scored": 549,
+    "scored_events": 4190603,
+    "recall_wilson": {
+     "point": 0,
+     "low": 0,
+     "high": 0.0069485722523209776,
+     "n": 549,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "precision_wilson": {
+     "point": 0,
+     "low": 0,
+     "high": 0.05202306241026692,
+     "n": 70,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "false_alarm_rate": 0.000016704039967517802
+   },
+   {
+    "arm": "composite",
+    "group": "combination",
+    "budget_per_day": 100,
+    "alerts": 700,
+    "true_positives": 6,
+    "false_positives": 694,
+    "red_team_scored": 549,
+    "scored_events": 4190603,
+    "recall_wilson": {
+     "point": 0.01092896174863388,
+     "low": 0.0050181998617519295,
+     "high": 0.02363641452713034,
+     "n": 549,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "precision_wilson": {
+     "point": 0.008571428571428572,
+     "low": 0.003934113884221076,
+     "high": 0.018573026924501572,
+     "n": 700,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "false_alarm_rate": 0.00016560862482081936
+   },
+   {
+    "arm": "composite",
+    "group": "combination",
+    "budget_per_day": 1000,
+    "alerts": 7000,
+    "true_positives": 111,
+    "false_positives": 6889,
+    "red_team_scored": 549,
+    "scored_events": 4190603,
+    "recall_wilson": {
+     "point": 0.20218579234972678,
+     "low": 0.17071216481198806,
+     "high": 0.23779818696671684,
+     "n": 549,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "precision_wilson": {
+     "point": 0.015857142857142858,
+     "low": 0.013185014897271825,
+     "high": 0.019060355039859974,
+     "n": 7000,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "false_alarm_rate": 0.0016439161619461447
+   },
+   {
+    "arm": "union, per-entity arms (equal cost)",
+    "group": "combination",
+    "budget_per_day": 10,
+    "alerts": 70,
+    "true_positives": 2,
+    "false_positives": 68,
+    "red_team_scored": 549,
+    "scored_events": 4190603,
+    "recall_wilson": {
+     "point": 0.0036429872495446266,
+     "low": 0.0009996076505930608,
+     "high": 0.01318431198058168,
+     "n": 549,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "precision_wilson": {
+     "point": 0.02857142857142857,
+     "low": 0.007870611945441225,
+     "high": 0.09832256118423902,
+     "n": 70,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "false_alarm_rate": 0.000016226781682731578
+   },
+   {
+    "arm": "union, per-entity arms (equal cost)",
+    "group": "combination",
+    "budget_per_day": 100,
+    "alerts": 700,
+    "true_positives": 29,
+    "false_positives": 671,
+    "red_team_scored": 549,
+    "scored_events": 4190603,
+    "recall_wilson": {
+     "point": 0.052823315118397086,
+     "low": 0.037027831546961244,
+     "high": 0.0748332776987393,
+     "n": 549,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "precision_wilson": {
+     "point": 0.041428571428571426,
+     "low": 0.02899795112720899,
+     "high": 0.058864816894883945,
+     "n": 700,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "false_alarm_rate": 0.0001601201545457778
+   },
+   {
+    "arm": "union, per-entity arms (equal cost)",
+    "group": "combination",
+    "budget_per_day": 1000,
+    "alerts": 7000,
+    "true_positives": 108,
+    "false_positives": 6892,
+    "red_team_scored": 549,
+    "scored_events": 4190603,
+    "recall_wilson": {
+     "point": 0.19672131147540983,
+     "low": 0.16562522453153655,
+     "high": 0.2320321061788877,
+     "n": 549,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "precision_wilson": {
+     "point": 0.015428571428571429,
+     "low": 0.012795672684653417,
+     "high": 0.018593024520053295,
+     "n": 7000,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "false_alarm_rate": 0.001644632049373324
+   },
+   {
+    "arm": "union, per-entity arms (equal depth)",
+    "group": "combination",
+    "budget_per_day": 10,
+    "alerts": 302,
+    "true_positives": 12,
+    "false_positives": 290,
+    "red_team_scored": 549,
+    "scored_events": 4190603,
+    "recall_wilson": {
+     "point": 0.02185792349726776,
+     "low": 0.012547041953570148,
+     "high": 0.03781361457187341,
+     "n": 549,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "precision_wilson": {
+     "point": 0.039735099337748346,
+     "low": 0.022873855099576172,
+     "high": 0.0681584690596437,
+     "n": 302,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "false_alarm_rate": 0.00006920245129400232
+   },
+   {
+    "arm": "union, per-entity arms (equal depth)",
+    "group": "combination",
+    "budget_per_day": 100,
+    "alerts": 2712,
+    "true_positives": 76,
+    "false_positives": 2636,
+    "red_team_scored": 549,
+    "scored_events": 4190603,
+    "recall_wilson": {
+     "point": 0.1384335154826958,
+     "low": 0.11204837817412541,
+     "high": 0.1698433944746386,
+     "n": 549,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "precision_wilson": {
+     "point": 0.028023598820058997,
+     "low": 0.022448337830302704,
+     "high": 0.03493404666586944,
+     "n": 2712,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "false_alarm_rate": 0.0006290264193482418
+   },
+   {
+    "arm": "union, per-entity arms (equal depth)",
+    "group": "combination",
+    "budget_per_day": 1000,
+    "alerts": 25741,
+    "true_positives": 279,
+    "false_positives": 25462,
+    "red_team_scored": 549,
+    "scored_events": 4190603,
+    "recall_wilson": {
+     "point": 0.5081967213114754,
+     "low": 0.46646627952317515,
+     "high": 0.5498132520792458,
+     "n": 549,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "precision_wilson": {
+     "point": 0.010838739753700323,
+     "low": 0.009644812751885185,
+     "high": 0.012178644957861022,
+     "n": 25741,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "false_alarm_rate": 0.006075975223613404
+   },
+   {
+    "arm": "union, all arms (equal cost)",
+    "group": "combination",
+    "budget_per_day": 10,
+    "alerts": 70,
+    "true_positives": 2,
+    "false_positives": 68,
+    "red_team_scored": 549,
+    "scored_events": 4190603,
+    "recall_wilson": {
+     "point": 0.0036429872495446266,
+     "low": 0.0009996076505930608,
+     "high": 0.01318431198058168,
+     "n": 549,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "precision_wilson": {
+     "point": 0.02857142857142857,
+     "low": 0.007870611945441225,
+     "high": 0.09832256118423902,
+     "n": 70,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "false_alarm_rate": 0.000016226781682731578
+   },
+   {
+    "arm": "union, all arms (equal cost)",
+    "group": "combination",
+    "budget_per_day": 100,
+    "alerts": 700,
+    "true_positives": 24,
+    "false_positives": 676,
+    "red_team_scored": 549,
+    "scored_events": 4190603,
+    "recall_wilson": {
+     "point": 0.04371584699453552,
+     "low": 0.02955040502607529,
+     "high": 0.06422233577249084,
+     "n": 549,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "precision_wilson": {
+     "point": 0.03428571428571429,
+     "low": 0.023146460619703393,
+     "high": 0.050508562356004705,
+     "n": 700,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "false_alarm_rate": 0.00016131330025774334
+   },
+   {
+    "arm": "union, all arms (equal cost)",
+    "group": "combination",
+    "budget_per_day": 1000,
+    "alerts": 7000,
+    "true_positives": 98,
+    "false_positives": 6902,
+    "red_team_scored": 549,
+    "scored_events": 4190603,
+    "recall_wilson": {
+     "point": 0.1785063752276867,
+     "low": 0.14874120487927148,
+     "high": 0.21273938893688393,
+     "n": 549,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "precision_wilson": {
+     "point": 0.014,
+     "low": 0.011502097568851833,
+     "high": 0.017031023861104607,
+     "n": 7000,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "false_alarm_rate": 0.001647018340797255
+   },
+   {
+    "arm": "union, all arms (equal depth)",
+    "group": "combination",
+    "budget_per_day": 10,
+    "alerts": 371,
+    "true_positives": 12,
+    "false_positives": 359,
+    "red_team_scored": 549,
+    "scored_events": 4190603,
+    "recall_wilson": {
+     "point": 0.02185792349726776,
+     "low": 0.012547041953570148,
+     "high": 0.03781361457187341,
+     "n": 549,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "precision_wilson": {
+     "point": 0.03234501347708895,
+     "low": 0.018597782355035064,
+     "high": 0.05567750967986262,
+     "n": 371,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "false_alarm_rate": 0.00008566786211912701
+   },
+   {
+    "arm": "union, all arms (equal depth)",
+    "group": "combination",
+    "budget_per_day": 100,
+    "alerts": 3345,
+    "true_positives": 76,
+    "false_positives": 3269,
+    "red_team_scored": 549,
+    "scored_events": 4190603,
+    "recall_wilson": {
+     "point": 0.1384335154826958,
+     "low": 0.11204837817412541,
+     "high": 0.1698433944746386,
+     "n": 549,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "precision_wilson": {
+     "point": 0.02272047832585949,
+     "low": 0.01819152381892435,
+     "high": 0.02834440830477022,
+     "n": 3345,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "false_alarm_rate": 0.0007800786664830813
+   },
+   {
+    "arm": "union, all arms (equal depth)",
+    "group": "combination",
+    "budget_per_day": 1000,
+    "alerts": 31970,
+    "true_positives": 279,
+    "false_positives": 31691,
+    "red_team_scored": 549,
+    "scored_events": 4190603,
+    "recall_wilson": {
+     "point": 0.5081967213114754,
+     "low": 0.46646627952317515,
+     "high": 0.5498132520792458,
+     "n": 549,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "precision_wilson": {
+     "point": 0.008726931498279637,
+     "low": 0.007764769127350928,
+     "high": 0.009807140696005554,
+     "n": 31970,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "false_alarm_rate": 0.007562396151580095
+   }
+  ],
+  "baseline_source": null,
+  "calibration_bh": [
+   {
+    "nominal_q": 0.001,
+    "procedure": "benjamini-hochberg",
+    "discoveries": 0,
+    "true_positives": 0,
+    "realised_fdr": {
+     "point": 0,
+     "low": 0,
+     "high": 0,
+     "n": 0,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "conservatism_ratio": 0,
+    "saturated_days": 0
+   },
+   {
+    "nominal_q": 0.005,
+    "procedure": "benjamini-hochberg",
+    "discoveries": 0,
+    "true_positives": 0,
+    "realised_fdr": {
+     "point": 0,
+     "low": 0,
+     "high": 0,
+     "n": 0,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "conservatism_ratio": 0,
+    "saturated_days": 0
+   },
+   {
+    "nominal_q": 0.01,
+    "procedure": "benjamini-hochberg",
+    "discoveries": 0,
+    "true_positives": 0,
+    "realised_fdr": {
+     "point": 0,
+     "low": 0,
+     "high": 0,
+     "n": 0,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "conservatism_ratio": 0,
+    "saturated_days": 0
+   },
+   {
+    "nominal_q": 0.05,
+    "procedure": "benjamini-hochberg",
+    "discoveries": 0,
+    "true_positives": 0,
+    "realised_fdr": {
+     "point": 0,
+     "low": 0,
+     "high": 0,
+     "n": 0,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "conservatism_ratio": 0,
+    "saturated_days": 0
+   },
+   {
+    "nominal_q": 0.1,
+    "procedure": "benjamini-hochberg",
+    "discoveries": 1010,
+    "true_positives": 0,
+    "realised_fdr": {
+     "point": 1,
+     "low": 0.9962109866515395,
+     "high": 0.9999999999999998,
+     "n": 1010,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "conservatism_ratio": 10,
+    "saturated_days": 1
+   },
+   {
+    "nominal_q": 0.25,
+    "procedure": "benjamini-hochberg",
+    "discoveries": 2011,
+    "true_positives": 45,
+    "realised_fdr": {
+     "point": 0.9776230730979613,
+     "low": 0.97019033022573,
+     "high": 0.9832345616386552,
+     "n": 2011,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "conservatism_ratio": 3.910492292391845,
+    "saturated_days": 2
+   }
+  ],
+  "calibration_by": [
+   {
+    "nominal_q": 0.001,
+    "procedure": "benjamini-yekutieli",
+    "discoveries": 0,
+    "true_positives": 0,
+    "realised_fdr": {
+     "point": 0,
+     "low": 0,
+     "high": 0,
+     "n": 0,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "conservatism_ratio": 0,
+    "saturated_days": 0
+   },
+   {
+    "nominal_q": 0.005,
+    "procedure": "benjamini-yekutieli",
+    "discoveries": 0,
+    "true_positives": 0,
+    "realised_fdr": {
+     "point": 0,
+     "low": 0,
+     "high": 0,
+     "n": 0,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "conservatism_ratio": 0,
+    "saturated_days": 0
+   },
+   {
+    "nominal_q": 0.01,
+    "procedure": "benjamini-yekutieli",
+    "discoveries": 0,
+    "true_positives": 0,
+    "realised_fdr": {
+     "point": 0,
+     "low": 0,
+     "high": 0,
+     "n": 0,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "conservatism_ratio": 0,
+    "saturated_days": 0
+   },
+   {
+    "nominal_q": 0.05,
+    "procedure": "benjamini-yekutieli",
+    "discoveries": 0,
+    "true_positives": 0,
+    "realised_fdr": {
+     "point": 0,
+     "low": 0,
+     "high": 0,
+     "n": 0,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "conservatism_ratio": 0,
+    "saturated_days": 0
+   },
+   {
+    "nominal_q": 0.1,
+    "procedure": "benjamini-yekutieli",
+    "discoveries": 0,
+    "true_positives": 0,
+    "realised_fdr": {
+     "point": 0,
+     "low": 0,
+     "high": 0,
+     "n": 0,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "conservatism_ratio": 0,
+    "saturated_days": 0
+   },
+   {
+    "nominal_q": 0.25,
+    "procedure": "benjamini-yekutieli",
+    "discoveries": 0,
+    "true_positives": 0,
+    "realised_fdr": {
+     "point": 0,
+     "low": 0,
+     "high": 0,
+     "n": 0,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "conservatism_ratio": 0,
+    "saturated_days": 0
+   }
+  ],
+  "calibration_by_arm": {
+   "localisation": {
+    "composite_realised_spread": 1,
+    "composite_tightest_level": {
+     "discoveries": 1010,
+     "nominal_q": 0.1,
+     "realised": 1
+    },
+    "composite_worst_realised": 1,
+    "finding": "both rules respond to the level and both land above it, which puts the defect in the inputs rather than in either combination rule",
+    "minimum_realised_spread": 0.9652406417112299,
+    "minimum_tightest_level": {
+     "discoveries": 1122,
+     "nominal_q": 0.01,
+     "realised": 0.9652406417112299
+    },
+    "minimum_worst_realised": 0.9652406417112299,
+    "statistic": "responsiveness, not worst-case rate. Both rules land far above every nominal level, so on the worst case they look alike; what separates them is whether the realised rate moves with the level at all"
+   },
+   "per_arm": [
+    {
+     "arm": "composite",
+     "combination": "Fisher (18) with Brown's correction (19)",
+     "points": [
+      {
+       "nominal_q": 0.001,
+       "procedure": "benjamini-hochberg",
+       "discoveries": 0,
+       "true_positives": 0,
+       "realised_fdr": {
+        "point": 0,
+        "low": 0,
+        "high": 0,
+        "n": 0,
+        "level": 0.95,
+        "kind": "wilson"
+       },
+       "conservatism_ratio": 0,
+       "saturated_days": 0
+      },
+      {
+       "nominal_q": 0.005,
+       "procedure": "benjamini-hochberg",
+       "discoveries": 0,
+       "true_positives": 0,
+       "realised_fdr": {
+        "point": 0,
+        "low": 0,
+        "high": 0,
+        "n": 0,
+        "level": 0.95,
+        "kind": "wilson"
+       },
+       "conservatism_ratio": 0,
+       "saturated_days": 0
+      },
+      {
+       "nominal_q": 0.01,
+       "procedure": "benjamini-hochberg",
+       "discoveries": 0,
+       "true_positives": 0,
+       "realised_fdr": {
+        "point": 0,
+        "low": 0,
+        "high": 0,
+        "n": 0,
+        "level": 0.95,
+        "kind": "wilson"
+       },
+       "conservatism_ratio": 0,
+       "saturated_days": 0
+      },
+      {
+       "nominal_q": 0.05,
+       "procedure": "benjamini-hochberg",
+       "discoveries": 0,
+       "true_positives": 0,
+       "realised_fdr": {
+        "point": 0,
+        "low": 0,
+        "high": 0,
+        "n": 0,
+        "level": 0.95,
+        "kind": "wilson"
+       },
+       "conservatism_ratio": 0,
+       "saturated_days": 0
+      },
+      {
+       "nominal_q": 0.1,
+       "procedure": "benjamini-hochberg",
+       "discoveries": 1010,
+       "true_positives": 0,
+       "realised_fdr": {
+        "point": 1,
+        "low": 0.9962109866515395,
+        "high": 0.9999999999999998,
+        "n": 1010,
+        "level": 0.95,
+        "kind": "wilson"
+       },
+       "conservatism_ratio": 10,
+       "saturated_days": 1
+      },
+      {
+       "nominal_q": 0.25,
+       "procedure": "benjamini-hochberg",
+       "discoveries": 2011,
+       "true_positives": 45,
+       "realised_fdr": {
+        "point": 0.9776230730979613,
+        "low": 0.97019033022573,
+        "high": 0.9832345616386552,
+        "n": 2011,
+        "level": 0.95,
+        "kind": "wilson"
+       },
+       "conservatism_ratio": 3.910492292391845,
+       "saturated_days": 2
+      }
+     ],
+     "realised_spread": 1,
+     "verdict": "the realised rate is far above the nominal level but does respond to it, so the procedure is working on inputs that are anti-conservative rather than on inputs it cannot read at all"
+    },
+    {
+     "arm": "composite-model",
+     "combination": "Fisher (18) with Brown's correction (19), NOT conformally calibrated as a composite -- the same run's own control",
+     "points": [
+      {
+       "nominal_q": 0.001,
+       "procedure": "benjamini-hochberg",
+       "discoveries": 732,
+       "true_positives": 0,
+       "realised_fdr": {
+        "point": 1,
+        "low": 0.9947795020589753,
+        "high": 1,
+        "n": 732,
+        "level": 0.95,
+        "kind": "wilson"
+       },
+       "conservatism_ratio": 1000,
+       "saturated_days": 0
+      },
+      {
+       "nominal_q": 0.005,
+       "procedure": "benjamini-hochberg",
+       "discoveries": 979,
+       "true_positives": 0,
+       "realised_fdr": {
+        "point": 1,
+        "low": 0.9960914766199386,
+        "high": 0.9999999999999998,
+        "n": 979,
+        "level": 0.95,
+        "kind": "wilson"
+       },
+       "conservatism_ratio": 200,
+       "saturated_days": 0
+      },
+      {
+       "nominal_q": 0.01,
+       "procedure": "benjamini-hochberg",
+       "discoveries": 1273,
+       "true_positives": 0,
+       "realised_fdr": {
+        "point": 1,
+        "low": 0.9969914363336524,
+        "high": 1,
+        "n": 1273,
+        "level": 0.95,
+        "kind": "wilson"
+       },
+       "conservatism_ratio": 100,
+       "saturated_days": 0
+      },
+      {
+       "nominal_q": 0.05,
+       "procedure": "benjamini-hochberg",
+       "discoveries": 2283,
+       "true_positives": 49,
+       "realised_fdr": {
+        "point": 0.9785370127025843,
+        "low": 0.9717393235585695,
+        "high": 0.9837269994661961,
+        "n": 2283,
+        "level": 0.95,
+        "kind": "wilson"
+       },
+       "conservatism_ratio": 19.570740254051685,
+       "saturated_days": 1
+      },
+      {
+       "nominal_q": 0.1,
+       "procedure": "benjamini-hochberg",
+       "discoveries": 2593,
+       "true_positives": 59,
+       "realised_fdr": {
+        "point": 0.9772464327034324,
+        "low": 0.9707619153446221,
+        "high": 0.9823189866847125,
+        "n": 2593,
+        "level": 0.95,
+        "kind": "wilson"
+       },
+       "conservatism_ratio": 9.772464327034323,
+       "saturated_days": 1
+      },
+      {
+       "nominal_q": 0.25,
+       "procedure": "benjamini-hochberg",
+       "discoveries": 2950,
+       "true_positives": 64,
+       "realised_fdr": {
+        "point": 0.9783050847457627,
+        "low": 0.9723925904847588,
+        "high": 0.9829735113664452,
+        "n": 2950,
+        "level": 0.95,
+        "kind": "wilson"
+       },
+       "conservatism_ratio": 3.913220338983051,
+       "saturated_days": 1
+      }
+     ],
+     "realised_spread": 0.022753567296567634,
+     "verdict": "the level has no purchase: the realised rate is far above every nominal q and does not move with it, so the p-values the step-up is applied to are not calibrated"
+    },
+    {
+     "arm": "min-p",
+     "combination": "Sidak over detectors, P = 1 - (1 - min_i P_i)^J, evaluated in log space; equation (16) applied one level above the pairwise use in section 8.5",
+     "points": [
+      {
+       "nominal_q": 0.001,
+       "procedure": "benjamini-hochberg",
+       "discoveries": 0,
+       "true_positives": 0,
+       "realised_fdr": {
+        "point": 0,
+        "low": 0,
+        "high": 0,
+        "n": 0,
+        "level": 0.95,
+        "kind": "wilson"
+       },
+       "conservatism_ratio": 0,
+       "saturated_days": 0
+      },
+      {
+       "nominal_q": 0.005,
+       "procedure": "benjamini-hochberg",
+       "discoveries": 0,
+       "true_positives": 0,
+       "realised_fdr": {
+        "point": 0,
+        "low": 0,
+        "high": 0,
+        "n": 0,
+        "level": 0.95,
+        "kind": "wilson"
+       },
+       "conservatism_ratio": 0,
+       "saturated_days": 0
+      },
+      {
+       "nominal_q": 0.01,
+       "procedure": "benjamini-hochberg",
+       "discoveries": 1122,
+       "true_positives": 39,
+       "realised_fdr": {
+        "point": 0.9652406417112299,
+        "low": 0.9528365930527396,
+        "high": 0.97446981569648,
+        "n": 1122,
+        "level": 0.95,
+        "kind": "wilson"
+       },
+       "conservatism_ratio": 96.52406417112299,
+       "saturated_days": 1
+      },
+      {
+       "nominal_q": 0.05,
+       "procedure": "benjamini-hochberg",
+       "discoveries": 1176,
+       "true_positives": 54,
+       "realised_fdr": {
+        "point": 0.9540816326530612,
+        "low": 0.9405687803001813,
+        "high": 0.9646375862124137,
+        "n": 1176,
+        "level": 0.95,
+        "kind": "wilson"
+       },
+       "conservatism_ratio": 19.081632653061224,
+       "saturated_days": 1
+      },
+      {
+       "nominal_q": 0.1,
+       "procedure": "benjamini-hochberg",
+       "discoveries": 2030,
+       "true_positives": 83,
+       "realised_fdr": {
+        "point": 0.9591133004926108,
+        "low": 0.9495962832468898,
+        "high": 0.9668959988412255,
+        "n": 2030,
+        "level": 0.95,
+        "kind": "wilson"
+       },
+       "conservatism_ratio": 9.591133004926107,
+       "saturated_days": 1
+      },
+      {
+       "nominal_q": 0.25,
+       "procedure": "benjamini-hochberg",
+       "discoveries": 2085,
+       "true_positives": 93,
+       "realised_fdr": {
+        "point": 0.9553956834532374,
+        "low": 0.9456659736494141,
+        "high": 0.9634504133223987,
+        "n": 2085,
+        "level": 0.95,
+        "kind": "wilson"
+       },
+       "conservatism_ratio": 3.8215827338129498,
+       "saturated_days": 1
+      }
+     ],
+     "realised_spread": 0.9652406417112299,
+     "verdict": "the realised rate is far above the nominal level but does respond to it, so the procedure is working on inputs that are anti-conservative rather than on inputs it cannot read at all"
+    }
+   ],
+   "question": "the composite's realised FDR does not move with q, so the level has no purchase on it. Running the same step-up on a rule that consumes the same calibrated inputs and combines them differently says whether the defect is in the combination or upstream of it",
+   "reading": "the Sidak-corrected minimum and Fisher's sum take identical inputs. A minimum near q would put the defect in Fisher's sum over dependent p-values; both equally far off puts it upstream, where no better sum can reach it",
+   "within_run_control": {
+    "comparison": "the same run, the same events, the same conformally calibrated inputs, the same frozen covariance and the same burn-in split. The only difference is whether the combination was ranked against its own burn-in distribution",
+    "conformalised_realised_spread": 1,
+    "conformalised_tightest_rejecting_level": {
+     "discoveries": 1010,
+     "nominal_q": 0.1,
+     "realised": 1
+    },
+    "finding": "the calibration is what the combination needed. On identical inputs the uncalibrated composite already rejects 732 events at q = 0.001, where the conformalised composite rejects nothing until q reaches 0.1. The level has purchase it did not have. It still lands at 1 where it does reject, so the inputs bound how accurate that level can be -- calibrating the combination fixes the knob, not the evidence",
+    "uncalibrated_realised_spread": 0.022753567296567634,
+    "uncalibrated_tightest_rejecting_level": {
+     "discoveries": 732,
+     "nominal_q": 0.001,
+     "realised": 1
+    },
+    "why_not_across_runs": "a run configured without -conformal-composite has an unsplit burn-in, so both input estimates are fitted on twice the window. Comparing across runs confounds the calibration with the split, and the split moves every cross-arm quantity"
+   }
+  },
+  "capacity_valve": {
+   "demanded_alerts_per_day": 862.7142857142858,
+   "note": "the budget is a capacity valve rather than the primary control. Where it binds, that is recorded here rather than applied silently",
+   "per_budget": [
+    {
+     "alerts_withheld_per_day": 852.7142857142858,
+     "binding_constraint": "analyst capacity",
+     "budget_binds": true,
+     "budget_per_day": 10,
+     "demanded_alerts_per_day": 862.7142857142858,
+     "note": "at this exchange rate the operating point asks for more alerts than the budget permits, so the budget is what decides what is seen and the error rate is not being honoured"
+    },
+    {
+     "alerts_withheld_per_day": 762.7142857142858,
+     "binding_constraint": "analyst capacity",
+     "budget_binds": true,
+     "budget_per_day": 100,
+     "demanded_alerts_per_day": 862.7142857142858,
+     "note": "at this exchange rate the operating point asks for more alerts than the budget permits, so the budget is what decides what is seen and the error rate is not being honoured"
+    },
+    {
+     "alerts_withheld_per_day": 0,
+     "binding_constraint": "the stated error rate",
+     "budget_binds": false,
+     "budget_per_day": 1000,
+     "demanded_alerts_per_day": 862.7142857142858,
+     "note": "the budget is slack at this exchange rate: the error rate is the binding constraint, which is the configuration #10 asks for"
+    }
+   ],
+   "posterior_threshold": 0.09090909090909091,
+   "recorded": true,
+   "value_ratio": 10
+  },
+  "category_census": [
+   {
+    "category": {
+     "id": "population_rare",
+     "structural_test": "the observed value holds less than one part in a thousand of its field's observed mass in the population",
+     "whitepaper_section": "§9",
+     "contrast_with_marginal_detectors": "this is the category isolation-based detectors answer well, and it is retained as the control: it is the part of the problem the standard formulation already solves, so any advantage the framework shows elsewhere can be read against a category where it should show none"
+    },
+    "labelled_total": 549,
+    "labelled_uncategorised": 92,
+    "red_team_events": 0,
+    "share_of_labelled": 0
+   },
+   {
+    "category": {
+     "id": "novel_value",
+     "structural_test": "the entity has history for the field but has never taken this value",
+     "whitepaper_section": "§3.1, §6",
+     "contrast_with_marginal_detectors": "a detector fitted to a pooled feature cloud holds no per-entity state, so the proposition 'this entity has not previously exhibited this value' is not expressible in it; a value common in the population is unremarkable to it however new it is to the account that produced it"
+    },
+    "labelled_total": 549,
+    "labelled_uncategorised": 92,
+    "red_team_events": 215,
+    "share_of_labelled": 0.39162112932604737
+   },
+   {
+    "category": {
+     "id": "off_hours",
+     "structural_test": "the entity's own fitted circular density at this time of day is below the uniform level 1/2π",
+     "whitepaper_section": "§3.1, §7.1, §7.2",
+     "contrast_with_marginal_detectors": "an hour-of-day feature is scored against the population's working pattern rather than the entity's, and a rectangular encoding cuts the circle at midnight, so an entity whose ordinary hours straddle midnight is scored as two disjoint populations rather than one (§7.1)"
+    },
+    "labelled_total": 549,
+    "labelled_uncategorised": 92,
+    "red_team_events": 180,
+    "share_of_labelled": 0.32786885245901637
+   },
+   {
+    "category": {
+     "id": "volume_burst",
+     "structural_test": "the entity's observed count in the window exceeds its own predicted rate",
+     "whitepaper_section": "§3.1, §7.4",
+     "contrast_with_marginal_detectors": "a rate is only anomalous relative to the entity's own history; a population-fitted model reads a quiet account's tenfold increase as ordinary whenever busier accounts sustain that rate routinely"
+    },
+    "labelled_total": 549,
+    "labelled_uncategorised": 92,
+    "red_team_events": 192,
+    "share_of_labelled": 0.34972677595628415
+   },
+   {
+    "category": {
+     "id": "novel_pair",
+     "structural_test": "two eligible values have never co-occurred, in a graph that carries mass",
+     "whitepaper_section": "§3.3, §8",
+     "contrast_with_marginal_detectors": "each value is individually frequent, so every marginal is satisfied and the combination is invisible to any detector that scores fields independently; only a joint model has the question in its vocabulary"
+    },
+    "labelled_total": 549,
+    "labelled_uncategorised": 92,
+    "red_team_events": 362,
+    "share_of_labelled": 0.6593806921675774
+   }
+  ],
+  "category_comparison": null,
+  "detection": [
+   {
+    "budget_per_day": 10,
+    "alerts": 70,
+    "true_positives": 0,
+    "false_negatives": 549,
+    "red_team_scored": 549,
+    "recall_wilson": {
+     "point": 0,
+     "low": 0,
+     "high": 0.0069485722523209776,
+     "n": 549,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "recall_clopper_pearson": {
+     "point": 0,
+     "low": 0,
+     "high": 0.006696746586929037,
+     "n": 549,
+     "level": 0.95,
+     "kind": "clopper-pearson"
+    },
+    "precision_wilson": {
+     "point": 0,
+     "low": 0,
+     "high": 0.05202306241026692,
+     "n": 70,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "false_positives": 70,
+    "true_false_ratio": 0,
+    "objective_utility": -70,
+    "is_worthwhile": false,
+    "is_objective_maximum": true
+   },
+   {
+    "budget_per_day": 100,
+    "alerts": 700,
+    "true_positives": 5,
+    "false_negatives": 544,
+    "red_team_scored": 549,
+    "recall_wilson": {
+     "point": 0.009107468123861567,
+     "low": 0.003896261794227462,
+     "high": 0.021140678905227923,
+     "n": 549,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "recall_clopper_pearson": {
+     "point": 0.009107468123861567,
+     "low": 0.0029635948922173538,
+     "high": 0.021124972092081362,
+     "n": 549,
+     "level": 0.95,
+     "kind": "clopper-pearson"
+    },
+    "precision_wilson": {
+     "point": 0.007142857142857143,
+     "low": 0.0030547483481505803,
+     "high": 0.0166108434512951,
+     "n": 700,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "false_positives": 695,
+    "true_false_ratio": 0.007194244604316547,
+    "break_even_value_ratio": 139,
+    "objective_utility": -645,
+    "is_worthwhile": false
+   },
+   {
+    "budget_per_day": 1000,
+    "alerts": 7000,
+    "true_positives": 111,
+    "false_negatives": 438,
+    "red_team_scored": 549,
+    "recall_wilson": {
+     "point": 0.20218579234972678,
+     "low": 0.17071216481198806,
+     "high": 0.23779818696671684,
+     "n": 549,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "recall_clopper_pearson": {
+     "point": 0.20218579234972678,
+     "low": 0.16935737630096126,
+     "high": 0.23825691468938465,
+     "n": 549,
+     "level": 0.95,
+     "kind": "clopper-pearson"
+    },
+    "precision_wilson": {
+     "point": 0.015857142857142858,
+     "low": 0.013185014897271825,
+     "high": 0.019060355039859974,
+     "n": 7000,
+     "level": 0.95,
+     "kind": "wilson"
+    },
+    "false_positives": 6889,
+    "true_false_ratio": 0.016112643344462187,
+    "break_even_value_ratio": 62.06306306306306,
+    "objective_utility": -5779,
+    "is_worthwhile": false
+   }
+  ],
+  "gap": {
+   "note": "gap = best labelled log p − the cut's log p, in log-units. Positive means the labelled event is LESS extreme than the cut and is therefore missed; the figure is how far the composite would have to move it to publish it. Null where the day scored no labelled event, or retained fewer alerts than the budget.",
+   "per_day": [
+    {
+     "day": 7,
+     "labelled_scored": 1,
+     "alerts_retained": 1000,
+     "best_labelled_log_p": -2.271449100117649,
+     "cuts": [
+      {
+       "budget_per_day": 10,
+       "cut_log_p": -10.889482606459957,
+       "gap_log_units": 8.618033506342307
+      },
+      {
+       "budget_per_day": 100,
+       "cut_log_p": -9.009169739890458,
+       "gap_log_units": 6.737720639772809
+      },
+      {
+       "budget_per_day": 1000,
+       "cut_log_p": -6.604747279395455,
+       "gap_log_units": 4.333298179277806
+      }
+     ]
+    },
+    {
+     "day": 8,
+     "labelled_scored": 261,
+     "alerts_retained": 1000,
+     "best_labelled_log_p": -9.877881694781477,
+     "cuts": [
+      {
+       "budget_per_day": 10,
+       "cut_log_p": -12.681242075688013,
+       "gap_log_units": 2.803360380906536
+      },
+      {
+       "budget_per_day": 100,
+       "cut_log_p": -9.469055238970608,
+       "gap_log_units": -0.4088264558108694
+      },
+      {
+       "budget_per_day": 1000,
+       "cut_log_p": -6.831437103655095,
+       "gap_log_units": -3.0464445911263818
+      }
+     ]
+    },
+    {
+     "day": 9,
+     "labelled_scored": 5,
+     "alerts_retained": 1000,
+     "best_labelled_log_p": -6.831437103655095,
+     "cuts": [
+      {
+       "budget_per_day": 10,
+       "cut_log_p": -11.294947714568123,
+       "gap_log_units": 4.463510610913027
+      },
+      {
+       "budget_per_day": 100,
+       "cut_log_p": -10.80943989878642,
+       "gap_log_units": 3.9780027951313253
+      },
+      {
+       "budget_per_day": 1000,
+       "cut_log_p": -8.908481137593375,
+       "gap_log_units": 2.0770440339382796
+      }
+     ]
+    },
+    {
+     "day": 10,
+     "labelled_scored": 0,
+     "alerts_retained": 1000,
+     "best_labelled_log_p": null,
+     "cuts": [
+      {
+       "budget_per_day": 10,
+       "cut_log_p": -9.702316920450404,
+       "gap_log_units": null
+      },
+      {
+       "budget_per_day": 100,
+       "cut_log_p": -6.873600211500253,
+       "gap_log_units": null
+      },
+      {
+       "budget_per_day": 1000,
+       "cut_log_p": -4.857462767060265,
+       "gap_log_units": null
+      }
+     ]
+    },
+    {
+     "day": 11,
+     "labelled_scored": 0,
+     "alerts_retained": 1000,
+     "best_labelled_log_p": null,
+     "cuts": [
+      {
+       "budget_per_day": 10,
+       "cut_log_p": -9.469055238970608,
+       "gap_log_units": null
+      },
+      {
+       "budget_per_day": 100,
+       "cut_log_p": -6.873600211500253,
+       "gap_log_units": null
+      },
+      {
+       "budget_per_day": 1000,
+       "cut_log_p": -4.950628009624273,
+       "gap_log_units": null
+      }
+     ]
+    },
+    {
+     "day": 12,
+     "labelled_scored": 207,
+     "alerts_retained": 1000,
+     "best_labelled_log_p": -9.517174487314808,
+     "cuts": [
+      {
+       "budget_per_day": 10,
+       "cut_log_p": -12.863563632481968,
+       "gap_log_units": 3.3463891451671604
+      },
+      {
+       "budget_per_day": 100,
+       "cut_log_p": -9.973191874585803,
+       "gap_log_units": 0.45601738727099494
+      },
+      {
+       "budget_per_day": 1000,
+       "cut_log_p": -8.056269262403742,
+       "gap_log_units": -1.4609052249110661
+      }
+     ]
+    },
+    {
+     "day": 13,
+     "labelled_scored": 75,
+     "alerts_retained": 1000,
+     "best_labelled_log_p": -9.164733847514864,
+     "cuts": [
+      {
+       "budget_per_day": 10,
+       "cut_log_p": -12.275776967579848,
+       "gap_log_units": 3.111043120064984
+      },
+      {
+       "budget_per_day": 100,
+       "cut_log_p": -9.469055238970608,
+       "gap_log_units": 0.3043213914557441
+      },
+      {
+       "budget_per_day": 1000,
+       "cut_log_p": -6.70531426772916,
+       "gap_log_units": -2.4594195797857035
+      }
+     ]
+    }
+   ],
+   "distribution": [
+    {
+     "budget_per_day": 10,
+     "inside_the_cut": 0,
+     "within_10_log_units": 518,
+     "within_50_log_units": 31,
+     "within_200_log_units": 0,
+     "beyond_200_log_units": 0,
+     "unmeasurable": 0
+    },
+    {
+     "budget_per_day": 100,
+     "inside_the_cut": 7,
+     "within_10_log_units": 542,
+     "within_50_log_units": 0,
+     "within_200_log_units": 0,
+     "beyond_200_log_units": 0,
+     "unmeasurable": 0
+    },
+    {
+     "budget_per_day": 1000,
+     "inside_the_cut": 116,
+     "within_10_log_units": 433,
+     "within_50_log_units": 0,
+     "within_200_log_units": 0,
+     "beyond_200_log_units": 0,
+     "unmeasurable": 0
+    }
+   ]
+  },
+  "head_to_head": null,
+  "headline": "",
+  "history_product": {
+   "note": "this run ranked on each arm's own p-value, unweighted, so there is no weighted ranking to recompute p x n under",
+   "recorded": false
+  },
+  "operating_point": {
+   "alpha": 0.0013102456436122302,
+   "alpha_clamped": false,
+   "base_rate": 0.00013100739917381817,
+   "cost_curve": [
+    {
+     "alpha": 0.000014558284929024795,
+     "alpha_clamped": false,
+     "expected_alerts_per_day": 87.14285714285715,
+     "expected_false_per_day": 8.714285714285724,
+     "precision_demanded": 0.8999999999999999,
+     "value_ratio": 0.11111111111111108
+    },
+    {
+     "alpha": 0.00013102456436122302,
+     "alpha_clamped": false,
+     "expected_alerts_per_day": 156.85714285714286,
+     "expected_false_per_day": 78.42857142857143,
+     "precision_demanded": 0.5,
+     "value_ratio": 1
+    },
+    {
+     "alpha": 0.00039307369308366904,
+     "alpha_clamped": false,
+     "expected_alerts_per_day": 313.7142857142857,
+     "expected_false_per_day": 235.28571428571428,
+     "precision_demanded": 0.25,
+     "value_ratio": 3
+    },
+    {
+     "alpha": 0.001179221079251007,
+     "alpha_clamped": false,
+     "expected_alerts_per_day": 784.2857142857142,
+     "expected_false_per_day": 705.8571428571428,
+     "precision_demanded": 0.1,
+     "value_ratio": 9
+    },
+    {
+     "alpha": 0.002489466722863237,
+     "alpha_clamped": false,
+     "expected_alerts_per_day": 1568.571428571428,
+     "expected_false_per_day": 1490.1428571428567,
+     "precision_demanded": 0.05000000000000001,
+     "value_ratio": 18.999999999999996
+    }
+   ],
+   "events_per_day": 598657.5714285715,
+   "expected_alerts_per_day": 862.7142857142858,
+   "expected_false_per_day": 784.2857142857143,
+   "expected_true_per_day": 78.42857142857143,
+   "identity": "alpha = p(1-tau)/(tau(1-p)), from P(intrusion | alarm) = p/(p + (1-p)alpha) solved at tau",
+   "posterior_threshold": 0.09090909090909091,
+   "recorded": true,
+   "value_ratio": 10
+  },
+  "prediction": "§10.2 predicts realised FDR below nominal q (super-uniform discrete statistics under Fisher); the conservatism ratio quantifies it",
+  "red_team_population": {
+   "n": 549,
+   "source": "the run's complete red_team_scored list: every labelled event that received a combined p-value, whether or not it was alerted"
+  },
+  "utility_cutoff": [
+   {
+    "arm": "composite",
+    "combination": "Fisher (18) with Brown's correction (19)",
+    "budgets": [
+     {
+      "budget_per_day": 10,
+      "alerts_at_budget": 70,
+      "true_positives_at_budget": 0,
+      "optimal_alerts": 0,
+      "true_positives_at_optimal": 0,
+      "objective_at_budget": -70,
+      "objective_at_optimal": 0,
+      "precision_at_optimal": 0,
+      "is_worthwhile_at_optimal": false,
+      "alerts_suppressed": 70,
+      "true_positives_forgone": 0
+     },
+     {
+      "budget_per_day": 100,
+      "alerts_at_budget": 700,
+      "true_positives_at_budget": 5,
+      "optimal_alerts": 0,
+      "true_positives_at_optimal": 0,
+      "objective_at_budget": -645,
+      "objective_at_optimal": 0,
+      "precision_at_optimal": 0,
+      "is_worthwhile_at_optimal": false,
+      "alerts_suppressed": 700,
+      "true_positives_forgone": 5
+     },
+     {
+      "budget_per_day": 1000,
+      "alerts_at_budget": 7000,
+      "true_positives_at_budget": 111,
+      "optimal_alerts": 0,
+      "true_positives_at_optimal": 0,
+      "objective_at_budget": -5779,
+      "objective_at_optimal": 0,
+      "precision_at_optimal": 0,
+      "is_worthwhile_at_optimal": false,
+      "alerts_suppressed": 7000,
+      "true_positives_forgone": 111
+     }
+    ]
+   },
+   {
+    "arm": "min-p",
+    "combination": "Sidak over detectors, P = 1 - (1 - min_i P_i)^J, evaluated in log space; equation (16) applied one level above the pairwise use in section 8.5",
+    "budgets": [
+     {
+      "budget_per_day": 10,
+      "alerts_at_budget": 70,
+      "true_positives_at_budget": 4,
+      "optimal_alerts": 31,
+      "true_positives_at_optimal": 4,
+      "objective_at_budget": -26,
+      "objective_at_optimal": 13,
+      "precision_at_optimal": 0.12903225806451613,
+      "is_worthwhile_at_optimal": true,
+      "alerts_suppressed": 39,
+      "true_positives_forgone": 0
+     },
+     {
+      "budget_per_day": 100,
+      "alerts_at_budget": 700,
+      "true_positives_at_budget": 54,
+      "optimal_alerts": 207,
+      "true_positives_at_optimal": 53,
+      "objective_at_budget": -106,
+      "objective_at_optimal": 376,
+      "precision_at_optimal": 0.2560386473429952,
+      "is_worthwhile_at_optimal": true,
+      "alerts_suppressed": 493,
+      "true_positives_forgone": 1
+     },
+     {
+      "budget_per_day": 1000,
+      "alerts_at_budget": 7000,
+      "true_positives_at_budget": 139,
+      "optimal_alerts": 256,
+      "true_positives_at_optimal": 70,
+      "objective_at_budget": -5471,
+      "objective_at_optimal": 514,
+      "precision_at_optimal": 0.2734375,
+      "is_worthwhile_at_optimal": true,
+      "alerts_suppressed": 6744,
+      "true_positives_forgone": 69
+     }
+    ]
+   }
+  ]
+ },
+ "run": {
+  "finished_at": "2026-08-22T16:31:02Z",
+  "go_version": "go1.26.3",
+  "parent_file": "results/lanl-r11-b1000-cc-d7-14.json",
+  "parent_run": "lanl-r11-b1000-cc-d7-14-001",
+  "run_id": "analysis-r11-b1000-cc-001",
+  "started_at": "2026-08-22T16:31:01Z"
+ },
+ "schema_version": "1"
+}

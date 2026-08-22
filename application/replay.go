@@ -97,6 +97,16 @@ type CombinedScore struct {
 	MinPLogP    float64
 	MinDetector string
 
+	// CompositeConformal records whether the combined score was itself replaced by its rank
+	// in the burn-in distribution of the same statistic (#55), and CompositeModelLogP carries
+	// what it replaced.
+	//
+	// It is a separate flag from Conformal because the two are separate claims: Conformal says
+	// each input was calibrated, which is a statement about marginals, and this says the output
+	// was, which is the statement a step-up over composites actually needs.
+	CompositeConformal bool
+	CompositeModelLogP float64
+
 	// ModelLogP is the combined log tail computed from the detectors' own model
 	// p-values, always, whether or not conformal calibration was applied.
 	//
@@ -216,9 +226,72 @@ type ReplayCorpusCommand struct {
 	// anybody.
 	BurnInSink func(ScoredEvent) error
 
+	// CompositeConformal, when set, accumulates the burn-in distribution of the COMBINED
+	// score and is frozen at the boundary, after which the composite's own log tail is
+	// replaced by its rank in that distribution (#55).
+	//
+	// # Why the inputs being calibrated is not enough
+	//
+	// §10.1's conformal calibration is a statement about each detector's marginal:
+	// super-uniform by ranking alone, whatever that detector's null does. It says nothing
+	// about a function of several of them. Measured, the composite's realised false discovery
+	// rate is 0.978 at every nominal q from 0.001 to 0.25 -- a spread of 0.004 -- so the level
+	// is not merely inaccurate, it is disconnected. Running the same step-up on the
+	// Šidák-corrected minimum over identical inputs gives a spread of 0.964 and no discoveries
+	// at all at the tightest level, which puts the lost purchase in Fisher's sum rather than
+	// upstream of it.
+	//
+	// The combination is a deterministic function of the inputs, so its burn-in distribution is
+	// observable on exactly the same terms, and a conformal p-value over it is super-uniform by
+	// ranking whatever Fisher and Brown do.
+	//
+	// # Why it needs a split burn-in
+	//
+	// The statistic whose distribution this ranks must be the statistic the scoring path
+	// computes, and that statistic consumes conformally calibrated inputs -- which are not
+	// available until the input conformal is frozen. Fitting both on the same window is
+	// circular: the composite's burn-in distribution would be built from uncalibrated inputs
+	// and applied to calibrated ones, and −2 ln P runs to thousands on a model tail and to tens
+	// on a rank.
+	//
+	// So the burn-in window is split. Up to ConformalSplit the input conformal and the
+	// covariance accumulate; at the split they freeze; from there to BurnInEnd the combination
+	// is computed exactly as scoring will compute it and its distribution accumulates here; at
+	// BurnInEnd this freezes too. Neither estimate has seen an event it will later be used to
+	// score, and the composite's estimate has seen only inputs on the scale it will meet.
+	//
+	// The cost is stated rather than hidden: both input estimates are fitted on half the window
+	// they used to have. That is the resolution §10.2's own comment records as future work, and
+	// this is it.
+	CompositeConformal *calibration.Conformal
+
+	// BrownDiagnostic, when set, accumulates the moments of Fisher's statistic per corpus day
+	// so that "Brown's correction is an approximation of the dependence" becomes a number
+	// (#55). See [calibration.BrownDiagnostic] for what the two halves of the comparison mean.
+	//
+	// It observes the SCORED phase always, and the burn-in phase only where a conformal split
+	// is in use: the burn-in comparison is the in-sample one, and it is only computable after
+	// the covariance has frozen, which without a split happens at the boundary itself. So a
+	// run without -conformal-split reports the out-of-sample half alone, which distinguishes
+	// nothing about drift and is recorded as such rather than left to be inferred.
+	BrownDiagnostic *calibration.BrownDiagnostic
+
+	// ConformalSplit is the instant the input conformal and the covariance freeze, which must
+	// lie strictly inside the burn-in window. Zero means no split: both freeze at BurnInEnd as
+	// before, and CompositeConformal is then unusable and refused at Execute.
+	ConformalSplit event.Timestamp
+
 	burnInDone bool
+	splitDone  bool
 	covariance *calibration.CovarianceModel
 	conformal  *calibration.ConformalModel
+	composite  *calibration.ConformalModel
+}
+
+// CompositeConformalModel returns the frozen conformal calibration of the combined score, or nil
+// if none was made.
+func (c *ReplayCorpusCommand) CompositeConformalModel() *calibration.ConformalModel {
+	return c.composite
 }
 
 // Covariance returns the frozen dependence estimate, or nil if none was made. It is
@@ -233,6 +306,16 @@ func (c *ReplayCorpusCommand) ConformalModel() *calibration.ConformalModel { ret
 func (c *ReplayCorpusCommand) Execute(ctx context.Context) (*ReplayReport, error) {
 	if c.Sink == nil {
 		return nil, errors.New("application: replay requires a sink")
+	}
+	// A composite conformal estimate fitted on the same window as its inputs would be built
+	// from uncalibrated statistics and applied to calibrated ones. Refused rather than run:
+	// the resulting number would look like a calibration and be a scale error.
+	if c.CompositeConformal != nil {
+		if c.ConformalSplit <= 0 || c.ConformalSplit >= c.BurnInEnd {
+			return nil, fmt.Errorf("application: a composite conformal estimate needs a split "+
+				"strictly inside the burn-in window, got split %d against burn-in end %d",
+				int64(c.ConformalSplit), int64(c.BurnInEnd))
+		}
 	}
 	report := &ReplayReport{}
 
@@ -268,16 +351,37 @@ func (c *ReplayCorpusCommand) Execute(ctx context.Context) (*ReplayReport, error
 // processEvent applies the per-event pipeline in the fixed order.
 func (c *ReplayCorpusCommand) processEvent(ctx context.Context, e *event.Event, report *ReplayReport) error {
 	scored := e.OccurredAt() >= c.BurnInEnd
-	if scored && !c.burnInDone {
-		c.burnInDone = true
-		// Freeze the dependence estimate before the first scored event, for the reason
-		// Â§8.2 gives for the partition: a quantity used to score an event must not have
-		// been fitted on it.
+
+	// The split boundary, where it is in use: the input estimates freeze here so that the
+	// composite's own distribution can be accumulated from the statistic scoring will compute.
+	// See CompositeConformal for why fitting both on one window is circular.
+	if c.ConformalSplit > 0 && !c.splitDone && e.OccurredAt() >= c.ConformalSplit {
+		c.splitDone = true
 		if c.Correlations != nil {
 			c.covariance = c.Correlations.Freeze()
 		}
 		if c.Conformal != nil {
 			c.conformal = c.Conformal.Freeze()
+		}
+	}
+
+	if scored && !c.burnInDone {
+		c.burnInDone = true
+		// Freeze the dependence estimate before the first scored event, for the reason
+		// Â§8.2 gives for the partition: a quantity used to score an event must not have
+		// been fitted on it. With a split in use they froze there instead, and freezing
+		// again would replace an estimate fitted on the first half with one fitted on the
+		// whole window -- including the events the composite's own estimate was built from.
+		if !c.splitDone {
+			if c.Correlations != nil {
+				c.covariance = c.Correlations.Freeze()
+			}
+			if c.Conformal != nil {
+				c.conformal = c.Conformal.Freeze()
+			}
+		}
+		if c.CompositeConformal != nil {
+			c.composite = c.CompositeConformal.Freeze()
 		}
 		if c.OnBurnInComplete != nil {
 			if err := c.OnBurnInComplete(); err != nil {
@@ -352,6 +456,26 @@ func (c *ReplayCorpusCommand) processEvent(ctx context.Context, e *event.Event, 
 				return fmt.Errorf("application: burn-in sink: %w", err)
 			}
 		}
+
+		// After the split, the combination is computable exactly as scoring will compute
+		// it -- the input conformal and the covariance are already frozen -- so the
+		// composite's own distribution accumulates from the statistic it will later rank.
+		// Before the split there is nothing to accumulate: the statistic would be built
+		// from uncalibrated inputs on a different scale. See CompositeConformal.
+		if c.CompositeConformal != nil && c.splitDone {
+			all.SortCanonical()
+			combined, err := combineWith(all, c.covariance, c.conformal)
+			if err != nil {
+				return fmt.Errorf("application: composite burn-in: %w", err)
+			}
+			if combined != nil {
+				c.CompositeConformal.Observe(compositeConformalKey, combined.LogP)
+				// In-sample: the covariance was fitted on the window that just closed at
+				// the split, so a departure here is the correction's form rather than
+				// drift.
+				c.observeBrown("burn_in", e.OccurredAt(), combined)
+			}
+		}
 	}
 
 	if scored {
@@ -364,6 +488,26 @@ func (c *ReplayCorpusCommand) processEvent(ctx context.Context, e *event.Event, 
 		}
 		if combined == nil {
 			report.NoOpinion++
+		}
+		// The composite's own conformal rank, where one was fitted. It replaces LogP for
+		// exactly the reason §10.1 replaces a detector's: LogP is what every threshold and
+		// every step-up reads, and a rank in the burn-in distribution is the only one of
+		// the two with a calibrated meaning. The uncalibrated statistic stays on the score
+		// as CompositeModelLogP, because a conformal value cannot fall below 1/(n+1) and
+		// ordering within that floor is not its job.
+		// Before the composite conformal replaces LogP: the diagnostic is about the
+		// statistic Brown corrects, and X2, C and J are untouched by a later rank anyway,
+		// but reading them here keeps that independent of the order of these two blocks.
+		c.observeBrown("scored", e.OccurredAt(), combined)
+
+		if combined != nil && c.composite != nil {
+			if calibrated, ok := c.composite.Calibrate(compositeConformalKey,
+				combined.LogP); ok {
+				combined.CompositeModelLogP = combined.LogP
+				combined.LogP = math.Log(calibrated)
+				combined.P = calibrated
+				combined.CompositeConformal = true
+			}
 		}
 		if err := c.Sink(ScoredEvent{
 			Event:          e,
@@ -418,6 +562,12 @@ func observeDependence(acc *calibration.Correlations, verdicts detector.Verdicts
 	}
 	acc.Observe(ids, stats)
 }
+
+// compositeConformalKey is the single key the composite's own conformal distribution is held
+// under. [calibration.Conformal] is keyed by detector because that is what it was built for; the
+// composite is one more distribution on the same terms, and giving it a reserved name is cheaper
+// than a parallel type that would duplicate the ranking and the floor.
+const compositeConformalKey = "composite"
 
 // combineWith applies Â§10.2's combination to the evaluated verdicts, which arrive
 // already in canonical order; abstentions reduce J rather than contributing any value
@@ -550,4 +700,20 @@ func combineTail(logPs []float64, ids []string, cov *calibration.CovarianceModel
 		return 0, 0, 0, 0, fmt.Errorf("application: Brown: %w", err)
 	}
 	return x2, c, f, brownLogTail, nil
+}
+
+// observeBrown folds one combined score into the Brown diagnostic (#55).
+//
+// It is a method rather than an inline call because there are two phases to feed and the nil
+// checks belong in one place; [calibration.BrownDiagnostic.Observe] is nil-safe, so a run without
+// the diagnostic pays a single comparison per event.
+func (c *ReplayCorpusCommand) observeBrown(phase string, at event.Timestamp, s *CombinedScore) {
+	if c.BrownDiagnostic == nil || s == nil {
+		return
+	}
+	// The diagnostic buckets by corpus SECONDS and event.Timestamp is microseconds, so the
+	// conversion is explicit here rather than assumed there. Getting this wrong is not
+	// hypothetical: `noveltyrate` divides a microsecond timestamp by 3,600 and calls the
+	// result an hourly window, which makes it 3.6 milliseconds wide.
+	c.BrownDiagnostic.Observe(phase, int64(at/event.Second), s.J, s.X2, s.C, s.F)
 }

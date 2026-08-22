@@ -487,6 +487,88 @@ The arm reports how many entities cleared its gate, because "found nothing" and 
 speak" are different claims and only the second is a gap in coverage — here it is neither, and the
 report says so: 741 of 1,507 entities eligible, and none of the plants abstained on.
 
+### Calibrating the combination, not only its inputs (`-conformal-composite`)
+
+The composite's realised false discovery rate was **0.978 at every nominal q from 0.001 to 0.25**.
+A level that changes nothing is not a control, and §10.1's conformal calibration does not supply
+one: it makes each detector's p-value super-uniform *by ranking alone*, whatever that detector's
+null does, and that is a guarantee about each **marginal**. A step-up over composites reads a
+function of several of them, and nothing had been said about that function.
+
+The combination is deterministic in its inputs, so its burn-in distribution is available on exactly
+the same terms. `-conformal-composite` ranks the composite against that distribution.
+
+**It needs a split burn-in, and the split is not a detail.** The statistic whose distribution is
+ranked must be the statistic the scoring path computes, and that statistic consumes conformally
+calibrated inputs — which do not exist until the input conformal is frozen. Fitting both on one
+window is circular: the composite's distribution would be built from uncalibrated inputs and applied
+to calibrated ones, and −2 ln P runs to thousands on a model tail and to tens on a rank. So the
+window is split at its midpoint; the input conformal and the covariance freeze there, the
+composite's distribution accumulates from there to the boundary, and freezes too. The cost is
+stated: both input estimates are fitted on half the window they used to have.
+
+**The measurement is a within-run control, which is what makes it readable.** The run records the
+combination's own log tail alongside the conformal value, so the same events, the same calibrated
+inputs, the same frozen covariance and the same split can be stepped up both ways. Comparing across
+runs would confound the calibration with the split, and the split moves every cross-arm quantity —
+`min-p`'s realised rate at its tightest rejecting level went from 0.672 to 0.965 under it.
+
+| nominal q | Fisher + Brown | | conformalised composite | |
+|---:|---:|---:|---:|---:|
+| | discoveries | realised | discoveries | realised |
+| 0.001 | 732 | 1.000 | **0** | — |
+| 0.005 | 979 | 1.000 | **0** | — |
+| 0.01 | 1,273 | 1.000 | **0** | — |
+| 0.05 | 2,283 | 0.979 | **0** | — |
+| 0.1 | 2,593 | 0.977 | 1,010 | 1.000 |
+| 0.25 | 2,950 | 0.978 | 2,011 | 0.978 |
+| **spread** | | **0.023** | | **1.000** |
+
+**The calibration is what the combination needed.** On identical inputs the uncalibrated composite
+rejects 732 events at q = 0.001; the conformalised one rejects nothing until q reaches 0.1. A level
+that refuses when it is tight is what a level is for. Detection is essentially unchanged —
+0 / 5 / **111** true positives at 10 / 100 / 1000 alerts a day against 0 / 6 / **113** for the
+baseline — so the fix costs no recall.
+
+It does not make the level *accurate*: where it does reject, the realised rate is still 0.978.
+**Calibrating the combination fixes the knob, not the evidence.**
+
+### What Brown's correction actually gets wrong (`-brown-diagnostic`)
+
+"Brown's correction is an approximation of the dependence" is the kind of statement that survives
+indefinitely because nothing contradicts it. It has an exact measurable content, and the reason is
+that **Brown does not touch the mean**: with c = Var/2E and f = 2E²/Var and E = 2J, c·f = E
+identically, so the assumed distribution has Fisher's mean and a different variance. Brown is a
+variance correction and nothing else. That splits the diagnosis in two, with different causes and
+different repairs:
+
+- **the mean.** A departure from 2J means the marginals are not uniform. No covariance estimate
+  reaches it.
+- **the variance.** A departure from 4J + 2ΣCov means the covariance is wrong — mis-measured, or
+  measured on burn-in and since drifted. Observed *above* the prediction means Brown's tail is too
+  light, which is the anti-conservative direction.
+
+Measured per corpus day and per J, over 4.19 million scored events and 76 cells:
+
+| | Brown | observed |
+|---|---:|---:|
+| mean of X² | 24 – 34 (= 2J) | **11 – 25** |
+| effective degrees of freedom | 24 – 34 | **4.4 – 11.3** |
+| variance of X² | 48 – 68 | 40 – 220 |
+
+**Twelve to seventeen detectors carry about six degrees of freedom of evidence, and Brown credits
+them with twenty-four to thirty-four.** That is why Fisher's sum was inert: the reference
+distribution is wrong in both moments and in opposite directions — the mean too large (making the
+tail too heavy) and the variance too small (making it too light).
+
+The mean sitting *below* 2J is conformal calibration working: super-uniform inputs give
+E[−2 ln p] under 2 per arm. So the marginals are conservative and the dependence is over-credited,
+which is the opposite of the diagnosis one would guess from the realised rate alone.
+
+Burn-in days are reported beside scored days wherever a split is in use, because the covariance is
+*fitted* on burn-in: in-sample failure means the correction's form is wrong, out-of-sample failure
+alone would mean it had drifted. Here it fails in-sample, so the form is what is wrong.
+
 ## The paper's length budget
 
 `docs/PAPER.md` is held to 20 pages, 15 of body plus 5 for figures and citations. What `make
