@@ -1,0 +1,26 @@
+# Pinned dependencies for sidecar/baselines.py and sidecar/partition.py.
+#
+# Pinned rather than floored, because these produce recorded measurements: the versions
+# below are the ones the committed `results/baselines-*.json` files record in their
+# `versions` block, so a re-run reproduces those numbers rather than re-resolving to
+# whatever is current and quietly changing a published figure.
+#
+#   pip install -r sidecar/requirements.txt
+#
+# Python 3.12 or 3.13. 3.14 also works, but only with the setuptools constraint below;
+# see the note on that line.
+
+numpy==2.5.2
+pandas==3.0.5
+scikit-learn==1.9.0
+rrcf==0.4.4
+
+# rrcf imports `pkg_resources` at module load. setuptools removed it in 81.0, and Python
+# 3.14 venvs no longer seed setuptools at all, so `import rrcf` fails with
+# ModuleNotFoundError on any environment that resolves setuptools >= 81 -- including a
+# bare `pip install setuptools`, which currently installs 84.x and still fails.
+#
+# This is the constraint that cost four attempts to rediscover (#36). It is not a
+# preference: rrcf 0.4.4 is the last release and carries no fix, so the pin lives here
+# until rrcf is dropped or replaced.
+setuptools<81
