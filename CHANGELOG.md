@@ -11,6 +11,21 @@ Equation numbers `(1)`–`(20)`, requirements `R1`–`R6`, and evaluation hypoth
 
 ### Added
 
+- **Per-entity routing is scored, and it loses (#41).** It was the one construction with headroom:
+  routing is not a global allocation, so it can send an established account to a per-entity null and
+  a cold one to the population null and collect both, and an oracle bracket put it at 448-536
+  against the best single arm's 384. Measured on `lanl-inj-b1000-route-d7-14-011` it reaches
+  **0 / 21 / 381** at 10/100/1000 alerts a day, against the best arm's 11 / 76 / 384. **117 of the
+  129 labelled entities routed to a single arm** -- every attacked account has history, median 3,392
+  burn-in events -- so the policy reproduces that arm almost exactly (its own 0 / 21 / 384) and
+  inherits its weakness at the tight budgets. The disjointness that motivated routing is in *which
+  events* each arm detects rather than *which entities* each arm suits, and **history does not
+  predict mechanism**: a bound on the construction, not a tuning problem. Both decisions the number
+  depends on were stated before the run -- one queue ranked by the routed arm's conformal quantile,
+  and a preference order taken from the arms' own declared abstention thresholds, asserted by test
+  so a threshold cannot drift into being a fitted parameter. Every entity's decision and every
+  also-admissible arm is recorded, so a different order can be evaluated without a second replay
+
 - **`make simulation` runs the full-size statistical simulations behind a build tag (#16, #17).**
   The coverage gate runs the whole suite with `-race` and `-covermode=atomic`, and Monte-Carlo at
   reporting size blew a ten-minute CI timeout -- so the simulations now run at the sizes the issues

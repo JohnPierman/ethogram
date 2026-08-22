@@ -224,6 +224,50 @@ entity-days at k=8, while **the top 10 per day is identical at every depth** and
 differs by 5 of 700 at k=8 and by none from k=24. What a budget surfaces does not depend on the
 bound.
 
+### Per-entity routing (`-route policy`)
+
+Routing is not a global allocation: it chooses per entity, so in principle it can send an
+established account to a per-entity null and a cold one to the population null and collect both.
+That is why it was the one construction with headroom left -- the population `marginal`'s 76
+detections at 100 alerts a day overlap the per-entity arms' by **zero**, and an oracle bracket put
+routing at 448-536 against the best single arm's 384.
+
+Two decisions were fixed before the run, because choosing either against the evaluation labels
+would make the number an oracle wearing a policy's clothes:
+
+- **one queue, ranked by the routed arm's conformal quantile** -- a rank in that arm's own burn-in
+  distribution, which is the one scale every arm shares. Putting model p-values from different
+  nulls in one queue is the cross-scale comparison the corrected minimum was already measured
+  failing on; giving each arm a budget share makes the shares a free parameter.
+- **a preference order taken from the arms' own declared abstention thresholds** --
+  `noveltyrate`'s MinHistory = 50, `drift`'s eight closed periods, `timing`'s need for spread --
+  with the per-entity arms before the population `marginal`. A test asserts that correspondence so
+  a threshold cannot drift into being a fitted parameter.
+
+**It loses at every budget, and the reason generalises.** On
+`lanl-inj-b1000-route-d7-14-011`:
+
+| | 10/day | 100/day | 1000/day |
+|---|---|---|---|
+| per-entity routing | 0 | 21 | 381 |
+| `noveltyrate` alone | 0 | 21 | 384 |
+| the best arm at that budget | **11** | **76** | **384** |
+| oracle bracket | -- | -- | *448-536* |
+
+Of 1,286 profiled entities the policy sent 684 to `noveltyrate`, 482 to `marginal`, 119 to
+`novelty` and 1 to `timing`, declining none. But **117 of the 129 labelled entities went to a single
+arm** -- every attacked account has history, median 3,392 burn-in events -- so routing reproduces
+that arm almost exactly and inherits its weakness at the tight budgets.
+
+The disjointness that motivated routing is disjointness in *which events* each arm detects, not in
+*which entities* each arm suits. A policy conditioned on history cannot exploit it, because
+**history does not predict mechanism**. Reaching the oracle bracket would need a router
+conditioned on something correlated with the mechanism an account is under attack by, which is not
+knowable at routing time -- so this is a bound on the construction rather than a tuning problem.
+
+Every entity's decision and every also-admissible arm is recorded in the result, so a different
+preference order can be evaluated without a second replay.
+
 ### Online error control (`-online lord`)
 
 Benjamini-Hochberg needs the whole batch: an operator at 14:00 cannot use a threshold that depends

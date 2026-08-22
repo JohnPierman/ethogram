@@ -196,9 +196,9 @@ footer{margin-top:3.5rem;padding-top:1rem;border-top:1px solid var(--rule-2);
 <h2 id="abstract">Abstract<a class="anchor" href="#abstract" aria-label="link to this section">#</a></h2>
 <p>Anomaly detection on security telemetry is usually posed as outlier detection against a pooled
 population. We argue and then measure that this asks the wrong question: an account that is
-permanently unusual is not thereby suspicious, and an account that has changed is suspicious
-whether or not it is unusual for the organisation. We condition each null on the entity that
-produced the event, so the reference set for an authentication is that account&#39;s own history.</p>
+permanently unusual is not thereby suspicious, and one that has changed is suspicious whether or not
+it is unusual for the organisation. We condition each null on the entity that produced the event, so
+the reference set for an authentication is that account&#39;s own history.</p>
 <p>On the Los Alamos authentication corpus, where 549 labelled red-team events occur among 4.19
 million scored events, a per-entity novelty test attains 15.7% precision (95% CI 9.0–26.0) at
 10 alerts per analyst-day against a base rate of 1.31 × 10⁻⁴, a lift of about 1,200. A
@@ -207,17 +207,16 @@ structural census locates the mechanism: the properties per-entity tests express
 contains none of them.</p>
 <p>Several negative results are of independent interest. Combining the arms&#39; p-values never exceeds
 the best single component; alerting whenever any arm ranks an event highly is dominated at equal
-cost and superior at equal depth, at 3.7 times the volume; and dividing the budget by demonstrated
-quality fails too, since an exhaustive search over splits chosen with the labels in hand finds the
-optimum at the corner. What decides whether a division pays is the overlap between two arms&#39;
-detections — 74.6% between the two strongest, 0% where a split does win. Read as a zero-sum game
-against an adversary choosing the mechanism, that corner is a theorem rather than a measurement,
-and the conclusion usually drawn from it is also wrong: the best single arm guarantees nothing.
-Adding a seventh arm reaching one labelled event in 4.49 million costs the composite a quarter of
-its detections and the corrected minimum two thirds, while leaving every single arm untouched.
-One positive result runs the other way: reweighting the selection by an account&#39;s history length
-raises the best arm&#39;s detections 35% at the deepest budget.
-Every result points the same way: what limits this framework is coverage, not allocation.</p>
+cost and superior at equal depth, at 3.7 times the volume; dividing the budget by demonstrated
+quality fails too, an exhaustive search over splits chosen with the labels in hand finding the
+optimum at the corner; and routing per entity, the one construction with headroom, collapses onto a
+single arm because history does not predict mechanism. Read as a zero-sum game against an adversary
+choosing the mechanism, that corner is a theorem rather than a measurement, and the conclusion
+usually drawn from it is also wrong: the best single arm guarantees nothing. Adding a seventh arm
+reaching one labelled event in 4.49 million costs the composite a quarter of its detections.
+Reweighting the selection by an account&#39;s history length is the one thing that pays, 35% at the
+deepest budget. Every result points the same way: what limits this framework is coverage, not
+allocation.</p>
 <p><strong>Keywords:</strong> anomaly detection; multiple testing; conditional inference; game theory;
 intrusion detection; decision theory.</p>
 <hr>
@@ -537,8 +536,7 @@ built for, and its single detection is a real-campaign event; §3.3 diagnoses wh
 every other arm&#39;s row identical, and §2.4 measures what it does to the combinations.</p>
 <p><strong>No single method is best at more than one thing.</strong> The <code>marginal</code> takes every planted takeover
 and nothing else; <code>noveltyrate</code> takes spray, lateral movement and privilege escalation; <code>novelty</code>
-takes the real campaign. A reader looking for one row to deploy will not find one, which is what
-§2.3 formalises.</p>
+takes the real campaign. No one row is deployable, which is what §2.3 formalises.</p>
 <p><strong>Low-and-slow is reached by no arm at any budget</strong> — 0 of 288, 0 of 8 victims — and the reason is
 measured rather than predicted. Repairing the null the mechanism was built to evade took <code>volume</code>&#39;s
 sub-10⁻¹² background from 13,618 events to 10,827 and its detections from nothing to five, without
@@ -574,6 +572,12 @@ worst-case <em>fraction retained</em>, dropping the mechanism no arm reaches:</p
 <tr><td>best single arm</td><td><strong>0</strong></td><td><strong>0.372</strong></td><td>any one arm — each is blind to some mechanism</td></tr>
 <tr><td>competitive ratio</td><td><strong>0.421 of achievable</strong></td><td>0.217</td><td><code>noveltyrate</code> 0.42, <code>timing</code> 0.42, <code>marginal</code> 0.16</td></tr>
 </tbody></table></div>
+<p><strong>The measured policy does not reach that headroom, and the reason generalises.</strong> Routing on the
+arms&#39; declared preconditions sends <strong>117 of the 129 labelled entities to one arm</strong>, every attacked
+account having history, so it reproduces that arm almost exactly — 0/21/381 against 0/21/384 — and
+is beaten at every budget by whichever arm is best there (11/76/384). The disjointness that
+motivates routing is in <em>which events</em> each arm detects, and <strong>history does not predict
+mechanism.</strong></p>
 <p>Expected rate is under a prior weighted towards credential attacks and takeover. The optimum
 <strong>equalises</strong>, which is what makes one number mean something:</p>
 <div class="tablewrap"><table>
@@ -581,7 +585,7 @@ worst-case <em>fraction retained</em>, dropping the mechanism no arm reaches:</p
 <tbody>
 <tr><td>0.421</td><td>0.421</td><td>0.421</td><td>0.421</td><td>0.421</td><td>0.426</td></tr>
 </tbody></table></div>
-<p>Five of six sit exactly at the guarantee; the real campaign is not binding, and low-and-slow is
+<p>Five of six sit exactly at the guarantee; the real campaign is not binding and low-and-slow is
 excluded rather than covered.</p>
 <p><strong>Coverage is purchasable, and not by reweighting.</strong> Labelled events found on the planted corpus
 at 1000 alerts a day, against the worst mechanism&#39;s retained fraction:</p>
@@ -596,6 +600,7 @@ at 1000 alerts a day, against the worst mechanism&#39;s retained fraction:</p>
 <tr><td>randomised, competitive-ratio mixture</td><td>189</td><td>7,000</td><td><strong>0.421</strong></td></tr>
 <tr><td>union, all arms, equal depth</td><td>535</td><td>31,505 (×4.5)</td><td><strong>1.000</strong></td></tr>
 <tr><td><em>per-entity routing, oracle floor–ceiling</em></td><td><em>448–535</em></td><td><em>7,000</em></td><td><em>—</em></td></tr>
+<tr><td>per-entity routing, stated policy</td><td>381</td><td>7,000</td><td>—</td></tr>
 </tbody></table></div>
 <p><strong>No rule in §2.4 guarantees anything at all.</strong> Two allocations do, and the table prices both:
 retain 42.1% of the achievable on every reachable mechanism at the same budget for 42% of the
@@ -604,9 +609,8 @@ expected detection, or buy the guarantee at 4.5 times the alerts.</p>
 measures unions and splits, which give every arm a fraction of its depth, where a mixed strategy
 runs one arm at full depth by lottery. And <strong>routing is not a global allocation</strong> — it chooses per
 entity, so it can send an established account to a per-entity null and a cold one to the population
-null and collect both, the only construction here able to exceed the best single arm at equal cost.
-Its
-floor is what any per-entity policy matches by construction and its ceiling is the union at full
+null and collect both, which is what gives it headroom the global rules do not have. Its floor
+is what any per-entity policy matches by construction, its ceiling the union at full
 depth; both are oracles charging no alert cost.</p>
 <p>Admitting a low-and-slow-capable arm prices the excluded column. With <code>lof</code> from §2.5 admitted
 every mechanism is reachable and the guarantee over all seven falls to <strong>0.296</strong> at <strong>59%</strong> of
@@ -720,17 +724,17 @@ ratio fitted per arm on burn-in (Appendix D) loses at every budget on both corpo
 0.22 and 0.23 for the per-entity arms against 0.71 for <code>timing</code> and 1.0 for <code>volume</code>, and the rule
 still loses. <strong>The construction fails, not the fit.</strong> An exhaustive search over two-arm splits,
 again oracular, finds the optimum on the real campaign at the corner at both budgets, and diverting
-5% costs 13 detections at 1000 a day, so the derivative is negative <em>at</em> the corner. §2.3 reaches
-the same bound without an oracle at all: the objective is linear in the allocation, so its optimum
-is a vertex whatever the weights are fitted on.</p>
+5% costs 13 detections at 1000 a day, so the derivative is negative <em>at</em> the corner. §2.3 reaches the
+same bound without an oracle: the objective is linear in the allocation, so its optimum is a vertex
+whatever the weights are fitted on.</p>
 <p>The mechanism is that <strong>the arms are substitutes rather than complements</strong> — 74.6% of
 <code>noveltyrate</code>&#39;s detections are also found by <code>novelty</code> and 78.7% of <code>pairing</code>&#39;s are, so splitting
 halves each arm&#39;s depth and what survives largely coincides. Where the arms genuinely are
 complements the same search finds headroom, which is the control this argument needs: the
 <code>marginal</code>&#39;s 76 detections at 100 alerts a day overlap the per-entity arms&#39; by <strong>zero</strong>, and the
 best split gives it 75 alerts and <code>novelty</code> 25, for 77 against 76; at 1000, 150 and 850 for 395
-against 384. Both optima sit on a plateau, both gains are inside sampling error, and both are on
-planted rather than real attacks. <strong>Overlap decides whether dividing a budget can pay.</strong></p>
+against 384. Both optima sit on a plateau and both gains are inside sampling error.
+<strong>Overlap decides whether dividing a budget can pay.</strong></p>
 <h3 id="25-population-scope-baselines">2.5 Population-scope baselines<a class="anchor" href="#25-population-scope-baselines" aria-label="link to this section">#</a></h3>
 <p>Eight reference implementations spanning four inductive biases were run on the same events, labels
 and budgets: isolation forest [11], extended isolation forest [12], half-space trees [13], local
@@ -850,9 +854,6 @@ arm&#39;s warm-up: its null needs eight closed periods and a seven-day burn-in s
 inversion has a mechanism, §3.2&#39;s second limitation by another route: the null over S is
 undiscounted so a campaign cannot inflate it, but the baseline rate is discounted and the planted
 events raise it, which raises the reference value and floors the sum.</p>
-<p>The routing policy of §2.3 is implemented but not scored: its harness needs a per-entity burn-in
-pass and a rule for charging alerts, and choosing that against the evaluation labels is the defect
-Appendix F lists.</p>
 <p>One gap separates what is measured from what can be run: <strong>a fixed budget is a batch
 construction.</strong> Selecting the top <em>B</em> of a day requires the whole day, and an operator at 14:00 does
 not know what arrives by 23:59 — as for a per-day Benjamini–Hochberg step-up. §4.4&#39;s objective,
