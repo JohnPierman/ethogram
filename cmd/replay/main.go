@@ -53,11 +53,13 @@ import (
 
 func main() {
 	var (
-		authPath      = flag.String("auth", "data/lanl/auth.txt.gz", "path to auth.txt.gz")
-		redteamPath   = flag.String("redteam", "data/lanl/redteam.txt.gz", "path to redteam.txt.gz")
-		outPath       = flag.String("out", "", "result JSON path (required)")
-		runID         = flag.String("run-id", "", "run identifier (required)")
-		burnInSec     = flag.Int64("burnin", 604800, "burn-in end, seconds on the corpus epoch")
+		authPath    = flag.String("auth", "data/lanl/auth.txt.gz", "path to auth.txt.gz")
+		redteamPath = flag.String("redteam", "data/lanl/redteam.txt.gz", "path to redteam.txt.gz")
+		outPath     = flag.String("out", "", "result JSON path (required)")
+		runID       = flag.String("run-id", "", "run identifier (required)")
+		burnInSec   = flag.Int64("burnin", 604800, "burn-in end, seconds on the corpus epoch")
+		weighting   = flag.String("weighting", "none",
+			"reweight the selection by a covariate: none, history or asset (#15)")
 		maxRows       = flag.Int64("maxrows", 0, "stop after this many admitted events (0 = all); partial coverage is recorded")
 		maxSeconds    = flag.Int64("maxseconds", 0, "stop at this corpus timestamp, seconds (0 = all); partial coverage is recorded in corpus time")
 		skipHash      = flag.Bool("skip-hash", false, "skip corpus SHA-256 (smoke runs only; recorded as unhashed)")
@@ -134,9 +136,15 @@ func main() {
 		defer pprof.StopCPUProfile()
 	}
 
+	mode, err := parseWeighting(*weighting)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	if err := run(runConfig{
 		authPath: *authPath, redteamPath: *redteamPath, outPath: *outPath, runID: *runID,
 		burnInSec: *burnInSec, maxRows: *maxRows, skipHash: *skipHash,
+		weighting:    mode,
 		halfLifeDays: *halfLifeDay, bandwidthHours: *bandwidth, alpha: *alphaFlag,
 		volMinPeriods: *volMinPeriods, timStandardise: *timStandard,
 		drift: *driftOn, driftShift: *driftShift, driftMinPeriods: *driftMinPer,
@@ -159,30 +167,33 @@ func main() {
 type runConfig struct {
 	authPath, redteamPath, outPath, runID string
 	burnInSec, maxRows                    int64
-	skipHash                              bool
-	halfLifeDays, bandwidthHours, alpha   float64
-	volMinPeriods                         int64
-	timStandardise                        bool
-	drift                                 bool
-	driftShift                            float64
-	driftMinPeriods                       int64
-	topK                                  int
-	budgets                               objective.Budgets
-	entitySample                          int
-	allowResampling                       bool
-	exportGraph, partitionIn              string
-	maxSeconds                            int64
-	shadowCells                           bool
-	conformal                             bool
-	openVocabulary                        bool
-	pairing                               bool
-	noveltyRate                           bool
-	derive                                bool
-	schemaPath                            string
-	leidenPy                              string
-	leidenSeed                            int64
-	ledgerPath                            string
-	weighted                              bool
+	// weighting selects the covariate the selection is reweighted by (#15). The default
+	// is none, which is the unweighted ranking every earlier run used.
+	weighting                           weightingMode
+	skipHash                            bool
+	halfLifeDays, bandwidthHours, alpha float64
+	volMinPeriods                       int64
+	timStandardise                      bool
+	drift                               bool
+	driftShift                          float64
+	driftMinPeriods                     int64
+	topK                                int
+	budgets                             objective.Budgets
+	entitySample                        int
+	allowResampling                     bool
+	exportGraph, partitionIn            string
+	maxSeconds                          int64
+	shadowCells                         bool
+	conformal                           bool
+	openVocabulary                      bool
+	pairing                             bool
+	noveltyRate                         bool
+	derive                              bool
+	schemaPath                          string
+	leidenPy                            string
+	leidenSeed                          int64
+	ledgerPath                          string
+	weighted                            bool
 }
 
 func run(cfg runConfig) error {
@@ -361,7 +372,7 @@ func run(cfg runConfig) error {
 		shadows = append(shadows, coocPartitioned)
 	}
 
-	acc := newAccumulator(labels, topK, cfg.budgets, cfg.pairing)
+	acc := newAccumulator(labels, topK, cfg.budgets, cfg.pairing, cfg.weighting)
 	acc.volGate = newVolumeGateProbe(topK, cfg.volMinPeriods)
 	var rowsSeen int64
 	src := &cappedSource{reader: reader, max: maxRows, seen: &rowsSeen,
@@ -405,6 +416,19 @@ func run(cfg runConfig) error {
 		// for, because it costs a second ranking over tens of millions of events and
 		// buys nothing for a run that is not screening an allocation rule.
 		cmd.BurnInSink = acc.observeBurnIn
+	}
+	if acc.weighting.on() {
+		// History weighting needs its own burn-in pass, and a much cheaper one: no
+		// ranking, one decimated sample per arm. Composed with the ledger's mirror rather
+		// than replacing it, so asking for both does both.
+		ledgerSink := cmd.BurnInSink
+		cmd.BurnInSink = func(se application.ScoredEvent) error {
+			acc.weighting.observeBurnInEvent(string(se.Event.Entity()), se.Verdicts)
+			if ledgerSink != nil {
+				return ledgerSink(se)
+			}
+			return nil
+		}
 	}
 	if cfg.exportGraph != "" || cfg.leidenPy != "" {
 		graphPath := cfg.exportGraph
@@ -458,6 +482,23 @@ func run(cfg runConfig) error {
 			partitionMode = fmt.Sprintf("leiden seed=%d checksum=%s resolution=%g (E4 arm, "+
 				"computed at the burn-in boundary from burn-in state only)",
 				loaded.Seed, loaded.GraphChecksum[:12], loaded.Resolution)
+			return nil
+		}
+	}
+
+	// Fitting the weights happens here and nowhere else: after every burn-in event and
+	// before the first scored one, which is what makes them independent of every p-value
+	// they rank. Registered last so it wraps the graph export above rather than being
+	// overwritten by it, and both still run.
+	if acc.weighting.on() {
+		alsoAtBoundary := cmd.OnBurnInComplete
+		cmd.OnBurnInComplete = func() error {
+			if fitErr := acc.weighting.freeze(); fitErr != nil {
+				return fitErr
+			}
+			if alsoAtBoundary != nil {
+				return alsoAtBoundary()
+			}
 			return nil
 		}
 	}
@@ -1287,6 +1328,12 @@ type redTeamScore struct {
 	Entity    string  `json:"entity"`
 	J         int     `json:"j"`
 
+	// HistoryN is the entity's history length when this event was scored: the covariate
+	// of #15, recorded per labelled event so p x n can be recomputed by hand from the
+	// result rather than taken on trust from a summary (R5). Zero when no weighting mode
+	// asked for the covariate to be tracked.
+	HistoryN int64 `json:"history_n,omitempty"`
+
 	// Detectors is each detector's own model p-value for this labelled event.
 	//
 	// It answers the question the combined score cannot: calibration and discrimination
@@ -1430,6 +1477,11 @@ type accumulator struct {
 	// whose labels all fall after the boundary -- there is nothing to fit a weight on.
 	burnInFitDays map[int64]bool
 
+	// weighting carries the history-length covariate and the weight tables frozen at the
+	// burn-in boundary (#15). Never nil: the none mode is a live object that reweights
+	// nothing, so no call site needs a guard.
+	weighting *historyWeighting
+
 	// entityDays accumulates one record per (entity, corpus day).
 	//
 	// The framework's premise is that the unit of analysis is the individual Ã¢â‚¬â€ a verdict
@@ -1475,9 +1527,12 @@ type entityDay struct {
 	RedTeamEvents int64 `json:"red_team_events"`
 }
 
-func newAccumulator(labels *redTeamLabels, topK int, budgets objective.Budgets, pairingRelational bool) *accumulator {
+func newAccumulator(labels *redTeamLabels, topK int, budgets objective.Budgets,
+	pairingRelational bool, weighting weightingMode) *accumulator {
+
 	return &accumulator{
 		labels:                labels,
+		weighting:             newHistoryWeighting(weighting),
 		topK:                  topK,
 		budgets:               budgets,
 		pairingRelational:     pairingRelational,
@@ -1529,7 +1584,8 @@ func (a *accumulator) observeDetectorArms(se application.ScoredEvent, day int64,
 	sort.Slice(ids, func(i, j int) bool { return ids[i] < ids[j] })
 
 	for _, id := range ids {
-		logP := best[id]
+		modelLogP := best[id]
+		logP := a.weighting.adjust(id, entity, modelLogP)
 		// One evaluation by this arm on this day. It is the denominator of a within-arm
 		// rank, which is the only cross-arm quantity §3.4's diagnosis leaves admissible:
 		// rank 100 of 600,000 and rank 100 of 900 are not the same evidence, and an
@@ -1546,14 +1602,15 @@ func (a *accumulator) observeDetectorArms(se application.ScoredEvent, day int64,
 			byDay[day] = da
 		}
 		da.push(alert{
-			P: math.Exp(logP), LogP: logP, ModelLogP: logP, TSeconds: tSeconds,
+			P: math.Exp(logP), LogP: logP, ModelLogP: modelLogP, TSeconds: tSeconds,
 			Entity: entity, SrcComp: srcComp, DstComp: dstComp,
 			IsRedTeam: isRed, J: 1, MinDetector: string(id), Categories: cats,
 		}, a.topK)
 		if isRed {
 			a.detectorRedTeamScored[id] = append(a.detectorRedTeamScored[id], redTeamScore{
-				Key: key, P: math.Exp(logP), LogP: logP, ModelLogP: logP,
+				Key: key, P: math.Exp(logP), LogP: logP, ModelLogP: modelLogP,
 				TSeconds: tSeconds, Entity: entity, J: 1, Categories: cats,
+				HistoryN: a.weighting.entityEvents[entity],
 			})
 		}
 	}
@@ -1707,6 +1764,7 @@ func (a *accumulator) observe(se application.ScoredEvent) error {
 			Entity: string(se.Event.Entity()), J: se.Combined.J,
 			Detectors:  perDetector,
 			Categories: catNames,
+			HistoryN:   a.weighting.entityEvents[string(se.Event.Entity())],
 		})
 		for _, c := range allCategories() {
 			if cats[c] {
@@ -1730,6 +1788,10 @@ func (a *accumulator) observe(se application.ScoredEvent) error {
 		minPDay = &dayAlerts{}
 		a.minPPerDay[day] = minPDay
 	}
+	// Unweighted, and it cannot be otherwise: no combined score exists before the burn-in
+	// boundary, because the covariance and conformal models are not frozen until it, so
+	// there is no sample on which a combined arm's weights could be fitted without
+	// reading the p-values they would then rank. See history.go.
 	minPDay.push(alert{
 		P: math.Exp(se.Combined.MinPLogP), LogP: se.Combined.MinPLogP,
 		ModelLogP: se.Combined.MinPLogP, TSeconds: tSeconds,
@@ -1744,6 +1806,7 @@ func (a *accumulator) observe(se application.ScoredEvent) error {
 			ModelLogP: se.Combined.MinPLogP, TSeconds: tSeconds,
 			Entity: string(se.Event.Entity()), J: se.Combined.J,
 			Categories: catNames,
+			HistoryN:   a.weighting.entityEvents[string(se.Event.Entity())],
 		})
 	}
 	da, ok := a.perDay[day]
@@ -1751,6 +1814,7 @@ func (a *accumulator) observe(se application.ScoredEvent) error {
 		da = &dayAlerts{}
 		a.perDay[day] = da
 	}
+	// Unweighted, for the reason given at the min-p arm above.
 	da.push(alert{
 		P: se.Combined.P, LogP: se.Combined.LogP, ModelLogP: se.Combined.ModelLogP,
 		TSeconds: tSeconds,
@@ -1759,6 +1823,11 @@ func (a *accumulator) observe(se application.ScoredEvent) error {
 		Categories: catNames,
 	}, a.topK)
 	a.tracked = int64(len(a.perDay))
+
+	// The event now belongs to its entity's history. Counted here, after every reader of
+	// the covariate above, so a covariate is always history strictly before the event it
+	// weighted (#15).
+	a.weighting.seen(string(se.Event.Entity()))
 
 	// Night-activity counters for the E9 midnight-straddler split.
 	nc, ok := a.entityNight[string(se.Event.Entity())]
@@ -2203,16 +2272,24 @@ func (a *accumulator) results() map[string]any {
 		"detections_at_budget": detections,
 		"min_p_arm":            a.minPArmResults(budgets),
 		"detector_arms":        a.detectorArmResults(budgets),
-		"union_arm":            a.unionArmResults(budgets),
-		"weighted_arm":         a.weightedResults(budgets),
-		"entity_days":          a.entityDayResults(budgets),
-		"alerts_per_day":       perDay,
-		"scored_per_day":       scoredPerDay,
-		"red_team_scored":      a.redTeamScored,
-		"p_histograms":         hists,
-		"status_counts":        a.statusCounts,
-		"abstain_causes":       a.abstainCauses,
-		"volume_gate_probe":    a.volumeGateResults(budgets),
+		"history_weighting":    a.weighting.record(),
+		"labelled_history_product": map[string]any{
+			"composite": historyOfLabelled(a.redTeamScored),
+			"note": "p x n over the labelled events, the statistic #15's premise rests " +
+				"on. Recomputed under whatever ranking this run used, so whether the 1/n " +
+				"dependence actually moved is read off the result rather than assumed " +
+				"from the fact that a weighting was applied",
+		},
+		"union_arm":         a.unionArmResults(budgets),
+		"weighted_arm":      a.weightedResults(budgets),
+		"entity_days":       a.entityDayResults(budgets),
+		"alerts_per_day":    perDay,
+		"scored_per_day":    scoredPerDay,
+		"red_team_scored":   a.redTeamScored,
+		"p_histograms":      hists,
+		"status_counts":     a.statusCounts,
+		"abstain_causes":    a.abstainCauses,
+		"volume_gate_probe": a.volumeGateResults(budgets),
 	}
 
 	if len(a.coocPerDay) > 0 {
