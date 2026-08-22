@@ -70,6 +70,12 @@ type State struct {
 	DispersionWindows float64
 	DispersionSum     float64
 
+	// DispersionObserved is the UNDISCOUNTED number of completed windows folded in, and is
+	// what the sample-size gate counts. See MinDispersionWindows: a discounted weight
+	// saturates, so gating on DispersionWindows made the minimum unsatisfiable for sparse
+	// entities forever.
+	DispersionObserved int64
+
 	LastSeen event.Timestamp
 }
 
@@ -162,7 +168,7 @@ func (d *Detector) Score(ctx context.Context, e *event.Event) (detector.Verdicts
 	// abstains below rather than falling back to (11), which would be the narrowest null
 	// it has.
 	mean, variance := PredictiveMoments(a, b, rho)
-	phi := Dispersion(state.DispersionSum, state.DispersionWindows)
+	phi := Dispersion(state.DispersionSum, state.DispersionWindows, state.DispersionObserved)
 	p := UpperTail(a, b, rho, int(kObs))
 	if phi > 1 && mean > 0 {
 		p = UpperTailDispersed(mean, phi, int(kObs))
@@ -238,7 +244,7 @@ func (d *Detector) Score(ctx context.Context, e *event.Event) (detector.Verdicts
 	// costs nothing: a p-value of 1 cannot win an alert slot. Widening the gate to cover
 	// cold start would change what the volume-gate probe of section 6.2 can measure from a
 	// single ungated pass, for no gain.
-	if mean > 0 && !DispersionMeasurable(state.DispersionWindows) {
+	if mean > 0 && !DispersionMeasurable(state.DispersionObserved) {
 		v, abstainErr := detector.NewAbstained(DetectorID, target,
 			detector.StatusAbstainedUnusable,
 			"too few completed windows to measure this entity's dispersion, so the "+
@@ -406,6 +412,7 @@ func (o *observation) Commit(ctx context.Context) error {
 			residual := float64(state.WindowCount) - state.WindowExpected
 			state.DispersionSum = delta*state.DispersionSum + residual*residual/state.WindowExpected
 			state.DispersionWindows = delta*state.DispersionWindows + 1
+			state.DispersionObserved++
 		}
 		state.WindowIndex = o.hour
 		state.WindowCount = 0

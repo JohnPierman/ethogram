@@ -122,7 +122,14 @@ func UpperTail(a, b, rho float64, kObs int) float64 {
 // Below it the detector ABSTAINS. It previously fell back to equation (11) exactly, which
 // was the wrong direction to fail in: (11) un-widened is the narrowest null the arm has, so
 // an entity whose dispersion could not be measured was scored against the null least able
-// to tolerate its ordinary variation. See [DispersionReachable] for who that hit.
+// to tolerate its ordinary variation.
+//
+// It is counted on the UNDISCOUNTED window count, not on the discounted weight. Gating on the
+// discounted weight was the second half of the defect: that weight saturates at 1/(1-delta), so
+// past about 55 hours between active windows the minimum was unsatisfiable however long the
+// entity was watched -- a benign account bursting every four days put 31.6% of its own events
+// below 1e-12 and could never have stopped. [DispersionReachable] reports that old boundary and
+// is retained so the constraint the fix removes stays visible and testable.
 const MinDispersionWindows = 5
 
 // DispersionReachable reports whether an entity whose active windows are gapHours apart can
@@ -142,19 +149,19 @@ const MinDispersionWindows = 5
 // is what it now does -- or estimate the dispersion on a timescale the entity actually acts
 // on. The second is the better repair and is not attempted here.
 func DispersionReachable(gapHours, halfLifeHours float64) bool {
-	if gapHours <= 0 || halfLifeHours <= 0 {
-		return true
-	}
-	delta := math.Exp2(-gapHours / halfLifeHours)
-	if delta >= 1 {
-		return true
-	}
-	return 1/(1-delta) >= MinDispersionWindows
+	return statistics.MinimumWeightReachable(MinDispersionWindows, gapHours, halfLifeHours)
 }
 
-// DispersionMeasurable reports whether the accumulated window weight supports an estimate.
-// The detector consults it to decide between scoring and abstaining.
-func DispersionMeasurable(windows float64) bool { return windows >= MinDispersionWindows }
+// DispersionCoverageHours is the sparsest an entity's active windows may be and still permit a
+// dispersion estimate: about 55 hours at the seven-day half-life. Past it the arm abstains
+// permanently rather than warming up.
+func DispersionCoverageHours(halfLifeHours float64) float64 {
+	return statistics.MaximumGapForWeight(MinDispersionWindows, halfLifeHours)
+}
+
+// DispersionMeasurable reports whether enough completed windows have been observed to support
+// an estimate. The count is undiscounted on purpose: see [MinDispersionWindows].
+func DispersionMeasurable(observed int64) bool { return observed >= MinDispersionWindows }
 
 // Dispersion returns the entity's measured Pearson dispersion φ̂, the discounted mean
 // of (k − m)² / m over completed windows, where m is the count equation (11) expected
@@ -178,8 +185,13 @@ func DispersionMeasurable(windows float64) bool { return windows >= MinDispersio
 // Only windows that contained at least one event contribute, because a window with no
 // events is never scored and so has no recorded expectation. Conditioning on activity
 // biases φ̂ upward, which is conservative and is the direction to err in.
-func Dispersion(sum, windows float64) float64 {
-	if windows < MinDispersionWindows || sum <= 0 {
+func Dispersion(sum, windows float64, observed int64) float64 {
+	// The GATE is the undiscounted count and the RATIO is the discounted one. That split is
+	// the whole repair: the discount belongs in the estimate, so that phi follows the
+	// entity's recent variation, and not in the decision about whether an estimate exists,
+	// because a discounted count saturates and made the decision unanswerable for sparse
+	// entities. See MinDispersionWindows.
+	if !DispersionMeasurable(observed) || windows <= 0 || sum <= 0 {
 		return 1
 	}
 	if phi := sum / windows; phi > 1 {

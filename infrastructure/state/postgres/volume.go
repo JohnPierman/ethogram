@@ -31,15 +31,18 @@ func (s *VolumeStore) FindByEntity(ctx context.Context, src event.SourceID, en e
 		completedPeriods                                   int64
 		windowExpected                                     float64
 		dispersionWindows, dispersionSum                   float64
+		dispersionObserved                                 int64
 		lastSeen                                           int64
 	)
 	err := s.pool.QueryRow(ctx, `
 		SELECT a, b, period_index, period_count, completed_periods, window_index, window_count,
-		       window_expected, dispersion_windows, dispersion_sum, last_seen_us
+		       window_expected, dispersion_windows, dispersion_sum, dispersion_observed,
+		       last_seen_us
 		  FROM volume_state
 		 WHERE source = $1 AND entity = $2`,
 		string(src), string(en)).Scan(&a, &b, &periodIndex, &periodCount, &completedPeriods,
-		&windowIndex, &windowCount, &windowExpected, &dispersionWindows, &dispersionSum, &lastSeen)
+		&windowIndex, &windowCount, &windowExpected, &dispersionWindows, &dispersionSum,
+		&dispersionObserved, &lastSeen)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return nil, false, nil // cold start, not an error (§7.5)
 	}
@@ -47,16 +50,17 @@ func (s *VolumeStore) FindByEntity(ctx context.Context, src event.SourceID, en e
 		return nil, false, fmt.Errorf("postgres: volume select: %w", err)
 	}
 	return &volume.State{
-		Rate:              volume.GammaPosterior{A: a, B: b},
-		PeriodIndex:       periodIndex,
-		PeriodCount:       periodCount,
-		CompletedPeriods:  completedPeriods,
-		WindowIndex:       windowIndex,
-		WindowCount:       windowCount,
-		WindowExpected:    windowExpected,
-		DispersionWindows: dispersionWindows,
-		DispersionSum:     dispersionSum,
-		LastSeen:          event.Timestamp(lastSeen),
+		Rate:               volume.GammaPosterior{A: a, B: b},
+		PeriodIndex:        periodIndex,
+		PeriodCount:        periodCount,
+		CompletedPeriods:   completedPeriods,
+		WindowIndex:        windowIndex,
+		WindowCount:        windowCount,
+		WindowExpected:     windowExpected,
+		DispersionWindows:  dispersionWindows,
+		DispersionSum:      dispersionSum,
+		DispersionObserved: dispersionObserved,
+		LastSeen:           event.Timestamp(lastSeen),
 	}, true, nil
 }
 
@@ -67,8 +71,8 @@ func (s *VolumeStore) SaveState(ctx context.Context, src event.SourceID, en even
 		INSERT INTO volume_state
 		       (source, entity, a, b, period_index, period_count, completed_periods,
 		        window_index, window_count, window_expected,
-		        dispersion_windows, dispersion_sum, last_seen_us)
-		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+		        dispersion_windows, dispersion_sum, dispersion_observed, last_seen_us)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
 		ON CONFLICT (source, entity) DO UPDATE
 		   SET a = EXCLUDED.a,
 		       b = EXCLUDED.b,
@@ -80,11 +84,12 @@ func (s *VolumeStore) SaveState(ctx context.Context, src event.SourceID, en even
 		       window_expected = EXCLUDED.window_expected,
 		       dispersion_windows = EXCLUDED.dispersion_windows,
 		       dispersion_sum = EXCLUDED.dispersion_sum,
+		       dispersion_observed = EXCLUDED.dispersion_observed,
 		       last_seen_us = EXCLUDED.last_seen_us`,
 		string(src), string(en), st.Rate.A, st.Rate.B,
 		st.PeriodIndex, st.PeriodCount, st.CompletedPeriods,
 		st.WindowIndex, st.WindowCount, st.WindowExpected,
-		st.DispersionWindows, st.DispersionSum, int64(st.LastSeen))
+		st.DispersionWindows, st.DispersionSum, st.DispersionObserved, int64(st.LastSeen))
 	if err != nil {
 		return fmt.Errorf("postgres: volume upsert: %w", err)
 	}

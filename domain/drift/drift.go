@@ -86,10 +86,11 @@ const DefaultShift = 1.3
 // single observation, and matches the order of the minimum history the novelty-rate arm
 // requires before it will hold an opinion.
 //
-// It interacts with the discount, and the interaction binds. Discounted weight saturates at
-// 1/(1−δ) however long the entity is observed, so a half-life short enough to put that
-// ceiling below MinWeight makes the arm abstain forever rather than warm up slowly. See
-// [MaxDiscount].
+// It is counted on [Null.Observed], the undiscounted number of closed periods, and not on the
+// discounted weight. Gating on the discounted weight was the defect: it saturates at 1/(1−δ),
+// so below a 5.19-day half-life the minimum was unsatisfiable and the arm would have abstained
+// on every entity for all time. [MaxDiscount] reports that old boundary and is retained so the
+// constraint the fix removes stays visible and testable.
 const MinWeight = 8
 
 // MaxDiscount is the heaviest per-period discount at which the null can ever reach
@@ -107,6 +108,18 @@ const MaxDiscount = 1 - 1.0/MinWeight
 // result file.
 func ReachesMinWeight(delta float64) bool {
 	return delta >= MaxDiscount && delta < 1 || delta == 1
+}
+
+// CoverageHalfLifeDays is the shortest half-life at which this arm can ever form its null,
+// given one period a day: 1/log2(8/7) = 5.19 days. Below it the discounted weight saturates
+// under [MinWeight] and the arm abstains on every entity for all time.
+//
+// The framework's seven-day half-life clears it, at a ceiling of 10.6 against a minimum of 8,
+// but not by much -- which is why this is a function rather than a remark.
+func CoverageHalfLifeDays() float64 {
+	// The boundary is where MaximumGapForWeight(MinWeight, T) equals one period, so solving
+	// for T inverts to 1 / log2(MinWeight/(MinWeight-1)).
+	return 1 / math.Log2(MinWeight/(MinWeight-1))
 }
 
 // Reference returns Page's reference value for detecting a multiplicative shift of the given
@@ -148,6 +161,12 @@ type Null struct {
 	Sum   float64
 	SumSq float64
 	W     float64
+
+	// Observed is the UNDISCOUNTED number of closed periods folded in. The sample-size gate
+	// counts on this, not on W: a discounted weight saturates at 1/(1-delta), so gating on it
+	// made [MinWeight] unsatisfiable below a 5.19-day half-life and the arm would have
+	// abstained on every entity for all time. The discount still shapes the estimate.
+	Observed int64
 }
 
 // Observe folds one realised cumulative sum into the null, discounting what is already there
@@ -159,12 +178,13 @@ func (n *Null) Observe(s, delta float64) {
 	n.Sum = delta*n.Sum + s
 	n.SumSq = delta*n.SumSq + s*s
 	n.W = delta*n.W + 1
+	n.Observed++
 }
 
 // Moments reports the null's mean and standard deviation, and whether they rest on enough
 // weight to standardise against.
 func (n Null) Moments() (mean, sd float64, ok bool) {
-	if n.W < MinWeight {
+	if n.Observed < MinWeight || n.W <= 0 {
 		return 0, 0, false
 	}
 	mean = n.Sum / n.W

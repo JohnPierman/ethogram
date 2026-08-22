@@ -52,11 +52,16 @@ var migrations = []string{
 		w            float8   NOT NULL,
 		log_u_sum    float8   NOT NULL DEFAULT 0,
 		log_u_sumsq  float8   NOT NULL DEFAULT 0,
+		observed     bigint   NOT NULL DEFAULT 0,
 		last_seen_us bigint   NOT NULL,
 		PRIMARY KEY (source, entity)
 	)`,
 	`ALTER TABLE timing_state ADD COLUMN IF NOT EXISTS log_u_sum float8 NOT NULL DEFAULT 0`,
 	`ALTER TABLE timing_state ADD COLUMN IF NOT EXISTS log_u_sumsq float8 NOT NULL DEFAULT 0`,
+	// The undiscounted observation count the standardisation gate reads, for the same reason
+	// as volume's above: a discounted weight saturates and cannot answer a sample-size
+	// question.
+	`ALTER TABLE timing_state ADD COLUMN IF NOT EXISTS observed bigint NOT NULL DEFAULT 0`,
 	`CREATE TABLE IF NOT EXISTS volume_state (
 		source       text   NOT NULL,
 		entity       text   NOT NULL,
@@ -70,6 +75,7 @@ var migrations = []string{
 		window_expected float8 NOT NULL DEFAULT 0,
 		dispersion_windows float8 NOT NULL DEFAULT 0,
 		dispersion_sum float8 NOT NULL DEFAULT 0,
+		dispersion_observed bigint NOT NULL DEFAULT 0,
 		last_seen_us bigint NOT NULL,
 		PRIMARY KEY (source, entity)
 	)`,
@@ -86,6 +92,10 @@ var migrations = []string{
 	`ALTER TABLE volume_state ADD COLUMN IF NOT EXISTS window_expected float8 NOT NULL DEFAULT 0`,
 	`ALTER TABLE volume_state ADD COLUMN IF NOT EXISTS dispersion_windows float8 NOT NULL DEFAULT 0`,
 	`ALTER TABLE volume_state ADD COLUMN IF NOT EXISTS dispersion_sum float8 NOT NULL DEFAULT 0`,
+	// The undiscounted window count the dispersion gate reads. Defaulting to zero migrates an
+	// existing row to "not yet measured", which is what a fresh state carries, so the arm
+	// re-measures from the next completed window rather than resuming on a fabricated count.
+	`ALTER TABLE volume_state ADD COLUMN IF NOT EXISTS dispersion_observed bigint NOT NULL DEFAULT 0`,
 	`CREATE TABLE IF NOT EXISTS graph_node (
 		source       text   NOT NULL,
 		field        text   NOT NULL,

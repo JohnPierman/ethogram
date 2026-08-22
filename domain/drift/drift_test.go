@@ -69,7 +69,7 @@ func replay(t *testing.T, counts []float64) (driftP, volumeP []float64) {
 			if scoring && posterior.A > 0 {
 				// The volume arm's own null: this period's count against the entity's
 				// over-dispersed predictive, at one whole period of exposure.
-				phi := volume.Dispersion(sum, float64(i))
+				phi := volume.Dispersion(sum, float64(i), int64(i))
 				volumeP = append(volumeP,
 					volume.UpperTailDispersed(baseline, phi, int(k)))
 			}
@@ -273,23 +273,31 @@ func TestNullDiscountsOlderPeriods(t *testing.T) {
 	}
 }
 
-// TestNullCannotReachItsMinimumWeightUnderTooHeavyADiscount. A constraint that binds silently
-// and so is asserted rather than trusted: discounted weight saturates at 1/(1-delta), so a
-// half-life short enough to put that ceiling below the minimum weight makes the arm abstain on
-// every entity for all time. A run that shortened the half-life would disable the detector and
-// record only a column of abstentions.
-func TestNullCannotReachItsMinimumWeightUnderTooHeavyADiscount(t *testing.T) {
+// TestNullSurvivesAHeavyDiscount. The gate counts undiscounted observations, so a discount
+// heavy enough that the DISCOUNTED weight can never reach the minimum no longer disables the
+// arm.
+//
+// This test asserted the opposite until the gate was fixed, and the old assertion was the
+// defect stated as a requirement: a half-life below 5.19 days put the saturating weight under
+// MinWeight, so the arm would have abstained on every entity for all time. ReachesMinWeight
+// still reports that boundary, and is kept so the constraint the fix removes stays visible.
+func TestNullSurvivesAHeavyDiscount(t *testing.T) {
 	tooHeavy := drift.MaxDiscount - 0.05
 	if drift.ReachesMinWeight(tooHeavy) {
-		t.Errorf("ReachesMinWeight(%v) = true, want false", tooHeavy)
+		t.Errorf("ReachesMinWeight(%v) = true; this test needs a discount whose discounted"+
+			" ceiling is below the minimum", tooHeavy)
 	}
 	var n drift.Null
 	for i := 0; i < 10_000; i++ {
 		n.Observe(float64(i%7), tooHeavy)
 	}
-	if _, ok := n.Standardise(5); ok {
-		t.Errorf("formed a null under a discount whose saturating weight is %.2f, below the"+
-			" minimum of %d", 1/(1-tooHeavy), drift.MinWeight)
+	if n.W >= drift.MinWeight {
+		t.Fatalf("the discounted weight reached %.2f, so this discount is not heavy enough"+
+			" to exercise the case", n.W)
+	}
+	if _, ok := n.Standardise(5); !ok {
+		t.Errorf("the arm still cannot form a null after 10,000 observations at a discounted"+
+			" weight of %.2f; the sample-size gate is still counting the discount", n.W)
 	}
 
 	// The framework's own seven-day half-life at daily periods must clear the bound.

@@ -9,6 +9,7 @@ import (
 	"github.com/JohnPierman/ethogram/domain/detector"
 	"github.com/JohnPierman/ethogram/domain/event"
 	"github.com/JohnPierman/ethogram/domain/novelty"
+	"github.com/JohnPierman/ethogram/domain/statistics"
 )
 
 // DetectorID names the timing half of Detector II.
@@ -20,6 +21,17 @@ const DetectorID = detector.ID("timing")
 type State struct {
 	Moments  *Moments
 	LastSeen event.Timestamp
+
+	// Observed is the UNDISCOUNTED count of scored events folded into LogUSum and
+	// LogUSumSq. It exists because the sample-size question and the recency question are
+	// different questions, and answering the first with a discounted weight was a defect.
+	//
+	// The discount makes the ESTIMATE follow the entity's recent behaviour, which is right.
+	// It must not decide whether an estimate EXISTS, because a discounted count saturates at
+	// 1/(1-delta): at the seven-day half-life a once-daily account saturates at 10.6 against
+	// a minimum of 20, so it could never be standardised however long it was watched. Not a
+	// slow warm-up -- no warm-up. See statistics.SaturatingWeight.
+	Observed int64
 
 	// LogUSum and LogUSumSq accumulate ln U over the entity's own scored events, under
 	// the same discount as the moments, so that U can be standardised against what this
@@ -60,14 +72,68 @@ const DefaultStandardise = true
 // standardised statistic is formed. Below it the entity has too few of its own U values
 // for a mean and a spread to mean anything, and the detector abstains rather than
 // standardising against noise -- the abstention question #26 anticipates.
+//
+// It is counted on [State.Observed], the undiscounted number of the entity's own scored
+// events, and not on the discounted moment weight. Gating on the discounted weight was the
+// defect: it saturates at 1/(1-delta), so past about 12.4 hours between events the minimum was
+// unsatisfiable however long the entity was watched, and the arm abstained on sparse accounts
+// permanently rather than warming up. [StandardiseCoverageHours] reports that old boundary, and
+// is retained so the constraint the fix removes stays visible and testable.
 const MinStandardiseWeight = 20
 
-// standardise reports the per-entity mean and standard deviation of ln U, and whether
-// they rest on enough weight to use.
-func (s *State) standardise() (mean, sd float64, ok bool) {
+// StandardiseCoverageHours is the sparsest an account's events may average and still be
+// standardisable: the gap at which the discounted weight saturates exactly at
+// [MinStandardiseWeight].
+//
+// Stated in hours because that is the unit an operator can check against their own telemetry.
+// "The standardised timing statistic is available to accounts active more often than every
+// 12.4 hours" is a sentence with content; "the minimum weight is 20" is not.
+func StandardiseCoverageHours(halfLife novelty.HalfLife) float64 {
+	return statistics.MaximumGapForWeight(MinStandardiseWeight,
+		float64(halfLife)/float64(event.Hour))
+}
+
+// AbstentionCause names why the standardised statistic could not be formed. The two causes
+// have opposite implications and were previously indistinguishable in a run's status counts,
+// which is what #37 asks be measured: too little history is a warm-up that passes, whereas no
+// spread is a property of the account that never will, and it falls on exactly the most
+// regular accounts -- the ones for which an event on the far side of the clock is most
+// remarkable. The arm going quiet there is anti-correlated with its own evidence.
+type AbstentionCause int
+
+const (
+	// CauseNone: the statistic was formed.
+	CauseNone AbstentionCause = iota
+	// CauseTooLittleHistory: fewer than MinStandardiseWeight discounted observations.
+	CauseTooLittleHistory
+	// CauseNoSpread: enough observations, but they carry no variance to standardise
+	// against, so the entity is perfectly regular on this scale.
+	CauseNoSpread
+)
+
+// String names the cause for a verdict's reason and for a run's status counts.
+func (c AbstentionCause) String() string {
+	switch c {
+	case CauseTooLittleHistory:
+		return "too little of this entity's own timing history to standardise against"
+	case CauseNoSpread:
+		return "this entity's own ln U carries no spread to standardise against, so it is " +
+			"perfectly regular on this scale"
+	default:
+		return "none"
+	}
+}
+
+// standardise reports the per-entity mean and standard deviation of ln U, whether they rest
+// on enough weight to use, and where they do not, which of the two causes applies.
+func (s *State) standardise() (mean, sd float64, ok bool, cause AbstentionCause) {
+	// The gate is on the undiscounted count; the estimate below is still discounted.
+	if s.Observed < MinStandardiseWeight {
+		return 0, 0, false, CauseTooLittleHistory
+	}
 	w := s.Moments.W
-	if w < MinStandardiseWeight {
-		return 0, 0, false
+	if w <= 0 {
+		return 0, 0, false, CauseTooLittleHistory
 	}
 	mean = s.LogUSum / w
 	variance := s.LogUSumSq/w - mean*mean
@@ -77,9 +143,13 @@ func (s *State) standardise() (mean, sd float64, ok bool) {
 		// against and no opinion to be had on this scale. Reported as an abstention rather
 		// than fixed up with an arbitrary floor on the spread, which would manufacture
 		// extreme scores out of a rounding difference.
-		return mean, 0, false
+		//
+		// #37 is the objection that this is the wrong way round, and it is a fair one. The
+		// cause is now reported separately so the size of the case is a number before
+		// anything is changed on the strength of it.
+		return mean, 0, false, CauseNoSpread
 	}
-	return mean, math.Sqrt(variance), true
+	return mean, math.Sqrt(variance), true, CauseNone
 }
 
 // StateRepository persists per-entity circular state.
@@ -164,7 +234,7 @@ func (d *Detector) Score(ctx context.Context, e *event.Event) (detector.Verdicts
 	// ln U is what the per-entity null is kept over. U is bounded below by the grid, so
 	// this is bounded too; the standardised form below is not, which is the point of #26.
 	logU := math.Log(tail)
-	mean, sd, haveNull := state.standardise()
+	mean, sd, haveNull, cause := state.standardise()
 
 	// Computed whenever the null exists, so that a run measures the statistic it did not
 	// select. REPORTED only when selected: gating the report on haveNull alone would
@@ -241,12 +311,17 @@ func (d *Detector) Score(ctx context.Context, e *event.Event) (detector.Verdicts
 	// detector abstains instead of falling back. The observation is still returned: the
 	// entity must keep accruing ln U or it never crosses the threshold.
 	if d.standardise && !haveNull {
+		// The reason names WHICH cause, so a run's abstentions can be split without a
+		// second pass: #37's first requirement is that the zero-spread share be a number
+		// rather than a guess, and the two causes point opposite ways.
 		v, abstainErr := detector.NewAbstained(DetectorID, target,
-			detector.StatusAbstainedUnusable,
-			"too little of this entity's own timing history to standardise against",
+			detector.StatusAbstainedUnusable, cause.String(),
 			detector.NewEvidence([]int{6, 7, 8, 9}, map[string]float64{
-				"W":       state.Moments.W,
-				"minimum": MinStandardiseWeight,
+				"W":              state.Moments.W,
+				"minimum":        MinStandardiseWeight,
+				"abstain_cause":  float64(cause),
+				"log_u_mean":     mean,
+				"log_u_variance": 0,
 			}, labels))
 		if abstainErr != nil {
 			return nil, nil, fmt.Errorf("timing: abstain: %w", abstainErr)
@@ -324,6 +399,9 @@ func (o *observation) Commit(ctx context.Context) error {
 	state.Moments.Observe(o.phi, delta)
 	state.LogUSum = delta*state.LogUSum + o.logU
 	state.LogUSumSq = delta*state.LogUSumSq + o.logU*o.logU
+	// Undiscounted, because it answers "how many observations" and not "how recent". See
+	// State.Observed.
+	state.Observed++
 	if o.at > state.LastSeen {
 		state.LastSeen = o.at
 	}

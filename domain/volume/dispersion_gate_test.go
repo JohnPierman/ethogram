@@ -12,13 +12,19 @@ import (
 	"github.com/JohnPierman/ethogram/domain/volume"
 )
 
-// scoreBursts drives one entity that produces a burst of events every gapDays and returns
-// the p-values it was scored on after history is established, together with how often it
-// abstained and the dispersion it managed to measure.
-//
-// Burst sizes vary benignly and deterministically: nothing here is an attack, and every
-// p-value the arm reports is therefore a false alarm waiting to happen.
-func scoreBursts(t *testing.T, gapDays int) (scored []float64, abstained int, windows, phi float64) {
+// burstResult is what one entity's whole history produced.
+type burstResult struct {
+	scored    []float64 // sorted p-values, after history is established
+	abstained int
+	observed  int64   // undiscounted completed windows: what the gate counts
+	weight    float64 // discounted completed windows: what it used to count
+	phi       float64
+}
+
+// scoreBursts drives one entity that produces a burst of events every gapDays. Burst sizes vary
+// benignly and deterministically: nothing here is an attack, so every p-value the arm reports is
+// a false alarm waiting to happen.
+func scoreBursts(t *testing.T, gapDays int) burstResult {
 	t.Helper()
 	ctx := context.Background()
 
@@ -29,6 +35,7 @@ func scoreBursts(t *testing.T, gapDays int) (scored []float64, abstained int, wi
 
 	sizes := []int{8, 22, 11, 35, 14, 19, 27, 9, 16, 30, 12, 25}
 	offset := int64(0)
+	var out burstResult
 
 	for i := 0; i < len(sizes)*2; i++ {
 		n := sizes[i%len(sizes)]
@@ -48,9 +55,9 @@ func scoreBursts(t *testing.T, gapDays int) (scored []float64, abstained int, wi
 			}
 			if i >= len(sizes) {
 				if p, ok := verdicts[0].PValue(); ok {
-					scored = append(scored, p)
+					out.scored = append(out.scored, p)
 				} else if verdicts[0].Status() == detector.StatusAbstainedUnusable {
-					abstained++
+					out.abstained++
 				}
 			}
 			if err := obs.Commit(ctx); err != nil {
@@ -60,73 +67,117 @@ func scoreBursts(t *testing.T, gapDays int) (scored []float64, abstained int, wi
 	}
 
 	st, _, _ := mv.FindByEntity(ctx, vSrc, vEntity)
-	sort.Float64s(scored)
-	return scored, abstained, st.DispersionWindows,
-		volume.Dispersion(st.DispersionSum, st.DispersionWindows)
+	sort.Float64s(out.scored)
+	out.observed = st.DispersionObserved
+	out.weight = st.DispersionWindows
+	out.phi = volume.Dispersion(st.DispersionSum, st.DispersionWindows, st.DispersionObserved)
+	return out
 }
 
-// TestSparseEntityIsNotScoredAgainstAnUnwidenedNull is the regression test for the
-// sub-1e-12 pile.
+// TestSparseEntityMeasuresItsOwnDispersion is the regression test for the sub-1e-12 pile.
 //
-// The accumulator that measures an entity's dispersion is discounted by elapsed calendar
-// hours, so its weight saturates at 1/(1-delta) and an entity whose active windows are far
-// enough apart can never reach [volume.MinDispersionWindows]. Such an entity used to fall
-// back to equation (11) un-widened -- the narrowest null the arm has -- and a wholly benign
-// burst then scored tens of orders of magnitude into the tail. It must now abstain.
-func TestSparseEntityIsNotScoredAgainstAnUnwidenedNull(t *testing.T) {
+// A benign account bursting every four or seven days used to put 31.6% and 41.7% of its own
+// events below 1e-12, reaching 1e-45, and could never have stopped: the gate counted a
+// DISCOUNTED window weight, which saturates at 1/(1-delta), so at that sparsity the minimum was
+// unsatisfiable however long the entity was watched, and the arm fell back to equation (11)
+// un-widened -- the narrowest null it has -- for exactly the entity whose variation it had no
+// evidence about.
+//
+// The gate now counts undiscounted observations, so such an entity measures its own dispersion
+// and is scored against a null that fits it.
+func TestSparseEntityMeasuresItsOwnDispersion(t *testing.T) {
 	for _, gapDays := range []int{4, 7} {
-		scored, abstained, windows, phi := scoreBursts(t, gapDays)
+		r := scoreBursts(t, gapDays)
 
-		if volume.DispersionMeasurable(windows) {
-			t.Fatalf("burst every %d days reached %.2f windows, which the gate admits;"+
-				" this test needs a sparsity the gate cannot admit", gapDays, windows)
+		// The old gate could not have admitted this entity: its discounted weight is below
+		// the minimum and stays there. That is the condition the fix removes, asserted so
+		// the test cannot quietly stop exercising it.
+		if volume.DispersionReachable(float64(gapDays)*24, 7*24) {
+			t.Fatalf("burst every %d days is inside the old reachable region; this test"+
+				" needs a sparsity the discounted gate could never admit", gapDays)
 		}
-		if phi != 1 {
-			t.Errorf("burst every %d days measured phi=%v on %.2f windows; an"+
-				" unmeasurable dispersion must report the floor", gapDays, phi, windows)
+		if r.weight >= volume.MinDispersionWindows {
+			t.Fatalf("burst every %d days reached a discounted weight of %.2f", gapDays,
+				r.weight)
 		}
-		if len(scored) != 0 {
-			t.Errorf("burst every %d days was scored on %d events with an unmeasurable"+
-				" dispersion, smallest p=%.3g; it must abstain instead",
-				gapDays, len(scored), scored[0])
+
+		// The new gate admits it, on undiscounted observations.
+		if !volume.DispersionMeasurable(r.observed) {
+			t.Errorf("burst every %d days observed %d windows and is still not measurable",
+				gapDays, r.observed)
 		}
-		if abstained == 0 {
-			t.Errorf("burst every %d days neither scored nor abstained", gapDays)
+		if len(r.scored) == 0 {
+			t.Fatalf("burst every %d days abstained on everything despite %d observed"+
+				" windows", gapDays, r.observed)
+		}
+		if r.phi <= 1 {
+			t.Errorf("burst every %d days measured phi=%v; a bursty account must widen its"+
+				" own null", gapDays, r.phi)
+		}
+
+		// And the point of all of it: no benign event competes for an alert slot.
+		if r.scored[0] < 1e-6 {
+			t.Errorf("burst every %d days scored a benign event at %.3g, which would"+
+				" compete for an alert slot", gapDays, r.scored[0])
 		}
 	}
 }
 
-// TestEstablishedEntityStillScores. The abstention must not swallow the entities the arm
-// exists to serve: one active often enough to measure its own dispersion is still scored,
-// and its ordinary variation stays far from the tail.
+// TestEstablishedEntityStillScores. The change must not disturb the entities the arm already
+// served: one active often enough is still scored, still widens its null, and still keeps its
+// ordinary variation far from the tail.
 func TestEstablishedEntityStillScores(t *testing.T) {
 	for _, gapDays := range []int{1, 2} {
-		scored, _, windows, phi := scoreBursts(t, gapDays)
+		r := scoreBursts(t, gapDays)
 
-		if !volume.DispersionMeasurable(windows) {
-			t.Fatalf("burst every %d days reached only %.2f windows", gapDays, windows)
+		if !volume.DispersionMeasurable(r.observed) {
+			t.Fatalf("burst every %d days observed only %d windows", gapDays, r.observed)
 		}
-		if len(scored) == 0 {
-			t.Fatalf("burst every %d days abstained on everything despite %.2f windows",
-				gapDays, windows)
+		if len(r.scored) == 0 {
+			t.Fatalf("burst every %d days abstained on everything", gapDays)
 		}
-		if phi <= 1 {
-			t.Errorf("burst every %d days measured phi=%v; a bursty account must widen"+
-				" its own null", gapDays, phi)
+		if r.phi <= 1 {
+			t.Errorf("burst every %d days measured phi=%v", gapDays, r.phi)
 		}
-		// The whole account is benign, so nothing it does should reach the tail the
-		// framework's realised alert cuts sit at.
-		if scored[0] < 1e-6 {
-			t.Errorf("burst every %d days scored a benign event at %.3g, which would"+
-				" compete for an alert slot", gapDays, scored[0])
+		if r.scored[0] < 1e-6 {
+			t.Errorf("burst every %d days scored a benign event at %.3g", gapDays,
+				r.scored[0])
 		}
 	}
 }
 
-// TestDispersionReachableNamesTheUnsatisfiableRegion. The bound is arithmetic and is
-// asserted so that a change to the half-life or to the minimum cannot silently recreate a
-// region where the gate can never open.
-func TestDispersionReachableNamesTheUnsatisfiableRegion(t *testing.T) {
+// TestColdEntityStillAbstains. The abstention has to survive the fix for the case it was
+// written for: an entity with no completed windows has no measured width for its null, and
+// asserting the narrowest one is what produced the pile.
+func TestColdEntityStillAbstains(t *testing.T) {
+	ctx := context.Background()
+	mv := &memVolume{states: map[string]*volume.State{}}
+	mt := &memTiming{states: map[string]*timing.State{}}
+	vd := volume.NewDetector(mv, mt, 1.5, novelty.HalfLife(7*event.Day), 0)
+
+	if volume.DispersionMeasurable(0) {
+		t.Error("an entity with no observed windows is reported measurable")
+	}
+
+	// One event: no window has closed, so nothing can have been measured.
+	verdicts, obs, err := vd.Score(ctx, vEvent(9*event.Hour, 0))
+	if err != nil {
+		t.Fatalf("Score: %v", err)
+	}
+	if err := obs.Commit(ctx); err != nil {
+		t.Fatalf("Commit: %v", err)
+	}
+	// Cold start keeps the documented P = 1 convention rather than abstaining, because a
+	// p-value of 1 cannot win an alert slot and the volume-gate probe reads it.
+	if p, ok := verdicts[0].PValue(); ok && p != 1 {
+		t.Errorf("cold start scored %v, want exactly 1", p)
+	}
+}
+
+// TestDispersionReachableNamesTheOldUnsatisfiableRegion. The bound the fix removes is retained
+// and asserted, so the constraint stays visible: it is what the sparse-entity test above uses to
+// prove it is exercising the case that used to be unreachable.
+func TestDispersionReachableNamesTheOldUnsatisfiableRegion(t *testing.T) {
 	const weekHours = 7 * 24
 	for _, tc := range []struct {
 		gapHours float64
@@ -139,7 +190,6 @@ func TestDispersionReachableNamesTheUnsatisfiableRegion(t *testing.T) {
 				tc.gapHours, weekHours, got, tc.want)
 		}
 	}
-	// Degenerate inputs must not report an unsatisfiable gate.
 	for _, tc := range [][2]float64{{0, weekHours}, {24, 0}, {-1, weekHours}} {
 		if !volume.DispersionReachable(tc[0], tc[1]) {
 			t.Errorf("DispersionReachable(%v, %v) = false on a degenerate input",

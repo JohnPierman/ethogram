@@ -32,13 +32,14 @@ func (s *TimingStore) FindByEntity(ctx context.Context, src event.SourceID, en e
 		c, sn              []float64
 		w                  float64
 		logUSum, logUSumSq float64
+		observed           int64
 		lastSeen           int64
 	)
 	err := s.pool.QueryRow(ctx, `
-		SELECT c, s, w, log_u_sum, log_u_sumsq, last_seen_us
+		SELECT c, s, w, log_u_sum, log_u_sumsq, observed, last_seen_us
 		  FROM timing_state
 		 WHERE source = $1 AND entity = $2`,
-		string(src), string(en)).Scan(&c, &sn, &w, &logUSum, &logUSumSq, &lastSeen)
+		string(src), string(en)).Scan(&c, &sn, &w, &logUSum, &logUSumSq, &observed, &lastSeen)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return nil, false, nil // cold start, not an error (§7.5)
 	}
@@ -50,6 +51,7 @@ func (s *TimingStore) FindByEntity(ctx context.Context, src event.SourceID, en e
 		LastSeen:  event.Timestamp(lastSeen),
 		LogUSum:   logUSum,
 		LogUSumSq: logUSumSq,
+		Observed:  observed,
 	}, true, nil
 }
 
@@ -58,17 +60,19 @@ func (s *TimingStore) FindByEntity(ctx context.Context, src event.SourceID, en e
 // upsert in one round trip is exact; no Go-side arithmetic is owed here.
 func (s *TimingStore) SaveState(ctx context.Context, src event.SourceID, en event.EntityID, st *timing.State) error {
 	_, err := s.pool.Exec(ctx, `
-		INSERT INTO timing_state (source, entity, c, s, w, log_u_sum, log_u_sumsq, last_seen_us)
-		VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+		INSERT INTO timing_state
+		       (source, entity, c, s, w, log_u_sum, log_u_sumsq, observed, last_seen_us)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
 		ON CONFLICT (source, entity) DO UPDATE
 		   SET c = EXCLUDED.c,
 		       s = EXCLUDED.s,
 		       w = EXCLUDED.w,
 		       log_u_sum = EXCLUDED.log_u_sum,
 		       log_u_sumsq = EXCLUDED.log_u_sumsq,
+		       observed = EXCLUDED.observed,
 		       last_seen_us = EXCLUDED.last_seen_us`,
 		string(src), string(en), st.Moments.C, st.Moments.S, st.Moments.W,
-		st.LogUSum, st.LogUSumSq, int64(st.LastSeen))
+		st.LogUSum, st.LogUSumSq, st.Observed, int64(st.LastSeen))
 	if err != nil {
 		return fmt.Errorf("postgres: timing upsert: %w", err)
 	}

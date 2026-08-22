@@ -11,6 +11,56 @@ Equation numbers `(1)`–`(20)`, requirements `R1`–`R6`, and evaluation hypoth
 
 ### Fixed
 
+- **The sample-size gate in all three arms counted a discounted weight, and now counts
+  observations (#37, #42).** This is the defect behind the three symptoms, stated once: a
+  discounted count saturates at 1/(1-delta), so an arm asking "do I have enough observations?"
+  of a discounted weight was asking a question that, past a certain sparsity, could never be
+  answered yes -- however long the entity was watched. The discount belongs in the *estimate*, so
+  that it follows the entity's recent behaviour; it has no business deciding whether an estimate
+  exists. Each arm now carries an undiscounted observation count for the gate and keeps the
+  discount for the statistic:
+  - `timing.State.Observed`: a once-daily account saturates at a discounted weight of 10.6
+    against a minimum of 20, so it could never be standardised. It now can, after twenty
+    observations rather than never
+  - `volume.State.DispersionObserved`: an entity whose active windows are more than about 55
+    hours apart could never measure its dispersion, and so was scored against equation (11)
+    un-widened forever. Measured on synthetic benign accounts: bursting every four days put
+    **31.6%** of its own events below 1e-12 and reaching 1e-45; it now measures phi and its worst
+    event scores above 1e-6
+  - `drift.Null.Observed`: below a 5.19-day half-life the arm would have abstained on every
+    entity for all time
+- The three coverage bounds -- `StandardiseCoverageHours`, `DispersionReachable`,
+  `ReachesMinWeight` -- are retained rather than deleted, and the regression tests use them to
+  prove they are exercising the region that used to be unreachable
+- **Both new fields are persisted**, which the #33 guard caught before they could be dropped:
+  it failed on `dispersion_observed` and `observed` the moment they were added, in the schema, the
+  SELECT and the INSERT separately. Verified against a real Postgres, including a check that
+  reverting the write side makes the equivalence test fail on exact bit values
+
+### Added
+
+- **`statistics.SaturatingWeight` names the trap that produced three separate defects (#37).**
+  Every per-entity accumulator here is discounted by 2^(-elapsed/halfLife), so a discounted count
+  does not grow without bound -- it saturates at 1/(1-delta). An arm requiring a minimum
+  discounted weight is therefore imposing a condition that, past a certain sparsity, is
+  **unsatisfiable however long the entity is observed**: the arm does not warm up slowly, it never
+  warms up. `MinimumWeightReachable` and `MaximumGapForWeight` make the claim checkable, and the
+  three arms now state their own coverage through them
+- **The timing arm's real coverage is stated: about 12.4 hours between events (#37).** Its weight
+  is discounted per event and saturates at 10.6 for a once-daily account against a minimum of 20,
+  so the standardised statistic is unavailable to any account sparser than that **permanently**.
+  That reframes #37: the issue attributes the arm's silence on regular accounts to a zero spread,
+  and the weight gate reaches a great deal further. Measured: a once-daily account abstains for
+  want of history after sixty days, and after six hundred
+- **The two timing abstention causes are now distinguishable**, which was #37's first
+  requirement. They point opposite ways -- too little history is a warm-up that passes, no spread
+  is a property of the account that never will -- and a single `abstained_unusable` total could
+  not tell them apart. `timing.AbstentionCause` carries which, the verdict's reason names it, and
+  a run records `abstain_causes` beside `status_counts` so the split is a number rather than a
+  guess
+
+### Fixed
+
 - **The Postgres volume store no longer drops the dispersion state (#33).** `WindowExpected`,
   `DispersionWindows` and `DispersionSum` had no columns, so `SaveState` never wrote them and
   `FindByEntity` never read them: a Postgres-backed run lost the measured width of every entity's

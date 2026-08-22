@@ -1338,6 +1338,11 @@ type accumulator struct {
 	combinedHist  *histogram
 	detectorHist  map[detector.ID]*histogram
 	statusCounts  map[detector.ID]map[string]int64
+	// abstainCauses counts abstentions by the reason the verdict carries, not merely by
+	// status. #37's first requirement: an arm can abstain for causes that point opposite
+	// ways -- a warm-up that passes against a property of the account that never will --
+	// and a single `abstained_unusable` total cannot tell them apart.
+	abstainCauses map[detector.ID]map[string]int64
 	// volGate measures what a completed-period abstention would do to the volume arm,
 	// for every candidate threshold of #25, from this one pass.
 	volGate *volumeGateProbe
@@ -1480,6 +1485,7 @@ func newAccumulator(labels *redTeamLabels, topK int, budgets objective.Budgets, 
 		combinedHist:          newHistogram(),
 		detectorHist:          make(map[detector.ID]*histogram),
 		statusCounts:          make(map[detector.ID]map[string]int64),
+		abstainCauses:         make(map[detector.ID]map[string]int64),
 		cellPerDay:            make(map[int64]*dayAlerts),
 		entityNight:           make(map[string]*[2]int64),
 		coocPerDay:            make(map[int64]*dayAlerts),
@@ -1637,6 +1643,14 @@ func (a *accumulator) observe(se application.ScoredEvent) error {
 			a.statusCounts[v.DetectorID()] = byStatus
 		}
 		byStatus[v.Status().String()]++
+		if reason := v.Reason(); reason != "" {
+			byCause, ok := a.abstainCauses[v.DetectorID()]
+			if !ok {
+				byCause = make(map[string]int64, 4)
+				a.abstainCauses[v.DetectorID()] = byCause
+			}
+			byCause[reason]++
+		}
 		if p, ok := v.PValue(); ok {
 			h, ok := a.detectorHist[v.DetectorID()]
 			if !ok {
@@ -2197,6 +2211,7 @@ func (a *accumulator) results() map[string]any {
 		"red_team_scored":      a.redTeamScored,
 		"p_histograms":         hists,
 		"status_counts":        a.statusCounts,
+		"abstain_causes":       a.abstainCauses,
 		"volume_gate_probe":    a.volumeGateResults(budgets),
 	}
 
