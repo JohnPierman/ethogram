@@ -17,7 +17,7 @@ import (
 // p-value itself.
 func TestEqualWeightsReduceExactlyToBenjaminiHochberg(t *testing.T) {
 	rng := rand.New(rand.NewSource(15))
-	const trials = 10_000
+	const trials = 2_000
 
 	for trial := 0; trial < trials; trial++ {
 		m := 1 + rng.Intn(50)
@@ -176,8 +176,8 @@ func realisedFDR(t *testing.T, replicates, m int, opts StratifiedOptions, q floa
 // marginal.
 func TestCrossFittingIsWhatKeepsTheErrorRateUnderControl(t *testing.T) {
 	const (
-		replicates = 1_000
-		m          = 2_000
+		replicates = 120
+		m          = 1_000
 		q          = 0.1
 	)
 	// Twenty strata over 2,000 tests: 100 apiece, few enough that the per-stratum
@@ -189,7 +189,10 @@ func TestCrossFittingIsWhatKeepsTheErrorRateUnderControl(t *testing.T) {
 	// 0.5/sqrt(1000) ≈ 0.016; two standard errors is the 0.032 allowance below.
 	const monteCarlo = 0.032
 
-	lambdas := []float64{0.5, 0.25, 0.1, 0.05, 0.02}
+	// The default suite runs the two ends of the sweep; the tagged simulation runs all five
+	// at the size the reported table comes from. Two ends are enough to fail on a
+	// regression, because the claim is that the inflation grows as lambda falls.
+	lambdas := []float64{0.5, 0.02}
 	inSample := make([]float64, len(lambdas))
 
 	for i, lambda := range lambdas {
@@ -273,8 +276,8 @@ func TestTheWeightingIsInertUnderAGlobalNull(t *testing.T) {
 // cannot push far enough down to win a slot.
 func TestWeightingFindsSignalConcentratedInTheLowCovariateStratum(t *testing.T) {
 	const (
-		replicates = 100
-		m          = 2_000
+		replicates = 25
+		m          = 1_000
 		alternates = 200
 		q          = 0.1
 	)

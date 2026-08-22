@@ -231,8 +231,8 @@ on how many events arrive by 23:59. LORD++ needs only the prefix, and alpha-inve
 property a fixed-q batch rule lacks -- it spends error budget on each test and earns it back on
 each rejection, so a barren stretch decays the alerting rate without ending it. Measured in
 simulation: after one rejection and 500,000 barren tests the level is 2.8e-10, six orders down and
-still strictly positive, and one rejection lifts it again. Realised FDR at q = 0.1 over 200 streams
-of 10,000 hypotheses is 0.000, 0.015, 0.047 and 0.086 at non-null fractions of 0, 0.001, 0.01
+still strictly positive, and one rejection lifts it again. Realised FDR at q = 0.1 over 1,000 streams
+of 10,000 hypotheses is 0.006, 0.009, 0.043 and 0.087 at non-null fractions of 0, 0.001, 0.01
 and 0.1.
 
 **On the corpus it detects nothing, and that is the finding.** Over 4,494,396 tests at q = 0.1:

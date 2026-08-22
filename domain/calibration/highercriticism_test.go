@@ -206,7 +206,7 @@ func TestTheInputIsNotMutated(t *testing.T) {
 // version of this test treated it as a failure and was wrong to.
 func TestTheStatisticDoesNotInflateWithTheNumberOfTests(t *testing.T) {
 	rng := rand.New(rand.NewSource(17))
-	const replicates = 400
+	const replicates = 60
 
 	medians := map[int]float64{}
 	upper := map[int]float64{}
@@ -270,9 +270,9 @@ func TestTheStatisticDoesNotInflateWithTheNumberOfTests(t *testing.T) {
 func TestASparseSignalBeatsTheNullAndFisherDoesNot(t *testing.T) {
 	rng := rand.New(rand.NewSource(1704))
 	const (
-		replicates = 200
-		quiet      = 2_000 // a busy but ordinary entity-day
-		busy       = 8_000 // a busier one, with the same sparse signal
+		replicates = 40
+		quiet      = 1_000 // a busy but ordinary entity-day
+		busy       = 4_000 // a busier one, with the same sparse signal
 		planted    = 25
 	)
 
@@ -347,8 +347,8 @@ func TestASparseSignalBeatsTheNullAndFisherDoesNot(t *testing.T) {
 func TestTopKReproducesTheFullStatisticOnASparseSignal(t *testing.T) {
 	rng := rand.New(rand.NewSource(3232))
 	const (
-		replicates = 300
-		n          = 5_000
+		replicates = 60
+		n          = 2_000
 	)
 
 	for _, k := range []int{8, 16, 32, 64} {

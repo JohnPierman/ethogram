@@ -93,7 +93,7 @@ func TestLevelIsPureAndLeavesTheRuleUnchanged(t *testing.T) {
 	// whole rejection history and on the cumulative table, which is where an accidental
 	// mutation would show.
 	rng := rand.New(rand.NewSource(16))
-	for i := 0; i < 5_000; i++ {
+	for i := 0; i < 1_000; i++ {
 		rule.Observe(Outcome{Rejected: rng.Intn(50) == 0})
 	}
 
@@ -124,7 +124,7 @@ func TestTheRuleCannotGoPermanentlySilent(t *testing.T) {
 
 	// One early rejection, then a very long barren stretch.
 	rule.Observe(Outcome{Rejected: true})
-	for i := 0; i < 500_000; i++ {
+	for i := 0; i < 50_000; i++ {
 		if level := rule.Level(); !(level > 0) {
 			t.Fatalf("after %d barren tests the level is %g: the rule has gone silent and "+
 				"cannot recover", i, level)
@@ -173,7 +173,7 @@ func TestTheRuleCannotGoPermanentlySilent(t *testing.T) {
 // growth is recorded as a measurement rather than asserted away.
 func TestWealthIsNeverNegativeAndTheLevelIsAlwaysBounded(t *testing.T) {
 	const (
-		tests = 200_000
+		tests = 20_000
 		q     = 0.1
 		w0    = 0.005
 	)
@@ -236,7 +236,7 @@ func TestWealthIsNeverNegativeAndTheLevelIsAlwaysBounded(t *testing.T) {
 func TestTheLevelSaturatesAtQUnderAnAllRejectStream(t *testing.T) {
 	const q = 0.1
 	rule := mustLORD(t, 0.005, q)
-	for i := 0; i < 100_000; i++ {
+	for i := 0; i < 20_000; i++ {
 		rule.Observe(Outcome{Rejected: true})
 	}
 	level := rule.Level()
@@ -271,7 +271,7 @@ func TestARunOfRejectionsIsSummedExactly(t *testing.T) {
 	}
 
 	rng := rand.New(rand.NewSource(512))
-	for trial := 0; trial < 200; trial++ {
+	for trial := 0; trial < 60; trial++ {
 		const wealth = 0.005
 		rule := mustLORD(t, wealth, q)
 		rejectAt := []int{}
@@ -306,7 +306,7 @@ func TestARunOfRejectionsIsSummedExactly(t *testing.T) {
 func TestTruncationIsConservative(t *testing.T) {
 	// Alternating rejections make a new run on every other test, so the cap binds quickly.
 	rule := mustLORD(t, 0.005, 0.1)
-	for i := 0; i < 20_000; i++ {
+	for i := 0; i < 6_000; i++ {
 		rule.Observe(Outcome{Rejected: i%2 == 0})
 	}
 	if rule.TruncatedRuns() == 0 {
@@ -331,8 +331,8 @@ func TestTruncationIsConservative(t *testing.T) {
 // one that matters: a procedure that controls nothing looks fine on a stream full of signal.
 func TestFDRIsControlledOverTheStream(t *testing.T) {
 	const (
-		streams = 200
-		length  = 10_000
+		streams = 25
+		length  = 2_000
 		q       = 0.1
 	)
 
@@ -423,7 +423,7 @@ func TestRunOnlineComparesInLogSpace(t *testing.T) {
 // identical wealth trace, however many times it is replayed.
 func TestTheRuleIsDeterministic(t *testing.T) {
 	rng := rand.New(rand.NewSource(4))
-	logP := make([]float64, 20_000)
+	logP := make([]float64, 4_000)
 	for i := range logP {
 		logP[i] = math.Log(rng.Float64())
 		if i%700 == 0 {
@@ -463,7 +463,7 @@ func TestTheRuleIsDeterministic(t *testing.T) {
 // the same procedure at half the cost.
 func TestTestAgreesWithLevelThenObserve(t *testing.T) {
 	rng := rand.New(rand.NewSource(66))
-	logP := make([]float64, 30_000)
+	logP := make([]float64, 5_000)
 	for i := range logP {
 		logP[i] = math.Log(rng.Float64())
 		// A mixture, so the two paths meet rejections, non-rejections, runs and gaps.

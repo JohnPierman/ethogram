@@ -99,6 +99,15 @@ test-integration:
 test-corpus:
 	$(GO) test ./... -count=1 -tags corpus
 
+# The full-size statistical simulations, behind a tag because the coverage gate runs the whole
+# suite instrumented and Monte-Carlo at reporting size blew a ten-minute CI timeout. The default
+# suite keeps a smaller version of each, so a regression still fails there; this target is where
+# the reported numbers come from. No -race: these are pure functions over local slices, and the
+# detector's overhead is what made them unaffordable in the first place.
+.PHONY: simulation
+simulation:
+	$(GO) test ./domain/calibration/ -count=1 -tags simulation -v -timeout 30m 	  -run 'TestSimulation'
+
 # E8 gates every other hypothesis, so it has its own target and runs first in CI.
 .PHONY: e8
 e8:

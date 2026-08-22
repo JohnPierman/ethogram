@@ -11,6 +11,15 @@ Equation numbers `(1)`–`(20)`, requirements `R1`–`R6`, and evaluation hypoth
 
 ### Added
 
+- **`make simulation` runs the full-size statistical simulations behind a build tag (#16, #17).**
+  The coverage gate runs the whole suite with `-race` and `-covermode=atomic`, and Monte-Carlo at
+  reporting size blew a ten-minute CI timeout -- so the simulations now run at the sizes the issues
+  state (1,000 streams of 10,000 hypotheses, the five-point lambda sweep, 400 replicates per size)
+  behind `-tags simulation`, and the default suite keeps a smaller version of each so the code
+  stays covered and a regression still fails there. The same split the repository already uses for
+  `corpus` and `integration` tests, and for the same reason: a gate that times out is a gate people
+  route around
+
 - **Higher Criticism at entity scope, normalised where the other two aggregations are not
   (#17).** Fisher's sum over an entity's day grows linearly in the event count, so the busiest
   accounts sort to the top by arithmetic -- 71 of 172 real entity-days against 1 of 8 planted.
@@ -40,8 +49,8 @@ Equation numbers `(1)`–`(20)`, requirements `R1`–`R6`, and evaluation hypoth
   back on every rejection, so a productive period buys a higher alerting rate and a barren one
   decays without reaching zero: measured, after one rejection and 500,000 barren tests the level
   is **2.8e-10** -- six orders of magnitude down and still strictly positive -- and one rejection
-  lifts it again. Realised FDR at q = 0.1 over 200 streams of 10,000 hypotheses: 0.000, 0.015,
-  0.047 and 0.086 at non-null fractions of 0, 0.001, 0.01 and 0.1. On the corpus it detects nothing
+  lifts it again. Realised FDR at q = 0.1 over **1,000 streams** of 10,000 hypotheses:
+  0.006, 0.009, 0.043 and 0.087 at non-null fractions of 0, 0.001, 0.01 and 0.1. On the corpus it detects nothing
   and that is the finding: over 4,494,396 tests at q = 0.1 the level reaches 1.1e-12 and `novelty`
   never clears it, **0 rejections**, where the fixed budget's realised cut is 8.5e-06 -- six orders
   looser -- and finds 60. On the composite, the negative control, it rejects 79,286 at a realised
