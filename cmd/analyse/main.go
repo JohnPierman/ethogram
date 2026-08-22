@@ -111,10 +111,17 @@ type alertRow struct {
 	// LogP is ln P. It is what rows are ordered and thresholded on, because P
 	// underflows to zero across the whole region alerts are drawn from and ties every
 	// event there to every other.
-	LogP      float64 `json:"log_p"`
-	TSeconds  int64   `json:"t"`
-	Entity    string  `json:"entity"`
-	IsRedTeam bool    `json:"is_red_team"`
+	LogP float64 `json:"log_p"`
+	// ModelLogP is the combination's own log tail BEFORE any conformal calibration of the
+	// composite, retained by the replay whenever that calibration is applied. It is what makes
+	// the within-run control of #55 possible: the same events, the same inputs, the same
+	// covariance and the same burn-in split, differing only in whether the combination was
+	// calibrated against its own distribution. Nil when the run applied no composite
+	// conformal, in which case LogP already IS the model statistic.
+	ModelLogP *float64 `json:"model_log_p"`
+	TSeconds  int64    `json:"t"`
+	Entity    string   `json:"entity"`
+	IsRedTeam bool     `json:"is_red_team"`
 }
 
 // eventKey identifies a scored event for pairing across arms.
@@ -254,6 +261,17 @@ func analyse(cfg analysisConfig) error {
 			})
 		}
 	}
+	// The within-run control for #55. Comparing the composite against the min-p arm compares
+	// two combination rules; comparing it against its OWN pre-conformal statistic compares one
+	// rule with and without the calibration, on identical inputs. That distinction matters
+	// because -conformal-composite splits the burn-in window, so a comparison against a
+	// differently-configured run confounds the calibration with the split, and the split moves
+	// every cross-arm quantity.
+	calibrationArms := cutoffArms
+	if control, ok := preConformalArm(primary); ok {
+		calibrationArms = append(append([]namedArm{}, cutoffArms...), control)
+	}
+
 	cutoffs := cutoffTable(cutoffArms, pop, budgets, utility)
 
 	// The head-to-head against the §12.4 baselines, in aggregate and per category of
@@ -369,10 +387,11 @@ func analyse(cfg analysisConfig) error {
 				"true negative class (§12.5), so realised FDR is an upper bound",
 		},
 		"results": map[string]any{
-			"calibration_bh":  calibrationBH,
-			"history_product": historyProduct(results),
-			"calibration_by":  calibrationBY,
-			"detection":       detection,
+			"calibration_bh":     calibrationBH,
+			"calibration_by_arm": calibrationByArm(calibrationArms, days, perDayM, topK),
+			"history_product":    historyProduct(results),
+			"calibration_by":     calibrationBY,
+			"detection":          detection,
 			// Every arm the run recorded, with an interval on each proportion. The
 			// primary detection table above covers one arm; a paper comparing arms
 			// needs the interval on each of them, and a bare integer invites a

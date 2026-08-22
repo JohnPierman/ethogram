@@ -68,6 +68,23 @@ func main() {
 			"empty this store's own tables before the run. For the -store equivalence "+
 				"harness, which compares against a memory store that necessarily starts "+
 				"empty; it destroys persisted state, so it is off by default")
+		brownDiag = flag.Bool("brown-diagnostic", false, "measure Brown's correction against "+
+			"the statistic it corrects (#55), per corpus day and per J. Since c*f = 2J "+
+			"identically, Brown matches Fisher's MEAN by construction and corrects only the "+
+			"variance, so the comparison splits in two: a mean away from 2J is a defect in "+
+			"the marginals that no covariance estimate can reach, and a variance away from "+
+			"4J + 2*sum-of-covariances is a defect in the covariance -- above the prediction "+
+			"meaning the tail is too light and the correction anti-conservative. Reported for "+
+			"the scored days always, and for burn-in days too when -conformal-split is in "+
+			"use, which is the in-sample half and separates a wrong form from a drifted "+
+			"estimate. Recorded in the result")
+		compositeConf = flag.Bool("conformal-composite", false,
+			"calibrate the COMBINED score against its own burn-in distribution, not only "+
+				"its inputs. Splits the burn-in window: the input conformal and the "+
+				"covariance freeze at the split, the composite's distribution accumulates "+
+				"from there to the boundary (#55)")
+		conformalSplit = flag.Int64("conformal-split", 0,
+			"the split instant in corpus seconds; 0 takes the midpoint of the burn-in window")
 		maxValues = flag.Int("max-values", 0,
 			"bound the values held per (entity, field) to this many, keeping the heaviest "+
 				"and stating the error (0 = unbounded, which is exact and grows) (#3)")
@@ -186,15 +203,18 @@ func main() {
 	if err := run(runConfig{
 		authPath: *authPath, redteamPath: *redteamPath, outPath: *outPath, runID: *runID,
 		burnInSec: *burnInSec, maxRows: *maxRows, skipHash: *skipHash,
-		online:        onlineRule,
-		onlineArm:     detector.ID(*onlineArm),
-		store:         backingStore,
-		dsn:           *dsn,
-		storeTruncate: *storeTruncate,
-		route:         routeMode,
-		maxValues:     *maxValues,
-		weighting:     mode,
-		halfLifeDays:  *halfLifeDay, bandwidthHours: *bandwidth, alpha: *alphaFlag,
+		online:         onlineRule,
+		onlineArm:      detector.ID(*onlineArm),
+		store:          backingStore,
+		dsn:            *dsn,
+		storeTruncate:  *storeTruncate,
+		route:          routeMode,
+		maxValues:      *maxValues,
+		compositeConf:  *compositeConf,
+		conformalSplit: *conformalSplit,
+		brownDiag:      *brownDiag,
+		weighting:      mode,
+		halfLifeDays:   *halfLifeDay, bandwidthHours: *bandwidth, alpha: *alphaFlag,
 		volMinPeriods: *volMinPeriods, timStandardise: *timStandard,
 		drift: *driftOn, driftShift: *driftShift, driftMinPeriods: *driftMinPer,
 		topK: *topK, budgets: budgets, entitySample: *entitySample, allowResampling: *allowResample,
@@ -233,6 +253,12 @@ type runConfig struct {
 	// maxValues bounds the values held per (entity, field) (#3). Zero is unbounded, which is
 	// what every earlier run used.
 	maxValues int
+	// compositeConf calibrates the combined score against its own burn-in distribution, and
+	// conformalSplit is where the input estimates freeze so that is not circular (#55). Zero
+	// takes the midpoint of the burn-in window.
+	compositeConf  bool
+	conformalSplit int64
+	brownDiag      bool
 	// weighting selects the covariate the selection is reweighted by (#15). The default
 	// is none, which is the unweighted ranking every earlier run used.
 	weighting                           weightingMode
@@ -480,16 +506,48 @@ func run(cfg runConfig) error {
 		conformal = calibration.NewConformal(minConformalObservations)
 	}
 
+	// #55: calibrating the inputs is a statement about marginals and the step-up needs one
+	// about the output. The split is what keeps the composite's estimate from being fitted on
+	// uncalibrated inputs and applied to calibrated ones; the midpoint is the default because
+	// halving both windows is the symmetric choice and nothing here argues for either half
+	// deserving more.
+	var (
+		compositeConformal *calibration.Conformal
+		conformalSplit     event.Timestamp
+	)
+	if cfg.compositeConf {
+		if !cfg.conformal {
+			return fmt.Errorf("-conformal-composite calibrates the combination of conformal " +
+				"inputs, so it needs -conformal: without it the composite would be ranked " +
+				"against a distribution of uncalibrated statistics, which is a different " +
+				"quantity wearing the same name")
+		}
+		compositeConformal = calibration.NewConformal(minConformalObservations)
+		splitSec := cfg.conformalSplit
+		if splitSec <= 0 {
+			splitSec = burnInSec / 2
+		}
+		conformalSplit = event.Timestamp(splitSec) * event.Second
+	}
+
+	var brown *calibration.BrownDiagnostic
+	if cfg.brownDiag {
+		brown = calibration.NewBrownDiagnostic(86400)
+	}
+
 	cmd := &application.ReplayCorpusCommand{
-		Source:        src,
-		Correlations:  correlations,
-		Conformal:     conformal,
-		Detectors:     detectors,
-		FieldRegistry: fieldRegistry,
-		BurnInEnd:     event.Timestamp(burnInSec) * event.Second,
-		IncludeEntity: includeEntity(cfg, labels),
-		Shadows:       shadows,
-		Sink:          acc.observe,
+		Source:             src,
+		Correlations:       correlations,
+		Conformal:          conformal,
+		CompositeConformal: compositeConformal,
+		ConformalSplit:     conformalSplit,
+		BrownDiagnostic:    brown,
+		Detectors:          detectors,
+		FieldRegistry:      fieldRegistry,
+		BurnInEnd:          event.Timestamp(burnInSec) * event.Second,
+		IncludeEntity:      includeEntity(cfg, labels),
+		Shadows:            shadows,
+		Sink:               acc.observe,
 	}
 	if cfg.derive {
 		cmd.Deriver = derive.NewInferrer(derive.DefaultPolicy())
@@ -685,6 +743,8 @@ func run(cfg runConfig) error {
 			// Whether Detector V ran. It adds an arm rather than replacing one, so a run
 			// with it on is comparable to one without on every other arm.
 			"novelty_rate": noveltyRateRecord(cfg),
+			// Brown's correction measured against the statistic it corrects (#55).
+			"brown_diagnostic": brownRecord(cfg, brown),
 			// Whether the inter-arrival arm ran, and what its state cost. It adds an arm
 			// rather than replacing one, so a run with it on is comparable to one without
 			// on every other arm.
@@ -718,7 +778,9 @@ func run(cfg runConfig) error {
 		},
 		"dependence": dependenceRecord(cmd.Covariance(), cmd.ConformalModel() != nil),
 		"conformal":  conformalRecord(cmd.ConformalModel()),
-		"results":    acc.results(),
+		"conformal_composite": compositeConformalRecord(cmd.CompositeConformalModel(),
+			conformalSplit, event.Timestamp(burnInSec)*event.Second),
+		"results": acc.results(),
 		"runtime": map[string]any{
 			"wall_seconds":   finished.Sub(started).Seconds(),
 			"events_per_sec": float64(report.EventsWarmed+report.EventsScored) / finished.Sub(started).Seconds(),
@@ -895,6 +957,40 @@ func deriveRecord(cfg runConfig) map[string]any {
 // at different scopes, and they are not comparable to one another. A run that does not
 // say which it used leaves a reader to infer it from a detector name that is identical
 // in shape either way.
+// brownRecord reports the Brown diagnostic, or says why it is absent.
+func brownRecord(cfg runConfig, d *calibration.BrownDiagnostic) map[string]any {
+	if !cfg.brownDiag || d == nil {
+		return map[string]any{
+			"applied": false,
+			"note": "Brown's correction was not measured against the statistic it " +
+				"corrects, so \"the correction is approximate\" stays a statement rather " +
+				"than a number",
+		}
+	}
+	summary := d.Summarise()
+	out := map[string]any{
+		"applied":              true,
+		"day_seconds":          86400,
+		"minimum_cell_count":   calibration.MinimumCount,
+		"reported_cells":       summary.Reported,
+		"worst_mean_ratio":     summary.WorstMeanRatio,
+		"worst_variance_ratio": summary.WorstVarianceRatio,
+		"finding":              summary.Finding,
+		"method":               summary.Method,
+		"cells":                summary.Cells,
+		"contamination": "the moments are taken over every event in a cell, which on scored " +
+			"days includes the true positives -- on the order of a hundred against millions, " +
+			"so below the precision any conclusion here rests on, but not zero",
+	}
+	if !cfg.compositeConf {
+		out["burn_in_phase"] = "absent: the covariance freezes at the burn-in boundary " +
+			"without a split, so there is no burn-in window in which the correction is " +
+			"computable. Only the out-of-sample half is reported, which cannot separate a " +
+			"wrong correction from a drifted covariance"
+	}
+	return out
+}
+
 // burstRecord describes the inter-arrival arm's presence and its eligibility, so a result
 // distinguishes "this arm found nothing" from "this arm was never able to speak". The second
 // would be a coverage gap and the first a measurement, and only the eligible count separates
@@ -921,10 +1017,11 @@ func burstRecord(cfg runConfig, stores *stateStores) map[string]any {
 			"the independence correction OVER-states the multiplicity: the corrected " +
 			"p-value is conservative, which is the safe direction and is deliberate given " +
 			"that this arm exists because two others had anti-conservative nulls",
-		"resolution_note": "LANL records to the whole second, so a window can span zero " +
-			"recorded seconds; under a continuous null that has probability zero and the " +
-			"tail is -Inf, which is not a p-value. The span is floored at one second, the " +
-			"coarsest reading the resolution admits and therefore the conservative one",
+		"resolution_note": "LANL records to the whole second, so many rows share a " +
+			"timestamp; a repeated instant is not stored, because the log cannot resolve " +
+			"structure inside a second and treating a tie as a one-second burst put 5.77% " +
+			"of real scored events below 1e-12. The floor at the resolution remains as a " +
+			"guard for out-of-order arrivals",
 		"note": "it sees ONLY proximity in time. An attack spread evenly across a day is " +
 			"invisible to it, and one confined to a burst is what it is for",
 	}
@@ -2894,4 +2991,47 @@ func nonFiniteValue(rv reflect.Value, path string, depth int) []string {
 		}
 	}
 	return out
+}
+
+// compositeConformalRecord states whether the combined score was itself calibrated, and on what
+// (#55).
+//
+// The split is recorded because it is the whole reason the number is readable: an estimate of the
+// composite's distribution fitted on the same window as its inputs would be built from
+// uncalibrated statistics and applied to calibrated ones, and the two differ by orders of
+// magnitude. It is also recorded because it costs something — both input estimates are fitted on
+// half the window they would otherwise have — and a reader comparing this run to an unsplit one
+// is comparing two things.
+func compositeConformalRecord(m *calibration.ConformalModel, split, burnInEnd event.Timestamp) map[string]any {
+	if m == nil {
+		return map[string]any{
+			"applied": false,
+			"note": "the combination was not calibrated against its own distribution. Section " +
+				"10.1's conformal calibration is a statement about each detector's marginal, " +
+				"super-uniform by ranking whatever that detector's null does, and says nothing " +
+				"about a function of several of them -- which is what a step-up over composites " +
+				"reads",
+		}
+	}
+	covered := m.Calibrated()
+	observations := uint64(0)
+	for _, n := range covered {
+		observations += n
+	}
+	return map[string]any{
+		"applied":              true,
+		"burn_in_observations": observations,
+		"split_seconds":        int64(split / event.Second),
+		"burn_in_end_seconds":  int64(burnInEnd / event.Second),
+		"statistic": "the combined log tail, computed exactly as the scoring path computes it: " +
+			"conformally calibrated inputs, Fisher's sum, Brown's correction where the " +
+			"covariance permits it",
+		"note": "the burn-in window is split. Up to the split the input conformal and the " +
+			"covariance accumulate and then freeze; from there to the boundary the combination " +
+			"is computed as scoring will compute it and its distribution accumulates; at the " +
+			"boundary that freezes too. Neither estimate has seen an event it is later used to " +
+			"score, and the composite's has seen only inputs on the scale it will meet",
+		"cost": "both input estimates are fitted on half the window they would otherwise have, " +
+			"which is the price of the composite's estimate being fitted on the right scale",
+	}
 }

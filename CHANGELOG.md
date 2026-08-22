@@ -11,6 +11,40 @@ Equation numbers `(1)`–`(20)`, requirements `R1`–`R6`, and evaluation hypoth
 
 ### Added
 
+- **Conformal calibration of the COMBINATION, not only its inputs (#55).** The composite's realised
+  false discovery rate was 0.978 at every nominal q from 0.001 to 0.25, and a level that changes
+  nothing is not a control. Section 10.1's conformal calibration makes each detector's p-value
+  super-uniform by ranking alone, which is a guarantee about each *marginal*; a step-up over
+  composites reads a function of several of them. `-conformal-composite` ranks the composite against
+  its own burn-in distribution, which needs a SPLIT burn-in window because the statistic being
+  ranked consumes conformally calibrated inputs that do not exist until the input conformal is
+  frozen -- fitting both on one window would build the composite's distribution from uncalibrated
+  statistics and apply it to calibrated ones. Measured as a within-run control on identical inputs:
+  the uncalibrated composite rejects **732 events at q = 0.001** and its realised rate moves by
+  0.023 across the whole grid, where the conformalised composite **rejects nothing until q reaches
+  0.1**. Detection is unchanged, 0/5/**111** against 0/6/**113** at 10/100/1000 alerts a day, so the
+  fix costs no recall. It does not make the level accurate -- where it does reject the realised rate
+  is still 0.978 -- so calibrating the combination fixes the knob, not the evidence
+- **`-brown-diagnostic`, which turns "the correction is approximate" into a number (#55).** Brown
+  does not touch the mean: with c = Var/2E and f = 2E^2/Var and E = 2J, c*f = E identically, so the
+  assumed distribution has Fisher's mean and a different variance. That splits the diagnosis in two
+  -- a mean away from 2J is a defect in the marginals that no covariance estimate can reach, and a
+  variance away from 4J + 2*sum-of-covariances is a defect in the covariance. Over 4.19 million
+  scored events in 76 cells: **the empirical effective degrees of freedom are 4.4 to 11.3 against a
+  nominal 2J of 24 to 34**, so twelve to seventeen detectors carry about six degrees of freedom of
+  evidence and Brown credits them with twenty-four to thirty-four. The mean sits BELOW 2J (11 to 25),
+  which is conformal calibration working -- super-uniform inputs give E[-2 ln p] under 2 per arm --
+  so the marginals are conservative and the dependence is over-credited, the opposite of what the
+  realised rate alone would suggest. Reported per corpus day and per J, and for burn-in days beside
+  scored ones wherever a split is in use, since the covariance is fitted on burn-in and an in-sample
+  failure means the form is wrong rather than drifted
+- **The within-run control for the composite (#55).** The run records the combination's own log tail
+  alongside the conformal value, so `cmd/analyse` steps up the same events both ways -- same inputs,
+  same frozen covariance, same split. Comparing across runs would confound the calibration with the
+  split, and the split is not innocuous: `min-p`'s realised rate at its tightest rejecting level
+  moved from 0.672 to 0.965 under it. A control derived from a run that recorded no model statistic,
+  or one identical to the conformal value, is declined rather than reported, since an arm compared
+  with itself produces a table that reads as evidence and is a tautology
 - **The sub-hourly inter-arrival arm (#53).** Every arm reached 0 of 288 planted low-and-slow
   events at every budget while an unsupervised local-outlier-factor baseline reached 12, so the
   signal was present and the framework's instruments could not see it. The plant is twelve events at
@@ -1100,6 +1134,11 @@ Equation numbers `(1)`–`(20)`, requirements `R1`–`R6`, and evaluation hypoth
 
 ### Fixed
 
+- **`localise` compared worst-case realised rates and read the measurement backwards (#55).** Both
+  combination rules land far above every nominal level, so on the worst case they look alike; what
+  separates them is that one responds to the level and the other does not. It compares
+  responsiveness now, and the test drives the inert-beside-responsive, both-inert and both-
+  controlled cases so an inverted reading fails rather than reads plausibly
 - **The inter-arrival arm's first null was worse than the two arms it was meant to improve on
   (#53).** The calibration check that comes before any detection claim -- the one that disqualified
   `volume` at 24.7% of scored events below 1e-12 and the partitioned `cooccurrence` arm at 99.0% --
