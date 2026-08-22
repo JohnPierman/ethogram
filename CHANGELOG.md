@@ -11,6 +11,20 @@ Equation numbers `(1)`–`(20)`, requirements `R1`–`R6`, and evaluation hypoth
 
 ### Added
 
+- **Good-Turing is tested on a genuinely open-vocabulary corpus, and there it is the difference
+  between nothing and everything (#4).** `cmd/openvocab` generates one -- 150 accounts whose
+  destination is a brand-new host 80% of the time, 150 that revisit a fixed set of five, and the
+  attacks planted on the *closed* ones, which is the whole experiment. Under equation (4) the open
+  accounts produce about 16,800 innocent first-ever values a day, each scoring the same `1/n` as a
+  planted one, so they fill the budget and `novelty` detects **0 of 864**. With `-open-vocabulary`
+  it detects **864 of 864** at 1000 alerts a day and 144 at 100; `pairing` moves identically and
+  the composite from 1 to 75. `noveltyrate` is the control and does not move at all, being
+  scale-free by construction. **The LANL result -- where the switch costs discrimination -- is a
+  property of that corpus rather than of the correction**: LANL's vocabularies are fairly closed,
+  so there is no open-vocabulary novelty to suppress and the correction dampens the signal instead.
+  The corpus is synthetic and built to have this property, so it demonstrates a mechanism and
+  cannot establish a rate. `make openvocab` reproduces both runs
+
 - **Per-entity routing is scored, and it loses (#41).** It was the one construction with headroom:
   routing is not a global allocation, so it can send an established account to a per-entity null and
   a cold one to the population null and collect both, and an oracle bracket put it at 448-536
