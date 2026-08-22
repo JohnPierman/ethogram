@@ -386,6 +386,8 @@ func analyse(cfg analysisConfig) error {
 			},
 			"operating_point": operatingPointProvenance(cfg.utility, pop.size(),
 				intFromCorpus(run, "events_scored"), len(perDayM)),
+			"capacity_valve": capacityValve(cfg.utility, budgets, pop.size(),
+				intFromCorpus(run, "events_scored"), len(perDayM)),
 			"category_census":     categoryCensus(pop),
 			"category_comparison": categoryRows,
 			"head_to_head":        headToHeadRows,
@@ -714,6 +716,81 @@ func operatingPointProvenance(utility *objective.Utility, labelled, scored, days
 	}
 	out["cost_curve"] = rows
 	return out
+}
+
+// capacityValve reports, per budget, whether the budget or the stated error rate is the
+// binding constraint.
+//
+// #10's objection is that a fixed budget is the wrong PRIMARY control -- a system tuned to emit
+// 100 alerts a day emits 100 on a quiet day too, all benign -- and that the quantity an operator
+// should set is the error rate. The framework agrees and section 4.4 leads with the objective.
+// What was missing is the other half of that argument: if the error rate is the control, then the
+// budget is a capacity valve, and it is a FINDING when it closes.
+//
+// So this records the comparison rather than performing the truncation silently. "At your stated
+// exchange rate, today's operating point asks for 863 alerts and you can look at 700" is a
+// sentence an operator can act on; truncating to the top 700 and saying nothing is not.
+//
+// The budget remains the axis every comparison in the paper is reported on, and deliberately:
+// two methods thresholded alike emit volumes differing by three orders of magnitude, so a matched
+// threshold would compare their volumes rather than their rankings. Demoting the budget as a
+// CONTROL does not demote it as a unit of account.
+func capacityValve(utility *objective.Utility, budgets objective.Budgets,
+	labelled, scored, days int) map[string]any {
+
+	if utility == nil || labelled <= 0 || scored <= labelled || days <= 0 {
+		return map[string]any{
+			"recorded": false,
+			"note": "the comparison needs a stated exchange rate and a base rate; without " +
+				"one the budget is the only control there is, which is the state #10 objects to",
+		}
+	}
+
+	baseRate := float64(labelled) / float64(scored)
+	perDay := float64(scored) / float64(days)
+
+	ratio, err := objective.NewCostRatio(utility.ValueRatio(), 1)
+	if err != nil {
+		return map[string]any{"recorded": false, "note": err.Error()}
+	}
+	point, err := objective.Threshold(ratio, baseRate, perDay)
+	if err != nil {
+		return map[string]any{"recorded": false, "note": err.Error()}
+	}
+	demanded := point.ExpectedAlertsPerDay()
+
+	rows := make([]map[string]any, 0, len(budgets))
+	for _, b := range budgets {
+		binds := demanded > float64(b)
+		row := map[string]any{
+			"budget_per_day":          b,
+			"demanded_alerts_per_day": demanded,
+			"budget_binds":            binds,
+			"binding_constraint":      "the stated error rate",
+			"alerts_withheld_per_day": 0.0,
+		}
+		if binds {
+			row["binding_constraint"] = "analyst capacity"
+			row["alerts_withheld_per_day"] = demanded - float64(b)
+			row["note"] = "at this exchange rate the operating point asks for more alerts " +
+				"than the budget permits, so the budget is what decides what is seen and " +
+				"the error rate is not being honoured"
+		} else {
+			row["note"] = "the budget is slack at this exchange rate: the error rate is the " +
+				"binding constraint, which is the configuration #10 asks for"
+		}
+		rows = append(rows, row)
+	}
+
+	return map[string]any{
+		"recorded":                true,
+		"value_ratio":             utility.ValueRatio(),
+		"demanded_alerts_per_day": demanded,
+		"posterior_threshold":     point.PosteriorThreshold,
+		"per_budget":              rows,
+		"note": "the budget is a capacity valve rather than the primary control. Where it " +
+			"binds, that is recorded here rather than applied silently",
+	}
 }
 
 // detectionTable is E1 and E2's headline: detections at each matched budget with n
