@@ -716,14 +716,15 @@ ratio fitted per arm on burn-in (Appendix D) loses at every budget on both corpo
 <tbody>
 <tr><td>best single arm</td><td><strong>60</strong></td><td><strong>201</strong></td><td><strong>76</strong></td><td>384</td></tr>
 <tr><td>weighted, burn-in weights</td><td>56</td><td>164</td><td>56</td><td>231</td></tr>
-<tr><td>weighted, oracle weights</td><td>61</td><td>174</td><td>61</td><td>309</td></tr>
 <tr><td>best two-arm split, oracle</td><td>60</td><td><strong>201</strong></td><td><strong>77</strong></td><td><strong>395</strong></td></tr>
 </tbody></table></div>
 <p>Refitting the weights on the evaluation labels — an oracle — separates the arms properly, 0.19,
 0.22 and 0.23 for the per-entity arms against 0.71 for <code>timing</code> and 1.0 for <code>volume</code>, and the rule
 still loses. <strong>The construction fails, not the fit.</strong> An exhaustive search over two-arm splits,
 again oracular, finds the optimum on the real campaign at the corner at both budgets, and diverting
-5% costs 13 detections at 1000 a day, so the derivative is negative <em>at</em> the corner.</p>
+5% costs 13 detections at 1000 a day, so the derivative is negative <em>at</em> the corner. §2.3 reaches
+the same bound without an oracle at all: the objective is linear in the allocation, so its optimum
+is a vertex whatever the weights are fitted on.</p>
 <p>The mechanism is that <strong>the arms are substitutes rather than complements</strong> — 74.6% of
 <code>noveltyrate</code>&#39;s detections are also found by <code>novelty</code> and 78.7% of <code>pairing</code>&#39;s are, so splitting
 halves each arm&#39;s depth and what survives largely coincides. Where the arms genuinely are

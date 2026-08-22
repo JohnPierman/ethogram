@@ -89,7 +89,7 @@
     "scored_events": 4190603,
     "recall_wilson": {
      "point": 0,
-     "low": 1.3981187101771616e-19,
+     "low": 0,
      "high": 0.0069485722523209776,
      "n": 549,
      "level": 0.95,
@@ -116,7 +116,7 @@
     "scored_events": 4190603,
     "recall_wilson": {
      "point": 0,
-     "low": 1.3981187101771616e-19,
+     "low": 0,
      "high": 0.0069485722523209776,
      "n": 549,
      "level": 0.95,
@@ -143,7 +143,7 @@
     "scored_events": 4190603,
     "recall_wilson": {
      "point": 0,
-     "low": 1.3981187101771616e-19,
+     "low": 0,
      "high": 0.0069485722523209776,
      "n": 549,
      "level": 0.95,
@@ -152,7 +152,7 @@
     "precision_wilson": {
      "point": 0,
      "low": 0,
-     "high": 0.0005484788374037451,
+     "high": 0.0005484788374037452,
      "n": 7000,
      "level": 0.95,
      "kind": "wilson"
@@ -179,7 +179,7 @@
     "precision_wilson": {
      "point": 0.15714285714285714,
      "low": 0.09007620559861788,
-     "high": 0.2598824657684222,
+     "high": 0.2598824657684223,
      "n": 70,
      "level": 0.95,
      "kind": "wilson"
@@ -251,7 +251,7 @@
     "scored_events": 4190603,
     "recall_wilson": {
      "point": 0,
-     "low": 7.503728556000606e-20,
+     "low": 0,
      "high": 0.00719587952044839,
      "n": 530,
      "level": 0.95,
@@ -341,7 +341,7 @@
     "precision_wilson": {
      "point": 0.05714285714285714,
      "low": 0.022443779100711252,
-     "high": 0.1379195047483823,
+     "high": 0.13791950474838227,
      "n": 70,
      "level": 0.95,
      "kind": "wilson"
@@ -386,7 +386,7 @@
     "scored_events": 4190603,
     "recall_wilson": {
      "point": 0.23132969034608378,
-     "low": 0.19799636106639382,
+     "low": 0.19799636106639384,
      "high": 0.26839676974314114,
      "n": 549,
      "level": 0.95,
@@ -413,15 +413,15 @@
     "scored_events": 4190603,
     "recall_wilson": {
      "point": 0.0018796992481203006,
-     "low": 0.0003318901709330435,
-     "high": 0.010569578396934568,
+     "low": 0.00033189017093304305,
+     "high": 0.01056957839693457,
      "n": 532,
      "level": 0.95,
      "kind": "wilson"
     },
     "precision_wilson": {
      "point": 0.014285714285714285,
-     "low": 0.002526246457890307,
+     "low": 0.0025262464578903045,
      "high": 0.07658187131208327,
      "n": 70,
      "level": 0.95,
@@ -440,7 +440,7 @@
     "scored_events": 4190603,
     "recall_wilson": {
      "point": 0.0037593984962406013,
-     "low": 0.001031568791516347,
+     "low": 0.0010315687915163469,
      "high": 0.013602347064774407,
      "n": 532,
      "level": 0.95,
@@ -448,7 +448,7 @@
     },
     "precision_wilson": {
      "point": 0.002857142857142857,
-     "low": 0.0007838816213942033,
+     "low": 0.0007838816213942036,
      "high": 0.010357063150220568,
      "n": 700,
      "level": 0.95,
@@ -467,7 +467,7 @@
     "scored_events": 4190603,
     "recall_wilson": {
      "point": 0.013157894736842105,
-     "low": 0.006387987474728852,
+     "low": 0.006387987474728851,
      "high": 0.02690816482367761,
      "n": 532,
      "level": 0.95,
@@ -557,7 +557,7 @@
     "precision_wilson": {
      "point": 0,
      "low": 0,
-     "high": 0.0005484788374037451,
+     "high": 0.0005484788374037452,
      "n": 7000,
      "level": 0.95,
      "kind": "wilson"
@@ -584,7 +584,7 @@
     "precision_wilson": {
      "point": 0.05714285714285714,
      "low": 0.022443779100711252,
-     "high": 0.1379195047483823,
+     "high": 0.13791950474838227,
      "n": 70,
      "level": 0.95,
      "kind": "wilson"
@@ -602,8 +602,8 @@
     "scored_events": 4190603,
     "recall_wilson": {
      "point": 0.08561020036429873,
-     "low": 0.06498998203720444,
-     "high": 0.11198925361818002,
+     "low": 0.06498998203720442,
+     "high": 0.11198925361818003,
      "n": 549,
      "level": 0.95,
      "kind": "wilson"
@@ -611,7 +611,7 @@
     "precision_wilson": {
      "point": 0.06714285714285714,
      "low": 0.05086580215452606,
-     "high": 0.08814484803455233,
+     "high": 0.08814484803455234,
      "n": 700,
      "level": 0.95,
      "kind": "wilson"
@@ -656,7 +656,7 @@
     "scored_events": 4190603,
     "recall_wilson": {
      "point": 0,
-     "low": 1.3981187101771616e-19,
+     "low": 0,
      "high": 0.0069485722523209776,
      "n": 549,
      "level": 0.95,
@@ -683,7 +683,7 @@
     "scored_events": 4190603,
     "recall_wilson": {
      "point": 0.01092896174863388,
-     "low": 0.00501819986175193,
+     "low": 0.0050181998617519295,
      "high": 0.02363641452713034,
      "n": 549,
      "level": 0.95,
@@ -718,7 +718,7 @@
     },
     "precision_wilson": {
      "point": 0.016142857142857143,
-     "low": 0.01344488029638887,
+     "low": 0.013444880296388871,
      "high": 0.01937160479569298,
      "n": 7000,
      "level": 0.95,
@@ -737,7 +737,7 @@
     "scored_events": 4190603,
     "recall_wilson": {
      "point": 0.00546448087431694,
-     "low": 0.0018601206870768718,
+     "low": 0.001860120687076872,
      "high": 0.01594147263352475,
      "n": 549,
      "level": 0.95,
@@ -745,7 +745,7 @@
     },
     "precision_wilson": {
      "point": 0.04285714285714286,
-     "low": 0.014681541004111398,
+     "low": 0.014681541004111402,
      "high": 0.1185966874852755,
      "n": 70,
      "level": 0.95,
@@ -772,7 +772,7 @@
     },
     "precision_wilson": {
      "point": 0.04,
-     "low": 0.02781760180167979,
+     "low": 0.027817601801679793,
      "high": 0.05720361721113618,
      "n": 700,
      "level": 0.95,
@@ -899,7 +899,7 @@
     "scored_events": 4190603,
     "recall_wilson": {
      "point": 0.00546448087431694,
-     "low": 0.0018601206870768718,
+     "low": 0.001860120687076872,
      "high": 0.01594147263352475,
      "n": 549,
      "level": 0.95,
@@ -907,7 +907,7 @@
     },
     "precision_wilson": {
      "point": 0.04285714285714286,
-     "low": 0.014681541004111398,
+     "low": 0.014681541004111402,
      "high": 0.1185966874852755,
      "n": 70,
      "level": 0.95,
@@ -989,7 +989,7 @@
     "precision_wilson": {
      "point": 0.031914893617021274,
      "low": 0.01834921733054956,
-     "high": 0.054948360314435236,
+     "high": 0.05494836031443523,
      "n": 376,
      "level": 0.95,
      "kind": "wilson"
@@ -1042,7 +1042,7 @@
     },
     "precision_wilson": {
      "point": 0.00871221583812141,
-     "low": 0.007751669928920352,
+     "low": 0.007751669928920351,
      "high": 0.009790613073294242,
      "n": 32024,
      "level": 0.95,
@@ -1320,7 +1320,7 @@
     "red_team_scored": 549,
     "recall_wilson": {
      "point": 0,
-     "low": 1.3981187101771616e-19,
+     "low": 0,
      "high": 0.0069485722523209776,
      "n": 549,
      "level": 0.95,
@@ -1329,7 +1329,7 @@
     "recall_clopper_pearson": {
      "point": 0,
      "low": 0,
-     "high": 0.006696746586929925,
+     "high": 0.006696746586929037,
      "n": 549,
      "level": 0.95,
      "kind": "clopper-pearson"
@@ -1356,7 +1356,7 @@
     "red_team_scored": 549,
     "recall_wilson": {
      "point": 0.01092896174863388,
-     "low": 0.00501819986175193,
+     "low": 0.0050181998617519295,
      "high": 0.02363641452713034,
      "n": 549,
      "level": 0.95,
@@ -1364,8 +1364,8 @@
     },
     "recall_clopper_pearson": {
      "point": 0.01092896174863388,
-     "low": 0.004021003611506218,
-     "high": 0.0236350839115807,
+     "low": 0.004021003611506216,
+     "high": 0.023635083911579258,
      "n": 549,
      "level": 0.95,
      "kind": "clopper-pearson"
@@ -1400,7 +1400,7 @@
     },
     "recall_clopper_pearson": {
      "point": 0.2058287795992714,
-     "low": 0.1727575003356112,
+     "low": 0.17275750033561127,
      "high": 0.24210238857792382,
      "n": 549,
      "level": 0.95,
@@ -1408,7 +1408,7 @@
     },
     "precision_wilson": {
      "point": 0.016142857142857143,
-     "low": 0.01344488029638887,
+     "low": 0.013444880296388871,
      "high": 0.01937160479569298,
      "n": 7000,
      "level": 0.95,
@@ -1618,6 +1618,61 @@
   },
   "head_to_head": null,
   "headline": "",
+  "operating_point": {
+   "alpha": 0.0013102456436122302,
+   "alpha_clamped": false,
+   "base_rate": 0.00013100739917381817,
+   "cost_curve": [
+    {
+     "alpha": 0.000014558284929024795,
+     "alpha_clamped": false,
+     "expected_alerts_per_day": 87.14285714285715,
+     "expected_false_per_day": 8.714285714285724,
+     "precision_demanded": 0.8999999999999999,
+     "value_ratio": 0.11111111111111108
+    },
+    {
+     "alpha": 0.00013102456436122302,
+     "alpha_clamped": false,
+     "expected_alerts_per_day": 156.85714285714286,
+     "expected_false_per_day": 78.42857142857143,
+     "precision_demanded": 0.5,
+     "value_ratio": 1
+    },
+    {
+     "alpha": 0.00039307369308366904,
+     "alpha_clamped": false,
+     "expected_alerts_per_day": 313.7142857142857,
+     "expected_false_per_day": 235.28571428571428,
+     "precision_demanded": 0.25,
+     "value_ratio": 3
+    },
+    {
+     "alpha": 0.001179221079251007,
+     "alpha_clamped": false,
+     "expected_alerts_per_day": 784.2857142857142,
+     "expected_false_per_day": 705.8571428571428,
+     "precision_demanded": 0.1,
+     "value_ratio": 9
+    },
+    {
+     "alpha": 0.002489466722863237,
+     "alpha_clamped": false,
+     "expected_alerts_per_day": 1568.571428571428,
+     "expected_false_per_day": 1490.1428571428567,
+     "precision_demanded": 0.05000000000000001,
+     "value_ratio": 18.999999999999996
+    }
+   ],
+   "events_per_day": 598657.5714285715,
+   "expected_alerts_per_day": 862.7142857142858,
+   "expected_false_per_day": 784.2857142857143,
+   "expected_true_per_day": 78.42857142857143,
+   "identity": "alpha = p(1-tau)/(tau(1-p)), from P(intrusion | alarm) = p/(p + (1-p)alpha) solved at tau",
+   "posterior_threshold": 0.09090909090909091,
+   "recorded": true,
+   "value_ratio": 10
+  },
   "prediction": "§10.2 predicts realised FDR below nominal q (super-uniform discrete statistics under Fisher); the conservatism ratio quantifies it",
   "red_team_population": {
    "n": 549,
@@ -1717,12 +1772,12 @@
   ]
  },
  "run": {
-  "finished_at": "2026-08-20T22:43:20Z",
-  "go_version": "go1.26.0",
-  "parent_file": "/Users/john/Documents/GitHub/ethogram/results/lanl-r11-b1000-conf-d7-14.json",
+  "finished_at": "2026-08-22T00:14:50Z",
+  "go_version": "go1.26.3",
+  "parent_file": "C:/Users/JohnPierman/Documents/GitHub/ethogram/results/lanl-r11-b1000-conf-d7-14.json",
   "parent_run": "lanl-r11-b1000-weighted-d7-14-005",
   "run_id": "analysis-r11-b1000-conf-003",
-  "started_at": "2026-08-20T22:43:20Z"
+  "started_at": "2026-08-22T00:14:50Z"
  },
  "schema_version": "1"
 }

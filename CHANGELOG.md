@@ -9,6 +9,35 @@ Equation numbers `(1)`–`(20)`, requirements `R1`–`R6`, and evaluation hypoth
 
 ## [Unreleased]
 
+### Added
+
+- **`objective.CostRatio`, `Threshold` and `CostCurve` close the operating-point question
+  (#14).** The operating point is now derived from a stated cost ratio and recorded, rather than
+  reproducible only by whoever repeats the derivation. `CostRatio` refuses a non-positive or
+  non-finite cost naming which side was wrong; `PosteriorThreshold` is the decision-theoretic
+  content, `c_review/(c_review + c_miss)`; `Threshold` carries it onto the per-event scale through
+  `alpha = p(1-tau)/(tau(1-p))`; and `CostCurve` gives the Drummond-Holte view across the range of
+  ratios rather than at one guessed point. `AccuracyEquivalent` names the one-to-one ratio that
+  maximising accuracy silently assumes
+- **The published base-rate table is reproduced from the cost model, as a test.** All five rows
+  -- 90/50/25/10/5% precision, their demanded alpha and their per-day counts -- agree with the
+  table computed from the corpus's own base rate, at the two significant figures the table is
+  printed to. Two derivations of one table now agree in CI rather than by inspection
+- **A clamped alpha is reported rather than applied silently.** At an extreme ratio the arithmetic
+  asks for alpha above 1, which means the demanded precision is unreachable at this base rate even
+  by alerting on everything; `OperatingPoint.AlphaClamped` says so
+- **`cmd/analyse` records the operating point and the cost curve in its parameters block**, with
+  the identity beside them so an analyst can redo the arithmetic by hand (R5)
+
+### Changed
+
+- **The oracle-weights row is removed from section 2.4 (#34).** No recorded run produced its four
+  numbers and they were computed under the timing statistic section 3.3 replaces, so they were
+  stale as well as unrecorded. Deleting rather than re-running is the cheaper repair because the
+  row is no longer load-bearing: it existed to bound what a fitted allocation rule could reach,
+  and section 2.3 now bounds the same thing with a proof that needs no oracle -- the objective is
+  linear in the allocation, so its optimum is a vertex whatever the weights are fitted on
+
 ### Changed
 
 - **The dilution result is replicated on the real campaign, where it is much larger (#39).**
