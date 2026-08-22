@@ -1248,6 +1248,39 @@
     "saturated_days": 5
    }
   ],
+  "capacity_valve": {
+   "demanded_alerts_per_day": 862.7142857142858,
+   "note": "the budget is a capacity valve rather than the primary control. Where it binds, that is recorded here rather than applied silently",
+   "per_budget": [
+    {
+     "alerts_withheld_per_day": 852.7142857142858,
+     "binding_constraint": "analyst capacity",
+     "budget_binds": true,
+     "budget_per_day": 10,
+     "demanded_alerts_per_day": 862.7142857142858,
+     "note": "at this exchange rate the operating point asks for more alerts than the budget permits, so the budget is what decides what is seen and the error rate is not being honoured"
+    },
+    {
+     "alerts_withheld_per_day": 762.7142857142858,
+     "binding_constraint": "analyst capacity",
+     "budget_binds": true,
+     "budget_per_day": 100,
+     "demanded_alerts_per_day": 862.7142857142858,
+     "note": "at this exchange rate the operating point asks for more alerts than the budget permits, so the budget is what decides what is seen and the error rate is not being honoured"
+    },
+    {
+     "alerts_withheld_per_day": 0,
+     "binding_constraint": "the stated error rate",
+     "budget_binds": false,
+     "budget_per_day": 1000,
+     "demanded_alerts_per_day": 862.7142857142858,
+     "note": "the budget is slack at this exchange rate: the error rate is the binding constraint, which is the configuration #10 asks for"
+    }
+   ],
+   "posterior_threshold": 0.09090909090909091,
+   "recorded": true,
+   "value_ratio": 10
+  },
   "category_census": [
    {
     "category": {
@@ -1772,12 +1805,12 @@
   ]
  },
  "run": {
-  "finished_at": "2026-08-22T00:14:50Z",
+  "finished_at": "2026-08-22T02:52:56Z",
   "go_version": "go1.26.3",
   "parent_file": "C:/Users/JohnPierman/Documents/GitHub/ethogram/results/lanl-r11-b1000-conf-d7-14.json",
   "parent_run": "lanl-r11-b1000-weighted-d7-14-005",
   "run_id": "analysis-r11-b1000-conf-003",
-  "started_at": "2026-08-22T00:14:50Z"
+  "started_at": "2026-08-22T02:52:56Z"
  },
  "schema_version": "1"
 }
