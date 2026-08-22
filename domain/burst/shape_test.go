@@ -361,3 +361,63 @@ func TestTheSecondMomentSurvivesTheDecay(t *testing.T) {
 		}
 	}
 }
+
+// TestEligibleAgreesWithEvaluate is the consistency the run record depends on. The report counts
+// eligible entities so a reader can tell "this arm found nothing" from "this arm was never able to
+// speak", and an entity counted eligible while Evaluate abstains would inflate the coverage the
+// run claims.
+func TestEligibleAgreesWithEvaluate(t *testing.T) {
+	rng := rand.New(rand.NewPCG(63, 63))
+	// A spread of shapes: cold, tied-only, regular, clustered, and one gap short of the gate.
+	states := map[string]*State{}
+
+	states["cold"] = &State{}
+
+	tied := &State{}
+	for i := 0; i < 100; i++ {
+		tied.Observe(1000*event.Second, undecayed)
+	}
+	states["tied only"] = tied
+
+	oneShort := &State{}
+	at := event.Timestamp(0)
+	for i := 0; i < MinGaps-1; i++ {
+		at += 600 * event.Second
+		oneShort.Observe(at, undecayed)
+	}
+	states["one gap short"] = oneShort
+
+	regular := &State{}
+	at = 0
+	for i := 0; i < 200; i++ {
+		at += 600 * event.Second
+		regular.Observe(at, undecayed)
+	}
+	states["regular"] = regular
+
+	clumpy, _, _, _ := clustered(63, 300, 5, 2, 1800)
+	states["clustered"] = clumpy
+
+	poisson := &State{}
+	at = 0
+	for i := 0; i < 300; i++ {
+		at += event.Timestamp(math.Ceil(rng.ExpFloat64()*300)) * event.Second
+		poisson.Observe(at, undecayed)
+	}
+	states["poisson"] = poisson
+
+	for name, st := range states {
+		_, abstain := Evaluate(st)
+		speaks := abstain == AbstainNone
+		if st.Eligible() != speaks {
+			t.Errorf("%s: Eligible() is %v but Evaluate %s (%v). The report would then "+
+				"claim coverage the arm does not have", name, st.Eligible(),
+				map[bool]string{true: "speaks", false: "abstains"}[speaks], abstain)
+		}
+	}
+	// And a nil state is not eligible, since a nil report row must not be counted as coverage.
+	var none *State
+	if none.Eligible() {
+		t.Error("a nil state reported itself eligible")
+	}
+}

@@ -218,6 +218,10 @@ func (s *Summariser) Report() Report {
 
 // Eligible reports whether an entity has cleared the abstention gate, which is what separates
 // "this arm found nothing" from "this arm was never able to speak".
+//
+// It must agree with [Evaluate], since the report is a claim about how many entities the arm could
+// speak about: an entity counted eligible here but abstaining there would inflate the coverage the
+// run claims. So every gate Evaluate applies is applied, the shape included.
 func (s *State) Eligible() bool {
 	if s == nil {
 		return false
@@ -226,5 +230,9 @@ func (s *State) Eligible() bool {
 		return false
 	}
 	r := s.Rate()
-	return r > 0 && !math.IsInf(r, 0) && !math.IsNaN(r)
+	if r <= 0 || math.IsInf(r, 0) || math.IsNaN(r) {
+		return false
+	}
+	_, scale, ok := s.Shape()
+	return ok && scale > 0 && !math.IsInf(scale, 0)
 }
