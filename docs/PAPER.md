@@ -15,19 +15,17 @@ structural census locates the mechanism: the properties per-entity tests express
 139- and 184-fold among labelled events, while the property a population-rarity test expresses
 contains none of them.
 
-Five negative results are of independent interest. Combining the arms' p-values, by Fisher's
-method or by the Šidák-corrected minimum, never exceeds the best single component; alerting
-whenever any arm ranks an event highly is dominated at equal cost and superior at equal depth, at
-3.7 times the volume; and dividing the budget by demonstrated quality fails too, bounded rather
-than merely observed, since an exhaustive search over splits chosen with the labels in hand finds
-the optimum at the corner. What decides whether a division pays is the overlap between two arms'
+Five negative results are of independent interest. Combining the arms' p-values never exceeds the
+best single component; alerting whenever any arm ranks an event highly is dominated at equal cost
+and superior at equal depth, at 3.7 times the volume; and dividing the budget by demonstrated
+quality fails too, bounded rather than observed, since an exhaustive search over splits chosen
+with the labels in hand finds the optimum at the corner. What decides whether a division pays is the overlap between two arms'
 detections — 74.6% between the two strongest, 0% where a split does win. Read as a zero-sum game
 against an adversary choosing the mechanism, that corner result is a theorem rather than a
 measurement, and the conclusion usually drawn from it is also wrong: the best single arm
-guarantees nothing at all. Adding a seventh arm that reaches one labelled event in 4.49 million
-costs the composite a quarter of its detections and the corrected minimum two thirds of theirs,
-on both corpora, while leaving every single arm untouched — which tests the dilution directly
-rather than inferring it.
+guarantees nothing at all. Adding a seventh arm reaching one labelled event in 4.49 million costs
+the composite a quarter of its detections and the corrected minimum two thirds, on both corpora,
+while leaving every single arm untouched.
 Every result points the same way: what limits this framework is coverage, not allocation.
 
 **Keywords:** anomaly detection; multiple testing; conditional inference; game theory;
@@ -155,7 +153,7 @@ their own budgets on the sampled corpus of §2.5.
 | `noveltyrate` | **117** | **26** | 0 | **4** | 0 | 64 | 173 |
 | `pairing` | 0 | 0 | 0 | 0 | 0 | 12 | 130 |
 | `timing` | 0 | 0 | **3** | 0 | 0 | 11 | 7 |
-| `volume` | 0 | 0 | 0 | 0 | 0 | 0 | 0 |
+| `volume` | 0 | 0 | **1** | 0 | 0 | 0 | 4 |
 | `drift` | 0 | 0 | 0 | 0 | **0** | 0 | 1 |
 | `marginal` | 0 | 0 | 0 | 0 | 0 | **120/120** | 0 |
 | composite | 0 | 4 | 0 | 0 | 0 | 116 | 107 |
@@ -174,10 +172,16 @@ what it does to the combinations.
 **No single method is best at more than one thing.** The `marginal` takes every planted takeover
 and nothing else; `noveltyrate` takes spray, lateral movement and privilege escalation; `novelty`
 takes the real campaign. A reader looking for one row to deploy will not find one, which is what
-§2.3 formalises. And **low-and-slow is reached by no arm at any budget** — 0 of 288, 0 of 8
-victims. It is the mechanism `volume`'s over-dispersion is built to tolerate, so this is a
-confirmed prediction; §3.3 reports that its response is in addition *inverted*, and the statistic
-that repairs the direction.
+§2.3 formalises.
+
+**Low-and-slow is reached by no arm at any budget** — 0 of 288, 0 of 8 victims — and the reason is
+now measured rather than predicted. `volume` is the arm whose null the mechanism was built to
+evade, and repairing that null (§3.3) took its sub-10⁻¹² background from 13,618 events to 10,827
+and its detections from nothing to five, without moving the low-and-slow column at all. Its
+median p-value there is **0.72** against 0.31 to 0.49 on the other mechanisms: the response is not
+weak, it is *inverted*.
+
+§3.3 gives the mechanism, and it is a property of the plant as much as of the arm.
 
 The `marginal`'s 120 of 120 needs explaining, since population rarity is held out by construction.
 Its median p-value is 0.59 on spray and lateral movement, which substitute the destination
@@ -391,21 +395,38 @@ that freezes per-entity state across the campaign window.
 
 ### 3.3 What is repaired, and what a deployable version needs
 
-Two arms of §2.2 are **not evidence about per-entity conditioning in either direction**, and their
-zeros should be read as unmeasured. `timing`'s was a ceiling rather than blindness: its tail mass
-was floored by its own 512-point grid at 9.77 × 10⁻⁴, at or above its realised alert cut, so it
-could not alert whatever it observed. Raising the grid would not have helped — only 6 of 613
-labelled events sat at the floor and the rest were held up by the statistic, since a tail mass over
-density levels saturates. Standardising the event's ln U against the mean and spread of the ln U
-this entity's own events received removes the floor and takes detections from 0, 0 and 6 to 1, 2
-and 7 on the real campaign and from 0, 1 and 12 to 2, 9 and 21 on the planted corpus, improving the
-off-hours response rather than trading it away.
+Two arms of §2.2 were **not evidence about per-entity conditioning in either direction**, and both
+are now repaired. `timing`'s zeros were a ceiling rather than blindness: its tail mass was floored
+by its own 512-point grid at or above its realised alert cut, so it could not alert whatever it
+observed, and raising the grid would not have helped because a tail mass over density levels
+saturates. Standardising the event's ln U against the mean and spread of the ln U this entity's own
+events received removes the floor and takes detections from 0, 0 and 6 to 1, 2 and 7 on the real
+campaign and from 0, 1 and 12 to 2, 9 and 21 on the planted corpus.
 
-`volume` is misspecified in the opposite direction — 27,464 background events on `r11` fall below
-10⁻¹² where a calibrated null predicts 4.2 × 10⁻⁶ and no labelled event goes below
-1.96 × 10⁻⁷, so its queue fills with background before a labelled event can compete, and an
-abstention gate accounts for none of it. Its response to low-and-slow is in addition **inverted**,
-median p 0.72 against 0.29 elsewhere.
+`volume` was misspecified in the opposite direction — 27,464 background events on `r11` fell below
+10⁻¹² where a calibrated null predicts 4.2 × 10⁻⁶ — and the cause was a gate rather than the model.
+The width of its null is measured from the entity's own completed windows, and that measurement was
+gated on a *discounted* weight, which saturates at 1/(1−δ). An entity whose active windows are more
+than about 55 hours apart could never measure its own dispersion however long it was watched, and
+fell back to the un-widened null — the narrowest the arm has — for exactly the entities it had no
+evidence about. On synthetic benign accounts a burst every four days put 31.6% of its own events
+below 10⁻¹², reaching 10⁻⁴⁵. Gating on undiscounted observations instead takes the sub-10⁻¹²
+background to 10,827 and the arm's detections from none to five.
+
+**A discounted weight answers how recent, not how many, and gating a sample size on it makes the
+gate unsatisfiable rather than slow.** The same defect had the same shape in two other arms:
+`timing`'s standardisation required a discounted weight of 20, which a once-daily account
+saturating at 10.6 could never reach, so the statistic was unavailable to sparse accounts
+permanently.
+
+The repair does not reach low-and-slow, and two things account for that, neither a defect in the
+arm. The plant is twelve events at ninety-second intervals — a seventeen-minute burst, three times
+— and `volume`'s null is deliberately over-dispersed so an ordinary burst does not alert, so
+removing its false alarms and detecting this mechanism pull in opposite directions. And the burst
+is placed in the victim's *usual* hour, where the expected count is highest and twelve extra events
+least surprising; the one mechanism `volume` does reach, off-hours, is placed twelve hours from
+that, where the expectation is lowest — so that detection is a timing signal reaching it through
+the activity fraction ρ rather than a volume signal.
 
 That needs a statistic it does not contain rather than a refit: an over-dispersed marginal test of
 one period cannot see a drift small in every period, because the evidence is in the sequence.
