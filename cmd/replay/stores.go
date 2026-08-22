@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/JohnPierman/ethogram/domain/burst"
 	"github.com/JohnPierman/ethogram/domain/cooccurrence"
 	"github.com/JohnPierman/ethogram/domain/drift"
 	"github.com/JohnPierman/ethogram/domain/marginal"
@@ -68,6 +69,7 @@ type stateStores struct {
 	kind        storeKind
 	novelty     novelty.ValueCountRepository
 	noveltyRate noveltyrate.StateRepository
+	burst       burst.StateRepository
 	timing      timing.StateRepository
 	volume      volume.StateRepository
 	drift       drift.StateRepository
@@ -83,6 +85,12 @@ type stateStores struct {
 	// holds every value. Reported rather than inferred from the flag, so a run says what its
 	// state actually cost.
 	bounded func() map[string]any
+
+	// burstReport is the inter-arrival arm's eligibility summary, or nil under a store
+	// that cannot compute it in one pass. It is reported because "this arm found nothing"
+	// and "this arm was never eligible to speak" are different claims and the second is
+	// the one #53 exists to rule out.
+	burstReport func() burst.Report
 
 	// counts reports the final store sizes for the run record.
 	//
@@ -111,6 +119,7 @@ func newStateStores(ctx context.Context, kind storeKind, dsn string, truncate bo
 	if kind == storeMemory {
 		tim := memory.NewTimingStore()
 		vol := memory.NewVolumeStore()
+		bur := memory.NewBurstStore()
 
 		// The bounded store is a different claim rather than a tuned version of the same
 		// one: it answers equation (4) approximately and does not grow with the vocabulary,
@@ -130,9 +139,11 @@ func newStateStores(ctx context.Context, kind storeKind, dsn string, truncate bo
 
 		return &stateStores{
 			kind:        storeMemory,
+			burstReport: bur.Report,
 			bounded:     boundReport,
 			novelty:     nov,
 			noveltyRate: memory.NewNoveltyRateStore(),
+			burst:       bur,
 			timing:      tim,
 			volume:      vol,
 			drift:       memory.NewDriftStore(),
@@ -143,6 +154,7 @@ func newStateStores(ctx context.Context, kind storeKind, dsn string, truncate bo
 					"novelty_rows":    rowCount(),
 					"timing_entities": tim.Entities(),
 					"volume_entities": vol.Entities(),
+					"burst_entities":  bur.Entities(),
 				}
 			},
 			close: func() {},
@@ -167,6 +179,7 @@ func newStateStores(ctx context.Context, kind storeKind, dsn string, truncate bo
 		kind:        storePostgres,
 		novelty:     store.Novelty(),
 		noveltyRate: store.NoveltyRate(),
+		burst:       store.Burst(),
 		timing:      store.Timing(),
 		volume:      store.Volume(),
 		drift:       store.Drift(),
@@ -178,6 +191,7 @@ func newStateStores(ctx context.Context, kind storeKind, dsn string, truncate bo
 				"novelty_rows":    func() (int64, error) { return store.NoveltyRows(ctx) },
 				"timing_entities": func() (int64, error) { return store.TimingEntities(ctx) },
 				"volume_entities": func() (int64, error) { return store.VolumeEntities(ctx) },
+				"burst_entities":  func() (int64, error) { return store.BurstEntities(ctx) },
 			} {
 				rows, err := count()
 				if err != nil {
@@ -219,7 +233,7 @@ func (s *stateStores) record() map[string]any {
 			"rather than on the repository interface, and the arm it serves is reported " +
 			"as superseded and off",
 		"arms_backed": []string{
-			"novelty", "noveltyrate", "timing", "volume", "drift", "marginal",
+			"novelty", "noveltyrate", "timing", "volume", "drift", "marginal", "burst",
 		},
 	}
 }

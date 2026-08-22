@@ -13,6 +13,7 @@ import (
 	"context"
 	"slices"
 
+	"github.com/JohnPierman/ethogram/domain/burst"
 	"github.com/JohnPierman/ethogram/domain/drift"
 	"github.com/JohnPierman/ethogram/domain/event"
 	"github.com/JohnPierman/ethogram/domain/marginal"
@@ -397,3 +398,62 @@ func (s *MarginalStore) Rows() int64 {
 	}
 	return n
 }
+
+// ---------------------------------------------------------------------------
+// burst.StateRepository
+// ---------------------------------------------------------------------------
+
+// BurstStore implements burst.StateRepository (#53).
+type BurstStore struct {
+	states map[entityKey]*burst.State
+}
+
+// NewBurstStore returns an empty store.
+func NewBurstStore() *BurstStore {
+	return &BurstStore{states: make(map[entityKey]*burst.State)}
+}
+
+// FindByEntity implements burst.StateRepository, returning a deep copy so that a caller
+// holding the result cannot mutate stored state behind the detector's back.
+//
+// Deep, not shallow: burst.State holds a slice of recent arrivals and the detector appends
+// the event being scored to what it is handed. A struct copy would share that array, so the
+// append would write the scored event into stored state — scoring before observing in form
+// while observing before scoring in fact, which is the silent failure §5.2 exists to prevent.
+// The other stores here copy by assignment because their states are scalars only.
+func (s *BurstStore) FindByEntity(_ context.Context, src event.SourceID, en event.EntityID) (*burst.State, bool, error) {
+	st, ok := s.states[entityKey{src, en}]
+	if !ok {
+		return nil, false, nil
+	}
+	return st.Clone(), true, nil
+}
+
+// SaveState implements burst.StateRepository.
+func (s *BurstStore) SaveState(_ context.Context, src event.SourceID, en event.EntityID, st *burst.State) error {
+	s.states[entityKey{src, en}] = st
+	return nil
+}
+
+// Report summarises the held state for the run record, including how many entities have
+// cleared the abstention gate. An arm reporting no detections is a different claim from an
+// arm that was never eligible to make one, and only the second is a gap in coverage.
+func (s *BurstStore) Report() burst.Report {
+	r := burst.Report{Entities: int64(len(s.states)), MaxWindow: burst.MaxWindow}
+	rates := make([]float64, 0, len(s.states))
+	for _, st := range s.states {
+		r.TimestampsHeld += int64(len(st.Recent))
+		if st.Eligible() {
+			r.Eligible++
+			rates = append(rates, st.Rate())
+		}
+	}
+	if len(rates) > 0 {
+		slices.Sort(rates)
+		r.MedianRateHertz = rates[len(rates)/2]
+	}
+	return r
+}
+
+// Entities reports the number of entities held, for table T5.
+func (s *BurstStore) Entities() int64 { return int64(len(s.states)) }

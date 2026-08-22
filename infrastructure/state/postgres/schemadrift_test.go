@@ -7,6 +7,7 @@ import (
 	"testing"
 	"unicode"
 
+	"github.com/JohnPierman/ethogram/domain/burst"
 	"github.com/JohnPierman/ethogram/domain/drift"
 	"github.com/JohnPierman/ethogram/domain/noveltyrate"
 	"github.com/JohnPierman/ethogram/domain/timing"
@@ -163,6 +164,25 @@ func TestEveryPersistedFieldHasAColumn(t *testing.T) {
 			},
 		},
 		{
+			name:  "burst.State",
+			table: "burst_state",
+			typ:   reflect.TypeOf(burst.State{}),
+			spelled: map[string]string{
+				"LastSeen": "last_seen_us",
+				// The held arrivals. Named for what they are rather than for the field,
+				// because the column is an array and the field is a slice.
+				"Recent": "recent_us",
+				// `count` is a reserved-looking word in SQL and reads as an aggregate, so
+				// the decayed gap count is spelled out.
+				"Count": "gap_count",
+				// The UNDISCOUNTED gap count, and the one that matters most here: it is
+				// what the abstention gate reads, and a schema carrying only the decayed
+				// `gap_count` would reintroduce the #37 defect on the first restart --
+				// a gate above 1/(1-delta) that no amount of further history can satisfy.
+				"Observed": "observed",
+			},
+		},
+		{
 			name:  "drift.State",
 			table: "drift_state",
 			typ:   reflect.TypeOf(drift.State{}),
@@ -248,6 +268,7 @@ func TestPersistedArmsAreTheRecordedSet(t *testing.T) {
 		"graph_node":           true, // co-occurrence
 		"graph_edge":           true,
 		"noveltyrate_state":    true,
+		"burst_state":          true,
 		"drift_state":          true,
 		"marginal_value_count": true, // the population marginal's categorical half
 		"marginal_sketch":      true, // and its numeric half

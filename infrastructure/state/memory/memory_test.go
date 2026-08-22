@@ -2,10 +2,13 @@ package memory_test
 
 import (
 	"context"
+	"math"
 	"reflect"
 	"testing"
 
+	"github.com/JohnPierman/ethogram/domain/burst"
 	"github.com/JohnPierman/ethogram/domain/event"
+	"github.com/JohnPierman/ethogram/domain/novelty"
 	"github.com/JohnPierman/ethogram/domain/timing"
 	"github.com/JohnPierman/ethogram/domain/volume"
 	"github.com/JohnPierman/ethogram/infrastructure/state/memory"
@@ -14,6 +17,10 @@ import (
 const (
 	src = event.SourceID("lanl.auth")
 	ent = event.EntityID("U66@DOM1")
+
+	// testHalfLife is long enough that nothing decays over a test's span, so what a test
+	// measures is the store's copying rather than the discount.
+	testHalfLife = novelty.HalfLife(1 << 62)
 )
 
 // TestTimingStoreRoundTripsEveryField is a guard against a whole class of silent defect,
@@ -84,5 +91,96 @@ func TestVolumeStoreRoundTripsEveryField(t *testing.T) {
 	}
 	if !reflect.DeepEqual(got, want) {
 		t.Fatalf("state did not round-trip\n got %+v\nwant %+v", got, want)
+	}
+}
+
+// TestBurstStoreDoesNotShareItsSlice is the one thing this store must get right that the others
+// do not have to think about (#53).
+//
+// burst.State holds a slice of recent arrivals, and the detector appends the event being scored
+// to whatever it is handed before evaluating. A struct copy shares that backing array, so the
+// append would write the scored event into stored state — observing before scoring while
+// appearing to score before observing, which is exactly the silent failure §5.2 is built to
+// prevent. The other stores here copy by assignment because their states are scalars only.
+func TestBurstStoreDoesNotShareItsSlice(t *testing.T) {
+	ctx := context.Background()
+	store := memory.NewBurstStore()
+
+	stored := &burst.State{}
+	for i := 1; i <= 10; i++ {
+		stored.Observe(event.Timestamp(i)*60*event.Second, testHalfLife)
+	}
+	if err := store.SaveState(ctx, "src", "alice", stored); err != nil {
+		t.Fatalf("save: %v", err)
+	}
+
+	handed, ok, err := store.FindByEntity(ctx, "src", "alice")
+	if err != nil || !ok {
+		t.Fatalf("find: %v, ok=%v", err, ok)
+	}
+	before := len(stored.Recent)
+	gapsBefore := stored.Gaps
+
+	// Exactly what the detector does to what it is handed.
+	handed.Observe(event.Timestamp(11)*60*event.Second, testHalfLife)
+
+	again, _, err := store.FindByEntity(ctx, "src", "alice")
+	if err != nil {
+		t.Fatalf("refind: %v", err)
+	}
+	if len(again.Recent) != before || again.Gaps != gapsBefore {
+		t.Errorf("appending to the handed-out state changed the store: %d held / %.0f gap-sum "+
+			"became %d / %.0f", before, gapsBefore, len(again.Recent), again.Gaps)
+	}
+	// And the backing arrays must be distinct objects, not merely equal right now.
+	if len(again.Recent) > 0 && &again.Recent[0] == &handed.Recent[0] {
+		t.Error("the returned state shares its backing array with the stored one")
+	}
+}
+
+// TestBurstStoreReportsEligibilitySeparately: an arm that found nothing and an arm that was never
+// able to speak are different claims, and only the eligible count distinguishes them.
+func TestBurstStoreReportsEligibilitySeparately(t *testing.T) {
+	ctx := context.Background()
+	store := memory.NewBurstStore()
+
+	warm := &burst.State{}
+	for i := 1; i <= burst.MinGaps+5; i++ {
+		warm.Observe(event.Timestamp(i)*600*event.Second, testHalfLife)
+	}
+	cold := &burst.State{}
+	cold.Observe(600*event.Second, testHalfLife)
+
+	if err := store.SaveState(ctx, "src", "warm", warm); err != nil {
+		t.Fatalf("save warm: %v", err)
+	}
+	if err := store.SaveState(ctx, "src", "cold", cold); err != nil {
+		t.Fatalf("save cold: %v", err)
+	}
+
+	r := store.Report()
+	if r.Entities != 2 {
+		t.Errorf("entities %d, want 2", r.Entities)
+	}
+	if r.Eligible != 1 {
+		t.Errorf("eligible %d, want 1: a single-arrival entity has no rate", r.Eligible)
+	}
+	if r.MaxWindow != burst.MaxWindow {
+		t.Errorf("max window %d, want %d", r.MaxWindow, burst.MaxWindow)
+	}
+	// §13.3: the held timestamps must be bounded per entity whatever the event count.
+	if r.TimestampsHeld > int64(burst.MaxWindow)*r.Entities {
+		t.Errorf("holding %d timestamps across %d entities, above the per-entity bound of %d",
+			r.TimestampsHeld, r.Entities, burst.MaxWindow)
+	}
+	// The median rate is over ELIGIBLE entities only: including a cold one would report a
+	// rate formed from a handful of gaps as though it were an estimate.
+	if want := 1.0 / 600; math.Abs(r.MedianRateHertz-want) > 0.05*want {
+		t.Errorf("median rate %.3e, want about %.3e", r.MedianRateHertz, want)
+	}
+
+	if empty := memory.NewBurstStore().Report(); empty.Entities != 0 ||
+		empty.MedianRateHertz != 0 {
+		t.Errorf("an empty store reported %+v", empty)
 	}
 }

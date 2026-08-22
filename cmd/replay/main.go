@@ -31,6 +31,7 @@ import (
 	"time"
 
 	"github.com/JohnPierman/ethogram/application"
+	"github.com/JohnPierman/ethogram/domain/burst"
 	"github.com/JohnPierman/ethogram/domain/calibration"
 	"github.com/JohnPierman/ethogram/domain/cellgrid"
 	"github.com/JohnPierman/ethogram/domain/cooccurrence"
@@ -96,6 +97,16 @@ func main() {
 		shadowCells   = flag.Bool("shadow-cells", false, "score the 168-cell ablation as a shadow and record the E9 substituted combination")
 		openVocab     = flag.Bool("open-vocabulary", false, "reserve Detector I's unseen mass by Good-Turing rather than by equation (4)'s fixed alpha, for fields whose value set is unbounded (addresses, hostnames, user agents). Recorded in the result")
 		deriveOn      = flag.Bool("derive", false, "infer structure inside field values and score a coarser field beside each one that has it: a /24 beside an address, a parent domain beside a hostname, a major version beside a build string. A novel /24 is a different and usually stronger signal than a novel exact address, and on an open vocabulary the exact form is mostly singletons so every event looks like a first. Names no field: the decision is made from the observed values (R2). Recorded in the result")
+		burstOn       = flag.Bool("burst", false, "add the sub-hourly inter-arrival arm (#53): "+
+			"under a homogeneous Poisson null at the entity's own decayed rate the span of k "+
+			"consecutive arrivals is Gamma(k-1, 1/lambda), so a short span is a lower tail, "+
+			"and the minimum over k is corrected by Sidak for the scan. It exists because "+
+			"every arm reaches 0 of 288 planted low-and-slow events at every budget while an "+
+			"unsupervised LOF baseline reaches 12: `volume` tests an HOURLY window and the "+
+			"plant is twelve events at ninety-second intervals, `timing` tests time of day "+
+			"and the plant sits in the victim's usual hour, and nothing asks whether the "+
+			"events came too close together. OFF by default until a corpus run says what it "+
+			"does. Recorded in the result")
 		noveltyRateOn = flag.Bool("novelty-rate", true, "add Detector V, the novelty-RATE detector: is this entity producing first-ever values at a higher rate than it historically does, K ~ BetaBinomial(m, a, b) over an hourly window. Detector I asks how improbable one novel value was, and its answer is essentially 1/n, so an account needs ~117,000 events of history before any single novel value can win an alert slot and 736 of 856 planted attack events were unreachable. This asks a scale-free question instead. ON by default: two recorded corpora justify the flip -- 0/22/185 detections at 10/100/1000 alerts a day on r11 and 0/21/384 on the injected corpus, where it is the broadest arm on planted attacks, reaching four of six mechanisms. Recorded in the result")
 		pairingOn     = flag.Bool("pairing", true, "replace Detector III's population co-occurrence null with its per-entity form: is this pairing novel for THIS entity, against its own history. ON by default: two recorded corpora justify the flip -- 4/59/127 detections at 10/100/1000 alerts a day on r11 and 4/59/142 on the injected corpus -- and the form it replaces is measured miscalibrated, with 18.4% of scored events below 1e-12 and no detections at any budget. Pass -pairing=false for the population form, which is retained for the ablation of section 12.3 and is not a configuration to deploy. Recorded in the result")
 		conformalOn   = flag.Bool("conformal", false, "apply Ã‚Â§10.1 conformal calibration: replace each detector's model tail with its rank in that detector's burn-in distribution, frozen at the boundary. Recorded in the result; floors every p-value at 1/(n+1)")
@@ -192,6 +203,7 @@ func main() {
 		openVocabulary: *openVocab,
 		pairing:        *pairingOn,
 		noveltyRate:    *noveltyRateOn,
+		burst:          *burstOn,
 		derive:         *deriveOn,
 		schemaPath:     *schemaPath,
 		leidenPy:       *leidenPy, leidenSeed: *leidenSeed,
@@ -242,6 +254,7 @@ type runConfig struct {
 	openVocabulary                      bool
 	pairing                             bool
 	noveltyRate                         bool
+	burst                               bool
 	derive                              bool
 	schemaPath                          string
 	leidenPy                            string
@@ -337,6 +350,7 @@ func run(cfg runConfig) error {
 	defer stores.close()
 	novStore := stores.novelty
 	nrStore := stores.noveltyRate
+	burStore := stores.burst
 	timStore := stores.timing
 	volStore := stores.volume
 	driStore := stores.drift
@@ -403,6 +417,9 @@ func run(cfg runConfig) error {
 			return driftErr
 		}
 		registered = append(registered, driftDetector)
+	}
+	if cfg.burst {
+		registered = append(registered, burst.NewDetector(burStore, halfLife))
 	}
 	if cfg.noveltyRate {
 		// It reads novelty's own value store rather than a copy: "has this entity seen
@@ -668,6 +685,10 @@ func run(cfg runConfig) error {
 			// Whether Detector V ran. It adds an arm rather than replacing one, so a run
 			// with it on is comparable to one without on every other arm.
 			"novelty_rate": noveltyRateRecord(cfg),
+			// Whether the inter-arrival arm ran, and what its state cost. It adds an arm
+			// rather than replacing one, so a run with it on is comparable to one without
+			// on every other arm.
+			"burst": burstRecord(cfg, stores),
 			// The volume arm's R3 abstention. Two runs differing only in this are not
 			// comparable on the volume arm's figures, so it is recorded rather than
 			// inferred from the command line.
@@ -874,6 +895,52 @@ func deriveRecord(cfg runConfig) map[string]any {
 // at different scopes, and they are not comparable to one another. A run that does not
 // say which it used leaves a reader to infer it from a detector name that is identical
 // in shape either way.
+// burstRecord describes the inter-arrival arm's presence and its eligibility, so a result
+// distinguishes "this arm found nothing" from "this arm was never able to speak". The second
+// would be a coverage gap and the first a measurement, and only the eligible count separates
+// them.
+func burstRecord(cfg runConfig, stores *stateStores) map[string]any {
+	if !cfg.burst {
+		return map[string]any{
+			"applied": false,
+			"note": "the inter-arrival arm did not run. No arm then asks whether an " +
+				"entity's events arrived too close together: `volume` tests an hourly " +
+				"count and `timing` a time of day, so a burst confined to seventeen " +
+				"minutes inside the victim's usual hour is invisible to both",
+		}
+	}
+	out := map[string]any{
+		"applied":            true,
+		"max_window":         burst.MaxWindow,
+		"min_window":         burst.MinWindow,
+		"min_gaps":           burst.MinGaps,
+		"resolution_seconds": burst.ResolutionSeconds,
+		"null":               "span of k consecutive arrivals ~ Gamma(k-1, 1/lambda) at the entity's own decayed rate",
+		"correction":         "Sidak over the windows examined",
+		"correction_note": "the windows are nested and so positively dependent, for which " +
+			"the independence correction OVER-states the multiplicity: the corrected " +
+			"p-value is conservative, which is the safe direction and is deliberate given " +
+			"that this arm exists because two others had anti-conservative nulls",
+		"resolution_note": "LANL records to the whole second, so a window can span zero " +
+			"recorded seconds; under a continuous null that has probability zero and the " +
+			"tail is -Inf, which is not a p-value. The span is floored at one second, the " +
+			"coarsest reading the resolution admits and therefore the conservative one",
+		"note": "it sees ONLY proximity in time. An attack spread evenly across a day is " +
+			"invisible to it, and one confined to a burst is what it is for",
+	}
+	if stores != nil && stores.burstReport != nil {
+		r := stores.burstReport()
+		out["entities"] = r.Entities
+		out["eligible_entities"] = r.Eligible
+		out["timestamps_held"] = r.TimestampsHeld
+		out["median_rate_hertz"] = r.MedianRateHertz
+		if r.Entities > 0 {
+			out["timestamps_per_entity"] = float64(r.TimestampsHeld) / float64(r.Entities)
+		}
+	}
+	return out
+}
+
 // noveltyRateRecord describes Detector V's presence, so that a result states whether the
 // arm existed rather than leaving a reader to infer it from the absence of a key.
 func noveltyRateRecord(cfg runConfig) map[string]any {
