@@ -384,6 +384,8 @@ func analyse(cfg analysisConfig) error {
 				"n":      pop.size(),
 				"source": pop.source,
 			},
+			"operating_point": operatingPointProvenance(cfg.utility, pop.size(),
+				intFromCorpus(run, "events_scored"), len(perDayM)),
 			"category_census":     categoryCensus(pop),
 			"category_comparison": categoryRows,
 			"head_to_head":        headToHeadRows,
@@ -628,6 +630,89 @@ func objectiveProvenance(utility *objective.Utility) map[string]any {
 	out["value_ratio"] = utility.ValueRatio()
 	out["scored"] = true
 	out["minimum_precision"] = utility.MinimumPrecision()
+	return out
+}
+
+// operatingPointProvenance records the per-event operating point the stated exchange rate
+// implies at this corpus's own base rate, and the cost curve either side of it.
+//
+// It is recorded because a derived threshold that is not written down is reproducible only by
+// someone who repeats the derivation, which is the gap #14 names: the run said what ratio it
+// assumed and not what that ratio demanded. Every field is present so an analyst can redo the
+// arithmetic by hand, per R5.
+//
+// The curve is the Drummond and Holte view -- performance across the range of cost ratios
+// rather than at one guessed point -- and it is what shows how much the choice of ratio
+// matters. At this base rate it matters a great deal: the alpha demanded by 90% precision and
+// by 5% differ by more than two orders of magnitude.
+func operatingPointProvenance(utility *objective.Utility, labelled, scored, days int) map[string]any {
+	if utility == nil || labelled <= 0 || scored <= labelled || days <= 0 {
+		return map[string]any{
+			"recorded": false,
+			"note": "an operating point needs a stated exchange rate, a base rate strictly " +
+				"inside (0, 1), and a scored-day count; one of them was absent",
+		}
+	}
+
+	baseRate := float64(labelled) / float64(scored)
+	perDay := float64(scored) / float64(days)
+
+	// The exchange rate v/c is the miss cost in units of the review cost, which is exactly
+	// the ratio the cost model takes.
+	ratio, err := objective.NewCostRatio(utility.ValueRatio(), 1)
+	if err != nil {
+		return map[string]any{"recorded": false, "note": err.Error()}
+	}
+	point, err := objective.Threshold(ratio, baseRate, perDay)
+	if err != nil {
+		return map[string]any{"recorded": false, "note": err.Error()}
+	}
+
+	out := map[string]any{
+		"recorded":                true,
+		"base_rate":               baseRate,
+		"events_per_day":          perDay,
+		"value_ratio":             utility.ValueRatio(),
+		"posterior_threshold":     point.PosteriorThreshold,
+		"alpha":                   point.Alpha,
+		"alpha_clamped":           point.AlphaClamped,
+		"expected_false_per_day":  point.ExpectedFalsePerDay,
+		"expected_true_per_day":   point.ExpectedTruePerDay,
+		"expected_alerts_per_day": point.ExpectedAlertsPerDay(),
+		"identity": "alpha = p(1-tau)/(tau(1-p)), from " +
+			"P(intrusion | alarm) = p/(p + (1-p)alpha) solved at tau",
+	}
+	if point.AlphaClamped {
+		out["clamp_note"] = "the arithmetic asked for alpha above 1, which means this " +
+			"precision is unreachable at this base rate even by alerting on everything"
+	}
+
+	// The curve, specified by the share of alerts an operator would tolerate being wrong
+	// rather than by a cost nobody can price.
+	var ratios []objective.CostRatio
+	for _, precision := range []float64{0.90, 0.50, 0.25, 0.10, 0.05} {
+		r, rErr := objective.RatioForPrecision(precision)
+		if rErr != nil {
+			return map[string]any{"recorded": false, "note": rErr.Error()}
+		}
+		ratios = append(ratios, r)
+	}
+	curve, err := objective.CostCurve(ratios, baseRate, perDay)
+	if err != nil {
+		return map[string]any{"recorded": false, "note": err.Error()}
+	}
+	rows := make([]map[string]any, 0, len(curve))
+	for _, c := range curve {
+		rows = append(rows, map[string]any{
+			"precision_demanded":      c.PosteriorThreshold,
+			"value_ratio":             c.Ratio.Ratio(),
+			"alpha":                   c.Alpha,
+			"alpha_clamped":           c.AlphaClamped,
+			"expected_false_per_day":  c.ExpectedFalsePerDay,
+			"expected_alerts_per_day": c.ExpectedAlertsPerDay(),
+		})
+	}
+	out["cost_curve"] = rows
 	return out
 }
 
