@@ -1,0 +1,689 @@
+{
+  "schema_version": 1,
+  "kind": "method-matrix",
+  "run": {
+    "corpus": "C:\\Users\\JohnPierman\\Documents\\calibrated-anomaly-detection\\data\\lanl\\auth-holdout-r7-d0-14.txt.gz",
+    "run_id": "lanl-inj-b1000-gatefix-d7-14-008"
+  },
+  "note": "one row per method, one column per attack mechanism, at each budget the run measured. Counts, not rates: dividing by the planted total is the consumer's decision because the mechanisms have very different planted totals.",
+  "budgets": [
+    {
+      "budget": 10,
+      "permitted": 70,
+      "mechanisms": [
+        "credential_spray",
+        "lateral_chain",
+        "off_hours",
+        "privilege_escalation",
+        "low_and_slow",
+        "account_takeover",
+        "real campaign"
+      ],
+      "planted": {
+        "account_takeover": 120,
+        "credential_spray": 320,
+        "lateral_chain": 40,
+        "low_and_slow": 288,
+        "off_hours": 64,
+        "privilege_escalation": 24,
+        "real campaign": 549
+      },
+      "rows": [
+        {
+          "name": "`drift`",
+          "group": "per-entity detector",
+          "caught": {},
+          "alerts": 59,
+          "permitted": 70,
+          "measured": true
+        },
+        {
+          "name": "`novelty`",
+          "group": "per-entity detector",
+          "caught": {
+            "real campaign": 11
+          },
+          "alerts": 70,
+          "permitted": 70,
+          "measured": true
+        },
+        {
+          "name": "`noveltyrate`",
+          "group": "per-entity detector",
+          "caught": {},
+          "alerts": 70,
+          "permitted": 70,
+          "measured": true
+        },
+        {
+          "name": "`pairing`",
+          "group": "per-entity detector",
+          "caught": {
+            "real campaign": 4
+          },
+          "alerts": 70,
+          "permitted": 70,
+          "measured": true
+        },
+        {
+          "name": "`timing`",
+          "group": "per-entity detector",
+          "caught": {
+            "real campaign": 2
+          },
+          "alerts": 70,
+          "permitted": 70,
+          "measured": true
+        },
+        {
+          "name": "`volume`",
+          "group": "per-entity detector",
+          "caught": {},
+          "alerts": 70,
+          "permitted": 70,
+          "measured": true
+        },
+        {
+          "name": "`marginal`",
+          "group": "population detector",
+          "caught": {},
+          "alerts": 70,
+          "permitted": 70,
+          "measured": true
+        },
+        {
+          "name": "composite (Fisher + Brown)",
+          "group": "combination",
+          "caught": {},
+          "alerts": 70,
+          "permitted": 70,
+          "measured": true
+        },
+        {
+          "name": "corrected minimum (Šidák)",
+          "group": "combination",
+          "caught": {},
+          "alerts": 70,
+          "permitted": 70,
+          "measured": true
+        },
+        {
+          "name": "union, per-entity arms (equal cost)",
+          "group": "combination",
+          "caught": {
+            "real campaign": 1
+          },
+          "alerts": 70,
+          "permitted": 70,
+          "measured": true
+        },
+        {
+          "name": "union, per-entity arms (equal depth)",
+          "group": "combination",
+          "caught": {
+            "real campaign": 13
+          },
+          "alerts": 351,
+          "permitted": 70,
+          "measured": true
+        },
+        {
+          "name": "union, all arms (equal cost)",
+          "group": "combination",
+          "caught": {
+            "real campaign": 1
+          },
+          "alerts": 70,
+          "permitted": 70,
+          "measured": true
+        },
+        {
+          "name": "union, all arms (equal depth)",
+          "group": "combination",
+          "caught": {
+            "real campaign": 13
+          },
+          "alerts": 419,
+          "permitted": 70,
+          "measured": true
+        },
+        {
+          "name": "`entity_ewma`",
+          "group": "baseline (per-entity)",
+          "caught": {
+            "account_takeover": 1
+          },
+          "alerts": 0,
+          "permitted": 70,
+          "measured": true
+        },
+        {
+          "name": "`eif`",
+          "group": "baseline (population)",
+          "caught": {},
+          "alerts": 0,
+          "permitted": 70,
+          "measured": true
+        },
+        {
+          "name": "`hst`",
+          "group": "baseline (population)",
+          "caught": {},
+          "alerts": 0,
+          "permitted": 70,
+          "measured": true
+        },
+        {
+          "name": "`iforest`",
+          "group": "baseline (population)",
+          "caught": {},
+          "alerts": 0,
+          "permitted": 70,
+          "measured": true
+        },
+        {
+          "name": "`lof`",
+          "group": "baseline (population)",
+          "caught": {
+            "low_and_slow": 12
+          },
+          "alerts": 0,
+          "permitted": 70,
+          "measured": true
+        },
+        {
+          "name": "`ocsvm`",
+          "group": "baseline (population)",
+          "caught": {
+            "account_takeover": 26
+          },
+          "alerts": 0,
+          "permitted": 70,
+          "measured": true
+        },
+        {
+          "name": "`pca`",
+          "group": "baseline (population)",
+          "caught": {},
+          "alerts": 0,
+          "permitted": 70,
+          "measured": true
+        }
+      ]
+    },
+    {
+      "budget": 100,
+      "permitted": 700,
+      "mechanisms": [
+        "credential_spray",
+        "lateral_chain",
+        "off_hours",
+        "privilege_escalation",
+        "low_and_slow",
+        "account_takeover",
+        "real campaign"
+      ],
+      "planted": {
+        "account_takeover": 120,
+        "credential_spray": 320,
+        "lateral_chain": 40,
+        "low_and_slow": 288,
+        "off_hours": 64,
+        "privilege_escalation": 24,
+        "real campaign": 549
+      },
+      "rows": [
+        {
+          "name": "`drift`",
+          "group": "per-entity detector",
+          "caught": {},
+          "alerts": 509,
+          "permitted": 700,
+          "measured": true
+        },
+        {
+          "name": "`novelty`",
+          "group": "per-entity detector",
+          "caught": {
+            "real campaign": 60
+          },
+          "alerts": 700,
+          "permitted": 700,
+          "measured": true
+        },
+        {
+          "name": "`noveltyrate`",
+          "group": "per-entity detector",
+          "caught": {
+            "real campaign": 21
+          },
+          "alerts": 700,
+          "permitted": 700,
+          "measured": true
+        },
+        {
+          "name": "`pairing`",
+          "group": "per-entity detector",
+          "caught": {
+            "real campaign": 59
+          },
+          "alerts": 700,
+          "permitted": 700,
+          "measured": true
+        },
+        {
+          "name": "`timing`",
+          "group": "per-entity detector",
+          "caught": {
+            "account_takeover": 5,
+            "off_hours": 1,
+            "real campaign": 3
+          },
+          "alerts": 700,
+          "permitted": 700,
+          "measured": true
+        },
+        {
+          "name": "`volume`",
+          "group": "per-entity detector",
+          "caught": {
+            "real campaign": 1
+          },
+          "alerts": 700,
+          "permitted": 700,
+          "measured": true
+        },
+        {
+          "name": "`marginal`",
+          "group": "population detector",
+          "caught": {
+            "account_takeover": 76
+          },
+          "alerts": 700,
+          "permitted": 700,
+          "measured": true
+        },
+        {
+          "name": "composite (Fisher + Brown)",
+          "group": "combination",
+          "caught": {
+            "account_takeover": 18,
+            "real campaign": 7
+          },
+          "alerts": 700,
+          "permitted": 700,
+          "measured": true
+        },
+        {
+          "name": "corrected minimum (Šidák)",
+          "group": "combination",
+          "caught": {
+            "real campaign": 16
+          },
+          "alerts": 700,
+          "permitted": 700,
+          "measured": true
+        },
+        {
+          "name": "union, per-entity arms (equal cost)",
+          "group": "combination",
+          "caught": {
+            "account_takeover": 2,
+            "real campaign": 23
+          },
+          "alerts": 700,
+          "permitted": 700,
+          "measured": true
+        },
+        {
+          "name": "union, per-entity arms (equal depth)",
+          "group": "combination",
+          "caught": {
+            "account_takeover": 5,
+            "off_hours": 1,
+            "real campaign": 78
+          },
+          "alerts": 3208,
+          "permitted": 700,
+          "measured": true
+        },
+        {
+          "name": "union, all arms (equal cost)",
+          "group": "combination",
+          "caught": {
+            "account_takeover": 2,
+            "real campaign": 19
+          },
+          "alerts": 700,
+          "permitted": 700,
+          "measured": true
+        },
+        {
+          "name": "union, all arms (equal depth)",
+          "group": "combination",
+          "caught": {
+            "account_takeover": 76,
+            "off_hours": 1,
+            "real campaign": 78
+          },
+          "alerts": 3876,
+          "permitted": 700,
+          "measured": true
+        },
+        {
+          "name": "`entity_ewma`",
+          "group": "baseline (per-entity)",
+          "caught": {
+            "account_takeover": 1
+          },
+          "alerts": 0,
+          "permitted": 700,
+          "measured": true
+        },
+        {
+          "name": "`eif`",
+          "group": "baseline (population)",
+          "caught": {},
+          "alerts": 0,
+          "permitted": 700,
+          "measured": true
+        },
+        {
+          "name": "`hst`",
+          "group": "baseline (population)",
+          "caught": {},
+          "alerts": 0,
+          "permitted": 700,
+          "measured": true
+        },
+        {
+          "name": "`iforest`",
+          "group": "baseline (population)",
+          "caught": {},
+          "alerts": 0,
+          "permitted": 700,
+          "measured": true
+        },
+        {
+          "name": "`lof`",
+          "group": "baseline (population)",
+          "caught": {
+            "low_and_slow": 12
+          },
+          "alerts": 0,
+          "permitted": 700,
+          "measured": true
+        },
+        {
+          "name": "`ocsvm`",
+          "group": "baseline (population)",
+          "caught": {
+            "account_takeover": 33
+          },
+          "alerts": 0,
+          "permitted": 700,
+          "measured": true
+        },
+        {
+          "name": "`pca`",
+          "group": "baseline (population)",
+          "caught": {},
+          "alerts": 0,
+          "permitted": 700,
+          "measured": true
+        }
+      ]
+    },
+    {
+      "budget": 1000,
+      "permitted": 7000,
+      "mechanisms": [
+        "credential_spray",
+        "lateral_chain",
+        "off_hours",
+        "privilege_escalation",
+        "low_and_slow",
+        "account_takeover",
+        "real campaign"
+      ],
+      "planted": {
+        "account_takeover": 120,
+        "credential_spray": 320,
+        "lateral_chain": 40,
+        "low_and_slow": 288,
+        "off_hours": 64,
+        "privilege_escalation": 24,
+        "real campaign": 549
+      },
+      "rows": [
+        {
+          "name": "`drift`",
+          "group": "per-entity detector",
+          "caught": {
+            "real campaign": 1
+          },
+          "alerts": 5009,
+          "permitted": 7000,
+          "measured": true
+        },
+        {
+          "name": "`novelty`",
+          "group": "per-entity detector",
+          "caught": {
+            "account_takeover": 30,
+            "credential_spray": 80,
+            "lateral_chain": 15,
+            "real campaign": 178
+          },
+          "alerts": 7000,
+          "permitted": 7000,
+          "measured": true
+        },
+        {
+          "name": "`noveltyrate`",
+          "group": "per-entity detector",
+          "caught": {
+            "account_takeover": 64,
+            "credential_spray": 117,
+            "lateral_chain": 26,
+            "privilege_escalation": 4,
+            "real campaign": 173
+          },
+          "alerts": 7000,
+          "permitted": 7000,
+          "measured": true
+        },
+        {
+          "name": "`pairing`",
+          "group": "per-entity detector",
+          "caught": {
+            "account_takeover": 12,
+            "real campaign": 130
+          },
+          "alerts": 7000,
+          "permitted": 7000,
+          "measured": true
+        },
+        {
+          "name": "`timing`",
+          "group": "per-entity detector",
+          "caught": {
+            "account_takeover": 11,
+            "off_hours": 3,
+            "real campaign": 7
+          },
+          "alerts": 7000,
+          "permitted": 7000,
+          "measured": true
+        },
+        {
+          "name": "`volume`",
+          "group": "per-entity detector",
+          "caught": {
+            "off_hours": 1,
+            "real campaign": 4
+          },
+          "alerts": 7000,
+          "permitted": 7000,
+          "measured": true
+        },
+        {
+          "name": "`marginal`",
+          "group": "population detector",
+          "caught": {
+            "account_takeover": 120
+          },
+          "alerts": 7000,
+          "permitted": 7000,
+          "measured": true
+        },
+        {
+          "name": "composite (Fisher + Brown)",
+          "group": "combination",
+          "caught": {
+            "account_takeover": 100,
+            "real campaign": 74
+          },
+          "alerts": 7000,
+          "permitted": 7000,
+          "measured": true
+        },
+        {
+          "name": "corrected minimum (Šidák)",
+          "group": "combination",
+          "caught": {
+            "account_takeover": 15,
+            "real campaign": 119
+          },
+          "alerts": 7000,
+          "permitted": 7000,
+          "measured": true
+        },
+        {
+          "name": "union, per-entity arms (equal cost)",
+          "group": "combination",
+          "caught": {
+            "account_takeover": 22,
+            "credential_spray": 4,
+            "off_hours": 2,
+            "real campaign": 107
+          },
+          "alerts": 7000,
+          "permitted": 7000,
+          "measured": true
+        },
+        {
+          "name": "union, per-entity arms (equal depth)",
+          "group": "combination",
+          "caught": {
+            "account_takeover": 71,
+            "credential_spray": 117,
+            "lateral_chain": 26,
+            "off_hours": 3,
+            "privilege_escalation": 4,
+            "real campaign": 270
+          },
+          "alerts": 30224,
+          "permitted": 7000,
+          "measured": true
+        },
+        {
+          "name": "union, all arms (equal cost)",
+          "group": "combination",
+          "caught": {
+            "account_takeover": 120,
+            "off_hours": 2,
+            "real campaign": 103
+          },
+          "alerts": 7000,
+          "permitted": 7000,
+          "measured": true
+        },
+        {
+          "name": "union, all arms (equal depth)",
+          "group": "combination",
+          "caught": {
+            "account_takeover": 120,
+            "credential_spray": 117,
+            "lateral_chain": 26,
+            "off_hours": 3,
+            "privilege_escalation": 4,
+            "real campaign": 270
+          },
+          "alerts": 35891,
+          "permitted": 7000,
+          "measured": true
+        },
+        {
+          "name": "`entity_ewma`",
+          "group": "baseline (per-entity)",
+          "caught": {
+            "account_takeover": 1
+          },
+          "alerts": 0,
+          "permitted": 7000,
+          "measured": true,
+          "note": "measured at 100/day, not 1000"
+        },
+        {
+          "name": "`eif`",
+          "group": "baseline (population)",
+          "caught": {},
+          "alerts": 0,
+          "permitted": 7000,
+          "measured": true,
+          "note": "measured at 100/day, not 1000"
+        },
+        {
+          "name": "`hst`",
+          "group": "baseline (population)",
+          "caught": {},
+          "alerts": 0,
+          "permitted": 7000,
+          "measured": true,
+          "note": "measured at 100/day, not 1000"
+        },
+        {
+          "name": "`iforest`",
+          "group": "baseline (population)",
+          "caught": {},
+          "alerts": 0,
+          "permitted": 7000,
+          "measured": true,
+          "note": "measured at 100/day, not 1000"
+        },
+        {
+          "name": "`lof`",
+          "group": "baseline (population)",
+          "caught": {
+            "low_and_slow": 12
+          },
+          "alerts": 0,
+          "permitted": 7000,
+          "measured": true,
+          "note": "measured at 100/day, not 1000"
+        },
+        {
+          "name": "`ocsvm`",
+          "group": "baseline (population)",
+          "caught": {
+            "account_takeover": 33
+          },
+          "alerts": 0,
+          "permitted": 7000,
+          "measured": true,
+          "note": "measured at 100/day, not 1000"
+        },
+        {
+          "name": "`pca`",
+          "group": "baseline (population)",
+          "caught": {},
+          "alerts": 0,
+          "permitted": 7000,
+          "measured": true,
+          "note": "measured at 100/day, not 1000"
+        }
+      ]
+    }
+  ]
+}

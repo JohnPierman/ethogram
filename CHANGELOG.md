@@ -928,6 +928,18 @@ Equation numbers `(1)`–`(20)`, requirements `R1`–`R6`, and evaluation hypoth
   a property of the sample as much as of the detector. The consequence is unchanged: the
   detector alerted on 0 of 64 planted off-hours events at every budget
 
+- **#42's premise turns out to be wrong, and the paper now says why.** The issue -- which I wrote
+  -- claimed `volume` is "already the right instrument for low_and_slow" because the plant is a
+  burst and `volume` is an hourly-window test. Measured: the arm still reaches **0 of 288**, with a
+  median p-value of **0.72** there against 0.31 to 0.49 on the other mechanisms, so the response is
+  not weak but *inverted*. Two reasons, neither a defect in the arm. The null is deliberately
+  over-dispersed so an ordinary burst does not alert, so removing its false alarms and detecting
+  this mechanism pull in opposite directions. And reading `cmd/inject`, the burst is placed in the
+  victim's **usual** hour, where the expected count is highest and twelve extra events least
+  surprising -- while off-hours, the one mechanism `volume` does reach, is placed twelve hours from
+  that where the expectation is lowest, so that detection is a timing signal arriving through the
+  activity fraction rather than a volume signal
+
 ### Fixed
 
 - **The paper's length gate is now renderer-independent, so it means the same thing everywhere
@@ -1804,6 +1816,13 @@ Equation numbers `(1)`–`(20)`, requirements `R1`–`R6`, and evaluation hypoth
 - fixed unchecked hash writes in the event digest by building the encoding as a single
   buffer and hashing once, which also makes the encoding a pure function testable
   independently of the digest
+
+- **`volume`'s tail is repaired, and the repair is measured on the corpus (#42).** The cause was a
+  gate rather than the model, and it is the discounted-weight defect above: an entity whose active
+  windows are more than about 55 hours apart could never measure its own dispersion, so it was
+  scored against equation (11) un-widened -- the narrowest null the arm has. On
+  `lanl-inj-b1000-gatefix-d7-14-008` the sub-1e-12 background falls from **13,618 events to
+  10,827** and the arm's detections rise from **none at any budget to five**, its first ever
 
 ### Removed
 
