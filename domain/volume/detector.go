@@ -157,8 +157,10 @@ func (d *Detector) Score(ctx context.Context, e *event.Event) (detector.Verdicts
 	rho := d.windowFraction(ctx, e, hour)
 
 	// The null is equation (11) widened by the dispersion the entity's own completed
-	// windows exhibit. With φ̂ = 1 — too little history to measure it, or counts that
-	// scatter no more than the model predicts — this is (11) exactly.
+	// windows exhibit. Where the entity's counts scatter no more than the model predicts
+	// this is (11) exactly; where the dispersion cannot be measured at all the arm
+	// abstains below rather than falling back to (11), which would be the narrowest null
+	// it has.
 	mean, variance := PredictiveMoments(a, b, rho)
 	phi := Dispersion(state.DispersionSum, state.DispersionWindows)
 	p := UpperTail(a, b, rho, int(kObs))
@@ -215,6 +217,33 @@ func (d *Detector) Score(ctx context.Context, e *event.Event) (detector.Verdicts
 				"completed_periods": float64(completed),
 				"minimum":           float64(d.minPeriods),
 			}, labels))
+		if abstainErr != nil {
+			return nil, nil, fmt.Errorf("volume: abstain: %w", abstainErr)
+		}
+		return detector.Verdicts{v}, obs, nil
+	}
+
+	// R3: the dispersion is the WIDTH of the null, and an unmeasurable width is not a
+	// narrow one. Falling back to equation (11) un-widened asserted the narrowest null the
+	// arm has for exactly the entities whose variation it had no evidence about, and a
+	// wholly benign account bursting every four days then put 31.6% of its own events below
+	// 1e-12, reaching 1e-45. See [DispersionReachable] for why observation alone could not
+	// fix it: past about three days between active windows the discounted weight saturates
+	// below [MinDispersionWindows], so the estimate was unreachable however long the entity
+	// was watched.
+	//
+	// The gate is deliberately narrow. It fires only where the arm would otherwise report a
+	// real tail -- mean > 0, so the posterior and the window fraction both exist -- because
+	// the no-history state already reports P = 1 by the convention of [UpperTail], and that
+	// costs nothing: a p-value of 1 cannot win an alert slot. Widening the gate to cover
+	// cold start would change what the volume-gate probe of section 6.2 can measure from a
+	// single ungated pass, for no gain.
+	if mean > 0 && !DispersionMeasurable(state.DispersionWindows) {
+		v, abstainErr := detector.NewAbstained(DetectorID, target,
+			detector.StatusAbstainedUnusable,
+			"too few completed windows to measure this entity's dispersion, so the "+
+				"width of its null is unknown",
+			detector.NewEvidence([]int{10, 11}, stats, labels))
 		if abstainErr != nil {
 			return nil, nil, fmt.Errorf("volume: abstain: %w", abstainErr)
 		}

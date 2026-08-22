@@ -233,6 +233,26 @@ Each takes roughly two hours and about 500 MB of heap, and the two replays are i
 The flags in those targets are the ones the result file records in its `parameters` block; if
 the two ever disagree, the result file is authoritative and the target is the bug.
 
+### The baseline sidecar
+
+The reference implementations of §2.5 are Python and their dependencies are pinned, because
+they produce recorded measurements: the versions in `sidecar/requirements.txt` are the ones
+the committed `results/baselines-*.json` files record in their own `versions` block.
+
+```sh
+pip install -r sidecar/requirements.txt
+python sidecar/test_baselines.py     # no corpus needed; builds its own feature table
+```
+
+Python 3.12 or 3.13. 3.14 works too, but only because of the `setuptools<81` pin, which is
+load-bearing rather than cautious: `rrcf` imports `pkg_resources` at module load, setuptools
+removed it in 81.0, and 3.14 venvs no longer seed setuptools at all — so on a fresh
+environment `import rrcf` fails with `ModuleNotFoundError`, and `pip install setuptools`
+resolves 84.x and still fails. `rrcf` 0.4.4 is its last release and carries no fix.
+
+`rrcf` is excluded from a default baselines run and must be asked for by name: it costs about
+53 minutes at full corpus density against 0.8–85 seconds for every other model.
+
 ## CERT Insider Threat r5.2
 
 Reference [53]. Second corpus.

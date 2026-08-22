@@ -9,6 +9,23 @@ Equation numbers `(1)`–`(20)`, requirements `R1`–`R6`, and evaluation hypoth
 
 ## [Unreleased]
 
+### Added
+
+- **The baseline sidecar declares and pins its dependencies (#36).**
+  `sidecar/requirements.txt` pins `numpy`, `pandas`, `scikit-learn` and `rrcf` to the versions
+  the committed `results/baselines-*.json` files record in their own `versions` block, so a
+  re-run reproduces those numbers rather than re-resolving to whatever is current. `setuptools<81`
+  is pinned with the reason stated: `rrcf` imports `pkg_resources` at module load, setuptools
+  removed it in 81.0, and Python 3.14 venvs no longer seed setuptools at all, so a fresh
+  environment cannot import the sidecar at all and `pip install setuptools` resolves 84.x and
+  still fails. `rrcf` 0.4.4 is its last release and carries no fix
+- **CI runs the sidecar end to end.** `sidecar/test_baselines.py` existed and nothing ran it,
+  which is why an environment that could not even import the sidecar went undetected. It needs
+  no pytest and no corpus -- it builds its own synthetic feature table -- so the new job is an
+  install and one command
+- **DATA.md states how to reproduce the baselines**, alongside the corpus derivation it already
+  covered, including the supported Python range and why `rrcf` is excluded from a default run
+
 ### Changed
 
 - **The dilution result is replicated on the real campaign, where it is much larger (#39).**

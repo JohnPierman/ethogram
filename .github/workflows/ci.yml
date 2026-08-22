@@ -96,6 +96,31 @@ jobs:
           install-mode: goinstall
           args: --timeout=5m
 
+  sidecar:
+    name: baseline sidecar imports and passes
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: sidecar/requirements.txt
+
+      # The dependencies are pinned to the versions the committed results/baselines-*.json
+      # files record in their `versions` block, so a re-run reproduces those numbers rather
+      # than re-resolving. `setuptools<81` is load-bearing and not a preference: rrcf imports
+      # pkg_resources at module load and setuptools removed it in 81.0, so any environment
+      # resolving a newer setuptools cannot even import the sidecar (#36).
+      - name: install pinned sidecar dependencies
+        run: pip install -r sidecar/requirements.txt
+
+      # An environment that cannot import the sidecar is the failure #36 describes, and it
+      # went undetected because nothing ran this. It needs no pytest and no corpus: the test
+      # builds its own synthetic feature table.
+      - name: baseline sidecar end-to-end
+        run: python sidecar/test_baselines.py
+
   provenance:
     name: published documents are current
     runs-on: ubuntu-latest
