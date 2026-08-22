@@ -123,6 +123,7 @@ var migrations = []string{
 		entity       text     NOT NULL,
 		recent_us    bigint[] NOT NULL,
 		gaps         float8   NOT NULL,
+		gaps_squared float8   NOT NULL,
 		gap_count    float8   NOT NULL,
 		observed     bigint   NOT NULL,
 		last_seen_us bigint   NOT NULL,

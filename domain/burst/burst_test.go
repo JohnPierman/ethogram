@@ -408,54 +408,96 @@ func TestScansSortIntoAUsefulOrder(t *testing.T) {
 	}
 }
 
-// TestTiedArrivalsProduceAUsablePValue is the defect that killed this arm's first corpus run in
-// its first minute: LANL records to the whole second, several of an entity's arrivals share a
-// timestamp, and the recorded span of a window containing them is zero — for which the continuous
-// null returns ln p = −Inf. That is not a p-value, the verdict constructor refuses it, and the
-// replay stops.
+// TestTiedArrivalsCarryNoEvidence is the larger of this arm's two calibration corrections, and it
+// is the one that changed the most.
 //
-// Every window here must come back finite, and a tie must be read as one second rather than as an
-// infinitely improbable instant.
-func TestTiedArrivalsProduceAUsablePValue(t *testing.T) {
+// LANL records to the whole second and one logical action emits several authentication rows, so an
+// entity routinely has many arrivals sharing an instant. The first version of this arm stored them
+// all and floored a zero-length window at one second, calling that the conservative reading. It was
+// not conservative at all: thirty-two arrivals inside one second is astronomically improbable under
+// any renewal null however wide, so the log's own granularity became the most extreme evidence in
+// the corpus. Measured on 230,699 real scored events, the share below 1e-12 was 5.77% with ties
+// floored and 0.021% with ties collapsed.
+//
+// The contract now is that a repeated instant is not stored, so the scan cannot testify about
+// structure the log did not record. Two things must hold: the p-value stays representable, and a
+// run of tied arrivals is not extreme.
+func TestTiedArrivalsCarryNoEvidence(t *testing.T) {
 	s := &burst.State{}
 	at := event.Timestamp(0)
-	// Enough real gaps to clear the sample-size gate.
 	for i := 0; i < 200; i++ {
 		at += 300 * event.Second
 		s.Observe(at, noDecay)
 	}
-	// Then a run of arrivals inside one second, exactly as a corpus records a burst that is
-	// faster than its own clock.
+	held := len(s.Recent)
+	observed := s.Observed
+
+	// Six more rows at the instant of the last arrival, exactly as a corpus records one logon
+	// that produced several authentications.
 	for i := 0; i < 6; i++ {
 		s.Observe(at, noDecay)
+	}
+	if len(s.Recent) != held {
+		t.Errorf("six tied arrivals grew the scan buffer from %d to %d instants; a repeated "+
+			"timestamp must not be stored, or the log's resolution re-enters the statistic",
+			held, len(s.Recent))
+	}
+	if s.Observed != observed {
+		t.Errorf("tied arrivals contributed %d gaps; a zero gap is not evidence about a rate",
+			s.Observed-observed)
 	}
 
 	scan, abstain := burst.Evaluate(s)
 	if abstain != burst.AbstainNone {
-		t.Fatalf("abstained on tied arrivals: %v; the tightest bursts are the ones that "+
-			"produce ties, so falling silent here loses the strongest evidence there is",
-			abstain)
+		t.Fatalf("abstained after tied arrivals: %v", abstain)
 	}
-	t.Logf("six arrivals inside one second: ln p %.2f at window %d over %.0f s",
+	t.Logf("after six tied arrivals: ln p %.4f at window %d over %.0f s",
 		scan.LogP, scan.Window, scan.SpanSeconds)
 
 	if math.IsInf(scan.LogP, 0) || math.IsNaN(scan.LogP) {
 		t.Fatalf("ln p is %g, which no verdict will accept and no result file can carry",
 			scan.LogP)
 	}
-	if math.IsInf(scan.LogMinP, 0) || math.IsNaN(scan.LogMinP) {
-		t.Errorf("the uncorrected ln p is %g", scan.LogMinP)
-	}
 	if scan.SpanSeconds < burst.ResolutionSeconds {
-		t.Errorf("the named span is %.0f s, below the corpus resolution; a tie must be read "+
-			"as the coarsest span the resolution admits, which is the conservative direction",
-			scan.SpanSeconds)
+		t.Errorf("the named span is %.0f s, below the corpus resolution", scan.SpanSeconds)
 	}
-	// It should still be extreme — six arrivals in a second on a five-minute-mean account is
-	// a burst — just finite.
-	if scan.LogP > math.Log(1e-6) {
-		t.Errorf("six arrivals in one second scored ln p %g; flooring the span must not cost "+
-			"the arm its own strongest signal", scan.LogP)
+	// The decisive assertion: a pile of tied rows on an ordinary account must not be extreme.
+	if scan.LogP < math.Log(1e-3) {
+		t.Errorf("six rows sharing one timestamp scored ln p %g. The log cannot resolve "+
+			"structure inside a second, so it cannot testify about it, and treating a tie as "+
+			"a one-second burst is what put 5.77%% of real events below 1e-12", scan.LogP)
+	}
+}
+
+// TestATieHeavyStreamDoesNotPileInTheDeepTail is the same correction measured in aggregate rather
+// than at one event, on the shape a real corpus actually has: an ordinary rhythm where each arrival
+// brings a handful of rows at the same instant.
+func TestATieHeavyStreamDoesNotPileInTheDeepTail(t *testing.T) {
+	rng := rand.New(rand.NewPCG(19, 19))
+	s := &burst.State{}
+	at := event.Timestamp(0)
+	scans, deep := 0, 0
+	for i := 0; i < 20_000; i++ {
+		at += event.Timestamp(math.Ceil(rng.ExpFloat64()*300)) * event.Second
+		// One logon, four rows.
+		for r := 0; r < 4; r++ {
+			s.Observe(at, noDecay)
+			scan, abstain := burst.Evaluate(s)
+			if abstain != burst.AbstainNone {
+				continue
+			}
+			scans++
+			if scan.LogP <= math.Log(1e-12) {
+				deep++
+			}
+		}
+	}
+	t.Logf("%d scans over a tie-heavy stream, %d below 1e-12 (%.4f%%)", scans, deep,
+		100*float64(deep)/float64(scans))
+	if share := float64(deep) / float64(scans); share > 0.0005 {
+		t.Errorf("%.4f%% of scans below 1e-12 on a stream whose only unusual feature is that "+
+			"the log repeats a timestamp. That is the log being scored rather than the "+
+			"entity", 100*share)
 	}
 }
 

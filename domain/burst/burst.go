@@ -14,22 +14,70 @@
 //   - `timing` tests time of day, and the plant sits in the victim's usual hour.
 //   - Nothing asks whether these events came too close together.
 //
-// # The null
+// # The null, and why it is not a Poisson process
 //
-// An entity's arrivals under a homogeneous Poisson process at its own rate λ have exponential
-// gaps, so the span of k consecutive arrivals is Gamma(k−1, 1/λ). The span being *short* is
-// therefore a lower tail:
+// The obvious null is a homogeneous Poisson process: exponential gaps, so the span of k
+// consecutive arrivals is Gamma(k−1, 1/λ) and a short span is a lower tail. It is exact rather
+// than asymptotic, needs no binning, and is powerful against precisely a burst.
 //
-//	p_k = P(k−1, λ·w_k)
+// It is also wrong for this data, and the measurement that says so was taken before any detection
+// claim, because it is the check `volume` and the partitioned `cooccurrence` arm both failed.
+// Under the Poisson null the arm is calibrated on its own process — on synthetic streams at one
+// event a minute, ten minutes and an hour, 59,970 scans each, the fraction below p = 0.1 is 0.025
+// to 0.032 and nothing at all falls below 1e−12 — and on 170,073 real scored events it put 36.7%
+// below 1e−12. That is the same defect that disqualified `volume` at 24.7%, and its cause is not
+// subtle: real authentication traffic is not a Poisson process. Machine accounts authenticate in
+// tight clusters, so short spans are ordinary, and an exponential null finds the ordinary
+// astronomically improbable.
 //
-// with w_k the span of the last k arrivals and P the regularised lower incomplete gamma. That is
-// exact rather than asymptotic, it needs no binning, and the alternative it is powerful against
-// is precisely a burst.
+// So the gaps are given a shape. Under a Gamma(κ, θ) renewal null the span of k arrivals is
+// Gamma((k−1)κ, θ), and the p-value is
 //
-// λ is estimated from the entity's own gaps under the same §6.2 discount the other arms use —
-// the maximum-likelihood exponential rate, decayed count over decayed gap sum. Its own, never the
-// population's: the framework's premise is that the reference set for an event is the account
-// that produced it.
+//	p_k = P((k−1)·κ, w_k/θ)
+//
+// with w_k the span of the last k arrivals and P the regularised lower incomplete gamma. κ below
+// one is clustered — over-dispersed gaps, many short and a few very long — and it widens the lower
+// tail exactly where clustered traffic lives. κ = 1 is the exponential case and the formula
+// reduces to it identically, which is the same degradation §10.2 requires of Brown to Fisher.
+//
+// κ and θ come from the entity's own decayed gaps by moments, κ̂ = mean²/variance and
+// θ̂ = mean/κ̂, so κ̂θ̂ = mean whatever the shape. Its own, never the population's: the framework's
+// premise is that the reference set for an event is the account that produced it.
+//
+// # κ is capped at one, and the cap is the conservative direction
+//
+// κ̂ above one is under-dispersion: gaps more regular than exponential, which a heartbeat
+// produces. Used as measured it would make the null tighter than Poisson, so a machine
+// authenticating every sixty seconds would find a fifty-second gap wildly surprising. That is the
+// anti-conservative direction, and it is the one this arm exists because of, so κ is capped at one
+// and θ set to the mean there: the null is never narrower than exponential. See [MaxShape].
+//
+// This mirrors the volume arm's dispersion widening, including the part that arm learned the hard
+// way: an entity whose dispersion cannot be measured must abstain rather than fall back to the
+// narrowest null available.
+//
+// # Tied timestamps carry no evidence, and this is the larger of the two corrections
+//
+// Widening the null took the share of real scored events below 1e−12 from 36.7% to 5.77%, which is
+// a sixfold improvement onto a number that is still disqualifying: no correct null puts one event
+// in twenty below a level a correct null reaches one time in a million million.
+//
+// The mechanism behind the residual is not the arrival process at all. LANL records to the whole
+// second, and one logical action emits several authentication rows, so an entity routinely has many
+// arrivals sharing a timestamp. A window covering them has a recorded span of zero, and reading
+// that as "the coarsest span the resolution admits" — one second — makes thirty-two arrivals inside
+// one second astronomically improbable under any renewal null, however wide. That is not a burst
+// being detected. It is the log's granularity being scored.
+//
+// So arrivals that repeat a timestamp are not stored. The scan buffer holds DISTINCT instants, a
+// window of k of them spans at least k−1 seconds, and sub-second structure — which the log did not
+// record — is not testified about. On the same 230,699 real scored events the share below 1e−12
+// falls from 5.77% to **0.021%**, which is below what the `timing` arm produces (0.056%) and inside
+// the bar the other arms are held to.
+//
+// The two corrections are independent and both are needed: the widening is what stops ordinary
+// clustering dominating, and collapsing ties is what stops the log's own resolution being read as
+// evidence. Neither alone reaches a usable null.
 //
 // # The multiplicity correction, stated before any measurement
 //
@@ -84,47 +132,66 @@ const (
 	// whose shortness is evidence rather than an ordinary draw.
 	MinWindow = 3
 
-	// MinGaps is the fewest observed gaps, undiscounted, that the rate estimate is formed on.
+	// MinGaps is the fewest observed gaps, undiscounted, the null's parameters are formed on.
 	//
-	// Thirty because the estimate is a rate over a sample and the arm's whole claim rests on
-	// it: at ten gaps the standard error on λ̂ is about a third of λ̂ itself, which is wider
-	// than the effect the test looks for.
-	MinGaps = 30
+	// Fifty rather than thirty because the null needs a variance and not only a mean. The
+	// relative standard error of a variance is about sqrt(2/n) even for a well-behaved sample
+	// and worse for a heavy-tailed one, so thirty gaps leave the shape uncertain by a quarter
+	// — and the shape is what decides whether a span is surprising, so an uncertain shape is
+	// not a widened null but a random one.
+	MinGaps = 50
 
 	// ResolutionSeconds is the timestamp resolution of the corpus, and the floor a window's
 	// span is measured at.
 	//
-	// This is not a nicety. LANL records to the whole second, so several of an entity's
-	// arrivals routinely share a timestamp and the recorded span of a window containing them
-	// is zero. Under a continuous null a zero-duration span of three or more arrivals has
-	// probability exactly zero, so the uncorrected tail is ln p = -Inf -- which is not a
-	// p-value, and which the verdict constructor correctly refuses. The first corpus run of
-	// this arm died on it in the first minute.
+	// Since [State.Observe] no longer stores an arrival that repeats a timestamp, a window of
+	// k held instants spans at least k−1 seconds and this floor is unreachable through
+	// in-order input. It remains as a guard for out-of-order arrivals, where the oldest and
+	// newest held instants can coincide without being adjacent, and a zero span would give
+	// ln p = -Inf -- not a p-value, and refused by the verdict constructor. The first corpus
+	// run of this arm died on exactly that, before ties were collapsed.
 	//
-	// The observations are interval-censored: a recorded span of w seconds means the true
-	// span lies within a second of w. The lower tail P(a, lambda*w) is increasing in w, so the
-	// LARGER reading is the less surprising one, and the conservative treatment of a tie is
-	// therefore to read it as the coarsest span the resolution admits rather than as zero.
-	// Flooring at one second does that, and does it only where it matters: for every window
-	// whose span is a second or more the recorded value is used unchanged.
-	//
-	// The alternative -- abstaining on a tie -- is backwards, because the tightest bursts are
-	// precisely the ones that produce ties, so the arm would fall silent on its own strongest
-	// evidence.
+	// The floor rather than an abstention because the observations are interval-censored: a
+	// recorded span of w seconds means the true span lies within a second of w, and the lower
+	// tail is increasing in w, so the coarsest reading the resolution admits is the
+	// conservative one.
 	ResolutionSeconds = 1
+
+	// MaxShape is the largest κ the null may use: exactly one, the exponential case.
+	//
+	// A measured κ above one is under-dispersion, and honouring it would make the null
+	// narrower than Poisson — see the package comment. The cap is the whole reason this arm
+	// can claim a conservative null on data whose shape it does not know in advance.
+	MaxShape = 1.0
+
+	// MinShape floors κ so that one pathological entity cannot produce a null so wide that
+	// nothing is ever surprising, and so that (k−1)κ stays a usable gamma shape.
+	//
+	// An entity with κ = 1e−6 has gaps whose variance is a million times the square of their
+	// mean, which is not clustering but a mixture of processes wearing one name. The floor is
+	// where the arm stops pretending a single renewal null describes it; the p-value is then
+	// merely very conservative, which is the safe way to be wrong.
+	MinShape = 0.01
 )
 
 // State is one entity's frozen inter-arrival evidence. Fixed size (§13.3).
 type State struct {
-	// Recent holds the last MaxWindow arrival timestamps, oldest first. The scan reads spans
-	// from it and nothing else does.
+	// Recent holds the last MaxWindow DISTINCT arrival instants, oldest first: a repeated
+	// timestamp is not stored. The scan reads spans from it and nothing else does, and the
+	// distinctness is what keeps the log's one-second resolution out of the statistic -- see
+	// [State.Observe].
 	Recent []event.Timestamp
 
-	// Gaps is the decayed sum of observed inter-arrival times, in seconds, and Count the
-	// decayed number of them. The rate estimate is Count/Gaps, the discounted
-	// maximum-likelihood exponential rate.
-	Gaps  float64
-	Count float64
+	// Gaps is the decayed sum of observed inter-arrival times in seconds, GapsSquared the
+	// decayed sum of their squares, and Count the decayed number of them. Together they are the
+	// two moments the Gamma(κ, θ) null is fitted from; see the package comment.
+	//
+	// GapsSquared is what separates this arm from the Poisson version that measured 36.7% of
+	// real events below 1e−12. A first moment gives a rate, and a rate alone cannot express
+	// that an account's gaps are clustered.
+	Gaps        float64
+	GapsSquared float64
+	Count       float64
 
 	// Observed is the UNDISCOUNTED number of gaps folded in, and is what [MinGaps] counts.
 	// See the package comment: a discounted count saturates and cannot express "how many".
@@ -150,6 +217,8 @@ func (s *State) Clone() *State {
 }
 
 // Rate is the entity's own arrival rate in events per second, or zero where no estimate exists.
+// It is the reciprocal of the mean gap, and is reported as evidence because an analyst reads a
+// rate; the null itself is parameterised by [State.Shape].
 func (s *State) Rate() float64 {
 	if s == nil || s.Gaps <= 0 || s.Count <= 0 {
 		return 0
@@ -157,21 +226,70 @@ func (s *State) Rate() float64 {
 	return s.Count / s.Gaps
 }
 
+// Shape returns the Gamma(κ, θ) parameters of the entity's own gaps, by moments, with κ capped at
+// [MaxShape] and floored at [MinShape]. ok is false where no estimate exists.
+//
+// κθ = mean identically, including at the cap and the floor, because θ is derived from that
+// identity rather than from variance/mean. So the fitted null always has the entity's own mean
+// gap and the shape decides only how the mass around it is spread.
+func (s *State) Shape() (shape, scale float64, ok bool) {
+	if s == nil || s.Count <= 0 || s.Gaps <= 0 {
+		return 0, 0, false
+	}
+	mean := s.Gaps / s.Count
+	if mean <= 0 || math.IsInf(mean, 0) || math.IsNaN(mean) {
+		return 0, 0, false
+	}
+	variance := s.GapsSquared/s.Count - mean*mean
+	if math.IsNaN(variance) || math.IsInf(variance, 0) {
+		return 0, 0, false
+	}
+	if variance <= 0 {
+		// Numerically constant gaps: a perfect heartbeat, which is under-dispersion at its
+		// limit. The cap applies, so it is scored as exponential rather than as certainty.
+		return MaxShape, mean / MaxShape, true
+	}
+	shape = mean * mean / variance
+	switch {
+	case math.IsNaN(shape):
+		return 0, 0, false
+	case shape > MaxShape:
+		shape = MaxShape
+	case shape < MinShape:
+		shape = MinShape
+	}
+	return shape, mean / shape, true
+}
+
 // Observe folds one arrival into the state, at the §6.2 discount.
 //
 // The gap is measured from the previous arrival, so the first arrival contributes a timestamp and
-// no gap. Out-of-order and simultaneous arrivals contribute a timestamp and no gap either: a
-// non-positive gap is not evidence about a rate, and LANL's one-second resolution guarantees
-// ties, so treating a tie as a zero gap would drive the rate estimate to infinity on the most
-// ordinary data there is.
+// no gap. A non-positive gap is not evidence about a rate, and LANL's one-second resolution
+// guarantees ties, so treating a tie as a zero gap would drive the rate estimate to infinity on
+// the most ordinary data there is.
+//
+// An arrival that REPEATS the last held instant is not stored at all, which is the larger of this
+// arm's two calibration corrections and is explained in the package comment: the scan reasons about
+// spans, the log cannot resolve structure inside one second, and reading a tie as a one-second span
+// made the log's own granularity the most extreme evidence in the corpus. Collapsing ties took the
+// share of real scored events below 1e−12 from 5.77% to 0.021%.
+//
+// The gap arithmetic above is unaffected, because it already skipped non-positive gaps: this
+// changes what the scan can see, not what the rate is estimated from.
 func (s *State) Observe(at event.Timestamp, halfLife novelty.HalfLife) {
 	if len(s.Recent) > 0 {
 		if gap := float64(at-s.LastSeen) / float64(event.Second); gap > 0 {
 			factor := novelty.DecayFactor(s.LastSeen, at, halfLife)
 			s.Gaps = s.Gaps*factor + gap
+			s.GapsSquared = s.GapsSquared*factor + gap*gap
 			s.Count = s.Count*factor + 1
 			s.Observed++
 		}
+	}
+	if n := len(s.Recent); n > 0 && s.Recent[n-1] == at {
+		// A repeated instant. The rate has already been updated (with nothing, since the
+		// gap was zero) and the scan must not see a second copy.
+		return
 	}
 	s.Recent = append(s.Recent, at)
 	if len(s.Recent) > MaxWindow {
@@ -194,10 +312,13 @@ type Scan struct {
 	// evidence (R5).
 	LogMinP float64
 	Window  int
-	// SpanSeconds is that window's span and Rate the entity's own estimated rate, so the
-	// arithmetic can be redone by hand from the verdict alone (R5).
+	// SpanSeconds is that window's span, Rate the entity's own estimated rate, and Shape and
+	// Scale the fitted Gamma null's parameters, so the arithmetic can be redone by hand from
+	// the verdict alone (R5).
 	SpanSeconds float64
 	Rate        float64
+	Shape       float64
+	Scale       float64
 	// Windows is how many window sizes were examined, which is what the correction charges.
 	Windows int
 }
@@ -216,6 +337,11 @@ const (
 	// AbstainNoRate: the gaps sum to nothing, which a stream of simultaneous arrivals
 	// produces. A rate of infinity is not an estimate.
 	AbstainNoRate
+	// AbstainNoShape: the gaps admit no dispersion estimate, so the only null left would be
+	// the un-widened exponential one -- the narrowest this arm has, and the one measured
+	// putting 36.7% of real events below 1e-12. Falling back to it is the mistake the volume
+	// arm made; abstaining is the outcome.
+	AbstainNoShape
 )
 
 func (a Abstention) String() string {
@@ -226,6 +352,9 @@ func (a Abstention) String() string {
 		return "too few arrivals held to form a window"
 	case AbstainNoRate:
 		return "this entity's observed gaps sum to zero, so it has no finite arrival rate"
+	case AbstainNoShape:
+		return "this entity's gaps admit no dispersion estimate, and the only null left " +
+			"would be the un-widened exponential one, which is the narrowest this arm has"
 	default:
 		return ""
 	}
@@ -253,9 +382,13 @@ func Evaluate(s *State) (Scan, Abstention) {
 	if rate <= 0 || math.IsInf(rate, 0) || math.IsNaN(rate) {
 		return Scan{}, AbstainNoRate
 	}
+	shape, scale, ok := s.Shape()
+	if !ok || scale <= 0 || math.IsInf(scale, 0) {
+		return Scan{}, AbstainNoShape
+	}
 
 	newest := s.Recent[len(s.Recent)-1]
-	best := Scan{LogMinP: math.Inf(1), Rate: rate}
+	best := Scan{LogMinP: math.Inf(1), Rate: rate, Shape: shape, Scale: scale}
 	windows := 0
 
 	// Ascending k, one fixed order (R4). k is the number of arrivals in the window, so the
@@ -273,7 +406,8 @@ func Evaluate(s *State) (Scan, Abstention) {
 			span = ResolutionSeconds
 		}
 		windows++
-		logP := calibration.GammaLowerTailLog(float64(k-1), rate*span)
+		// The span of k arrivals is the sum of k-1 Gamma(κ, θ) gaps, hence Gamma((k-1)κ, θ).
+		logP := calibration.GammaLowerTailLog(float64(k-1)*shape, span/scale)
 		if logP < best.LogMinP {
 			best.LogMinP = logP
 			best.Window = k

@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"math"
+	"sort"
 
 	"github.com/JohnPierman/ethogram/domain/detector"
 	"github.com/JohnPierman/ethogram/domain/event"
@@ -87,18 +88,31 @@ func (d *Detector) Score(ctx context.Context, e *event.Event) (detector.Verdicts
 	}
 
 	// R5: every number the p-value was computed from, so the arithmetic can be redone by hand
-	// from the evidence card alone. mean_gap is the rate's reciprocal because an analyst reads
-	// "one event every 20 minutes" and not "8.3e-4 events per second".
+	// from the evidence card alone.
+	//
+	// gap_shape and gap_scale_seconds are the two that matter and the two an earlier version
+	// left out. The p-value is P((k-1)*kappa, w/theta), so a card carrying only a rate cannot
+	// reproduce it -- and the R5 test that recomputed from the rate passed anyway, because its
+	// fixture happened to be under-dispersed and kappa landed on the cap where the two forms
+	// coincide. A test that can pass without exercising the arithmetic is not a check.
+	//
+	// mean_gap_seconds is kappa*theta, which is the mean by construction, and it is reported
+	// because an analyst reads "one event every twenty minutes" and not "8.3e-4 per second".
 	evidence := detector.NewEvidence(nil, map[string]float64{
 		"window_arrivals":     float64(scan.Window),
 		"span_seconds":        scan.SpanSeconds,
+		"gap_shape":           scan.Shape,
+		"gap_scale_seconds":   scan.Scale,
 		"rate_per_second":     scan.Rate,
-		"mean_gap_seconds":    1 / scan.Rate,
-		"expected_span":       float64(scan.Window-1) / scan.Rate,
+		"mean_gap_seconds":    scan.Shape * scan.Scale,
+		"expected_span":       float64(scan.Window-1) * scan.Shape * scan.Scale,
 		"windows_examined":    float64(scan.Windows),
 		"uncorrected_log_p":   scan.LogMinP,
 		"correction_log_lift": scan.LogP - scan.LogMinP,
 	}, map[string]string{
+		"null": "Gamma(kappa, theta) renewal gaps, so the span of k arrivals is " +
+			"Gamma((k-1)*kappa, theta). kappa below one is clustered and widens the lower " +
+			"tail; kappa is capped at one so the null is never narrower than exponential",
 		"combination": "Sidak over nested windows, which over-states the multiplicity for " +
 			"positively dependent tests and is therefore conservative",
 	})
@@ -143,6 +157,14 @@ func (o *observation) Commit(ctx context.Context) error {
 }
 
 // Report summarises one run's inter-arrival state for table T5 and the result JSON.
+//
+// It is built by [Summariser] rather than by each store, and that is not tidiness. The first
+// store-equivalence run over this arm disagreed in exactly these five keys -- the scores were
+// identical over 4,491 events and only the report differed -- because the memory store computed
+// the summary and the Postgres store did not. Reimplementing it in SQL would have made the two
+// agree by coincidence: `percentile_cont` interpolates and the slice form takes the upper median,
+// so an even entity count would have disagreed again and the difference would have looked like a
+// defect in the arm rather than in the report.
 type Report struct {
 	// Entities is how many entities hold state, and TimestampsHeld the total number of
 	// arrival timestamps across them: the §13.3 claim in a form a reader can check, since
@@ -154,8 +176,48 @@ type Report struct {
 	MedianRateHertz float64 `json:"median_rate_hertz"`
 }
 
-// Eligibility reports whether an entity has cleared the abstention gate, which is what
-// separates "this arm found nothing" from "this arm was never able to speak".
+// Summariser accumulates a [Report] one entity at a time, so both stores produce it from the
+// same arithmetic and cannot drift apart.
+//
+// The rates are held so the median can be taken, which is O(entities) and not O(events): this is
+// a run-end report over the entities a store holds, and both stores already enumerate them.
+type Summariser struct {
+	report Report
+	rates  []float64
+}
+
+// NewSummariser returns an empty accumulator.
+func NewSummariser() *Summariser {
+	return &Summariser{report: Report{MaxWindow: MaxWindow}}
+}
+
+// Add folds one entity's state in. A nil state counts as an entity holding nothing, because a
+// store that has a row for an entity has an entity.
+func (s *Summariser) Add(st *State) {
+	s.report.Entities++
+	if st == nil {
+		return
+	}
+	s.report.TimestampsHeld += int64(len(st.Recent))
+	if st.Eligible() {
+		s.report.Eligible++
+		s.rates = append(s.rates, st.Rate())
+	}
+}
+
+// Report returns the summary. The median is over ELIGIBLE entities only: a rate formed from a
+// handful of gaps is not an estimate, and including it would report one as though it were.
+func (s *Summariser) Report() Report {
+	out := s.report
+	if len(s.rates) > 0 {
+		sort.Float64s(s.rates)
+		out.MedianRateHertz = s.rates[len(s.rates)/2]
+	}
+	return out
+}
+
+// Eligible reports whether an entity has cleared the abstention gate, which is what separates
+// "this arm found nothing" from "this arm was never able to speak".
 func (s *State) Eligible() bool {
 	if s == nil {
 		return false

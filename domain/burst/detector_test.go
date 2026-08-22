@@ -250,14 +250,23 @@ func TestTheGateIsOnUndiscountedGapsThroughTheDetector(t *testing.T) {
 
 // --- R5 --------------------------------------------------------------------
 
-// TestTheEvidenceLetsTheArithmeticBeRedone is R5. The evidence card must carry every number the
-// p-value was computed from, and the check is the strong one: recompute the p-value from the card
-// alone and compare.
+// TestTheEvidenceLetsTheArithmeticBeRedone is R5, and the check is the strong one: recompute the
+// p-value from the card alone and compare.
+//
+// The fixture is deliberately OVER-dispersed and the test asserts kappa below the cap, because the
+// first version of this test used an under-dispersed one. kappa landed on MaxShape, where
+// P((k-1)*kappa, w/theta) and the old P(k-1, rate*w) coincide exactly, so the test recomputed from
+// the rate and passed without ever exercising the arithmetic the arm actually runs.
 func TestTheEvidenceLetsTheArithmeticBeRedone(t *testing.T) {
 	store := newStateStore(false)
 	d := NewDetector(store, forever)
-	// A quiet account, then a burst.
-	at := establish(t, d, "frank", 0, 1200, 60)
+	// Clustered: pairs a minute apart with an hour between them, so the gaps are a two-
+	// component mixture and kappa comes out well below one.
+	at := int64(0)
+	for i := 0; i < 60; i++ {
+		at = establish(t, d, "frank", at, 3600, 1)
+		at = establish(t, d, "frank", at, 60, 1)
+	}
 	at = establish(t, d, "frank", at, 90, 11)
 
 	verdicts, _, err := d.Score(context.Background(), newTestEvent("frank", at+90))
@@ -270,16 +279,23 @@ func TestTheEvidenceLetsTheArithmeticBeRedone(t *testing.T) {
 	}
 	stats := verdicts[0].Evidence().Stats
 
-	for _, want := range []string{"window_arrivals", "span_seconds", "rate_per_second",
-		"windows_examined", "uncorrected_log_p"} {
+	for _, want := range []string{"window_arrivals", "span_seconds", "gap_shape",
+		"gap_scale_seconds", "rate_per_second", "windows_examined", "uncorrected_log_p"} {
 		if _, present := stats[want]; !present {
-			t.Fatalf("the evidence does not report %q", want)
+			t.Fatalf("the evidence does not report %q, so the card cannot reproduce the "+
+				"p-value", want)
 		}
 	}
+	if stats["gap_shape"] >= MaxShape {
+		t.Fatalf("kappa is %g, at the cap: at the cap the fitted and exponential forms "+
+			"coincide, so this fixture cannot tell whether the card reproduces the "+
+			"arithmetic the arm ran", stats["gap_shape"])
+	}
 
-	// Redo it: the lower incomplete gamma at k−1 and rate*span, then Sidak over the windows.
+	// Redo it from the card: Gamma((k-1)*kappa, theta) lower tail, then Sidak.
 	k := stats["window_arrivals"]
-	redoneMin := calibration.GammaLowerTailLog(k-1, stats["rate_per_second"]*stats["span_seconds"])
+	redoneMin := calibration.GammaLowerTailLog((k-1)*stats["gap_shape"],
+		stats["span_seconds"]/stats["gap_scale_seconds"])
 	if math.Abs(redoneMin-stats["uncorrected_log_p"]) > 1e-9*math.Abs(redoneMin) {
 		t.Errorf("recomputing the uncorrected tail from the card gives %g, the card says %g",
 			redoneMin, stats["uncorrected_log_p"])
@@ -290,14 +306,20 @@ func TestTheEvidenceLetsTheArithmeticBeRedone(t *testing.T) {
 			redone, logP)
 	}
 
-	// And the reported mean gap must be the rate's reciprocal, since that is the form an
-	// analyst actually reads.
-	if got, want := stats["mean_gap_seconds"], 1/stats["rate_per_second"]; got != want {
-		t.Errorf("mean_gap_seconds is %g, want %g", got, want)
+	// And the two derived conveniences must be consistent with the parameters they come from,
+	// or a reader checking the card by hand finds it contradicting itself.
+	if got, want := stats["mean_gap_seconds"],
+		stats["gap_shape"]*stats["gap_scale_seconds"]; math.Abs(got-want) > 1e-9*want {
+		t.Errorf("mean_gap_seconds is %g, want kappa*theta = %g", got, want)
 	}
-	t.Logf("ln p %.2f from %d arrivals over %.0f s at %.2e/s across %d windows",
-		logP, int(k), stats["span_seconds"], stats["rate_per_second"],
-		int(stats["windows_examined"]))
+	if got, want := stats["mean_gap_seconds"],
+		1/stats["rate_per_second"]; math.Abs(got-want) > 1e-6*want {
+		t.Errorf("the card's mean gap %g and its rate %g disagree", got,
+			stats["rate_per_second"])
+	}
+	t.Logf("ln p %.2f from %d arrivals over %.0f s, kappa %.3f theta %.0f s, %d windows",
+		logP, int(k), stats["span_seconds"], stats["gap_shape"],
+		stats["gap_scale_seconds"], int(stats["windows_examined"]))
 }
 
 // --- errors and identity ---------------------------------------------------

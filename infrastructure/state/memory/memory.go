@@ -439,20 +439,11 @@ func (s *BurstStore) SaveState(_ context.Context, src event.SourceID, en event.E
 // cleared the abstention gate. An arm reporting no detections is a different claim from an
 // arm that was never eligible to make one, and only the second is a gap in coverage.
 func (s *BurstStore) Report() burst.Report {
-	r := burst.Report{Entities: int64(len(s.states)), MaxWindow: burst.MaxWindow}
-	rates := make([]float64, 0, len(s.states))
+	sum := burst.NewSummariser()
 	for _, st := range s.states {
-		r.TimestampsHeld += int64(len(st.Recent))
-		if st.Eligible() {
-			r.Eligible++
-			rates = append(rates, st.Rate())
-		}
+		sum.Add(st)
 	}
-	if len(rates) > 0 {
-		slices.Sort(rates)
-		r.MedianRateHertz = rates[len(rates)/2]
-	}
-	return r
+	return sum.Report()
 }
 
 // Entities reports the number of entities held, for table T5.

@@ -472,12 +472,12 @@ store-equivalence:
 	$(GO) run ./cmd/replay -auth $(INJECT_CORPUS) -redteam $(COMBINED_LABELS) \
 	  -out $(STORE_EQ_MEMORY) -run-id store-equivalence-memory-r$(STORE_EQ_ROWS)-001 \
 	  -store memory -maxrows $(STORE_EQ_ROWS) -burnin $(STORE_EQ_BURNIN) \
-	  -topk 100 -budgets 10,100 -conformal -pairing -novelty-rate -drift
+	  -topk 100 -budgets 10,100 -conformal -pairing -novelty-rate -drift -burst
 	$(GO) run ./cmd/replay -auth $(INJECT_CORPUS) -redteam $(COMBINED_LABELS) \
 	  -out $(STORE_EQ_POSTGRES) -run-id store-equivalence-postgres-r$(STORE_EQ_ROWS)-001 \
 	  -store postgres -dsn "$(STORE_EQ_DSN)" -store-truncate \
 	  -maxrows $(STORE_EQ_ROWS) -burnin $(STORE_EQ_BURNIN) \
-	  -topk 100 -budgets 10,100 -conformal -pairing -novelty-rate -drift
+	  -topk 100 -budgets 10,100 -conformal -pairing -novelty-rate -drift -burst
 	$(GO) run ./cmd/storeequivalence -first $(STORE_EQ_MEMORY) -second $(STORE_EQ_POSTGRES)
 
 .PHONY: store-equivalence-check

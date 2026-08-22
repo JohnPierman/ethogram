@@ -180,11 +180,23 @@ func newStateStores(ctx context.Context, kind storeKind, dsn string, truncate bo
 		novelty:     store.Novelty(),
 		noveltyRate: store.NoveltyRate(),
 		burst:       store.Burst(),
-		timing:      store.Timing(),
-		volume:      store.Volume(),
-		drift:       store.Drift(),
-		marginal:    store.Marginal(),
-		graph:       graph,
+		burstReport: func() burst.Report {
+			// The equivalence comparison requires this to be present under BOTH stores,
+			// and the first run over this arm failed on exactly that: the report was
+			// computed in memory and absent through Postgres, so five keys existed on one
+			// side only. A read failure here yields an empty report rather than a panic,
+			// and the empty entity count is itself visible in the result.
+			r, err := store.BurstReport(ctx)
+			if err != nil {
+				return burst.Report{}
+			}
+			return r
+		},
+		timing:   store.Timing(),
+		volume:   store.Volume(),
+		drift:    store.Drift(),
+		marginal: store.Marginal(),
+		graph:    graph,
 		counts: func(ctx context.Context) map[string]any {
 			out := map[string]any{}
 			for name, count := range map[string]func() (int64, error){

@@ -175,6 +175,11 @@ func TestEveryPersistedFieldHasAColumn(t *testing.T) {
 				// `count` is a reserved-looking word in SQL and reads as an aggregate, so
 				// the decayed gap count is spelled out.
 				"Count": "gap_count",
+				// The second moment. Without it a restart loses the DISPERSION and the
+				// arm falls back to the exponential null -- the narrowest it has, and the
+				// one measured putting 36.7% of real events below 1e-12. Losing a moment
+				// is not losing resolution here; it is silently changing the null.
+				"GapsSquared": "gaps_squared",
 				// The UNDISCOUNTED gap count, and the one that matters most here: it is
 				// what the abstention gate reads, and a schema carrying only the decayed
 				// `gap_count` would reintroduce the #37 defect on the first restart --
